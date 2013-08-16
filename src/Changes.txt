@@ -1,0 +1,479 @@
+Notes for pre release versions V003.*
+
+---------------------
+July 2013
+-commented out compile time variable in makefile passing to the version string
+ this did not work with all compilers.  The code is there and can be re-arranged by a
+ user if they like.  Affected files param.f90, rdrv40.f90, makefile.  No change in
+ versions number.
+- update character definitions remove *N to (len=N)
+- add interface for galatry, betat and voigt in xsection.f90
+
+
+---------------------
+June 2013
+- added isotopes 6,7,8 to N2O for ggg linelist
+- changed XCS_DEBUG to XSC_DETAIL (was to be same switch anyway)
+
+
+---------------------
+June 2013 Mathias Palm
+
+makefile
+- build date is included automatically
+
+writeout.f90
+- write out gain matrix
+
+diagnostics.f90
+- modified the calculation of G depending of using Levenberg Marquardt
+  or Gauss Newton
+
+frwdmdl.f90
+- fixed a bug for calculation of analytic K-matrix when using emission
+
+
+Mai 2013
+
+- Introduced key kb.gas for calculation of Kb matrices for profile changes if gases are
+  retrieved as a column.
+- moved the test if gas.layers is consistent with the number of layers
+  in station.layers and isotope.inp. It was possible to have these
+  numbers differ if there are no gases retrieved as a profile.
+- fixed a problem n binput_parse_4.0.f90 related to the ordering of
+input of  scale factors
+- cleaned up the solar shift.
+
+
+---------------------
+15 May 2013 v0.9.2.1
+- fixed bug in opening sa.input file - wrong lun
+- use apodization and phase function switches synspec.f90
+- defeat ieap if f_eapod not set, readin.f90
+- defeat iephs if f_eaphs not set, readin.f90
+- use switches F_RTPHASE, F_RTAPOD & IFDIFF, frwdmdl.f90
+- defeat izero if f_zshift not set, readin.f90
+- defeat isparm if f_wshift not set, readin.f90
+- defeat ifoff if correlate not set, readin.f90, opt.f90
+- defeat tretb(i) if iftemp is false, readin.f90
+- added check to stop gas in nret array not retrieved in a band, readin.f90
+
+---------------------
+1 May 2013 V0.9.2 merge with 20130502
+- check order of column and profile gases, binput_parser_4_0
+- fixed a problem related to the ordering of input of  scale factors, binput_parse_4.0.f90
+- fixed the ominous SVAR problem, frwrdmdl.f90
+
+
+---------------------
+1 May 2013 V0.9
+- Revised version for general testing after major revisions to input and output
+- rename GASOUTLEVL to OUTPUTLEVL
+- added raytrace output type for levels of verbosity
+- added RAYOUTTYPE & raytrace.type to .ctl - not fully implemented
+- added check for requiring scale and sigma for column retrieval
+- changed tag names in kb section to match new names in rt section
+- set up testcase CO2@930, O2@1000 & HCOOH@1104
+
+
+---------------------
+Merged p1.7 with Mathias 20130329
+
+-Separated profile from column retrieval gases in sfit4.ctl
+-Added scaling of profile for profile target (after raytracing) - may be an issue for water...
+
+------------------------
+March 2013 version p1.7
+-Merged p1.6 with MP-20130311
+-Changed more sfit4.ctl tag names to more understandable from original fortran variable names
+-Added stop check if a column retrieval gas is before a profile in gas retrieval list
+-Provide a vmr scale factor to initial profile for a profile retrieval (like columns)
+
+------------------------
+March 2013 version p1.6
+-Fixed bug that a not fit channel parameter was set to 0 not apriori
+-Fixed solar shift parmeter en/decoding
+-Edited detail file
+-Shortened last channel name (pname) that was > 14char
+-Moved initialization of SA to FILSA() in initialize.f90 from sfit400.f90
+-Update tags in sfit4.ctl
+-Update default names of output fles
+-Added file.in & file.out section in sfit4.ctl
+-Changed ifdiff to logical
+
+
+------------------------
+March 2013
+Mathias Palm
+
+General
+
+Cleaned up definition of solar parameters.
+
+sfit4.ctl
+
+- added stop when an apriori covariance value found to be zero
+
+sfit400.f90
+-modified write out of KB so that the file does not contain the transposed Kb-matrix
+-introduced TOBS_ORIG in order to reproduce RMS for KB run of forward
+ model. The reason is a different normalisation schemes in sfit400.f90
+ and fm.f90
+
+frwdmdl.f90
+-spectra by gas in type 2 only written if all parameters have been changed
+-changed solar parameters so that apriori = 0.000 means use given value
+-changed opd and fov parameters so that apriori = 0.000 means use given value
+-corrected counting for modyifing SZSA
+-spc.GAS ... ALL is not the sum of the spectra of the single spectra
+- fixed a bug in calculating the solar spectra.
+
+binput_parse_4.0.f90
+- changed rt.iflm back to rt.lm. The key rt.iflm is not necessary and disagrees with the "philosophy"
+  of the sfit4.ctl, besides all other retrieval keys have no if... key
+
+writeout.f90
+- changed tags in summary so that the naming os more consistent
+- error matrix due to measurement error written out in out.level = 1
+
+
+------------------------
+Feb 2013 p1.5
+
+-Fixed bug on the re-normalisation.
+-Added prepspec (now pspec) to src directory to read sfit4.ctl bands
+-Edited the input tags differentiating input and output files
+-Separating switches for output from their re-naming
+-Edited default names to be more descriptive
+-Made several more arrays dynamic and cleaned up de-allocating them
+-Put the version and runtime tag in the output files (not spc yet..)
+-Put back the spc output code because I was searching out a bug in the output with
+  multiple bands and scans for now (writes only once though when asking for final)
+   - should but iterations in the same file i think
+-Added band, scan and ngasb to each block in pbpfile at end of parameter block
+-Made two identical output profile tables with z,p,t,airmass & vmr - one with all apriori
+ (99) and one with retrieved so one reader reads them both & they are in table form - did
+ not include SM error vectors, included airmass so partial column is right there.
+-Kept statevec as it was and separated K.out
+-Update some tags in sfit4.ctl
+
+------------------------
+Feb 2013 g1.1
+merged g1.0 with mp 20130222
+added AB.out
+
+
+------------------------
+Feb 2013 g1.0
+merge MP 20130215 with m5.0
+frwdmdl.f90 did not add yet new gasfile from mp since fix is already there and name change is ??
+compiled!
+
+
+------------------------
+February 2013 Error Workshop
+-Removed NMASS replaced with KVERT in sfit4.f90
+-Fixed gasout error of multiple writes when requesting final
+-Gasout filename changed to lowercase - final
+-Fixed bug in isotope copying ivib to secondary isotopes
+-Fixed bug writing to array EPHS 1 over array bound
+-Fixed bug in write out of shifts
+-Fixed bug in write out of gas files by band
+-Add kb output for several variables not in state vector
+-Numerous small fixes/edits
+
+
+------------------------
+December 2012 b3.999
+-New version from MP diffed w/ 3.992
+-Solar calc not right - shift  with the -1. isn't quite right
+-change icfix to logical
+-Fixed solar line shift
+-Added solar line strength fit - be careful not recommended!
+-Remove stop_criterion?? convergence for lm tol not
+-Insert iparm as icount-1 in fm
+
+
+------------------------
+Later October 2012 b3.992
+MP Line mixing
+diffed b3.991 with MP's "iter_error-lm/sfit_v003.97
+added some checks for line shape model
+added some printouts  too
+fixed bug hbin: set sdv flag when should be lm flag
+first tests: good - small improvement in rmsfit for 4880 co2 fit !!
+lm + pres shift - amazing results
+testcases:
+x.o2.wlg
+x.co2.iso
+
+------------------------
+Late October b3.991
+spoke with GT, F- & S- need to use the same vmr
+diff v003.99 & v003.95 lineparams.f90 & hbin.f90
+improved pltfits.pro to work with GASFILES output
+write gasout flags to detail
+limit gasouttype to 1 || 2 only
+clean up gasout formats in frwdmdl.f90
+fixed nback error when no curve or slope fit nback was 0 and this does not crash but gives wrong result
+testcases:
+x.o2.wlg
+x.co2.isotope
+x.hcl.irwg.tab/03*
+x.o3.irwg.tab/a
+x.o2.nya
+
+------------------------
+October 2012 / Bremen
+added O2 continuum, merged with hbin this is v003.95
+hard coded in xsection.f90 and lineparam.f90 compensations since these lines are not
+   standard hitran values
+Added O2CIA as gas 49
+see testcasex.o2/3.95 testcase from NJ/Darwin
+
+
+------------------------
+August 2012
+Continue refining binary HITRAN creator/reader
+Put binary/ascii flag in lineparam
+Put hitran data into structure
+Put HITRAN->SFIT4 molecule id numbering map in lineparam
+Make internal HITRAN data arrays dynamic
+
+
+------------------------
+18 July 2012
+new version v003.92 from copy of v003.91
+install new line list reader
+new input file hbin.input
+remove all previous 'default' separated isotopes
+49 hdo
+53 ch3d
+54 o3668:
+55 o3686:
+56 o3667:
+57 o3676:
+
+edit:
+vibfcn.f90 - iso sep
+molecparam.f90 - iso sep
+bandparam.f90 - remove isotope sep
+lineparam.f90- linfl -> tfil14
+binput_parse_4_0.f90 - linfil -> tfile14
+datafiles.f90 -> changed id of istope.input 21->9
+
+
+create new program hbin.f90
+   reads sfit4.ctl and makes a binary file xxxxx.ddd-xxxxx.ddd.hbin
+
+
+
+
+------------------------
+17 July 2012
+new version 3.91 from copy of v003.90
+Added band centers back into the isotope input file
+edited: isotope.f90
+Apparently a mistake/miscommuncation that it was removed...oops
+
+
+------------------------
+27 Jun 2012
+initialize.f90:filse
+made variable SNR into mean snr from all bands
+bandparam.f90
+SNR defined
+frwdmdl.f90
+put in ITER line as avgSNR
+sfit4.f90
+commented out CERR
+commented out loop to lower SNR with negative vmrs
+
+
+
+------------------------
+25 Jun 2012
+
+read_binput reads 'spectrum' block from sfit4.ctl but this *I think* is obsolete
+input snr by band in the 'band' section
+otherwise maybe put snr in t15asc file by band/spectrum - but too much for now
+
+commented out snr in filse
+
+but snr substitution by wavenumber is implemented in 'spectrum' section
+
+
+------------------------
+22 Jun 2012
+
+convert_rdrv_394 /file : binput_4_0.f90
+this is a real for item 7 was pointing to format for integer
+write(11,1097) 'band.', nr, '.beam.', nr1, '.sa', '=', schan_scale(nr,nr1,1:4)*cciparm(nr,nr1,1:4)
+
+comment out write isoflag - duplicate with ifiso?
+
+Fundamentally for 99 molecules:
+edited raytrace, galatry, vibfcn, molcparam for v003.90 / isotopes / 99 molec
+
+
+------------------------
+ 20 Jun 2012
+ zero shift inputs not right, see izero szero sa ...
+
+
+
+
+------------------------
+6 Jan 2011
+
+still in 3.81
+
+- Commented out creation of spectrum file from t15asc in convert_binput_394
+
+- Added separate spectrum preparation code 'prepspec' / prepspec.inp
+
+
+
+
+- added printout of FOVDIA and OMEGA
+- OMEGA not being set?
+
+
+
+-------------------------
+v003.81
+	- after all the meeting and fast changes.... try to get things under control
+	- run convert_rdrv_394
+		1. makes a sfit4.ctl from rdrv.ctl & binput
+		2. makes a spectrum from t15asc *** dummy values for lat lon roe date & time
+		3. add 70 to top of fasc.prf
+
+		inputs are
+			1. sfit4.ctl
+			2. station.layers
+			3. fasc.prf
+			4. spectrum
+
+		possibly
+			1. ils.dat
+			2. isotope.input
+			3.
+
+
+Spectrum File
+Built on earlier t15asc file but more data in header for each spectrum
+Example block header:
+     70.42   6367.44   45.0000    0.0000
+      2000         6        15        12        30     30.00
+ 04/06/2007 17:29:08UT Z:70.370 A:013.62 D:0721.2 R:0.0035 P:BX F:03.8636mr      
+    1000.548706    1005.100647    0.194444410000000E-02      2342
+   0.118651E+00
+
+     70.42   6367.44   45.0000    0.0000
+     SZA     ROE       LAT        LON
+
+     2000         6        15        12        30     30.00
+     YYYY         MO       DD        HH        MI     SECS
+
+ 04/06/2007 17:29:08UT Z:70.370 A:013.62 D:0721.2 R:0.0035 P:BX F:03.8636mr      
+ TITLE    ( 80 char )
+
+    1000.548706    1005.100647    0.194444410000000E-02      2342
+    WLOW           WHI            SPACE                      NPFILE
+
+   0.118651E+00
+   first data point
+
+
+v001.5 runs w/o raytrace
+   - this was sent to MP for incliusion of new input reader
+
+v001.6
+   - after sending 0015 to MP worked on fits / sza / fit regions
+   - had to kludge up a few inputs for testing but worked
+
+v002 - v001 + raytrace.f90
+	- did not get far ...
+	- did not get to a functional test
+
+v003 - returned from MP Dec 3 2010
+   - diff with v0015
+	- did not do any combining with my versions
+	- waiting next version from MP
+
+v003.1 - revised version from MP
+	- tested x.03 - OK
+	- diff w/ v001.6 & store in 003.2
+
+	- identical files: copied to 3.2
+		diagnostic
+		galatry
+		isotope
+		matrix
+		mixout - duplicated in writeout: removed
+		molecparam
+		tips
+		vibfcn
+		voigt
+
+
+	- minor differences - changed and saved to 3.2
+		lineparam
+		params
+
+
+	- new or completely altered files - just use 3.1
+		rdrv40
+		parse_binput_4_0_M
+		binput_4_0
+		readin - this will be obsolete soon
+		datafiles
+
+	- changes 1.5 -> 1.6 vector DN etc use 1.6
+		xsections
+		synspec
+		solar - I did some major cosmetic changes too
+		channel
+			band array
+		fwrdmdl
+			added implicit none
+
+
+		other changes made by MP
+
+			transmis
+				object -> emission_object
+				t_background -> emission_t_back
+				change in v1.6  & save 3.2
+				many other format changes made in 1.6
+
+			opt
+			   gamma_inc - also in binput
+				other changes are in 1.6
+
+			initialize
+				many declarations from 3.1
+
+
+	- changes 1.5 -> 3.1
+
+		bandparam
+			nbands()
+
+		retvparam
+		 from 1.6 ispec, nspac
+		 from 3.1 gas
+
+		writeout
+
+v003.2
+	- combined 3.1 & 1.6
+	- cleaned up a bunch
+	-
+
+v003.3
+	- combine 3.2 to 2. - raytrace
+	- tested with x.hcl.rt
+
+v003.4
+	- retrieve temperature

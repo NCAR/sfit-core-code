@@ -1,0 +1,54 @@
+      PROGRAM RDRV
+
+      USE PARAMS
+      USE DATAFILES
+      USE BINPUT_4_0
+
+      IMPLICIT NONE
+
+      CHARACTER (LEN=10)   :: ZTIME='          ', ZONE='          '
+      CHARACTER (LEN=8)    :: CDATE='        '
+      REAL(8)              :: START_TIME=0.0, END_TIME=0.0
+
+      CALL FILESETUP
+
+! --- DETAIL FILE
+      OPEN(UNIT=16, FILE=TFILE(16), STATUS='UNKNOWN', ERR=101, POSITION='ASIS')
+
+      CALL CPU_TIME (START_TIME)
+
+      !WRITE (16, *) VERSION
+      !WRITE (*, *) VERSION
+
+      CALL DATE_AND_TIME (CDATE, ZTIME, ZONE)
+      WRITE (TAG,*) TRIM(VERSION), ' RUNTIME:', CDATE(1:8), '-', ZTIME(1:2), ':', ZTIME(3:4), ':', ZTIME(5:6)
+      !WRITE (TAG,*) TRIM(VERSION), TRIM(BUILDDATE),' RUNTIME:', CDATE(1:8), '-', ZTIME(1:2), ':', ZTIME(3:4), ':', ZTIME(5:6)
+      !WRITE (TAG,*) TRIM(VERSION), TRIM(BUILDDATE), ' RUNTIME:', CDATE(5:6), '/', CDATE(7:8), '/', &
+      !     & CDATE(1:4), '-', ZTIME(1:2), ':', ZTIME(3:4), ':', ZTIME(5:6)
+
+      WRITE (16, *) TRIM(TAG)
+      WRITE ( 6, *) TRIM(TAG)
+
+      CALL READ_BINPUT('sfit4.ctl')
+
+      CALL SFIT4 ( )
+
+      CALL CPU_TIME (END_TIME)
+      WRITE(16,*)''
+      WRITE(16,*) 'RDRV: DONE. ELAPSED TIME = ', END_TIME - START_TIME
+      CLOSE(16)
+
+      PRINT *, 'RDRV: DONE. ELAPSED TIME = ', END_TIME - START_TIME
+
+      STOP 0
+
+ 101  CONTINUE
+      WRITE (0, 201) TFILE(16)
+      CLOSE(16)
+      STOP 1
+
+ 201  FORMAT(/,' DETAIL OUTPUT FILE OPEN ERROR-UNIT 16'/,' FILENAME: "',A,'"')
+!   10 FORMAT(A)
+!   20 FORMAT(A7)
+
+      END PROGRAM RDRV
