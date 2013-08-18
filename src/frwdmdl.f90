@@ -499,7 +499,12 @@
                   OPEN(UNIT=80, FILE=GASFNAME, STATUS='REPLACE', ERR=555)
                   WRITE (80, 640) TITLE
                   WRITE (80, *) WSTART(IBAND), WSTOP(IBAND), SPAC(IBAND), N3
-                  YCMAX = maxval(YC(JATMOS-N3+1:JATMOS))
+                  YCMAX = 1.0D0
+                  IF (IEMISSION.EQ.0) THEN
+                     YCMAX = maxval(YC(JATMOS-N3+1:JATMOS))
+                  else
+                     YCMAX = 1.0D0
+                  end IF
                   DO III=JATMOS-N3+1,JATMOS
                      WRITE (80, *) YC(III)/YCMAX
                   ENDDO
