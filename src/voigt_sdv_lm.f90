@@ -85,40 +85,50 @@
       alphadelta = lorwidth/g2 - 1.5d0 + delta
       pshift = -eta0/g2
 
-      ds2 = 1.d0/dsqrt(2.d0)
+      ! this is used for SDV, if gamma_2 is 0 use voigt instead!
+      if (g2.gt.tiny(g2)) then
+         delta = xy2/g2/g2
+         sqrtdelta = dsqrt(delta)
+         !c alphadelta = alpha + delta, and pshift contains the pressure shift term
+         alphadelta = lorwidth/g2 - 1.5d0 + delta
+         pshift = -eta0/g2
 
-      a1 = g2*g2+eta2*eta2
-      a2 = g2/a1
-      a3 = eta2/a1
-      a4 = a2*a2-a3*a3
-      a5 = 2.d0*a2*a3
+         ds2 = 1.d0/dsqrt(2.d0)
 
-      xy = 0.5d0/adop
-      xy2 = xy*xy
+         a1 = g2*g2+eta2*eta2
+         a2 = g2/a1
+         a3 = eta2/a1
+         a4 = a2*a2-a3*a3
+         a5 = 2.d0*a2*a3
+         
+         xy = 0.5d0/adop
+         xy2 = xy*xy
+         
+         a8 = xy2*a4
+         a9 = xy2*a5
+         
+         a6 = a2*lorwidth - 1.5d0 + a8 + eta0*a3
+         a7 = lorwidth*a3 - eta0*a2 + a9
+         
+         xz = -a3
+         
+         z1 = 0.195d0*dabs(xz)-0.176d0
 
-      a8 = xy2*a4
-      a9 = xy2*a5
-
-      a6 = a2*lorwidth - 1.5d0 + a8 + eta0*a3
-      a7 = lorwidth*a3 - eta0*a2 + a9
-
-      xz = -a3
-
-      z1 = 0.195d0*dabs(xz)-0.176d0
 
 
-      z1 = a9
-      if(z1 .eq. 0.) then
-         z1 = 0.d0
-      else
-         z1 = a9/dabs(a9)
-      endif
-
-      a10 = dsqrt(a8*a8+a9*a9)
-      a11 = dsqrt(a10+a8)*ds2
-      a12 = z1*dsqrt(a10-a8)*ds2
-
-      fac_dx = a1
+         z1 = a9
+         if(z1 .eq. 0.) then
+            z1 = 0.d0
+         else
+            z1 = a9/dabs(a9)
+         endif
+         
+         a10 = dsqrt(a8*a8+a9*a9)
+         a11 = dsqrt(a10+a8)*ds2
+         a12 = z1*dsqrt(a10-a8)*ds2
+         
+         fac_dx = a1
+      end if
       y_keep = lorwidth * adop
 
 

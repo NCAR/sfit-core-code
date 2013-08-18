@@ -2252,7 +2252,7 @@ END SUBROUTINE READLAYRS
 !106   FORMAT( 5(E12.5,1X))
 !107   FORMAT( 5X,A75)
 108   FORMAT( I5,A8,A75)
-109   FORMAT( 5(E12.4:,1X))
+109   FORMAT( 5(E12.4:,1X)) !If the first line is smaller than 5 numbers, the colon stops reading out
 110   FORMAT( F12.2, 2G12.4, 200E12.4 )
 111   FORMAT( 200A12 )
 !112   FORMAT( 36X,200(8X,I4))
