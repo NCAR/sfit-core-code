@@ -468,8 +468,8 @@
 
 !  --- WRITE SPECTRA BY GAS, BAND, SCAN & ITERATION
                IF( F_WRTGASSPC .AND. (ICOUNT .EQ. NVAR1) &
-                 .AND.( (GASOUTTYPE .EQ. 1) .AND. (ITER .EQ. -1) ) &
-                 .OR.   (GASOUTTYPE .EQ. 2) )THEN
+                 .AND.( (GASOUTTYPE .EQ. 1) .AND. (ITER .EQ. -1)  &
+                 .OR.   (GASOUTTYPE .EQ. 2) ))THEN
 !  --- SAVE TCALC
                   ALLOCATE (TCONVSAV(NMONSM), STAT=NAERR)
                   IF (NAERR /= 0) THEN
