@@ -103,6 +103,9 @@
 !
 !****************************************************************************/
       real(double) function betat (mol, t)
+
+      use datafiles
+
 !-----------------------------------------------
 !   M o d u l e s
 !-----------------------------------------------
@@ -273,7 +276,9 @@
 
       if (epsilon(mol) < 0) then
          write (6, *) mol, ' Molecule not supported in GALATRY/BETAT routines'
-         stop 'Molecule not supported'
+         CALL SHUTDOWN
+         STOP 3
+         !stop 'Molecule not supported'
       endif
       treduced = 296./sqrt(epsilon(mol)*epsilonair)
 !      write (6, *) 'TReduced = ', treduced
@@ -286,14 +291,16 @@
          select case (result)
          case (-1)
             write (6, *) 'Temperature ', treduced, ' is lower than table'
-            stop 'Temp too low'
+            !stop 'Temp too low'
          case (1)
             write (6, *) 'Temperature ', treduced, ' is above table'
-            stop 'Temp too high'
+            !stop 'Temp too high'
          case (-2)
             write (6, *) 'Didn''t find greater temperature in table'
-            stop 'Temp table error'
+            !stop 'Temp table error'
          end select
+         CALL SHUTDOWN
+         STOP 3
       endif
 
 
@@ -310,14 +317,16 @@
          select case (result)
          case (-1)
             write (6, *) 'Temperature ', treduced, ' is lower than table'
-            stop 'Temp too low'
+            !stop 'Temp too low'
          case (1)
             write (6, *) 'Temperature ', treduced, ' is above table'
-            stop 'Temp too high'
+            !stop 'Temp too high'
          case (-2)
             write (6, *) 'Didn''t find greater temperature in table'
-            stop 'Temp table error'
+            !stop 'Temp table error'
          end select
+         CALL SHUTDOWN
+         STOP 3
       endif
 
 
