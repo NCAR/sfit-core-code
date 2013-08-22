@@ -36,7 +36,7 @@ module solar
 !     6: Jet Propulsion Laboratory, Pasadena, CA, USA
 
 USE PARAMS
-USE DATAFILES
+!USE DATAFILES
 USE XSECTIONS
 USE WRITEOUT
 
@@ -91,10 +91,10 @@ subroutine solarfh( flag )
 !    the transmission spectra consecutivly in TCO.
 !  - added fit of shift parameter
 
-USE params
+!USE params
 USE transmis
 USE bandparam
-USE datafiles
+!USE datafiles
 
 implicit none
 
@@ -188,7 +188,7 @@ IF ( FLAG == 0 ) THEN
          CALL LOOKATLINES( DNUE(IBAND), NLNFST(IBAND), NLNLST(IBAND) )
 
          NLNREAD(IBAND) = NLNLST(IBAND) - NLNFST(IBAND) + 1    ! LINE IN THIS BAND
-         WRITE(*, 107) IBAND,NLNREAD(IBAND)
+         WRITE(*, 108) IBAND,NLNREAD(IBAND)
          WRITE(16,107) IBAND,NLNREAD(IBAND)
          NCOLNS     = NCOLNS + NLNREAD(IBAND)                  ! SUM OF ALL SOLAR LINES
          MXLNPERBND = MAX( MXLNPERBND, NLNREAD(IBAND) )
@@ -288,7 +288,7 @@ RETURN
 105 FORMAT('   FOV IN RELATIVE TO SOLAR DIA.      : ', ES21.6 )
 106 FORMAT('   SOLAR AXIS INCLINATION [DEG.]      : ', ES21.6 )
 107 FORMAT('   BAND, # SOLAR LINES FOUND          : ', I4, I8 )
-
+108 FORMAT('   BAND, # SOLAR LINES FOUND                                  :', I3, I7 )
 115 FORMAT('   IBAND, ISPEC, OBSERVATION UTC/LOC  : ',2I4,2x,I4,'/',I2.2,'/',I2.2,2X,I2.2,':',I2.2,':',F04.1,F7.3,'N',F8.3,'W' )
 
 END SUBROUTINE SOLARFH

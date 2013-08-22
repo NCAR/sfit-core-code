@@ -1,6 +1,7 @@
       MODULE MATRIX
 
       USE params
+      USE DATAFILES
 
       IMPLICIT NONE
 
@@ -127,7 +128,9 @@
 
       IF (DET == 0.D0) THEN
          WRITE (16, *) ' INVRT: ERROR... MATRIX IS SINGULAR...EXITING'
-         STOP "INVRT: ERROR... MATRIX IS SINGULAR...EXITING"
+         WRITE ( 0, *) ' INVRT: ERROR... MATRIX IS SINGULAR...EXITING'
+         CALL SHUTDOWN
+         STOP 3
       ENDIF
 
       RETURN

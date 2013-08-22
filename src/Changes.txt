@@ -39,15 +39,29 @@ frwdmdl.f90
 - fixed a bug for calculation of analytic K-matrix when using emission
 
 
-Mai 2013
+---------------------
+20 May 2013 v0.9.2.2
+- add soft landing on error stop
+ stop 0 - normal stop
+fatal don't go on:
+ stop 1 - reading inputs
+- fixed up T retrieval sandbox
+- fixed (again!) spc out on iterations
+- fixed reset of T parm array in Kb calc
+- put kb calculation in subroutine kbcalculate
+- fixed bug in deallocate(A) in kbcalculate
+- changed ITER=-1 on FM only (maxiter=0 or RETFLG=F) - print out spc files
+- fixed converg flag to be unset on non-convergence
 
+
+---------------------
+Mai 2013
 - Introduced key kb.gas for calculation of Kb matrices for profile changes if gases are
   retrieved as a column.
 - moved the test if gas.layers is consistent with the number of layers
   in station.layers and isotope.inp. It was possible to have these
   numbers differ if there are no gases retrieved as a profile.
-- fixed a problem n binput_parse_4.0.f90 related to the ordering of
-input of  scale factors
+- fixed a problem n binput_parse_4.0.f90 related to the ordering of input of  scale factors
 - cleaned up the solar shift.
 
 

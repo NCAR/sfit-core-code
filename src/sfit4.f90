@@ -1,7 +1,4 @@
-      SUBROUTINE SFIT4( )
-
-! SFIT4 VERSION 003.82 2011
-! SEE FILE COMMENTS.SAVED FOR OLDER COMMENTS AND HISTORY
+      MODULE SFIT4
 
       USE PARAMS
       USE VIBFCN
@@ -23,14 +20,21 @@
 
       IMPLICIT NONE
 
-      LOGICAL :: HFLG
+      REAL(DOUBLE), DIMENSION(:),   ALLOCATABLE :: SED, XAPR, XHAT, YHAT, Y
+
+      CONTAINS
+
+      SUBROUTINE SFIT( )
+
+! SFIT4 VERSION 003.82 2011
+! SEE FILE COMMENTS.SAVED FOR OLDER COMMENTS AND HISTORY
+
+
+      IMPLICIT NONE
 
       INTEGER :: NLEV = 0, NAERR = 0 !, SVAR=1
       INTEGER :: KZMAXLAY, INDXX, KVERT, ITER=0, NEGFLAG
-
-      INTEGER :: I, IBAND, IND, J, K, KK
-      INTEGER :: N, ORIG_NVAR, NR_KVAR, POS
-
+      INTEGER :: I, IBAND, IND, J, K, KK, N
       INTEGER, DIMENSION(MAXSPE) :: NLAY
 
       REAL(DOUBLE) :: YMAX = 0.0D0
@@ -40,16 +44,12 @@
 !      REAL(DOUBLE) :: SIGZ = 0.0D0
       REAL(DOUBLE) :: AIRCOL = 0.0D0
       REAL(DOUBLE) :: SIGMA
-      LOGICAL :: IFPRF_1_ORIG
+
 
 !      REAL(DOUBLE), DIMENSION (MOLMAX) :: DELTA_XM
 
       REAL(DOUBLE), DIMENSION(12)            :: FX = 0.0D0
       REAL(DOUBLE), DIMENSION(MOLMAX,LAYMAX) :: VERSUM = 0.0D0, VOSUM = 0.0D0
-
-      REAL(DOUBLE), DIMENSION(:),   ALLOCATABLE :: SED, XAPR, XHAT, YHAT, Y
-
-      character (len=255) :: val
 
 ! ------------------------------------------------------------------------------
 
@@ -93,7 +93,10 @@
 
       IF( RAYTONLY )THEN
          IF( RAYOUTTYPE .GE. 2 )CALL FILECLOSE( 73, 1 )
-         STOP ': COMPUTING RAYTRACE ONLY.'
+         WRITE(16,*) ': COMPUTING RAYTRACE ONLY.'
+         WRITE(00,*) ': COMPUTING RAYTRACE ONLY.'
+         CALL SHUTDOWN
+         STOP 3
       ENDIF
       IF( NLEV .LT. KMAX ) KMAX = NLEV
 
@@ -144,9 +147,12 @@
 ! --- ALLOCATE SE
       ALLOCATE( SE(NFIT), SED(NFIT), STAT=NAERR )
       IF (NAERR /= 0) THEN
-         WRITE (6, *) 'COULD NOT ALLOCATE SE ARRAY'
-         WRITE (6, *) 'ERROR NUMBER = ', NAERR
-         STOP 'SFIT ALLOCATION'
+         WRITE(16, *) 'COULD NOT ALLOCATE SE ARRAY'
+         WRITE(16, *) 'ERROR NUMBER = ', NAERR
+         WRITE(00, *) 'COULD NOT ALLOCATE SE ARRAY'
+         WRITE(00, *) 'ERROR NUMBER = ', NAERR
+         CALL SHUTDOWN
+         STOP 4
       ENDIF
       SE(:)    = 0.0D0
       SED(:)   = 0.0D0
@@ -158,9 +164,12 @@
 ! --- ALLOCATE COVARIANCE ARRAYS
       ALLOCATE( SA(NVAR,NVAR), SAINV(NVAR,NVAR), SHAT(NVAR,NVAR), STAT=NAERR )
       IF (NAERR /= 0) THEN
-         WRITE (6, *) 'COULD NOT ALLOCATE SA ARRAY'
-         WRITE (6, *) 'ERROR NUMBER = ', NAERR
-         STOP 'SFIT ALLOCATION'
+         WRITE(16, *) 'COULD NOT ALLOCATE SA ARRAY'
+         WRITE(16, *) 'ERROR NUMBER = ', NAERR
+         WRITE(00, *) 'COULD NOT ALLOCATE SA ARRAY'
+         WRITE(00, *) 'ERROR NUMBER = ', NAERR
+         CALL SHUTDOWN
+         STOP 4
       ENDIF
       SA(:,:)    = 0.0D0
       SHAT(:,:)  = 0.0D0
@@ -171,9 +180,12 @@
 ! --- ALLOCATE WORKING AND RESULT ARRAYS
       ALLOCATE( XHAT(NVAR), YHAT(NFIT), XAPR(NVAR), Y(NFIT), STAT=NAERR )
       IF (NAERR /= 0) THEN
-         WRITE (6, *) 'COULD NOT ALLOCATE XHAT ARRAY'
-         WRITE (6, *) 'ERROR NUMBER = ', NAERR
-         STOP 'SFIT ALLOCATION'
+         WRITE(16, *) 'COULD NOT ALLOCATE XHAT ARRAY'
+         WRITE(16, *) 'ERROR NUMBER = ', NAERR
+         WRITE(00, *) 'COULD NOT ALLOCATE XHAT ARRAY'
+         WRITE(00, *) 'ERROR NUMBER = ', NAERR
+         CALL SHUTDOWN
+         STOP 4
       ENDIF
       XHAT(:) = 0.0D0
       YHAT(:) = 0.0D0
@@ -441,14 +453,15 @@
 
 
 !  --- PRINT A SHORT SUMMARY TO THE CONSOLE
-      PRINT *,''
-      PRINT 460, ( NAME(IGAS(I)), IFPRF(I), I=1, NRET )
-      PRINT 461, (  VOSUM(I,NLEV), I=1, NRET )
-      PRINT 461, ( VERSUM(I,NLEV), I=1, NRET )
-      !PRINT 462, ITER, ITRMAX, RMS, NVAR, CONVERGE, DIVWARN, DOF, SERR, SNR, AIRCOL
-      PRINT 463, ITER, ITRMAX, RMS, NVAR, CONVERGE, DIVWARN, DOF(2), SNR, CHI_2_Y!, AIRCOL
-      PRINT *,''
-
+      IF( NRET .NE. 0 )THEN
+         PRINT *,''
+         PRINT 460, ( NAME(IGAS(I)), IFPRF(I), I=1, NRET )
+         PRINT 461, (  VOSUM(I,NLEV), I=1, NRET )
+         PRINT 461, ( VERSUM(I,NLEV), I=1, NRET )
+         !PRINT 462, ITER, ITRMAX, RMS, NVAR, CONVERGE, DIVWARN, DOF, SERR, SNR, AIRCOL
+         PRINT 463, ITER, ITRMAX, RMS, NVAR, CONVERGE, DIVWARN, DOF(2), SNR, CHI_2_Y!, AIRCOL
+         PRINT *,''
+      ENDIF
 
 ! --- UNCOMMENT NEXT LINE TO ACTIVATE OUTPUT OF RETRIEVED MIX FILE
 !      CALL MIXOUT (KZMAXLAY, KVERT)
@@ -456,243 +469,10 @@
   700 CONTINUE
 
 
-! KB matrix calculated?
+! --- KB MATRIX CALCULATED?
 
-      if (f_kb) then
+      IF( F_KB )CALL KBCALCULATE( NLEV )
 
-         WRITE(16,254)
-
-         ! SET DETAILED OUTPUT FILES TO FALSE
-         HFLG         = .FALSE.
-         F_WRTSTV     = .FALSE.
-         F_WRTK       = .FALSE.
-         F_WRTGASSPC  = .FALSE.
-         F_WRTCHANNEL = .FALSE.
-         F_WRTPARM    = .FALSE.
-         F_WRTRAYTC   = .FALSE.
-
-         ! Define new statevector for calculating KB-matrix
-         ifprf_1_orig = ifprf(1)
-         if (f_kb_profile) then
-            ! is the first retrieval gas already retrieved by column?
-            val = adjustl(trim(s_kb_profile_gases))
-            nrlgas = 0
-            pos = index(adjustl(val),' ')
-            do
-               !                 print *,val
-               if (len_trim(val).eq.0) exit
-               nrprfgas = nrprfgas + 1
-               if (pos.gt.0) then
-                  read(val(1:pos),*) s_kb_prf_gas(nrprfgas)
-               else
-                  read(val(1:len_trim(adjustl(val))),*) s_kb_prf_gas(nrprfgas)
-                  exit
-               end if
-               val = adjustl(val(pos+1:len(val)))
-               pos = index(trim(adjustl(val)),' ')
-            end do
-            do k = 1,nrprfgas
-               do kk = 1,nret
-                  if (trim(adjustl(s_kb_prf_gas(k))).eq.gas(kk)) then
-                     ! only retrieved if originally it was not a profile
-                     if(.not.ifprf(kk)) ifprf_kb(kk) = .true.
-                     ! but now it needs to be set to profile in order to setup correctly
-                     ifprf(kk) = .true.
-                  end if
-               end do
-            end do
-         end if
-
-         if (f_kb_slope.and.nback.lt.2) then
-            nback = 2
-         end if
-         if (f_kb_curvature.and.nback.lt.3) then
-            nback = 3
-         end if
-         if (f_kb_solshft) then
-            F_RTSOL(4) = .TRUE.
-         end if
-         if (f_kb_solstrnth) then
-            F_RTSOL(5) = .TRUE.
-         end if
-         if(f_kb_phase) then
-            ifphase = .true.
-         end if
-         if (f_kb_temp) then
-            iftemp = .true.
-         end if
-         if(f_kb_ifdiff) then
-            ifdiff = .TRUE.
-         end if
-         if(f_kb_wshift) then
-            f_wshift = .true.
-            isparm = 3
-         end if
-         if(f_kb_eap) then
-            F_RTAPOD = .TRUE.
-         END IF
-         IF (F_KB_EPHS) THEN
-            F_RTPHASE = .TRUE.
-         end if
-         if (f_kb_zshift) then
-            izero(:nband) = 1
-         end if
-         if (f_kb_sza) then
-            ifsza = 1
-            do i = 1,nspec
-               astang0(i) = astang(i)
-            end do
-         end if
-
-         do i = 1,nband
-            if (f_kb_fov) then
-               iffov = 1
-               OMEGA0(i) = OMEGA(i)
-            end if
-            if (f_kb_opd) then
-               ifopd = 1
-               PMAX0(i) = PMAX(i)
-            end if
-         end do
-
-
-         if (f_kb_line) then
-            ifline = 1
-            ! --- find for which gases are Kb for line parameters are calculated
-            select case (trim(adjustl(s_kb_line_gases)))
-            case ('target')
-               s_kb_line_gas(1) = trim(adjustl(gas(1)))
-               niline = 1
-               npline = 1
-               ntline = 1
-               nrlgas = 1
-            case ('retrieval')
-               do k = 1,ngas
-                  s_kb_line_gas(k) = trim(adjustl(gas(k)))
-               end do
-               niline = ngas
-               npline = ngas
-               ntline = ngas
-               nrlgas = ngas
-            case default
-               val = adjustl(trim(s_kb_line_gases))
-               nrlgas = 0
-               pos = index(adjustl(val),' ')
-               do
- !                 print *,val
-                  if (len_trim(val).eq.0) exit
-                  nrlgas = nrlgas + 1
-                  if (pos.gt.0) then
-                     read(val(1:pos),*) s_kb_line_gas(nrlgas)
-                  else
-                     read(val(1:len_trim(adjustl(val))),*) s_kb_line_gas(nrlgas)
-                     exit
-                  end if
-                  val = adjustl(val(pos+1:len(val)))
-                  pos = index(trim(adjustl(val)),' ')
-               end do
-               niline = nrlgas
-               npline = nrlgas
-               ntline = nrlgas
-            end select
-         end if
-
-!         print *,s_kb_line_gas(:nrlgas)
-
-!               PRINT *, PNAME
-!               print *, XHAT(:NVAR)
-
-         ORIG_PNAME(:NVAR) = PNAME(:NVAR)
-         ORIG_NVAR = NVAR
-
-
-         RETFLG = .FALSE.
-         call INIT_PARM()
-
-         ! SET the entries of the statevector as a priori in the new parm vector to make
-         ! sure the Kb matrices are calculated as deviations from the retrieved state
-         IS_IN_KMATRIX(:NVAR) = .TRUE.
-         ! CHECK IF THIS QUANTITY WAS RETRIEVED, I.E. IS PART OF THE STATEVECTOR. IF SO,
-         ! EXCLUDE IT FROM CALCULATING A KB ENTRY.
-         n = 0
-         do k = 1,NVAR
-            do i = 1,ORIG_NVAR
-               if (ORIG_PNAME(i).eq.PNAME(k)) then
-                  ORIG_PNAME(i) = ''
-                  parm(k) = xhat(i)
-                  IS_IN_KMATRIX(k) = .false.
-                  ! CHECK IF THE ORIGINALLY RETRIEVED GAS IS A COLUMN
-                  do kk = 1,nret
-                     ! IF SO, CALCULATE A KB ENTRY FOR THIS GAS AS A PROFILE
-                     if ((PNAME(k).eq.gas(kk)).and.(ifprf_kb(kk).and.ifprf(kk))) then
-                        IS_IN_KMATRIX(k) = .true.
-                        parm(k:k+nlev) = xhat(i)
-                     end if
-                  end do
-                  exit
-               end if
-               ! IWNUMSHIFT gets set to retrieved value of SWNUMSHIFT
-               if (ORIG_PNAME(i).eq.'SWNumShft'.and. &
-                    PNAME(k).eq.'IWNumShft') then
-                  ORIG_PNAME(i) = ''
-                  parm(k) = xhat(i)
-                  IS_IN_KMATRIX(k) = .false.
-               end if
-            end do
-         end do
-
-
-!         PRINT *, PNAME
-!         print *, XHAT(:ORIG_NVAR)
-!         print *, PARM(:NVAR)
-!         print *, IS_IN_KMATRIX(:NVAR)
-
-
-         WRITE(0,252) PACK(PNAME(:NVAR), IS_IN_KMATRIX(:NVAR))
-         WRITE(16,252) PACK(PNAME(:NVAR), IS_IN_KMATRIX(:NVAR))
-
-         IF( ALLOCATED(KHAT) )DEALLOCATE( KHAT )
-         ALLOCATE(KHAT(NFIT,NVAR))
-         TOBS(:NFIT) = TOBS_ORIG(:NFIT)
-
-         !write(100,*) YHAT(:NFIT)
-         CALL FM(PARM, YHAT, KHAT, NFIT, NVAR, .TRUE., -1, HFLG )
-         !write(100,*) YHAT(:NFIT)
-         !close(100)
-         call fileopen(90,1)
-         WRITE(90,*) TRIM(TAG), ' KB VECTORS FOR MODEL PARAMETERS BI'
-         nr_kvar = 0
-         write(90,*) NFIT, count(is_in_kmatrix(:nvar),1), -1, -1
-         write(90,*) pack(PNAME(:NVAR), is_in_kmatrix(:NVAR))
-         do j = 1,NFIT
-            write(90,261) pack(KHAT(j,:), is_in_kmatrix(:NVAR))
-         end do
-         call fileclose( 90, 1 )
-
-         if (f_wrtAB) then
-            ! write out Ab (G*Kb) in fractions of A priori, This corresponds to formula
-            ! 3.16 on page 48 in Rodgers book and can directly be used for the error calculation
-            IF( ALLOCATED(A) ) DEALLOCATE(A)
-            ALLOCATE(A(ORIG_NVAR, NVAR))
-            CALL MULT( G, KHAT, A, ORIG_NVAR, NFIT, NVAR)
-            call fileopen(92,1)
-            WRITE(92,*) TRIM(TAG), ' DY#KB=AB MATRIX FOR MODEL PARAMETERS BI'
-            if (.not.ifprf_1_orig) nlev = 1
-            write(92,*) NLEV, count(is_in_kmatrix(:nvar),1), -1, -1
-            write(92,260) pack(PNAME(:NVAR), is_in_kmatrix(:NVAR))
-            ! original target retrieval was column retrieval
-            do j = 1,nlev
-               write(92,261) pack(A(j+ISMIX, :), is_in_kmatrix(:NVAR))
-            end do
-            call fileclose( 92, 1 )
-         end if
-
-!         if (f_wrtpbp_kb) then
-!            tfile(8) = 'pbpfile_kb'
-!            CALL WRTPBP( TOBS, YHAT )
-!         end if
-
-      end if ! if kb
 
       IF( F_WRTRAYTC )CALL FILECLOSE( 73, 1 )
 
@@ -702,7 +482,7 @@
       CALL RELEASE_MEM_OPT
       CALL RELEASE_MEM_LP
       CALL RELEASE_MEM_RTP
-      DEALLOCATE( XHAT, YHAT, XAPR, Y, SED )
+      CALL RELEASE_MEM_SFT
 
       IF( IFCO )CALL SOLARFH ( 2 )
       RETURN
@@ -722,15 +502,15 @@
 
   250 FORMAT(/,' CAN ONLY RETRIEVE APODIZATION PARAMETERS FOR POLYNOMIAL FW.APOD_FCN.TYPE=2')
   251 FORMAT(/,' CAN ONLY RETRIEVE PHASE PARAMETERS FOR POLYNOMIAL FW.PHASE_FCN.TYPE=2')
-  252 FORMAT(' COMPUTING KB FOR PARAMETERS :',100(/,3X,A14))
   253 FORMAT(/,  '.END OF RETRIEVAL.')
   254 FORMAT(/, 'BEGIN KB CALCULATIONS:',/)
   260 FORMAT( 2000( 12X, A14 ))
   261 FORMAT( 2000ES29.18E3 )
   262 FORMAT( 5X,2000( 12X, A14 ))
   263 FORMAT( 2000I26 )
+
   350 FORMAT(/,' MOLECULE = ',A7,' PROFILE SCALE FACTOR =',F7.4,' +/-',F7.4)
-  406 FORMAT('  RETRIEVED VERTICAL PROFILE:',/,&
+  406 FORMAT(/,'  RETRIEVED VERTICAL PROFILE:',/,&
       '  Z[km] ZBAR[km] APRIORI_VMR RETRIEVED_VMR  SIGMA_VMR  APRIORI_COL  RETR&
       &IEVE_COL')
       !408 FORMAT(/' GAS: ', A7, ' COLUMN: ', ES12.4, ' +/- ',ES12.4,1X,F6.3,'%')
@@ -773,5 +553,241 @@
  3695 FORMAT(/,' NFIT =',I5,' NVAR =',I3)
  3696 FORMAT(/,' PRINT OUT OF PARAMETERS FOR EACH ITERATION:',/)
 
+      END SUBROUTINE SFIT
+
+
+      SUBROUTINE KBCALCULATE( NLEV )
+
+      IMPLICIT NONE
+
+      INTEGER, INTENT(IN) :: NLEV
+      CHARACTER (LEN=255) :: VAL
+      LOGICAL             :: HFLG, IFPRF_1_ORIG
+      INTEGER             :: I, J, K, ORIG_NVAR, POS, NL = 1
+
+      WRITE(16,254)
+
+! ---  SET DETAILED OUTPUT FILES TO FALSE
+      HFLG         = .FALSE.
+      F_WRTSTV     = .FALSE.
+      F_WRTK       = .FALSE.
+      F_WRTGASSPC  = .FALSE.
+      F_WRTCHANNEL = .FALSE.
+      F_WRTPARM    = .FALSE.
+      F_WRTRAYTC   = .FALSE.
+      XSC_DETAIL   = .FALSE.
+
+      ifprf_1_orig = ifprf(1)
+
+      ! Define new statevector for calculating KB-matrix
+      if (f_kb_profile) then
+         ! is the first retrieval gas already retrieved by column?
+         val = adjustl(trim(s_kb_profile_gases))
+         nrlgas = 0
+         pos = index(adjustl(val),' ')
+         do
+            !                 print *,val
+            if (len_trim(val).eq.0) exit
+            nrprfgas = nrprfgas + 1
+            if (pos.gt.0) then
+               read(val(1:pos),*) s_kb_prf_gas(nrprfgas)
+            else
+               read(val(1:len_trim(adjustl(val))),*) s_kb_prf_gas(nrprfgas)
+               exit
+            end if
+            val = adjustl(val(pos+1:len(val)))
+            pos = index(trim(adjustl(val)),' ')
+         end do
+         do k = 1,nrprfgas
+            do j = 1,nret
+               if (trim(adjustl(s_kb_prf_gas(k))).eq.gas(j)) then
+                  ! only retrieved if originally it was not a profile
+                  if(.not.ifprf(j)) ifprf_kb(j) = .true.
+                  ! but now it needs to be set to profile in order to setup correctly
+                  ifprf(j) = .true.
+               end if
+            end do
+         end do
+      end if
+
+! ---  DEFINE NEW STATEVECTOR FOR CALCULATING KB-MATRIX
+      IF( F_KB_SLOPE .AND. NBACK.LT.2 )      NBACK = 2
+      IF( F_KB_CURVATURE .AND. NBACK.LT.3 )  NBACK = 3
+      IF( F_KB_SOLSHFT )                     F_RTSOL(4) = .TRUE.
+      IF( F_KB_SOLSTRNTH )                   F_RTSOL(5) = .TRUE.
+      IF( F_KB_PHASE )                       IFPHASE = .TRUE.
+      IF( F_KB_TEMP )                        IFTEMP = .TRUE.
+      IF( F_KB_IFDIFF )                      IFDIFF = .TRUE.
+      IF( F_KB_EAP )                         F_RTAPOD = .TRUE.
+      IF( F_KB_EPHS )                        F_RTPHASE = .TRUE.
+      IF( F_KB_ZSHIFT )                      IZERO(:NBAND) = 1
+      IF( F_KB_WSHIFT )THEN
+         ISPARM = 3
+         F_WSHIFT = .TRUE.
+      ENDIF
+      IF( F_KB_SZA )THEN
+         IFSZA = 1
+         DO I = 1, NSPEC
+            ASTANG0(I) = ASTANG(I)
+         ENDDO
+      ENDIF
+      DO I = 1, NBAND
+         IF( F_KB_FOV )THEN
+            IFFOV = 1
+            OMEGA0(I) = OMEGA(I)
+         ENDIF
+         IF( F_KB_OPD )THEN
+            IFOPD = 1
+            PMAX0(I) = PMAX(I)
+         ENDIF
+      ENDDO
+
+      if( f_kb_line )then
+         ifline = 1
+         ! --- find for which gases are Kb for line parameters are calculated
+         select case (trim(adjustl(s_kb_line_gases)))
+         case ('target')
+            s_kb_line_gas(1) = trim(adjustl(gas(1)))
+            niline = 1
+            npline = 1
+            ntline = 1
+            nrlgas = 1
+         case ('retrieval')
+            do k = 1,ngas
+               s_kb_line_gas(k) = trim(adjustl(gas(k)))
+            end do
+            niline = ngas
+            npline = ngas
+            ntline = ngas
+            nrlgas = ngas
+         case default
+            val = adjustl(trim(s_kb_line_gases))
+            nrlgas = 0
+            pos = index(adjustl(val),' ')
+            do
+!                 print *,val
+               if (len_trim(val).eq.0) exit
+               nrlgas = nrlgas + 1
+               if (pos.gt.0) then
+                  read(val(1:pos),*) s_kb_line_gas(nrlgas)
+               else
+                  read(val(1:len_trim(adjustl(val))),*) s_kb_line_gas(nrlgas)
+                  exit
+               end if
+               val = adjustl(val(pos+1:len(val)))
+               pos = index(trim(adjustl(val)),' ')
+            end do
+            niline = nrlgas
+            npline = nrlgas
+            ntline = nrlgas
+         end select
+      end if
+
+! --- SET THE ENTRIES OF THE STATEVECTOR AS A PRIORI IN THE NEW PARM VECTOR TO MAKE
+!     SURE THE KB MATRICES ARE CALCULATED AS DEVIATIONS FROM THE RETRIEVED STATE
+
+! --- SETUP NEW PARM ARRAY
+      ORIG_PNAME(:NVAR) = PNAME(:NVAR)
+      ORIG_NVAR = NVAR
+      RETFLG = .FALSE.
+      CALL INIT_PARM()
+
+      IS_IN_KB(:NVAR) = .TRUE.
+      do k=1, NVAR
+         do i=1, ORIG_NVAR
+
+! --- DON'T COMPUTE K FOR RETRIEVED B
+            if (ORIG_PNAME(i).eq.PNAME(k)) then
+               ORIG_PNAME(i) = ''
+               parm(k) = xhat(i)
+               IS_IN_KB(k) = .false.
+               ! CHECK IF THE ORIGINALLY RETRIEVED GAS IS A COLUMN
+               DO J = 1,NRET
+                  ! IF SO, CALCULATE A KB ENTRY FOR THIS GAS AS A PROFILE
+                  IF ((PNAME(K).EQ.GAS(J)).AND.(IFPRF_KB(J).AND.IFPRF(J))) THEN
+                     IS_IN_KB(K) = .TRUE.
+                     PARM(K:K+NLEV) = XHAT(I)
+                  END IF
+               END DO
+               exit
+            end if
+
+! --- IWNUMSHIFT GETS SET TO RETRIEVED VALUE OF SWNUMSHIFT
+            if( ORIG_PNAME(i) .eq. 'SWNumShft' .and. PNAME(k) .eq. 'IWNumShft' )then
+               ORIG_PNAME(i) = ''
+               parm(k) = xhat(i)
+               IS_IN_KB(k) = .false.
+               exit
+            end if
+         end do
+      end do
+
+!         PRINT *, PNAME
+!         print *, XHAT(:ORIG_NVAR)
+!         print *, PARM(:NVAR)
+!         print *, IS_IN_KMATRIX(:NVAR)
+
+
+      WRITE(16,250)
+      DO I=1, NVAR
+         WRITE(16,251) I, PNAME(I), PARM(I), SPARM(I), IS_IN_KB(I)
+      ENDDO
+
+      IF( ALLOCATED(KHAT) )DEALLOCATE( KHAT )
+      ALLOCATE(KHAT(NFIT,NVAR))
+      TOBS(:NFIT) = TOBS_ORIG(:NFIT)
+
+      !write(100,*) YHAT(:NFIT)
+      CALL FM(PARM, YHAT, KHAT, NFIT, NVAR, .TRUE., -1, HFLG )
+      !write(100,*) YHAT(:NFIT)
+      !close(100)
+
+      CALL FILEOPEN(90,1)
+      WRITE(90,*) TRIM(TAG), ' KB VECTORS FOR MODEL PARAMETERS BI'
+      WRITE(90,*) NFIT, COUNT(IS_IN_KB(:NVAR),1), -1, -1
+      WRITE(90,260) ADJUSTR( PACK( PNAME(:NVAR), IS_IN_KB(:NVAR) ))
+      DO J=1, NFIT
+         WRITE(90,261) PACK(KHAT(J,:), IS_IN_KB(:NVAR))
+      END DO
+      CALL FILECLOSE( 90, 1 )
+
+! --- WRITE OUT AB (G*KB) IN FRACTIONS OF A PRIORI, THIS CORRESPONDS TO FORMULA
+!     3.16 ON PAGE 48 IN RODGERS BOOK AND CAN DIRECTLY BE USED FOR THE ERROR CALCULATION
+      IF( F_WRTAB )THEN
+         IF( ALLOCATED(A) )DEALLOCATE(A)
+         ALLOCATE(A(ORIG_NVAR, NVAR))
+         CALL MULT( G, KHAT, A, ORIG_NVAR, NFIT, NVAR )
+
+         CALL FILEOPEN(92,1)
+         WRITE(92,*) TRIM(TAG), ' DY#KB=AB MATRIX FOR MODEL PARAMETERS BI'
+         IF( IFPRF_1_ORIG )NL = NLEV
+         WRITE(92,*) NLEV, COUNT(IS_IN_KB(:NVAR),1), -1, -1
+         WRITE(92,260) ADJUSTR( PACK( PNAME(:NVAR), IS_IN_KB(:NVAR) ))
+         DO J=1, NLEV
+            WRITE(92,261) PACK(A(J+ISMIX, :), IS_IN_KB(:NVAR))
+         ENDDO
+         CALL FILECLOSE( 92, 1 )
+      ENDIF
+
       RETURN
-      END SUBROUTINE SFIT4
+
+  251 FORMAT(I5, 3X, A10, 2F15.7, 4X, L1 )
+  250 FORMAT(/, '    I   PARAMETER   POSTERORI_VALUE     SIGMA     COMPUTED_IN_KB')
+!  252 FORMAT(' COMPUTING KB FOR PARAMTETERS :',255(/,3X,A14))
+  254 FORMAT(/, 'BEGIN KB CALCULATIONS:',/)
+  260 FORMAT( 2000( 12X, A14 ))
+  261 FORMAT( 2000ES26.18 )
+
+      END SUBROUTINE KBCALCULATE
+
+      SUBROUTINE RELEASE_MEM_SFT
+
+      IF( ALLOCATED( XHAT ))DEALLOCATE( XHAT )
+      IF( ALLOCATED( YHAT ))DEALLOCATE( YHAT )
+      IF( ALLOCATED( XAPR ))DEALLOCATE( XAPR )
+      IF( ALLOCATED( Y )   )DEALLOCATE( Y )
+      IF( ALLOCATED( SED ) )DEALLOCATE( SED )
+
+      END SUBROUTINE RELEASE_MEM_SFT
+
+      END MODULE SFIT4

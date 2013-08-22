@@ -52,7 +52,12 @@
       ENDDO
       DO J=1, I
 ! --- SHOULD NOT GET HERE DUE TO CHECKS IN BINPUT_PARSE...
-        IF( .NOT. IFPRF(J) )STOP 'PUT COLUMN RETREAVAL GAS AFTER LAST PROFILE GAS'
+         IF( .NOT. IFPRF(J) )THEN
+            WRITE(16,*) 'PUT COLUMN RETREAVAL GAS AFTER LAST PROFILE GAS'
+            WRITE(00,*) 'PUT COLUMN RETREAVAL GAS AFTER LAST PROFILE GAS'
+            CALL SHUTDOWN
+            STOP 2
+         ENDIF
       ENDDO
 
       WRITE (16, 402) NLAYERS
@@ -60,18 +65,18 @@
       WRITE (16, 410) USEISO
 
       IF (NLAYERS .NE. NLEV) THEN
-         WRITE (*, *) "NUMBER OF LAYERS FROM INPUT  ",NLAYERS," FOR GAS ",GAS(J)
-         WRITE (*, *) "DOES NOT MATCH LAYERS FROM STATION.LAYERS FILE (USED IN RAYTRACING) ",NLEV
          WRITE (16, *) "NUMBER OF LAYERS FROM INPUT  ",NLAYERS," FOR GAS ",GAS(J)
          WRITE (16, *) "DOES NOT MATCH LAYERS FROM STATION.LAYERS FILE (USED IN RAYTRACING) ",NLEV
-         CLOSE(16)
-         STOP
-      END IF
+         WRITE (00, *) "NUMBER OF LAYERS FROM INPUT  ",NLAYERS," FOR GAS ",GAS(J)
+         WRITE (00, *) "DOES NOT MATCH LAYERS FROM STATION.LAYERS FILE (USED IN RAYTRACING) ",NLEV
+         CALL SHUTDOWN
+         STOP 2
+      ENDIF
 
 ! --- SEE IF WE NEED TO SEPARATE OUT ISOTOPES
       IF ( USEISO ) CALL RDISOFILE( 16 )
 
-      IF (NRET <= NRMAX) THEN
+      IF( NRET .LE. NRMAX .AND. NRET .GE. 1 )THEN
          DO J = 1, NRET
             WRITE (16, 600) J, GAS(J)
             !print *,J, GAS(J)
@@ -80,8 +85,10 @@
                IF (GAS(J) == NAME(I)) GO TO 176
             END DO
             WRITE (16, 610) GAS(J)
-            WRITE (*, 610) GAS(J)
-            STOP
+            WRITE (00, 610) GAS(J)
+            CALL SHUTDOWN
+            STOP 2
+
   176       CONTINUE
             IGAS(J) = I
             WRITE (16, 601) IFPRF(J)
@@ -93,14 +100,14 @@
                IF( ABS(COLSF(J)) .LT. TINY(0.0D0) )THEN
                   WRITE (16, *) "APRIORI VMR SCALE FOR COLUMN GAS: ",GAS(J), " IS NOT SET IN SFIT4.CTL FILE"
                   WRITE ( 0, *) "APRIORI VMR SCALE FOR COLUMN GAS: ",GAS(J), " IS NOT SET IN SFIT4.CTL FILE"
-                  CLOSE(16)
-                  STOP
+                  CALL SHUTDOWN
+                  STOP 2
                ENDIF
                IF( ABS(SCOLSF(J)) .LT. TINY(0.0D0) )THEN
                   WRITE (16, *) "COLUMN SIGMA FOR GAS: ",GAS(J), " IS NOT SET IN SFIT4.CTL FILE"
                   WRITE ( 0, *) "COLUMN SIGMA FOR GAS: ",GAS(J), " IS NOT SET IN SFIT4.CTL FILE"
-                  CLOSE(16)
-                  STOP
+                  CALL SHUTDOWN
+                  STOP 2
                ENDIF
 
                CYCLE
@@ -115,8 +122,8 @@
             IF( ABS(COLSF(J)) .LT. TINY(0.0D0) )THEN
                WRITE (16, *) "APRIORI VMR SCALE PROFILE FOR  ",GAS(J), " IS NOT SET IN SFIT4.CTL FILE"
                WRITE ( 0, *) "APRIORI VMR SCALE PROFILE FOR  ",GAS(J), " IS NOT SET IN SFIT4.CTL FILE"
-               CLOSE(16)
-               STOP
+               CALL SHUTDOWN
+               STOP 2
             ENDIF
             WRITE (16, 611) COLSF(J)
             SELECT CASE ( IFOFF(J) )
@@ -143,7 +150,10 @@
                WRITE (16, 612) (SIG(I,J),I=1,NLAYERS)
                !SIG( 1:N, J ) = 0.0D0
             CASE DEFAULT
-               STOP ' READCK1: FLAG IFOFF MUST BE ONE OF 0, 1, 2, 4, 5'
+               WRITE(16,*) ' READCK1: FLAG IFOFF MUST BE ONE OF 0, 1, 2, 4, 5'
+               WRITE(00,*) ' READCK1: FLAG IFOFF MUST BE ONE OF 0, 1, 2, 4, 5'
+               CALL SHUTDOWN
+               STOP 2
             END SELECT
 
             WRITE(16,619) ILOGRETRIEVAL(J)
@@ -163,7 +173,10 @@
             CASE (3)
                WRITE (16,*) '  3 = USE SDV & LINE MIXING FOR LINES WITH PARAMETERS'
             CASE DEFAULT
-               STOP ' LINE SHAPE MODEL FLAG OUT OF RANGE MIST BE 0, 1, 2, 3)'
+               WRITE(16,*)' LINE SHAPE MODEL FLAG OUT OF RANGE MIST BE 0, 1, 2, 3)'
+               WRITE(00,*)' LINE SHAPE MODEL FLAG OUT OF RANGE MIST BE 0, 1, 2, 3)'
+               CALL SHUTDOWN
+               STOP 2
          END SELECT
 
          NEGFLAG = -1
@@ -173,24 +186,29 @@
          ENDIF
          WRITE (16, 650) ITRMAX
 
-         RETURN
-
-     ENDIF
-
-      IF( CONVERGENCE .LT. 0.0 )THEN
-        WRITE(16,651)
-        CLOSE(10)
-        STOP
+      ELSE IF( NRET .EQ. 0 )THEN
+         WRITE(16,630)
       ENDIF
 
-      WRITE (16, 605) NRMAX
-      CLOSE(16)
-      STOP
+      RETURN
+
+      IF( CONVERGENCE .LT. 0.0 )THEN
+         WRITE(16,651)
+         WRITE(00,651)
+         CALL SHUTDOWN
+         STOP 2
+      ENDIF
+
+!      WRITE (16, 605) NRMAX
+!      CLOSE(16)
+!      STOP
 
   301 CONTINUE
       WRITE (16, 606) NPGAS, MAXPRF
-      CLOSE(16)
-      STOP
+      WRITE (00, 606) NPGAS, MAXPRF
+      CALL SHUTDOWN
+      STOP 2
+
 
   402 FORMAT(/,' NUMBER OF RETRIEVAL LAYERS IN INPUT VARIANCE VECTORS : ', I5 )
   400 FORMAT(  ' NUMBER OF RETRIEVAL GASES (MAX=',I2,')                   : ', I5 )
@@ -201,7 +219,7 @@
   600 FORMAT(/,' RETRIEVAL GAS #      ',I2, '                    : ', A7)
   601 FORMAT(  ' PROFILE RETRIEVAL CODE                     : ',L5 )
 
-  605 FORMAT(' ABORT -- NUMBER OF RETRIEVAL GASES EXCEEDS',I2)
+!  605 FORMAT(' ABORT -- NUMBER OF RETRIEVAL GASES EXCEEDS',I2)
   606 FORMAT(' ABORT -- NUMBER OF PROFILE RETRIEVALS (NPGAS=',I2,&
          ') EXCEEDS MAXIMUM (MAXPRF=',I2,')')
   610 FORMAT(' READCK1: RETRIEVAL GAS : ', A7, ' NOT IN INPUT LIST *** ABORT')
@@ -221,7 +239,8 @@
   620 FORMAT(/,' HALF WIDTH OF INTEGRATION INTERVAL(CM-1)   : ', F10.7 )
  ! 622 FORMAT(  ' LINESHAPE MODEL                          : ', I5, /, &
  !              ' 1-VOIGT, 2-GALATRY, 0-GALATRY IF B0 EXISTS' )
-  650 FORMAT(/ ' MAXIMUM NUMBER OF ITERATIONS               : ', I5)
+  630 FORMAT(/,'NO GASES BEING RETRIEVED.')
+  650 FORMAT(/,' MAXIMUM NUMBER OF ITERATIONS               : ', I5)
   651 FORMAT(' CONVERGENCE VARIABLE MUST BE GREATER THEN 0')
       RETURN
 
@@ -290,7 +309,9 @@
             WRITE(16,130) ' WRITE OUT GAS FILES FOR ALL ITERATIONS'
          CASE DEFAULT
             WRITE(16,130) ' PARAMETER OUTPUT.WRT_GASFILES.TYPE OUT OF RANGE (1 || 2 ONLY)'
-            STOP ' PARAMETER OUTPUT.WRITE_GASFILES.TYPE OUT OF RANGE (1 || 2 ONLY)'
+            WRITE(16,130) ' PARAMETER OUTPUT.WRT_GASFILES.TYPE OUT OF RANGE (1 || 2 ONLY)'
+            CALL SHUTDOWN
+            STOP 2
          END SELECT
       ENDIF
 
@@ -366,7 +387,13 @@
          FOVDIA(I) = OMEGA(I)
          OMEGA(I) = 2.0D0*PI*(1.D0 - COS(1.D-03*OMEGA(I)/2.D0))
 
-         IF( WAVE3(I) .GE. WAVE4(I) )STOP 'SFIT4.CTRL: BANDPASS LIMITS OUT OF ORDER'
+         IF( WAVE3(I) .GE. WAVE4(I) )THEN
+            WRITE(16,*) 'SFIT4.CTRL: BANDPASS LIMITS OUT OF ORDER'
+            WRITE(00,*) 'SFIT4.CTRL: BANDPASS LIMITS OUT OF ORDER'
+            CALL SHUTDOWN
+            STOP 2
+         ENDIF
+
          WRITE (16, 101) I
          WRITE (16, 102) WAVE3(I), WAVE4(I), ZSHIFT(I,1), IZERO(I), NRETB(I)
          WRITE (16, 113) OMEGA(I), FOVDIA(I)
@@ -392,7 +419,8 @@
                IF (GASB(I,J) == NAME(IGAS(N))) GO TO 43
             END DO
             WRITE (16, 105) TRIM(GASB(I,J)), WAVE3(I), WAVE4(I)
-            STOP
+            !STOP
+            goto 50
    43       CONTINUE
             IGASB(I,J) = IGAS(N)
             NGASB(I,J) = N
@@ -401,6 +429,9 @@
          END DO
          WRITE(16, *)''
 
+! work in progress no vmr or temp retrieval jwh
+
+ 50      continue
 ! --- SWITCH OFF TRETB IN THIS BAND IF IFTEMP IS OFF
          IF( .NOT. IFTEMP ) TRETB(I) = .FALSE.
 
@@ -413,7 +444,9 @@
 ! --- CHECK RETRIEVING ANYTHING IN THIS BAND
          IF(( .NOT. TRETB(I) ) .AND. ( K .EQ. 0 ))THEN
             WRITE(16,*) ' NOT RETRIEVING ANY QUANTITY IN THIS BAND'
-            STOP
+            WRITE(00,*) ' NOT RETRIEVING ANY QUANTITY IN THIS BAND'
+            CALL SHUTDOWN
+            STOP 2
          ENDIF
 
 ! --- CHANNEL PARAMETERS IF EXISTS
@@ -431,20 +464,26 @@
       END DO
 
       IF( TBCK .EQ. 0 .AND. IFTEMP )THEN
-         STOP ' IFTEMP SET BUT NOT IN A BAND'
+         WRITE(16,*) ' IFTEMP SET BUT NOT IN A BAND'
+         WRITE(00,*) ' IFTEMP SET BUT NOT IN A BAND'
+         CALL SHUTDOWN
+         STOP 2
       ENDIF
 
       DO I = 2, NBAND
          IF (WAVE3(I) >= WAVE3(1)) CYCLE
          WRITE(16, *) 'MICRO-WINDOWS MUST BE IN ASCENDING WAVENUMBER ORDER'
-         STOP 'MICRO-WINDOWS NOT IN ASCENDING ORDER'
+         WRITE(00, *) 'MICRO-WINDOWS MUST BE IN ASCENDING WAVENUMBER ORDER'
+         CALL SHUTDOWN
+         STOP 2
       END DO
 
       DO J = 1, NRET
          IF( .NOT. INBAND(J) )THEN
             WRITE(16,114) J, NAME(IGAS(J))
             WRITE(0 ,114) J, NAME(IGAS(J))
-            STOP
+            CALL SHUTDOWN
+            STOP 2
          ENDIF
       ENDDO
 

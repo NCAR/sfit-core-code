@@ -118,9 +118,12 @@
       ALLOCATE (IW(MFFT(IBAND)+1), STAT=NAERR)
 
       IF (NAERR /= 0) THEN
-          WRITE (6, *) 'COULD NOT ALLOCATE IW ARRAY'
-          WRITE (6, *) 'ERROR NUMBER = ', NAERR
-          STOP 'FSPECT2 ALLOCATION'
+          WRITE(16, *) 'FSPECT2: COULD NOT ALLOCATE IW ARRAY'
+          WRITE(16, *) 'ERROR NUMBER = ', NAERR
+          WRITE(00, *) 'FSPECT2: COULD NOT ALLOCATE IW ARRAY'
+          WRITE(00, *) 'ERROR NUMBER = ', NAERR
+          CALL SHUTDOWN
+          STOP 4
       ENDIF
 
 ! ---COMPLEX INVERSE TRANSFORM
@@ -155,9 +158,12 @@
 
       ALLOCATE (IW(MFFT(IBAND)+1), STAT=NAERR)
       IF (NAERR /= 0) THEN
-          WRITE (6, *) 'COULD NOT ALLOCATE IW ARRAY'
-          WRITE (6, *) 'ERROR NUMBER = ', NAERR
-          STOP 'FSPECT1 ALLOCATION'
+          WRITE(16, *) 'FSPECT1: COULD NOT ALLOCATE IW ARRAY'
+          WRITE(16, *) 'ERROR NUMBER = ', NAERR
+          WRITE(00, *) 'FSPECT1: COULD NOT ALLOCATE IW ARRAY'
+          WRITE(00, *) 'ERROR NUMBER = ', NAERR
+          CALL SHUTDOWN
+          STOP 4
       ENDIF
 
       LF        = LOWFIL(IBAND)
@@ -202,9 +208,11 @@
          CASE (1, 4)
    ! --- INTERPOLATE THE PHASE FUNCTION TO PATH DIFFERENCE X
             IF( X .LT. (EPHSX(1) - DX) .OR. X .GT. (EPHSX(JEPHS) + DX) )THEN
-                WRITE (16, *) 'PATH DIFFERENCE', X, ' IS OUT OF RANGE OF EPHSX'
                !PRINT *, X, EPHSX(1), DX, EPHSX(JEPHS)
-               STOP
+               WRITE (16, *) 'PATH DIFFERENCE', X, ' IS OUT OF RANGE OF EPHSX'
+               WRITE (00, *) 'PATH DIFFERENCE', X, ' IS OUT OF RANGE OF EPHSX'
+               CALL SHUTDOWN
+               STOP 4
             ENDIF
             IMAX = JEPHS
             DO I = 2, JEPHS
@@ -251,8 +259,10 @@
          CASE (1, 4)
    ! --- INTERPOLATE THE APODIZATION FUNCTION TO PATH DIFFERENCE X
             IF (X<EAPX(1) - DX .OR. X>EAPX(JEAP)+DX) THEN
-               WRITE (16, *) 'PATH DIFFERENCE', X, ' IS OUT OF RANGE OF EAPX'
-               STOP
+               WRITE(16, *) 'PATH DIFFERENCE', X, ' IS OUT OF RANGE OF EAPX'
+               WRITE(00, *) 'PATH DIFFERENCE', X, ' IS OUT OF RANGE OF EAPX'
+               CALL SHUTDOWN
+               STOP 4
             ENDIF
             DO I = 2, JEAP
                IF (EAPX(I) <= X) CYCLE
@@ -278,8 +288,10 @@
             END DO
 
          CASE DEFAULT
-            WRITE (0, *) ' EAPDZ.F : ERROR IEAP OUT OF RANGE (1-4) : ', IEAP
-            STOP
+            WRITE(16, *) ' EAPDZ.F : ERROR IEAP OUT OF RANGE (1-4) : ', IEAP
+            WRITE(00, *) ' EAPDZ.F : ERROR IEAP OUT OF RANGE (1-4) : ', IEAP
+            CALL SHUTDOWN
+            STOP 4
          END SELECT
 
       ENDIF
@@ -408,9 +420,12 @@
       ENDIF
 
 !      YOU HAVE ASKED FOR NON-EXISTANT APODIZATION
-      WRITE (16, 11) IAP
+      WRITE(16, 11) IAP
+      WRITE(00, 11) IAP
+      CALL SHUTDOWN
+      STOP 4
+
    11 FORMAT(' NO SUCH APODIZING FUNCTION - IAP =',I4)
-      STOP 'APDZ'
 
       END FUNCTION APDZ
 

@@ -105,13 +105,13 @@
          IF( ICOUNT .GT. 1 )IPARM = ICOUNT -1
 
          IF( BUG1 )PRINT *,''
-         IF( BUG1 )WRITE(0,202) 'TOP :  ', ITER, ICOUNT, IPARM, ntemp1
+         IF( BUG1 )WRITE(0,202) 'TOP :  ', ITER, ICOUNT, IPARM, NTEMP1, NVAR1
 
 ! --- RESET PARM TO PERTURB EACH INDIVIDUALLY
          PARM(:NVAR) = XN
          IF (ICOUNT .GT. 1) THEN
             PARM(IPARM) = PARM(IPARM) + DEL
-            IF( BUG1 )WRITE(0,203) '     PARM: ', IPARM, PNAME(IPARM), PARM(IPARM)-del, PARM(IPARM)
+            IF( BUG1 )WRITE(0,203) '     PARM: ', IPARM, PNAME(IPARM), PARM(IPARM)+del, PARM(IPARM)
          ENDIF
 
 !  --- ADJUST THESE PARAMETERS IN BAND/SPEC LOOPS BELOW
@@ -275,6 +275,7 @@
                !if(ntemp1 .eq. ncount+1) print*, k, t(k), torg(k)
                !print*, ncount+1, ntemp1, k
                T(:KMAX) = PARM(NCOUNT+1:NCOUNT+KMAX) * TORG(:KMAX)
+               !print*,PARM(NCOUNT+1:NCOUNT+KMAX)
                !if(ntemp1 .eq. ncount+1) print*, k, t(k), torg(k), ITER, KMAX
                NCOUNT = NCOUNT + KMAX
                   !CALL LBLATM( ITER, KMAX )
@@ -473,9 +474,10 @@
 !  --- SAVE TCALC
                   ALLOCATE (TCONVSAV(NMONSM), STAT=NAERR)
                   IF (NAERR /= 0) THEN
-                    WRITE (6, *) 'COULD NOT ALLOCATE TCONVSAV ARRAY'
-                    WRITE (6, *) 'ERROR NUMBER = ', NAERR
-                    STOP 'SETUP ALLOCATION'
+                       WRITE (16, *) 'FWRDMDL: COULD NOT ALLOCATE TCONVSAV ARRAY, ERROR NUMBER = ', NAERR
+                       WRITE ( 0, *) 'FWRDMDL: COULD NOT ALLOCATE TCONVSAV ARRAY, ERROR NUMBER = ', NAERR
+                       CALL SHUTDOWN
+                       STOP 2
                   ENDIF
                   TCONVSAV(:NMONSM) = TCONV(:NMONSM)
                   TCALC(1,:NMONSM) = TCALC(2,:NMONSM)
@@ -678,6 +680,7 @@
    17 CONTINUE
       WRITE (16, 18) N1, N2, IBAND, NSTART(IBAND), MSHIFT, MONONE, NPRIM(IBAND), NSPAC(IBAND)
       WRITE (16,*) "WAVENUMBER SHIFT OUT OF SPECTRAL RANGE."
+      WRITE ( 0,*) "WAVENUMBER SHIFT OUT OF SPECTRAL RANGE."
       TFLG=.TRUE.
       RETURN
 
@@ -692,7 +695,7 @@
  !163  FORMAT(F8.3)
   261 FORMAT( I5, 2000ES26.18 )
  !201  FORMAT(A, 2I5, 2X, E14.6, 3F15.7)
- 202  FORMAT(A, 3I5, 2X, A10, E14.6, 3F14.8)
+ 202  FORMAT(A, 5I5, 2X, A10, E14.6, 3F14.8)
  203  FORMAT(A, I5, 2X, A, 3F14.6)
  204  FORMAT(A, l1, 2I5, 2X, E14.6, 3D16.8)
  556  FORMAT(/,' COULD NOT CREATE INDIVIDUAL GAS FILE')

@@ -127,9 +127,10 @@ contains
        select case (trim(adjustl(keyword(3))))
        case ('list')
           if(f_gasprf) then
-             write(*,*) 'gas.profile.list already given'
-             write(16,*) 'gas.profile.list already given'
-             stop
+             WRITE(16,*) 'BINPUT_PARSE_4_0:READ_GAS_SECTION: gas.profile.list ALREADY GIVEN'
+             WRITE( 0,*) 'BINPUT_PARSE_4_0:READ_GAS_SECTION: gas.profile.list ALREADY GIVEN'
+             CALL SHUTDOWN
+             STOP 1
           end if
           nprf = 0
           pos = index(adjustl(val),' ')
@@ -186,9 +187,12 @@ contains
              case ('maxalt')
                 read(value,*) zgmax(nr)
              case default
-                print*, 'Key ', trim(keyword(5)), ' not contained in section gas...correlation'
-                write(16,*) 'Key ', trim(keyword(5)), ' not contained in section gas...correlation'
-                stop
+                WRITE(16,*) 'BINPUT_PARSE_4_0:READ_GAS_SECTION: Key ', trim(keyword(4)), &
+                            ' not contained in section gas...correlation'
+                WRITE( 0,*) 'BINPUT_PARSE_4_0:READ_GAS_SECTION: Key ', trim(keyword(4)), &
+                            ' not contained in section gas...correlation'
+                CALL SHUTDOWN
+                STOP 1
              end select
            endif
        case ('scale')
@@ -213,9 +217,10 @@ contains
        select case (trim(adjustl(keyword(3))))
        case ('list')
        if(f_gascol) then
-          write(*,*) 'gas.column.list already given'
-          write(16,*) 'gas.column.list already given'
-          stop
+          WRITE(16,*) 'BINPUT_PARSE_4_0:READ_GAS_SECTION: Key ', trim(keyword(4)), ' not contained in section gas...correlation'
+          WRITE( 0,*) 'BINPUT_PARSE_4_0:READ_GAS_SECTION: Key ', trim(keyword(4)), ' not contained in section gas...correlation'
+          CALL SHUTDOWN
+          STOP 1
        end if
        pos = index(adjustl(val),' ')
           !       write(*,*) val, pos
@@ -301,9 +306,10 @@ contains
                 pos = index(trim(adjustl(val)),' ')
              end do
           case default
-             write(*,*) 'Parameter ', trim(keyword(3)), 'not defined for fm.linemixing'
-             write(16,*) 'Parameter ', trim(keyword(3)), 'not defined for fm.linemixing'
-             stop
+             WRITE(16,*) 'BINPUT_PARSE_4_0:READ_FW_SECTION: Parameter ', trim(keyword(3)), 'not defined for fm.linemixing'
+             WRITE( 0,*) 'BINPUT_PARSE_4_0:READ_FW_SECTION: Parameter ', trim(keyword(3)), 'not defined for fm.linemixing'
+             CALL SHUTDOWN
+             STOP 1
           end select
        end if
     case('solar_spectrum')
@@ -361,17 +367,19 @@ contains
                 ienorm = 0
              end if
           case default
-             print*, 'Key ', trim(keyword(3)), ' not contained in section fw.emission'
-             write(16,*) 'Key ', trim(keyword(3)), ' not contained in section fw.emission'
-             stop
+             WRITE(16,*) 'BINPUT_PARSE_4_0:READ_FW_SECTION: Key ', trim(keyword(3)), ' not contained in section fw.emission'
+             WRITE( 0,*) 'BINPUT_PARSE_4_0:READ_FW_SECTION: Key ', trim(keyword(3)), ' not contained in section fw.emission'
+             CALL SHUTDOWN
+             STOP 1
           end select
        end if
     case ('raytonly')
        read(value,*) raytonly
     case default
-       print*, 'Key ', trim(keyword(2)), ' not contained in section : fw'
-       write(16,*) 'Key ', trim(keyword(2)), ' not contained in section : fw'
-       stop
+       WRITE(16,*) 'BINPUT_PARSE_4_0:READ_FW_SECTION: Key ', trim(keyword(2)), ' not contained in section : fw'
+       WRITE( 0,*) 'BINPUT_PARSE_4_0:READ_FW_SECTION: Key ', trim(keyword(2)), ' not contained in section : fw'
+       CALL SHUTDOWN
+       STOP 1
     end select
 
   end subroutine read_fw_section
@@ -441,14 +449,16 @@ contains
        case('gas')
           S_KB_LINE_GASES = adjustl(trim(value))
        case default
-          print*, 'Key ', trim(keyword(3)), ' not contained in section kb.line'
-          write(16,*) 'Key ', trim(keyword(3)), ' not contained in section kb.line'
-          stop
+          WRITE(16,*) 'BINPUT_PARSE_4_0:READ_KB_SECTION: Key ', trim(keyword(3)), ' not contained in section kb.line'
+          WRITE( 0,*) 'BINPUT_PARSE_4_0:READ_KB_SECTION: Key ', trim(keyword(3)), ' not contained in section kb.line'
+          CALL SHUTDOWN
+          STOP 1
        end select
     case default
-       print*, 'Key ', trim(keyword(2)), ' not contained in section : kb'
-       write(16,*) 'Key ', trim(keyword(2)), ' not contained in section : kb'
-       stop
+       WRITE(16,*) 'BINPUT_PARSE_4_0:READ_KB_SECTION: Key ', trim(keyword(2)), ' not contained in section : kb'
+       WRITE( 0,*) 'BINPUT_PARSE_4_0:READ_KB_SECTION: Key ', trim(keyword(2)), ' not contained in section : kb'
+       CALL SHUTDOWN
+       STOP 1
     end select
 
   end subroutine read_kb_section
@@ -615,9 +625,10 @@ contains
     case ('dwshift')
        read(value, *) ifdiff
     case default
-       print*, 'Key ', trim(keyword(2)), ' not contained in section : rt'
-       write(16,*) 'Key ', trim(keyword(2)), ' not contained in section : rt'
-       stop
+       WRITE(16,*) 'BINPUT_PARSE_4_0:READ_RT_SECTION: Key ', trim(keyword(2)), ' not contained in section : rt'
+       WRITE( 0,*) 'BINPUT_PARSE_4_0:READ_RT_SECTION: Key ', trim(keyword(2)), ' not contained in section : rt'
+       CALL SHUTDOWN
+       STOP 1
     end select
 
 
@@ -769,9 +780,10 @@ contains
          end select
       end if
    case default
-      print*, 'Key ', trim(keyword(3)), ' not contained in section : band'
-      write(16,*) 'Key ', trim(keyword(3)), ' not contained in section : band'
-      stop
+       WRITE(16,*) 'BINPUT_PARSE_4_0:READ_BAND_SECTION: Key ', trim(keyword(3)), ' not contained in section : band'
+       WRITE( 0,*) 'BINPUT_PARSE_4_0:READ_BAND_SECTION: Key ', trim(keyword(3)), ' not contained in section : band'
+       CALL SHUTDOWN
+       STOP 1
    end select
  end subroutine read_band_section
 
@@ -908,9 +920,10 @@ contains
        case ('g_matrix')
           read(value,*)  F_WRTG
        case default
-          print*, 'Key ', trim(keyword(2)), ' not contained in section : out'
-          write(16,*) 'Key ', trim(keyword(2)), ' not contained in section : out'
-          stop
+          WRITE(16,*) 'BINPUT_PARSE_4_0:READ_OUTPUT_SECTION: Key ', trim(keyword(2)), ' not contained in section : output'
+          WRITE( 0,*) 'BINPUT_PARSE_4_0:READ_OUTPUT_SECTION: Key ', trim(keyword(2)), ' not contained in section : output'
+          CALL SHUTDOWN
+          STOP 1
        end select
 
      end subroutine read_output_section

@@ -1,6 +1,7 @@
       PROGRAM RDRV
 
       USE PARAMS
+      USE SFIT4
       USE DATAFILES
       USE BINPUT_4_0
 
@@ -31,7 +32,7 @@
 
       CALL READ_BINPUT('sfit4.ctl')
 
-      CALL SFIT4 ( )
+      CALL SFIT ( )
 
       CALL CPU_TIME (END_TIME)
       WRITE(16,*)''

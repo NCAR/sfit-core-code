@@ -61,7 +61,7 @@
       CHARACTER(LEN=1024)                  :: S_KB_LINE_GASES
       CHARACTER(LEN=14), DIMENSION(MOLMAX) :: S_KB_LINE_GAS
 
-      LOGICAL, DIMENSION(NMAX) :: IS_IN_KMATRIX = .TRUE.
+      LOGICAL, DIMENSION(NMAX) :: IS_IN_KB = .true.
 
 
       CONTAINS
@@ -127,57 +127,66 @@
 
       ALLOCATE (CROSS(NRET+1,KMAX,NCROSS), STAT=NAERR)
       IF (NAERR /= 0) THEN
-         WRITE (6, *) 'Could not allocate CROSS array'
-         WRITE (6, *) 'Error Number = ', NAERR
-         STOP 'SETUP ALLOCATION'
+         WRITE (16, *) 'INITIALIZE: COULD NOT ALLOCATE CROSS ARRAY ERROR NUMBER = ', NAERR
+         WRITE ( 0, *) 'INITIALIZE: COULD NOT ALLOCATE CROSS ARRAY ERROR NUMBER = ', NAERR
+         CALL SHUTDOWN
+         STOP 2
       ENDIF
       ALLOCATE (CROSS_FACMAS(NRET+1,KMAX,NMONSM), STAT=NAERR)
       IF (NAERR /= 0) THEN
-         WRITE (6, *) 'Could not allocate CROSS_FACMAS array'
-         WRITE (6, *) 'Error Number = ', NAERR
-         STOP 'SETUP ALLOCATION'
+         WRITE (16, *) 'INITIALIZE: COULD NOT ALLOCATE CROSS_FACMAS ARRAY ERROR NUMBER = ', NAERR
+         WRITE ( 0, *) 'INITIALIZE: COULD NOT ALLOCATE CROSS_FACMAS ARRAY ERROR NUMBER = ', NAERR
+         CALL SHUTDOWN
+         STOP 2
       ENDIF
       ALLOCATE (TCO(NCROSS), STAT=NAERR)
       IF (NAERR /= 0) THEN
-         WRITE (6, *) 'Could not allocate TCO array'
-         WRITE (6, *) 'Error Number = ', NAERR
-         STOP 'SETUP ALLOCATION'
+         WRITE (16, *) 'INITIALIZE: COULD NOT ALLOCATE TCO ARRAY ERROR NUMBER = ', NAERR
+         WRITE ( 0, *) 'INITIALIZE: COULD NOT ALLOCATE TCO ARRAY ERROR NUMBER = ', NAERR
+         CALL SHUTDOWN
+         STOP 2
       ENDIF
       ALLOCATE (TCONV(NMONSM),STAT=NAERR)
       IF (NAERR /= 0) THEN
-         WRITE (6, *) 'Could not allocate TCONV array'
-         WRITE (6, *) 'Error Number = ', NAERR
-         STOP 'SETUP ALLOCATION'
+         WRITE (16, *) 'INITIALIZE: COULD NOT ALLOCATE TCONV ARRAY ERROR NUMBER = ', NAERR
+         WRITE ( 0, *) 'INITIALIZE: COULD NOT ALLOCATE TCONV ARRAY ERROR NUMBER = ', NAERR
+         CALL SHUTDOWN
+         STOP 2
       ENDIF
       ALLOCATE (TCALC(2,NMONSM), STAT=NAERR)
       IF (NAERR /= 0) THEN
-         WRITE (6, *) 'Could not allocate TCALC array'
-         WRITE (6, *) 'Error Number = ', NAERR
-         STOP 'SETUP ALLOCATION'
+         WRITE (16, *) 'INITIALIZE: COULD NOT ALLOCATE TCALC ARRAY ERROR NUMBER = ', NAERR
+         WRITE ( 0, *) 'INITIALIZE: COULD NOT ALLOCATE TCALC ARRAY ERROR NUMBER = ', NAERR
+         CALL SHUTDOWN
+         STOP 2
       ENDIF
       ALLOCATE (TCALC_I(2,NMONSM), STAT=NAERR)
       IF (NAERR /= 0) THEN
-         WRITE (6, *) 'Could not allocate TCALC_I array'
-         WRITE (6, *) 'Error Number = ', NAERR
-         STOP 'SETUP ALLOCATION'
+         WRITE (16, *) 'INITIALIZE: COULD NOT ALLOCATE TCALC_I ARRAY ERROR NUMBER = ', NAERR
+         WRITE ( 0, *) 'INITIALIZE: COULD NOT ALLOCATE TCALC_I ARRAY ERROR NUMBER = ', NAERR
+         CALL SHUTDOWN
+         STOP 2
       ENDIF
       ALLOCATE (IMGG(MAXMPT), STAT=NAERR)
       IF (NAERR /= 0) THEN
-         WRITE (6, *) 'Could not allocate IMGG array'
-         WRITE (6, *) 'Error Number = ', NAERR
-         STOP 'SETUP ALLOCATION'
+         WRITE (16, *) 'INITIALIZE: COULD NOT ALLOCATE IMGG ARRAY ERROR NUMBER = ', NAERR
+         WRITE ( 0, *) 'INITIALIZE: COULD NOT ALLOCATE IMGG ARRAY ERROR NUMBER = ', NAERR
+         CALL SHUTDOWN
+         STOP 2
       ENDIF
       ALLOCATE (TCALC_E(2,NMONSM, KMAX+1), STAT=NAERR)
       IF (NAERR /= 0) THEN
-         WRITE (6, *) 'Could not allocate TCALC_E array'
-         WRITE (6, *) 'Error Number = ', NAERR
-         STOP 'SETUP ALLOCATION'
+         WRITE (16, *) 'INITIALIZE: COULD NOT ALLOCATE TCALC_E ARRAY ERROR NUMBER = ', NAERR
+         WRITE ( 0, *) 'INITIALIZE: COULD NOT ALLOCATE TCALC_E ARRAY ERROR NUMBER = ', NAERR
+         CALL SHUTDOWN
+         STOP 2
       ENDIF
       ALLOCATE (TCALC_S(2,NMONSM, KMAX), STAT=NAERR)
       IF (NAERR /= 0) THEN
-         WRITE (6, *) 'Could not allocate TCALC_E array'
-         WRITE (6, *) 'Error Number = ', NAERR
-         STOP 'SETUP ALLOCATION'
+         WRITE (16, *) 'INITIALIZE: COULD NOT ALLOCATE TCALC_S ARRAY ERROR NUMBER = ', NAERR
+         WRITE ( 0, *) 'INITIALIZE: COULD NOT ALLOCATE TCALC_S ARRAY ERROR NUMBER = ', NAERR
+         CALL SHUTDOWN
+         STOP 2
       ENDIF
 
       WRITE (16, 212) NMONSM, NCROSS
@@ -285,7 +294,9 @@
             IF (IGAS(J) == ICODE(I)) GO TO 232
          END DO
          WRITE (16, 3663) J
-         STOP
+         WRITE (00, 3663) J
+         CALL SHUTDOWN
+         STOP 2
   232    CONTINUE
          IRET(J) = I
 
@@ -309,17 +320,21 @@
 
   107 CONTINUE
       WRITE (16, 668) NAME(ICODE(I))
-      CLOSE(16)
-      STOP 'ABORT !!! SETUP'
+      WRITE (00, 668) NAME(ICODE(I))
+      CALL SHUTDOWN
+      STOP 2
 
   120 CONTINUE
       WRITE (16, 130) JEAP, TFILE(23)
-      CLOSE(16)
+      WRITE (16, 130) JEAP, TFILE(23)
+      CALL SHUTDOWN
+      STOP 2
 
   125 CONTINUE
       WRITE (16, 135) JEPHS, TFILE(24)
-      CLOSE(16)
-      STOP 'ABORT !!! SETUP'
+      WRITE (16, 135) JEPHS, TFILE(24)
+      CALL SHUTDOWN
+      STOP 2
 
   130 FORMAT(/,' ABORT -SETUP2- ERROR READING EAP FILE. ',I5,' VALUE REQUIRED',/&
          ,' FILENAME: "',A,'"')
@@ -478,8 +493,11 @@
          ELSE
             IF( ABS(SPAC(IBAND)-SPACE) > SPACE/100000. )THEN
                WRITE(16,106)
-               PRINT *,"POINT SPACING MUST BE THE SAME FOR ALL SPECTRA IN BAND"
-               STOP
+               WRITE(16,*) "POINT SPACING MUST BE THE SAME FOR ALL SPECTRA IN BAND"
+               WRITE(00,106)
+               WRITE(00,*) "POINT SPACING MUST BE THE SAME FOR ALL SPECTRA IN BAND"
+               CALL SHUTDOWN
+               STOP 2
             ENDIF
          ENDIF
 
@@ -558,22 +576,24 @@
    40 CONTINUE
       WRITE (16, 101) MAXPT
       WRITE (16, 102) WSTART(IBAND), WSTOP(IBAND), NPTSB, NATMOS
-      CLOSE(16)
-      CLOSE(15)
-      STOP
+      WRITE (00, 101) MAXPT
+      WRITE (00, 102) WSTART(IBAND), WSTOP(IBAND), NPTSB, NATMOS
+      CALL SHUTDOWN
+      STOP 2
 
 ! --- TOO MANY SPECTRA
    50 CONTINUE
       WRITE(16,105) MAXSPE
-      WRITE(6,105) MAXSPE
-      STOP
+      WRITE(00,105) MAXSPE
+      CALL SHUTDOWN
+      STOP 2
 
 ! --- NO POINTS FOUND
    60 CONTINUE
       WRITE (16, 103)
-      CLOSE(6)
-      CLOSE(15)
-      STOP
+      WRITE (00, 103)
+      CALL SHUTDOWN
+      STOP 2
 
    10 FORMAT(1X,A80)
    11 FORMAT(  ' FIRST POINT (CM-1)                   : ',F12.4, /, &
@@ -934,21 +954,31 @@
          WRITE(*,*) 'FOUND SIGMA VALUE EQUAL TO ZERO'
          WRITE(16,*) 'FOUND SIGMA VALUE EQUAL TO ZERO'
          DO I=1, NVAR
-            PRINT*, I, PNAME(I), PARM(I), SPARM(I)
+            WRITE(16,*) I, PNAME(I), PARM(I), SPARM(I)
+            WRITE(00,*) I, PNAME(I), PARM(I), SPARM(I)
          ENDDO
-         STOP
+         CALL SHUTDOWN
+         STOP 2
       END IF
 
       RETURN
 
 556   CONTINUE
       WRITE (16, 223)
-      WRITE (6, *) 'NVAR =', NVAR, ' TO BIG, NMAX = ', NMAX
-      STOP 'INIT_PARM'
+      WRITE (16, *) 'NVAR =', NVAR, ' TO BIG, NMAX = ', NMAX
+      WRITE (00, 223)
+      WRITE (00, *) 'NVAR =', NVAR, ' TO BIG, NMAX = ', NMAX
+      CALL SHUTDOWN
+      STOP 2
+
 557   CONTINUE
       WRITE (16, 224)
-      WRITE (6, *) 'NFIT=', NFIT, 'TO BIG, MAX FIT PARMS =', MMAX
-      STOP 'INIT_PARM'
+      WRITE (16, *) 'NFIT=', NFIT, 'TO BIG, MAX FIT PARMS =', MMAX
+      WRITE (00, 224)
+      WRITE (00, *) 'NFIT=', NFIT, 'TO BIG, MAX FIT PARMS =', MMAX
+      CALL SHUTDOWN
+      STOP 2
+
 223   FORMAT(/,' ABORT--TOO MANY VARIABLES')
 224   FORMAT(/,' ABORT--TOO MANY SPECTRAL DATA POINTS')
 
@@ -1005,7 +1035,10 @@
                   RHO = MIN( RHO, 90.0D0 ) !664
                   SA(JROW,JCOL) = SPARM(JROW)*SPARM(JCOL)*EXP(-RHO)
                 CASE (3)
-                  STOP "IFOFF=3 not supported"
+                  WRITE(16,*) "IFOFF=3 NOT SUPPORTED"
+                  WRITE(00,*) "IFOFF=3 NOT SUPPORTED"
+                  CALL SHUTDOWN
+                  STOP 2
                 END SELECT
 
               END DO
@@ -1047,7 +1080,10 @@
                   RHO = MIN( RHO, 90.0D0 ) !664
                   SA(JROW,JCOL) = SPARM(JROW)*SPARM(JCOL)*EXP(-RHO)
                 CASE (3)
-                  STOP "IFOFF=3 not supported"
+                  WRITE(16,*) "IFOFF=3 NOT SUPPORTED"
+                  WRITE(00,*) "IFOFF=3 NOT SUPPORTED"
+                  CALL SHUTDOWN
+                  STOP 2
                 END SELECT
               END DO
             END DO
