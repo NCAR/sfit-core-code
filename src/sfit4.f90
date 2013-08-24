@@ -617,7 +617,10 @@
       IF( F_KB_IFDIFF )                      IFDIFF = .TRUE.
       IF( F_KB_EAP )                         F_RTAPOD = .TRUE.
       IF( F_KB_EPHS )                        F_RTPHASE = .TRUE.
-      IF( F_KB_ZSHIFT )                      IZERO(:NBAND) = 1
+      IF( F_KB_ZSHIFT )  then
+         IZERO(:NBAND) = 1
+         F_ZSHIFT = .true.
+      end IF
       IF( F_KB_WSHIFT )THEN
          ISPARM = 3
          F_WSHIFT = .TRUE.
