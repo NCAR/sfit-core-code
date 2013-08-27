@@ -13,7 +13,7 @@
       USE SOLAR
       USE WRITEOUT
       USE CHANNEL
-
+      use continuum
 
       IMPLICIT NONE
 
@@ -25,6 +25,8 @@
 
       REAL(DOUBLE) :: SPHS, PHS, SWSHFT, WSHFT, TOL, &
                       SBCKOFF, BCKOFF, SBCKCRV, BCKCRV, SBCKSL, BCKSL
+
+      real(double) :: cabs, scabs
 
       REAL(DOUBLE), DIMENSION(MMAX)    :: WWV
       REAL(DOUBLE), DIMENSION(MAXSNR)  :: WWV0, WWV1, GSTNR
@@ -125,14 +127,17 @@
       NCROSS = SUM(NM(:NBAND))
       NMONSM = DOT_PRODUCT(NM(:NBAND),NSCAN(:NBAND))
 
-      ALLOCATE (CROSS(NRET+1,KMAX,NCROSS), STAT=NAERR)
+      ncont = 0
+      if (f_contabs) ncont = 1
+
+      ALLOCATE (CROSS(NRET+1+NCONT,KMAX,NCROSS), STAT=NAERR)
       IF (NAERR /= 0) THEN
          WRITE (16, *) 'INITIALIZE: COULD NOT ALLOCATE CROSS ARRAY ERROR NUMBER = ', NAERR
          WRITE ( 0, *) 'INITIALIZE: COULD NOT ALLOCATE CROSS ARRAY ERROR NUMBER = ', NAERR
          CALL SHUTDOWN
          STOP 2
       ENDIF
-      ALLOCATE (CROSS_FACMAS(NRET+1,KMAX,NMONSM), STAT=NAERR)
+      ALLOCATE (CROSS_FACMAS(NRET+1+NCONT,KMAX,NMONSM), STAT=NAERR)
       IF (NAERR /= 0) THEN
          WRITE (16, *) 'INITIALIZE: COULD NOT ALLOCATE CROSS_FACMAS ARRAY ERROR NUMBER = ', NAERR
          WRITE ( 0, *) 'INITIALIZE: COULD NOT ALLOCATE CROSS_FACMAS ARRAY ERROR NUMBER = ', NAERR
@@ -550,8 +555,8 @@
 
          WRITE(16,102) WSTART(IBAND), WSTOP(IBAND), NPTSB, NATMOS
 
-! ---  NORMALIZE AMPLITUDES TO AVERAGE VALUE IF ABSORPTION MEASUREMENTS
-         IF( IEMISSION .EQ. 0 .OR. IENORM(IBAND) .eq. 1) THEN
+! ---  NORMALIZE AMPLITUDES TO AVERAGE VALUE IF ABSORPTION MEASUREMENTS OR EMISSION SPECTRA ARE NORMALIZED
+         IF( IEMISSION .EQ. 0 .OR. IENORM(IBAND) .EQ. 1) THEN
             TAVE              = SMM/REAL(NPTSB,8)
             TOBS(NREF:NATMOS) = TOBS(NREF:NATMOS)/TAVE
             !print *, 'tave ', tave, NREF, NATMOS
@@ -902,6 +907,22 @@
          end if
       end do
 
+
+      ! continuum absorption
+      if (f_contabs) then
+         select case (abscont_type)
+            case (0)
+               n_contabs = 1
+            case (1)
+               n_contabs = 2
+         end select
+         if (allocated(cont_param)) deallocate(cont_param)
+         allocate(cont_param(n_contabs))
+         PNAME(NVAR+1:NVAR+n_contabs) = 'CONTINUUM'
+         PARM(NVAR+1:NVAR+n_contabs)  = abscont_param(1:n_contabs)
+         SPARM(NVAR+1:NVAR+n_contabs) = 1.0d0
+         NVAR = NVAR + n_contabs
+      end if
       !  ---  RETRIEVAL GAS MIXING RATIOS
       !  ---  MIXING RATIO AT ISMIX +1
       ISMIX = NVAR

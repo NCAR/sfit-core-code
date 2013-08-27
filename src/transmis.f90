@@ -7,6 +7,7 @@
       USE xsections
       USE molcparam
       USE lineparam
+      use continuum
 
       IMPLICIT NONE
 
@@ -210,6 +211,20 @@
                               ENDIF
                            ENDDO
                         ENDIF
+                        ! ------------Continua
+                        if (f_contabs) then
+                           CROSS_FACMAS(NRET+2,K,MSTOR) = CROSS(NRET+2,K,ICINDX2)*FACMAS
+                           TCALC(IPOINT,MSTOR) = TCALC(IPOINT,MSTOR) + CROSS_FACMAS(NRET+2,K,MSTOR)
+                           
+                           IF (IEMISSION/=0) THEN
+                              DO ALT=1,KSMAX2
+                                 IF (ZBAR(ALT) > ZBAR(K)) THEN
+                                    TCALC_E(IPOINT,MSTOR,ALT) = &
+                                         TCALC_E(IPOINT,MSTOR,ALT) + CROSS_FACMAS(NRET+2,K,MSTOR)
+                                 ENDIF
+                              ENDDO
+                           ENDIF
+                        end if
                      ELSE
                         ! ------------LOOP OVER RETRIEVAL GASES
                         DO IR = 2, NRET
@@ -233,22 +248,37 @@
                         CROSS_FACMAS(NRET+1,K,MSTOR) = CROSS(NRET+1,K,ICINDX)*FACMAS
                         TCALC(IPOINT,MSTOR) = TCALC(IPOINT,MSTOR) + CROSS_FACMAS(NRET+1,K,MSTOR)
                         IF (IEMISSION/=0) THEN
-                          DO ALT=1,KSMAX2
+                           DO ALT=1,KSMAX2
+                              IF (ZBAR(ALT) > ZBAR(K)) THEN
+                                 TCALC_E(IPOINT,MSTOR,ALT) = &
+                                      TCALC_E(IPOINT,MSTOR,ALT) + CROSS_FACMAS(NRET+1,K,MSTOR)
+                              END IF
+                           END DO
+                        end IF
+                        ! ------------Continua
+                        if (f_contabs) then
+                           CROSS_FACMAS(NRET+2,K,MSTOR) = CROSS(NRET+2,K,ICINDX)*FACMAS
+                           TCALC(IPOINT,MSTOR) = TCALC(IPOINT,MSTOR) + CROSS_FACMAS(NRET+2,K,MSTOR)
+                           
+                           IF (IEMISSION/=0) THEN
                  ! Transmission calculated below the layer ALT, needed
-                 ! for calculation of contribution to emission from
-                 ! layer ALT to the ground
-                             IF (ZBAR(ALT) > ZBAR(K)) THEN
-                                TCALC_E(IPOINT,MSTOR,ALT) = &
-                                TCALC_E(IPOINT,MSTOR,ALT) + CROSS_FACMAS(NRET+1,K,MSTOR)
-                             END IF
-                          END DO
-                       END IF
-                    ENDIF
-                 END DO
-              ENDIF
-           ENDIF
-           MADD = MADD + NM(IBAND)
-        END DO
+                 ! for calculation of contribution to emission from 
+                 ! layer ALT to the ground 
+                              DO ALT=1,KSMAX2
+                                 IF (ZBAR(ALT) > ZBAR(K)) THEN
+                                    
+                                    TCALC_E(IPOINT,MSTOR,ALT) = &
+                                         TCALC_E(IPOINT,MSTOR,ALT) + CROSS_FACMAS(NRET+2,K,MSTOR)
+                                 ENDIF
+                              ENDDO
+                           ENDIF
+                        END IF
+                     ENDIF
+                  END DO
+               ENDIF
+            ENDIF
+            MADD = MADD + NM(IBAND)
+         END DO
      END DO
      !  --- COMPUTE MONOCHROMATIC TRANSMITTANCES FROM CROSS SECTION SUMS
      MADD = MONONE

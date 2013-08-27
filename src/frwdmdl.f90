@@ -34,7 +34,7 @@
       REAL(DOUBLE), INTENT(OUT) :: YN(NFIT)
       REAL(DOUBLE), INTENT(OUT) :: KN(NFIT,NVAR)
 
-      LOGICAL :: BUG1 = .FALSE., IFCOSAVE=.FALSE.
+      LOGICAL :: BUG1 = .FALSE., IFCOSAVE=.FALSE.,TALL_FLAG=.FALSE.
 
       CHARACTER :: GASFNAME*(IFLNMSZ)
       CHARACTER :: TITLE*(80)
@@ -220,6 +220,20 @@
             end if
          end do
 
+         ! continuum absorption
+         tall_flag = .false.
+!         print *,'u1',pname(ncount+1),'u2',pname(iparm),' ',iparm, ' ',icount,' ',ncount
+         if (f_contabs) then
+            if (iparm.eq.0.or.(iparm.ge.ncount+1.and.iparm.le.ncount+n_contabs+1)) then
+!               print *,'l1',pname(ncount+1),'l2',pname(iparm),' ',iparm,' ',icount,' ',ncount
+               do k = 1,n_contabs
+                  cont_param(k) = parm(ncount+k)
+               end do
+               call calc_continuum(cont_param)
+               tall_flag = .true.
+            end if
+            ncount = ncount + n_contabs
+         end if
 
 !  ---  UPDATE VMRS OF RETRIEVAL GASES
          DELTA_Y(:NFIT) = 0.0D0
@@ -308,7 +322,7 @@
 !  --- ANAYLITC K-MATICES MAY BE CHOSEN IN PARAM_M.F90 MP
     8    CONTINUE
 
-         IF ((.NOT.ANALYTIC_K).OR.(.NOT.XRET).OR.(TRET).OR.(ICOUNT.EQ.1).or.FLINE.or.FSZA) THEN
+         IF ((.NOT.ANALYTIC_K).OR.(.NOT.XRET).OR.(TRET).OR.(ICOUNT.EQ.1).or.FLINE.or.FSZA.or.TALL_FLAG) THEN
             CALL TALL
             IF( BUG1 )PRINT*, '    TALL', IPARM
             !print*, nmonsm, TCALC(1,:100)

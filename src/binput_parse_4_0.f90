@@ -12,6 +12,7 @@ module binput_parse_4_0
   use datafiles
   use isotope
   use writeout
+  use continuum
 
   implicit none;
   save
@@ -479,6 +480,19 @@ contains
     end if
 
     select case (trim(adjustl(keyword(2))))
+    case ('continuum')
+       if (len_trim(keyword(3)).eq.0) then
+          read(value,*) f_contabs
+       else
+          select case (trim(adjustl(keyword(3))))
+          case ('type')
+             read(value,*) abscont_type
+          case ('strength')
+             read(value,*) abscont_param(1)
+          case ('tilt')
+             read(value,*) abscont_param(2)
+          end select
+       endif
     case ('temperature')
        if (len_trim(keyword(3)).eq.0) then
           read(value,*) iftemp

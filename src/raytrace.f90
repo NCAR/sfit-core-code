@@ -3955,7 +3955,7 @@ END SUBROUTINE READLAYRS
              PBAR1 = PPSUM(J)/RHOPSM(J)
              TBAR1 = TPSUM(J)/RHOPSM(J)
              RHOBAR = RHOPSM(J)/DS
-
+             
              IF (NOPRNT.GE.0) WRITE (IPR,915) J,ZPTH(J),ZPTH(J+1),      &
      &            THETA,DS,S,DBETA,BETA,PHI,DBEND,BENDNG,PBAR1,          &
      &            TBAR1,RHOBAR

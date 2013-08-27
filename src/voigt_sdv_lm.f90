@@ -160,7 +160,6 @@
 
       integer :: ihum=0,ihum1=0,ihum2=0
 
-      !print *, 'sdvmix'
 ! c SDV inputs are z1 and z2, where
 ! c z1 = 1/sqrt(2)*sqrt(sqrt[(alpha + delta)^2 + beta^2] + alpha + delta)
 ! c    + i*sign(beta)/sqrt(2)*sqrt(sqrt[(alpha + delta)^2 + beta^2] - alpha - delta)

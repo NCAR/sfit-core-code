@@ -191,7 +191,7 @@ program hbin
    character (len=30)   :: hbfile, hafile
    character (len=200)  :: nam
    character (len=1)    :: pos
-   logical              :: oped, hasc=.FALSE.
+   logical              :: oped, hasc=.TRUE.
    integer              :: iost, dum
 
 ! --- we have beta data for 2 gases and not too many lines (sfit4 v0.9)
@@ -445,9 +445,9 @@ program hbin
                      nulm = nint( sdv(i)%nu*1.0D6, 8 )
                      nuht = nint( hlp(ldx)%nu*1.0D6, 8 )
                      if( nulm.eq.nuht ) then
-                        hlp(ldx)%gamma0  = sdv(i)%dt(1)          ! gam0 for line mixing
-                        hlp(ldx)%gamma2  = sdv(i)%dt(2)          ! gam2 for line mixing
-                        hlp(ldx)%eta2  = sdv(i)%dt(3)            ! eta2 for line mixing
+                        hlp(ldx)%gamma0  = sdv(i)%dt(1)          ! gam0 for SDV
+                        hlp(ldx)%gamma2  = sdv(i)%dt(2)          ! gam2 for SDV
+                        hlp(ldx)%eta2  = sdv(i)%dt(3)            ! eta2 for SDV
                         write( hfl(ldx)%buf(209:244), 112 ) hlp(ldx)%gamma0, hlp(ldx)%gamma2, hlp(ldx)%eta2
                         hlp(ldx)%flag(SDV_FLAG) = .TRUE.
                         dum = flagoff + SDV_FLAG
@@ -548,6 +548,7 @@ subroutine filh( hd, hf )
 
 ! --- fill defaults for beta, gamma, eta, lm
    hd%bt     = 0.0            ! beta for galatry
+   hd%gamma0 = 0.0            ! gamma 0 for sdv
    hd%gamma2 = 0.0            ! gamma 2 for sdv
    hd%eta2   = 0.0            ! eta 2 for sdv
    hd%lmtk1  = 0.0            ! lmtk1 for line mixing

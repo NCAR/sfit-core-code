@@ -212,13 +212,16 @@
                   BETAP = BETAP * BETAT(ICODE(IMOL),T(K))
                   GZ = ALOGSQ*BETAP/ADOP
                   AKV = AKZERO*GALATRY(XDUM,YDUM,GZ)
-               ELSEIF(HFLAG(N,SDV_FLAG).and.HFLAG(N,LM_FLAG)) THEN
+               ELSEIF(HFLAG(N,SDV_FLAG)) THEN
+                  ! SDV WITH OR WITHOUT LINE MIXING 
                   CALL SDVMIX(XDUM*ADOP/ALOGSQ,AKV)
                   AKV = AKZERO * AKV
                ELSEIF(HFLAG(N,LM_FLAG)) THEN
+                  ! VOIGT WITH LINE MIXING 
                   CALL VOIGTMIX(XDUM*ADOP/ALOGSQ,AKV)
                   AKV = AKZERO * AKV
                ELSE
+                  ! VOIGT WITHOUT LINEMIXING
                   AKV = AKZERO * VOIGT(XDUM,YDUM)
                ENDIF
                OPTCEN = AKV*OPTMAX
@@ -247,15 +250,19 @@
                   ANUZ = WMON(IBAND) + (J - 1)*DN(IBAND)
                   XDUM = ALOGSQ*(ANUZ - WLIN)/ADOP
                   IF (HFLAG(N,GALATRY_FLAG)) THEN
+
                      XDUM = ABS(XDUM)
                      AKV  = AKZERO*GALATRY(XDUM,YDUM,GZ)
-                  ELSEIF(HFLAG(N,SDV_FLAG).and.HFLAG(N,LM_FLAG)) THEN
+                  ELSEIF(HFLAG(N,SDV_FLAG)) THEN
+                     ! SDV WITH OR WITHOUT LINE MIXING 
                      CALL SDVMIX(XDUM*ADOP/ALOGSQ,AKV)
                      AKV = AKZERO * AKV
                   ELSEIF(HFLAG(N,LM_FLAG)) THEN
+                     ! VOIGT WITH LINE MIXING 
                      CALL VOIGTMIX(XDUM*ADOP/ALOGSQ,AKV)
                      AKV = AKZERO * AKV
                   ELSE
+                     ! VOIGT WITHOUT LINEMIXING
                      XDUM = ABS(XDUM)
                      AKV  = AKZERO*VOIGT(XDUM,YDUM)
                   ENDIF

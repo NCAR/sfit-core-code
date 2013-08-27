@@ -91,7 +91,8 @@ vibfcn.o \
 voigt.o \
 voigt_sdv_lm.o \
 writeout.o \
-xsections.o
+xsections.o \
+continuum.o
 
 #convert_old_data_files.o
 
@@ -137,7 +138,7 @@ binput_4_0 \
 : params.o binput_parse_4_0.o retvparam.o bandparam.o lineparam.o solar.o channel.o initialize.o opt.o writeout.o
 
 binput_parse_4_0.o \
-: params.o retvparam.o frwdmdl.o bandparam.o lineparam.o solar.o channel.o initialize.o opt.o datafiles.o isotope.o writeout.o
+: params.o retvparam.o frwdmdl.o bandparam.o lineparam.o solar.o channel.o initialize.o opt.o datafiles.o isotope.o writeout.o continuum.o
 
 channel.o \
 : params.o writeout.o synspec.o datafiles.o
@@ -155,7 +156,7 @@ diagnostic.o \
 : opt.o retvparam.o
 
 frwdmdl.o \
-: params.o transmis.o datafiles.o molcparam.o solar.o synspec.o channel.o bandparam.o retvparam.o writeout.o initialize.o
+: params.o transmis.o datafiles.o molcparam.o solar.o synspec.o channel.o bandparam.o retvparam.o writeout.o initialize.o continuum.o
 
 galatry.o \
 : params.o
@@ -213,7 +214,7 @@ tips.o \
 : params.o
 
 transmis.o \
-: params.o bandparam.o retvparam.o vibfcn.o xsections.o molcparam.o lineparam.o
+: params.o bandparam.o retvparam.o vibfcn.o xsections.o molcparam.o lineparam.o continuum.o
 
 vibfcn.o \
 : params.o retvparam.o molcparam.o #writeout.o
