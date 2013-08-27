@@ -14,8 +14,8 @@
  
  gas.layers                  =              50
  gas.isoflag                 =               F
- gas.profile.list            = NH3 O3
- gas.column.list             = H2O CO21 CO22 CO23
+ gas.profile.list            = NH3 O3 
+ gas.column.list             = H2O N2O CO21 CO22 CO23 HNO3
  gas.profile.NH3.correlation =               F
  gas.profile.NH3.logstate = F
  gas.profile.NH3.scale       = 1.0               
@@ -36,13 +36,9 @@
  1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0
  1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0
  gas.column.H2O.scale        =        1.0
- gas.column.H2O.sigma        =
- 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0
- 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0
- 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0
- 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0
- 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0
- 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0
+ gas.column.H2O.sigma        = 1.0
+ gas.column.HNO3.scale        =        1.0
+ gas.column.HNO3.sigma        = 1.0
  gas.profile.H2O.correlation         = F
  gas.profile.H2O.scale        =        1.0
  gas.profile.H2O.sigma        =
@@ -119,7 +115,7 @@
  band.1.max_opd = 180.0000
  band.1.omega= 4.0670
  band.1.apodization_code                  =               0
- band.1.gasb                 = HNO3   H2O CO21 CO22 CO23
+ band.1.gasb                 = NH3   HNO3 H2O CO21 CO22 CO23
  
  band.2.nu_start             =        930.43
  band.2.nu_stop              =        931.12
@@ -133,7 +129,7 @@
  band.2.max_opd= 180.0000
  band.2.omega= 4.0670
  band.2.apodization_code                  =               0
- band.2.gasb                 = HNO3   N2O CO21 CO23
+ band.2.gasb                 = NH3   N2O CO21 CO23
  
  band.3.nu_start             =        964.94
  band.3.nu_stop              =        965.72

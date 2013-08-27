@@ -528,7 +528,7 @@
 
 !  --- LOOP OVER GASES IN BAND
                   DO NR = 1, NRETB(IBAND)
-                     !print*, iband, nr, nretb(iband), igasb(iband,nr),  icount, NGASB(iband,nr), GASB(IBAND,NR)
+                    !print*, iband, nr, nretb(iband), igasb(iband,nr),  icount, NGASB(iband,nr), GASB(IBAND,NR)
                      NGB = NGASB(IBAND,NR)
                      CALL GASNTRAN(NGB,IBAND,JSCAN,2,MONONE,MXONE)
 !  --- COMPUTE FFTS
