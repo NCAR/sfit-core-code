@@ -41,6 +41,11 @@
       CHARACTER(LEN=1024)                  :: S_KB_PROFILE_GASES
       CHARACTER(LEN=14), DIMENSION(MOLMAX) :: S_KB_PRF_GAS
 
+      LOGICAL :: IS_CELLSPECTRA  = .FALSE.
+      REAL(DOUBLE) :: length_cell 
+      REAL(DOUBLE) :: pressure_cell
+      REAL(DOUBLE) :: temperature_cell
+
       LOGICAL :: F_KB           = .FALSE.
       LOGICAL :: F_KB_PROFILE   = .FALSE.
       LOGICAL :: F_KB_TEMP      = .FALSE.

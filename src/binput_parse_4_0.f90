@@ -285,6 +285,23 @@ contains
        read(value,*) delnu
     case('lshapemodel')
        read(value,*) lshapemodel
+    case('lab')
+       if (len_trim(keyword(3)).eq.0) then
+          read(value, *) is_cellspectra
+       else
+          select case (trim(adjustl(keyword(3))))
+          case('length')
+             read(value,*) length_cell 
+          case('pressure')
+             read(value,*) pressure_cell 
+          case('temperature')
+             read(value,*) temperature_cell 
+          case default
+             write(*,*) 'Parameter ', trim(keyword(3)), 'not defined for fm.linemixing'
+             write(16,*) 'Parameter ', trim(keyword(3)), 'not defined for fm.linemixing'
+             stop
+          end select
+       end if
     case('linemixing')
        if (len_trim(keyword(3)).eq.0) then
           read(value, *) use_lm

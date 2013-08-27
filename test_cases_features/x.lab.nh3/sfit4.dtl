@@ -1,0 +1,148 @@
+  SFIT4:V0.9.4.1:20130708 RUNTIME:20130827-11:04:52
+
+ STATION.LAYERS FILE :  Create by create_station_layers from bnd.layers                                
+  LAYER BOUNDARIES AND MIDPOINTS
+    1      1.0000     20.5000
+ BOTTOM OF RETRIEVAL GRID :       0.0000
+ NUMBER OF LAYERS         :            1
+
+ NUMBER OF RETRIEVAL LAYERS IN INPUT VARIANCE VECTORS :     1
+ NUMBER OF RETRIEVAL GASES (MAX=10)                   :     1
+ ISOTOPE SEPARATION FLAG                              :     F
+
+ RETRIEVAL GAS #       1                    : NH3    
+ PROFILE RETRIEVAL CODE                     :     F
+ COLUMN RETRIEVAL SCALE AND VARIANCE        :    1.00000   1.00000
+
+ HALF WIDTH OF INTEGRATION INTERVAL(CM-1)   :  0.1000000
+ 
+  LINE SHAPE MODEL:
+   0 = CHOOSE MODEL DEPENDING ON EXISTANCE OF PARAMETERS
+
+ MAXIMUM NUMBER OF ITERATIONS               :     0
+
+ TEMPERATURE RETRIEVAL SWITCH               :     F
+
+ FORWARD MODEL SWITCHES:
+  INCLUDE SOLAR LINES                       :     F
+  INCLUDE PRESSURE SHIFT                    :     T
+  EFFECTIVE MODULATION FUNCTION TYPE        :     F    0   # TERMS :     0
+  EFFECTIVE PHASE FUNCTION TYPE             :     F    0   # TERMS :     0
+  COMPUTE EMISSION COMPONENT                :     0
+
+ RETRIEVAL SWITCHES: 
+  FIT SOLAR SHIFT                           :     F
+  FIT WAVENUMBER SHIFT                      :     F   TYPE       :     0
+  FIT BACKGROUND                            :     F   TYPE       :     1
+  FIT DIFFERENT SHIFT BY GAS                :     F
+  FIT SIMPLE PHASE CORRECTION               :     F
+  FIT MODULATION FUNCTION                   :     F
+  FIT PHASE FUNCTION                        :     F
+  USE LEVENBERG-MARQUARDT                   :     F
+
+ A PRIORI AND UNCERTAINTIES:
+  WAVENUMBER SHIFT AND VARIANCE             :    0.0000000   0.0000000
+  BACKGROUND SLOPE AND VARIANCE             :    0.0000000   0.0000000
+  BACKGROUND CURVATURE AND VARIANCE         :    0.0000000   0.0000000
+  SOLAR SHIFT AND VARIANCE                  :    0.0000000   0.0000000
+  SIMPLE PHASE AND VARIANCE                 :    0.0000000   0.0000000
+  ZERO LEVEL VARIANCE                       :    0.0000000
+  MODULATION FUNCTION SCALE AND VARIANCE    :    0.0000000   0.0000000
+  PHASE FUNCTION SCALE AND VARIANCE         :    0.0000000   0.0000000
+
+ NUMBER OF BANDS TO FIT   :     1
+
+ BANDPASS           :     1
+ WAVENUMBER RANGE                     :   800.000000 -  1200.000000
+ ZERO LEVEL SHIFT AND SWITCH          :     0.000000,     0
+ NUMBER OF RETRIEVAL GASES            :     1
+ SOLID ANGLE [STR]                    : 0.706858E-05
+ FOV DIAMETER [MR]                    :     3.000000
+ RETRIEVAL GAS                        : NH3     
+
+ BAND                                 :            1
+ WAVFAC                               :    1.0000000
+ MAX OPD [CM-1]                       :        98.11
+ FOV [MR]                             :      3.00000
+ REQUESTED POINT SPACING              :    0.0000500
+ APODIZATION CODE                     :            7
+ SNR                                  :  100.0000000
+ MONOCHROMATIC SPACE                  :   0.00004923
+ NSPAC                                :           58
+ 
+ NH3 1CM 3.5TORR, 4M EMPTY CELL,25CM EMPTY CELL, 600-1400CM-1                    
+ SPECTRUM CODE                        :            0
+ FIRST POINT (CM-1)                   :     491.1992
+ LAST POINT (CM-1)                    :    1450.2073
+ POINT SPACING (CM-1)                 :   0.00285528
+ NUMBER OF POINTS                     :       335872
+ WSTART                               :     800.0004
+ WSTOP                                :    1199.9992
+ NPRIME                               :       140092
+ NATMOS                               :       140092
+
+ NUMBER OF UNIQUE SPECTRA             :            1
+ SZA CODES:
+         0
+
+ TOTAL NUMBER OF SPECTRAL DATA POINTS TO FIT =140092
+
+    WSTART     WSTOP    NMON    MPT    NSTZ1    NSTZ2
+  800.0004 1199.9992 81294198388608    40518  8348090
+
+ NMONSM   = 8129419
+ NCROSS   = 8129419
+  
+ MAX LAYERS FOR USER MODEL GRID    :          200
+ MAX LAYERS FOR FINAL OUTPUT       :          100
+ NUM LAYERS FOR INTERNAL FINE GRID :          207
+ MAX LAYERS FOR RAYTRACING GRID    :          100
+
+  ITER, JSPEC, ASTRO SOLAR ANGLE   :      0     1     0.00000
+ NUM LAYERS FOUND IN USER MODEL    :    2
+ NUM LAYERS IN FINAL OUTPUT GRID   :            1
+
+  ITER, JSPEC, ASTRO SOLAR ANGLE   :      0     2     0.00000
+
+ HITRAN LINELIST FILE : 00795.893004-01204.106996.hbin
+
+ TOTAL NUMBER OF LINES IN ANALYSIS LIST       :   8512
+          USING GAS : NH3    
+
+ NUMBER OF GASES FOUND IN MICROWINDOWS        :  1
+ NUMBER OF GASES INCLUDED IN CALCULATION      :  1
+
+ MIXING RATIO PROFILE FOR: NH3     ID: 11 NISO:   2 LINES: 8512
+  17.0    18.0
+  1.0000E+00
+
+ FILE LIMITS FOR LINES=  795.912785 1204.099371
+
+ LINE DENSITY (LINES/WAVENUMBER)              :    20.9
+ TAUMIN DEFINED AS                            :  1.00D-06
+
+ WAVENUMBER LIMITS AND INDICES FOR INCLUDED LINES
+ BANDPASS   LOWER NU LIMIT  INDEX1     UPPER NU LIMIT  INDEX2
+     1         795.89853        1       1204.10113       8512
+
+ GALATRY FLAG & LINES WITH GALATRY PARAMETERS FOUND       :  F      0
+ FCIA FLAG & FCIA LINES FOUND                             :  F      0
+ SCIA FLAG & SCIA LINES FOUND                             :  F      0
+ SDV FLAG & LINES WITH SDV PARAMETERS FOUND               :  F      0
+ LINEMIXING FLAG & LINES WITH LINEMIXING PARAMETERS FOUND :  F      0
+
+ NFIT =***** NVAR =  1
+
+ PRINT OUT OF PARAMETERS FOR EACH ITERATION:
+
+ NH3           
+ 
+
+ FINAL:   AVGSNR=    100.0000 RMS(%)=11.3244528 NVAR=  1 NFIT=140092
+ 1.0000000E+00
+
+ MOLECULE = NH3     PROFILE SCALE FACTOR = 1.0000 +/-
+
+.END OF RETRIEVAL.
+ 
+ RDRV: DONE. ELAPSED TIME =    12.891999999999999     

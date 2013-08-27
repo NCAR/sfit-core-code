@@ -99,6 +99,30 @@
          STOP 3
       ENDIF
       IF( NLEV .LT. KMAX ) KMAX = NLEV
+      
+      ! --- ZENITH AIRMASS VECTOR IN CCC
+      KVERT = NSPEC +1
+      
+      ! IF CELL SPECTRA, REPLACE PRESSURE AND TEMPERATURE,
+      ! RAYTRACE IS NEEDED FOR SETTING UP THE GAS STRUCTURES,
+      ! SHOULD BE SKIPPED ALTOGETHER
+      IF (IS_CELLSPECTRA) THEN
+         NLEV = 1
+         KMAX = 1
+         NSPEC = 1
+         KVERT = NSPEC +1
+         P(1) = pressure_cell/1013.25D0
+         T(1) = temperature_cell
+         Torg(1) = T(1)
+         ! calculate the airmass in m*m*m?
+         CCC(2,1) = P(1)*1013.25D0/(T(1)*c_Boltz)
+         ! dont know where the constant comes from. Possibly by definition of units
+         CCC(1,1) = CCC(2,1) * 3.9892374148014247D-20
+         ! Why divide by 100? Dont know!
+         CCC(:,1) = CCC(:,1) * length_cell / 100.0D0
+         CORG(:,1) = CCC(:,1)
+      END IF
+
 
 ! --- ZENITH AIRMASS VECTOR IN CCC
       KVERT = NSPEC +1
