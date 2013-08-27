@@ -297,8 +297,8 @@ contains
           case('temperature')
              read(value,*) temperature_cell 
           case default
-             write(*,*) 'Parameter ', trim(keyword(3)), 'not defined for fm.linemixing'
-             write(16,*) 'Parameter ', trim(keyword(3)), 'not defined for fm.linemixing'
+             write(*,*) 'BINPUT_PARSE_4_0:READ_FW_SECTION: Parameter ', trim(keyword(3)), 'not defined for fm.lab'
+             write(16,*) 'BINPUT_PARSE_4_0:READ_FW_SECTION: Parameter ', trim(keyword(3)), 'not defined for fm.lab'
              stop
           end select
        end if

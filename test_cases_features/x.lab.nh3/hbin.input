@@ -10,10 +10,10 @@
 # to the 2digit integer 0NN of the subdir name and assumed to be for gas 'abcdef' from subdir 0NN_abcdef
 #
 # first non-comment line is a path to the directory tree where the gas subdirectories are
-/home/mathias/linelist/
+../../linelist/
 #
 # next entry is the number of path/files to look for
-1
+2
 #
 # Then the next lines are paths to each gas file that will be searched for lines in the
 #  desired wavenember region
@@ -21,6 +21,7 @@
 # the files are in HITRAN format
 # tip: put a blank after the '/' to skip that gas
 011_NH3/11_hit12.par
+003_O3/03_hit08.par
 #
 #
 # Galatry parameters

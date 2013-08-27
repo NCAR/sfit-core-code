@@ -1,3 +1,4 @@
 August 2013 Mathias Palm
 
 included test case x.lab.nh3 for three Kitt peak lab spectra 
+included test case x.nh3 for a Bremen spectrum (high NH3) 

@@ -12,18 +12,17 @@
  
  gas.layers                  =              1
 
- gas.column.list                         = NH3
+ gas.column.list                         = NH3 O3
  gas.profile.list                         = 
  
 
  gas.column.NH3.logstate             =               F
  gas.column.NH3.scale             =              1.0
- gas.column.NH3.sigma               =
- 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0
- 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0
- 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0
- 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0
- 1.0
+ gas.column.NH3.sigma               = 1.0 
+
+ gas.column.O3.logstate             =               F
+ gas.column.O3.scale             =              1.0
+ gas.column.O3.sigma               = 1.0
  
  
  # Forward model parameters
@@ -65,7 +64,7 @@
  band.1.max_opd    = 98.11368
  band.1.omega  = 3.0
  band.1.apodization_code                  =               7
- band.1.gasb                 = NH3
+ band.1.gasb                 = NH3 O3
  
  out.level = 1
  out.gas_spectra = F
