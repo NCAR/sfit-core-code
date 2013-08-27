@@ -20,7 +20,7 @@
 # the id numbers are in sfit order - not exactly HITRAN, BUT KEEP these directory names
 # the files are in HITRAN format
 # tip: put a blank after the '/' to skip that gas
-011_NH3/11_hit12.par
+011_NH3/11_hit08.par
 #
 #
 # Galatry parameters
