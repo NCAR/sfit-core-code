@@ -756,6 +756,7 @@ contains
     case ('zshift')
        if (len_trim(keyword(4)).eq.0) then
           read(value, *) f_zshift(nr_band)
+          izero(nr_band) = 1
        else
           select case (trim(adjustl(keyword(4))))
           case ('type')
