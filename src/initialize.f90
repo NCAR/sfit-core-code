@@ -411,9 +411,9 @@
       NATMOS = 0
       JSCAN  = 0
       NSPEC  = 0
-      NSCAN(:MAXSPE)        = 0
-      ISCAN(:MAXBND,MAXSPE) = 0
-      ISPEC(:MAXSPE)        = 0
+      NSCAN(:MAXSPE)         = 0
+      ISCAN(:MAXBND,:MAXSPE) = 0
+      ISPEC(:MAXSPE)         = 0
 
 ! --- LOOP OVER BANDS AND SAVE EACH FOUND SPECTRUM
 ! --- BANDS ARE DEFINED IN SFIT4 INPUT FILE

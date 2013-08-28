@@ -312,6 +312,8 @@ subroutine calcsnr( wavs, amps, npfile, wlim1, wlim2, spac, opdmax, nterp, noise
    if( nterp .eq. 0 )then
       allocate( outspec( np ))
       outspec = amps(iil:iih)
+      dnue = spac
+      wstart = wavs(iil)
    else
       print*,'Resample snr region...'
       opdm = opdmax
@@ -323,6 +325,7 @@ subroutine calcsnr( wavs, amps, npfile, wlim1, wlim2, spac, opdmax, nterp, noise
    ! get back the snr sub-region
    iil = 0
    do i=1, np
+      !print*, dnue, wstart, psnr(1,k)
       if( (i-1)*dnue + wstart .gt. psnr(1,k) )then
          iil = i -1
          exit
@@ -338,7 +341,7 @@ subroutine calcsnr( wavs, amps, npfile, wlim1, wlim2, spac, opdmax, nterp, noise
    enddo
    if( iih .eq. 0 )stop 3
 
-   np = iih-iil+1
+   np = iih - iil +1
    mean = sum(outspec(iil:iih)) / real( np, 8 )
    noise = sqrt(dot_product(outspec(iil:iih)-mean, outspec(iil:iih)-mean) / real( np, 8 ) )
 
