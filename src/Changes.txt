@@ -2,6 +2,8 @@ Notes for pre release versions V003.*
 
 August 2013
 
+modified hbin to skip empty lines in hbin.input
+
 corrected calculation of single gas spectra to write out emission spectra correctly
 removed a bug in testing of gas spectra are written out, specvtra were written out if the out.gas_spectra.type was set to non-zero, if 
 if out.gas_spectra = F

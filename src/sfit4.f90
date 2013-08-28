@@ -111,6 +111,7 @@
          KMAX = 1
          NSPEC = 1
          KVERT = NSPEC +1
+         ! internal unit is atm
          P(1) = pressure_cell/1013.25D0
          T(1) = temperature_cell
          Torg(1) = T(1)
@@ -118,7 +119,7 @@
          CCC(2,1) = P(1)*1013.25D0/(T(1)*c_Boltz)
          ! dont know where the constant comes from. Possibly by definition of units
          CCC(1,1) = CCC(2,1) * 3.9892374148014247D-20
-         ! Why divide by 100? Dont know!
+         ! Divide by 100 because definition uses Pa not hPa
          CCC(:,1) = CCC(:,1) * length_cell / 100.0D0
          CORG(:,1) = CCC(:,1)
       END IF
