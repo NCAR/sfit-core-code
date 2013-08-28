@@ -645,7 +645,7 @@ subroutine read_input( wstr, wstp, HFL, GLP, LFL, SFL )
    ! --- read path to hitran files
    do
       read(ilun,100) buffer
-      if( buffer(1:1) .ne. '#' )exit
+      if( (len_trim(buffer).ne.0).and.(buffer(1:1) .ne. '#' ))exit
    enddo
    path = trim( buffer )
    write(6,112) 'Linelist path : ', path
@@ -653,7 +653,7 @@ subroutine read_input( wstr, wstp, HFL, GLP, LFL, SFL )
    ! --- read number of expected hitran files (max=99)
    do
       read(ilun,100) buffer
-      if( buffer(1:1) .ne. '#' )exit
+      if( (len_trim(buffer).ne.0).and.(buffer(1:1) .ne. '#' ))exit
    enddo
    read(buffer,*) nfiles
    write(6,111) 'Number of HITRAN files to search : ', nfiles
@@ -671,7 +671,7 @@ subroutine read_input( wstr, wstp, HFL, GLP, LFL, SFL )
       ! --- find filename
       do
          read(ilun,110) linebuffer
-         if( linebuffer(1:1) .ne. '#' )exit
+      if( (len_trim(linebuffer).ne.0).and.(linebuffer(1:1) .ne. '#' ))exit
       enddo
       filename = trim(path) // trim(linebuffer)
       n = len_trim(filename)
@@ -734,7 +734,7 @@ subroutine read_input( wstr, wstp, HFL, GLP, LFL, SFL )
    ! --- Galatry files are unique format from hitran
    do
       read(ilun,100) buffer
-      if( buffer(1:1) .ne. '#' )exit
+      if( (len_trim(buffer).ne.0).and.(buffer(1:1) .ne. '#' ))exit
    enddo
    read(buffer,*) nfiles
    write(6,114) 'Number of Galatry files to search : ', nfiles
@@ -749,7 +749,7 @@ subroutine read_input( wstr, wstp, HFL, GLP, LFL, SFL )
       ! --- find the name of the next galatry input file
       do
          read(ilun,110) linebuffer
-         if( linebuffer(1:1) .ne. '#' )exit
+         if( (len_trim(linebuffer).ne.0).and.(linebuffer(1:1) .ne. '#') )exit
       enddo
       filename = trim(path) // trim(linebuffer)
       n = len_trim(filename)
@@ -777,7 +777,7 @@ subroutine read_input( wstr, wstp, HFL, GLP, LFL, SFL )
       if( wavnum .lt. wstr )goto 20
       if( wavnum .gt. wstp )goto 20
       goto 21
-
+exit
       ! --- no lines in this region
    20 close( lun )
       gnml   = gnml - 1
@@ -803,7 +803,7 @@ subroutine read_input( wstr, wstp, HFL, GLP, LFL, SFL )
    ! only accounting for CO2 so far
    do
       read(ilun,100) buffer
-      if( buffer(1:1) .ne. '#' )exit
+      if( (len_trim(buffer).ne.0).and.(buffer(1:1) .ne. '#') )exit
    enddo
    read(buffer,*) nfiles
    write(6,114) 'Number of LM files to search : ', nfiles
@@ -817,7 +817,7 @@ subroutine read_input( wstr, wstp, HFL, GLP, LFL, SFL )
       ! --- find the name of the next galatry input file
       do
          read(ilun,110) linebuffer
-         if( linebuffer(1:1) .ne. '#' )exit
+         if( (len_trim(linebuffer).ne.0).and.(linebuffer(1:1) .ne. '#') )exit
       enddo
       filename = trim(path) // trim(linebuffer)
       n = len_trim(filename)
@@ -874,7 +874,7 @@ subroutine read_input( wstr, wstp, HFL, GLP, LFL, SFL )
    ! only accounting for CO2 so far
    do
       read(ilun,100) buffer
-      if( buffer(1:1) .ne. '#' )exit
+      if( (len_trim(buffer).ne.0).and.(buffer(1:1) .ne. '#') )exit
    enddo
    read(buffer,*) nfiles
    write(6,114) 'Number of SDV files to search : ', nfiles
@@ -888,7 +888,7 @@ subroutine read_input( wstr, wstp, HFL, GLP, LFL, SFL )
       ! --- find the name of the next galatry input file
       do
          read(ilun,110) linebuffer
-         if( linebuffer(1:1) .ne. '#' )exit
+         if( (len_trim(linebuffer).ne.0).and.(linebuffer(1:1) .ne. '#') )exit
       enddo
       filename = trim(path) // trim(linebuffer)
       n = len_trim(filename)
