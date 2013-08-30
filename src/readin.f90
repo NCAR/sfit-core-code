@@ -287,7 +287,7 @@
       END IF
 
 ! --- SOLAR SPECTRUM PARAMETERS
-      IF( IFCO )THEN
+!      IF( IFCO )THEN
 ! --- DEFINE NAMES OF SOLAR PARAMETERS
          CPNAM(1) = 'Sol - n/a'
          CPNAM(2) = 'Sol - n/a'
@@ -298,7 +298,7 @@
 ! --- INITIAL SHIFT
 !         CIPARM(:) = CIPARM(:) + 1.D0
 !         CPARM(:)  = CIPARM(:)
-      ENDIF
+!      ENDIF
 
 ! --- PRINT OUT GAS FILES
       IF( F_WRTGASSPC )THEN

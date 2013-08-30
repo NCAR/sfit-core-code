@@ -636,10 +636,22 @@
       end if
 
 ! ---  DEFINE NEW STATEVECTOR FOR CALCULATING KB-MATRIX
-      IF( F_KB_SLOPE .AND. NBACK.LT.2 )      NBACK = 2
-      IF( F_KB_CURVATURE .AND. NBACK.LT.3 )  NBACK = 3
-      IF( F_KB_SOLSHFT )                     F_RTSOL(4) = .TRUE.
-      IF( F_KB_SOLSTRNTH )                   F_RTSOL(5) = .TRUE.
+      IF( F_KB_SLOPE .AND. NBACK.LT.2 ) then
+         F_BACKG = .TRUE.
+         NBACK = 2
+      END IF
+      IF( F_KB_CURVATURE .AND. NBACK.LT.3 )  then
+         NBACK = 3
+         F_BACKG = .TRUE.
+      END IF
+      IF( F_KB_SOLSHFT ) THEN
+         F_RTSOL(4) = .TRUE.
+         IFCO = .TRUE.
+      END IF
+      IF( F_KB_SOLSTRNTH ) THEN                  
+         F_RTSOL(5) = .TRUE.
+         IFCO = .TRUE.
+      END IF
       IF( F_KB_PHASE )                       IFPHASE = .TRUE.
       IF( F_KB_TEMP )                        IFTEMP = .TRUE.
       IF( F_KB_IFDIFF )                      IFDIFF = .TRUE.
