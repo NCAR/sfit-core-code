@@ -43,7 +43,6 @@
          KK, K, MXONE, IBAND, N, JSCAN, MONONE, N1, N2, N3, J, MSHIFT, NS, NR, &
          NS1, NS2
       LOGICAL :: XRET, TRET, FLINE, FSZA
-      REAL(DOUBLE) :: astang_old
 
       REAL(DOUBLE), DIMENSION(3)      :: B
       REAL(DOUBLE), DIMENSION(NMAX)   :: PARM
@@ -179,7 +178,7 @@
                   store_line(4) = TDLIN(i)
                   do k = 1, nrlgas
                      IF( TRIM(s_kb_line_gas(k)) .EQ.  TRIM(NAME(ICODE(LGAS(I)))))THEN
-!                        print *, i, k, AZERO(i), ST296(i), ICODE(LGAS(I)), trim(NAME(ICODE(LGAS(I)))), ' ', trim(s_kb_line_gas(k))
+                        !                        print *, i, k, AZERO(i), ST296(i), ICODE(LGAS(I)), trim(NAME(ICODE(LGAS(I)))), ' ', trim(s_kb_line_gas(k))
                         if (niline /= 0) ST296(i) = ST296(i)* (1.0d0 + parm(ncount+k))
                         if (npline /= 0) AAA(i) = AAA(i)* (1.0d0 + parm(ncount+niline+k))
                         if (ntline /= 0) TDLIN(i) = TDLIN(i)* (1.0d0 + parm(ncount+niline+npline+k))
@@ -196,18 +195,15 @@
          if (ifsza /= 0) then
             ! setup2 and setup3 must run one time more than perturbation sza in order to get the old state again
             k = ICOUNT - NCOUNT -1
-            if (k.gt. 0 .and. k.lt.nspec+2) then
-               if (k.lt.nspec+1) then
-                  !print *,k
-                  astang_old = astang(k)
-                  astang(k) = astang0(k)*(1.0d0+parm(ncount+k))
-               end if
+            do kk = 1,nspec
+               astang(kk) = astang0(kk)*(1.0d0+parm(ncount+kk))
+            end do
+            if (k.gt. 0 .and. k.lt.nspec+2) THEN
                CALL LBLATM( 0, KMAX )
                CALL SETUP3( XSC_DETAIL, -1 )
                FSZA = .true.
-               astang(k) = astang_old
             end if
-            NCOUNT = NCOUNT + 1
+            NCOUNT = NCOUNT + NSPEC
          end if
 
          do k = 1,nband
