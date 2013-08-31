@@ -43,6 +43,7 @@
          KK, K, MXONE, IBAND, N, JSCAN, MONONE, N1, N2, N3, J, MSHIFT, NS, NR, &
          NS1, NS2
       LOGICAL :: XRET, TRET, FLINE, FSZA
+      REAL(DOUBLE) :: astang_old
 
       REAL(DOUBLE), DIMENSION(3)      :: B
       REAL(DOUBLE), DIMENSION(NMAX)   :: PARM
@@ -198,11 +199,13 @@
             if (k.gt. 0 .and. k.lt.nspec+2) then
                if (k.lt.nspec+1) then
                   !print *,k
+                  astang_old = astang(k)
                   astang(k) = astang0(k)*(1.0d0+parm(ncount+k))
                end if
                CALL LBLATM( 0, KMAX )
                CALL SETUP3( XSC_DETAIL, -1 )
                FSZA = .true.
+               astang(k) = astang_old
             end if
             NCOUNT = NCOUNT + 1
          end if
@@ -268,8 +271,8 @@
             !IF( BUG1 )PRINT *, IFTEMP, IPARM, NCOUNT, NTEMP1, NTEMP, PARM(NCOUNT+1:NCOUNT+1)
             TRET = .FALSE.
             ! --- ONLY CONSIDERING PROFILE FIT
-            K = IPARM - NCOUNT
-            IF( K .GE. 1 .AND. K .LE. KMAX )THEN
+            K = IPARM - NCOUNT 
+            IF( K .GE. 1 .AND. K .LE. KMAX)THEN
                !IF( NCOUNT+1 .GE. NTEMP1 .AND. NCOUNT+1 .LT. NTEMP1 + NTEMP )THEN
                TRET = .TRUE.
                !if(ntemp1 .eq. ncount+1) print*, k, t(k), torg(k)
