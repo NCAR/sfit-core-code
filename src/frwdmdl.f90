@@ -195,7 +195,6 @@
                end if
                NCOUNT = NCOUNT + NILINE + NPLINE + NTLINE
             end if
-
          FSZA = .false.
          if (ifsza /= 0) then
             ! setup2 and setup3 must run one time more than perturbation sza in order to get the old state again
