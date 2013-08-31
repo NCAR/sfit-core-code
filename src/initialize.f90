@@ -729,7 +729,6 @@
       NVAR = 0
 
       !  --- BACKGROUND FITTING
-      print *, F_BACKG, NBACK, NFITS
       IF( F_BACKG )THEN
          IF (NBACK == 2) THEN
             IF (NFITS > 0) THEN
