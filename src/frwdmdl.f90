@@ -59,7 +59,6 @@
 
 !  --- PARAMETER INCREMENT FOR PARTIALS
 
-      DATA DEL/0.1D-05/
       COMPLEX(DBLE_COMPLEX), DIMENSION(:), ALLOCATABLE :: TCONVSAV
       INTEGER :: NAERR
 
@@ -78,7 +77,6 @@
       TFLG = .FALSE.
       BUG1 = .FALSE. !.TRUE.
       store_line(:) = 0.0d0
-
       IF (KFLG) THEN
          NVAR1 = NVAR + 1
       ELSE
@@ -101,6 +99,7 @@
          JATMOS = 0
          SUMSQ  = 0.D0
          IPARM  = 0
+         DEL = 0.1D-05
 
          IF( ICOUNT .GT. 1 )IPARM = ICOUNT -1
 
@@ -209,13 +208,18 @@
          do k = 1,nband
             ! Error in Field of View
             if (iffov /= 0) then
-               OMEGA0(iband) = OMEGA(iband)*(1.0d0 + parm(ncount))
                ncount = ncount + 1
+               OMEGA(k) = OMEGA0(k)*(1.0d0 + parm(ncount))
             end if
             ! Error in Field of MaxOPD
             if (ifopd /= 0) then
-               PMAX0(iband) = PMAX0(IBAND) * (1.0d0 + parm(ncount))
                ncount = ncount + 1
+               if (ICOUNT == NCOUNT+1) then
+                  ! usual DEL = 0.1D-5 is to small to cause any KB.
+                  parm(ncount) = parm(ncount) - DEL + 0.1
+                  DEL = 0.1
+               end if
+               PMAX(k) = PMAX0(k) * (1.0d0 + parm(ncount))
             end if
          end do
 
