@@ -503,6 +503,9 @@
   250 FORMAT(/,' CAN ONLY RETRIEVE APODIZATION PARAMETERS FOR POLYNOMIAL FW.APOD_FCN.TYPE=2')
   251 FORMAT(/,' CAN ONLY RETRIEVE PHASE PARAMETERS FOR POLYNOMIAL FW.PHASE_FCN.TYPE=2')
   253 FORMAT(/,  '.END OF RETRIEVAL.')
+  254 FORMAT(/, 'BEGIN KB CALCULATIONS:',/)
+  260 FORMAT( 2000( 12X, A14 ))
+  261 FORMAT( 2000ES29.18E3 )
   262 FORMAT( 5X,2000( 12X, A14 ))
   263 FORMAT( 2000I26 )
 
@@ -608,19 +611,31 @@
       end if
 
 ! ---  DEFINE NEW STATEVECTOR FOR CALCULATING KB-MATRIX
-      IF( F_KB_SLOPE .AND. NBACK.LT.2 )      NBACK = 2
-      IF( F_KB_CURVATURE .AND. NBACK.LT.3 )  NBACK = 3
-      IF( F_KB_SOLSHFT )                     F_RTSOL(4) = .TRUE.
-      IF( F_KB_SOLSTRNTH )                   F_RTSOL(5) = .TRUE.
+      IF( F_KB_SLOPE .AND. NBACK.LT.2 ) then
+         F_BACKG = .TRUE.
+         NBACK = 2
+      END IF
+      IF( F_KB_CURVATURE .AND. NBACK.LT.3 )  then
+         NBACK = 3
+         F_BACKG = .TRUE.
+      END IF
+      IF( F_KB_SOLSHFT ) THEN
+         F_RTSOL(4) = .TRUE.
+         IFCO = .TRUE.
+      END IF
+      IF( F_KB_SOLSTRNTH ) THEN                  
+         F_RTSOL(5) = .TRUE.
+         IFCO = .TRUE.
+      END IF
       IF( F_KB_PHASE )                       IFPHASE = .TRUE.
       IF( F_KB_TEMP )                        IFTEMP = .TRUE.
       IF( F_KB_IFDIFF )                      IFDIFF = .TRUE.
       IF( F_KB_EAP )                         F_RTAPOD = .TRUE.
       IF( F_KB_EPHS )                        F_RTPHASE = .TRUE.
-      IF( F_KB_ZSHIFT )  then
+      IF( F_KB_ZSHIFT )  THEN                    
          IZERO(:NBAND) = 1
-         F_ZSHIFT = .true.
-      end IF
+         F_ZSHIFT(:NBAND) = .true.
+      END IF
       IF( F_KB_WSHIFT )THEN
          ISPARM = 3
          F_WSHIFT = .TRUE.
@@ -775,8 +790,9 @@
   250 FORMAT(/, '    I   PARAMETER   POSTERORI_VALUE     SIGMA     COMPUTED_IN_KB')
 !  252 FORMAT(' COMPUTING KB FOR PARAMTETERS :',255(/,3X,A14))
   254 FORMAT(/, 'BEGIN KB CALCULATIONS:',/)
-  260 FORMAT( 2000( 12X, A14 ))
-  261 FORMAT( 2000ES26.18 )
+  260 FORMAT( 2000( 12X, A17 ))
+  261 FORMAT( 2000ES29.18E3 )
+
 
       END SUBROUTINE KBCALCULATE
 
