@@ -734,7 +734,7 @@ contains
        scnsnr(nr_band,2:maxspe) = scnsnr(nr_band,1)
     case ('gasb')
        val = value
-       pos = index(adjustl(val),' ')
+       pos = index(adjustl(trim(val)),' ')
        if (pos.eq.0) write(*,*) 'No gas given in band ', nr_band, '?'
        nretb(nr_band) = 0
        do
