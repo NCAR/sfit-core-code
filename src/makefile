@@ -82,7 +82,7 @@ params.o \
 retvparam.o \
 raytrace.o\
 readin.o \
-sfit400.o \
+sfit4.o \
 solar.o \
 synspec.o \
 tips.o \
@@ -134,13 +134,13 @@ bandparam.o \
 : params.o
 
 binput_4_0 \
-: params.o  binput_parse_4_0.o retvparam.o bandparam.o lineparam.o solar.o channel.o initialize.o opt.o writeout.o
+: params.o binput_parse_4_0.o retvparam.o bandparam.o lineparam.o solar.o channel.o initialize.o opt.o writeout.o
 
 binput_parse_4_0.o \
 : params.o retvparam.o frwdmdl.o bandparam.o lineparam.o solar.o channel.o initialize.o opt.o datafiles.o isotope.o writeout.o
 
 channel.o \
-: params.o writeout.o synspec.o
+: params.o writeout.o synspec.o datafiles.o
 
 convert_old_data_files.o \
 : params.o bandparam.o retvparam.o

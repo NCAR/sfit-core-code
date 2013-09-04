@@ -30,12 +30,13 @@ subroutine read_binput(filename)
 
   nret = 0
 
-
-  inquire (file=filename, exist = bp_exist)
-  if (.not.bp_exist) then
-     write(*,*) 'file ', trim(filename), ' does not exist'
-     STOP
-  end if
+  INQUIRE (FILE=FILENAME, EXIST = BP_EXIST)
+  IF (.NOT.BP_EXIST) THEN
+     WRITE(16,*) 'BINPUT_4_0:READ_BINPUT: FILE ', TRIM(FILENAME), ' DOES NOT EXIST'
+     WRITE( 0,*) 'BINPUT_4_0:READ_BINPUT: FILE ', TRIM(FILENAME), ' DOES NOT EXIST'
+     CALL SHUTDOWN
+     STOP 1
+  END IF
 
   open(bp_nr, file=filename, status='old', iostat = file_stat)
 

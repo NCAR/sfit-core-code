@@ -48,10 +48,10 @@
 !  --- CHECK FOR FILE - ISOTOPE SEPARATION INPUT FILE
       INQUIRE(FILE=TFILE(9), EXIST=ISFILE)
       IF( .NOT. ISFILE )THEN
-          WRITE(LUN,30)
-          WRITE(0,*) 'ISOTOPE SEPARATION REQUESTED BUT INPUT FILE DOES NOT EXIST : ', TFILE(9)
-          FLUSH( LUN )
-          STOP 'STOP: ISOTOPE.F90'
+          WRITE(LUN,30) TFILE(9)
+          WRITE( 0, 30) TFILE(9)
+          CALL SHUTDOWN
+          STOP 1
       ENDIF
 
       CALL FILEOPEN( 9, 3 )
@@ -92,30 +92,37 @@
                     NEWIVIB(:2,:NEWMODE(J),I) = NEWIVIB(:2,:NEWMODE(J),J)
                     ! --- check that this name has one id
                     IF( NEWID(I) .NE. NEWID(J) )THEN
-                       WRITE(*,*) "NEW MOLECULE ID'S FOR GAS :", NAME(NEWID(J)), ' MUST MATCH : ', NEWID(I), NEWID(J)
-                       STOP ' ISOTOPE MOLECULE ID MISMATCH'
+                       WRITE(LUN, 40) NAME(NEWID(J)), NEWID(I), NEWID(J)
+                       WRITE(  0, 40) NAME(NEWID(J)), NEWID(I), NEWID(J)
+                       CALL SHUTDOWN
+                       STOP 1
                     ENDIF
                     ! --- check this same name & id has a different iso
                     IF( NEWISO(I) .EQ. NEWISO(J) )THEN
-                       WRITE(*,*) "NEW MOLECULE ISO ID'S FOR GAS :", NAME(NEWID(J)), ' MUST BE DIFFERENT : ', NEWISO(I), NEWISO(J)
-                       STOP ' ISOTOPE MOLECULE ISO ID MISMATCH'
+                       WRITE(LUN, 40) NAME(NEWID(J)), NEWID(I), NEWID(J)
+                       WRITE(  0, 40) NAME(NEWID(J)), NEWID(I), NEWID(J)
+                       CALL SHUTDOWN
+                       STOP 1
                     ENDIF
                     EXIT
                  ENDIF
              ENDDO
              ! --- check that name does not clobber a predefined name
              IF( J .GT. I-1 )THEN
-                WRITE(LUN,*)'MOLECULE ', NEWID(I), ' IS ALREADY IN USE AS ',NAME(NEWID(I))
-                WRITE(LUN,*)'CANNOT ASSIGN ISOTOPE TO EXISTING MOLECULE'
-                STOP 'ISOTOPE : BAD ISOTOPE MAPPING'
+                WRITE(LUN, 41) NEWID(I), NAME(NEWID(I))
+                WRITE(  0, 41) NEWID(I), NAME(NEWID(I))
+                CALL SHUTDOWN
+                STOP 1
              ENDIF
           ENDIF
           ! ---check we have no duplicate names
           DO J=1, MOLTOTAL
              IF( TRIM(NAME(NEWID(I))) .EQ. TRIM(NAME(J)) .AND. TRIM(NAME(J)) .NE. 'OTHER' )THEN
                 IF( J .EQ. NEWID(I) )CYCLE
-                WRITE(*,*) 'DUPLICATE MOLECULE NAMES : ', NAME(J), J, NEWID(I)
-                STOP
+                WRITE(LUN, 42) NAME(J), J, NEWID(I)
+                WRITE(  0, 42) NAME(J), J, NEWID(I)
+                CALL SHUTDOWN
+                STOP 1
              ENDIF
           ENDDO
           ! --- save new data
@@ -140,7 +147,7 @@
       ENDDO
 
       RETURN
-  30  FORMAT(/,"ISOTOPE - NO ISOTOPE SEPARATION PARAMETER FILE.")
+  30  FORMAT(/,"ISOTOPE : NO ISOTOPE SEPARATION PARAMETER FILE, LUN : ", I5)
   31  FORMAT(/,"NUMBER OF ISOTOPES TO SEPARATE =", I2)
   32  FORMAT(" OLD NAME, ID, ISO     NEW NAME, ID, ISO    TDEP   S-SCALE")
   33  FORMAT(2(1X,A7,3x,i2,3x,i2,4x),F5.2,2X,F8.6)
@@ -148,6 +155,10 @@
   35  FORMAT(/,"ISOTOPE - NO ISOTOPE SEPARATION SELECTED")
   36  FORMAT(6(I8,',',I2))
   37  FORMAT( 2(A, I3, '/', I2 ))
+  40  FORMAT(/,"NEW MOLECULE ID'S FOR GAS : ", A, ' MUST MATCH : ', 2I5 )
+  41  FORMAT(/,'MOLECULE ', I5, ' IS ALREADY IN USE AS ',A, ' CANNOT ASSIGN ISOTOPE TO EXISTING MOLECULE')
+  42  FORMAT(/,'DUPLICATE MOLECULE NAMES : ', A, 2X, 2I5 )
+
       END SUBROUTINE RDISOFILE
 
       END MODULE ISOTOPE

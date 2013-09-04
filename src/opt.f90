@@ -646,9 +646,10 @@ SUBROUTINE GETSAINV( ISMIX )
          IF (( IFPRF(KK) ) .AND. ( IFOFF(KK) == 5 )) THEN
             ALLOCATE( SAINP(LAYMAX,LAYMAX), SAROOT(LAYMAX), STAT=NAERR )
             IF (NAERR /= 0) THEN
-               WRITE (6, *) 'COULD NOT ALLOCATE SAINP ARRAY'
-               WRITE (6, *) 'ERROR NUMBER = ', NAERR
-               STOP 'OPT ALLOCATION'
+               WRITE (16, *) 'OPT : COULD NOT ALLOCATE SAINP ARRAY, ERROR NUMBER = ', NAERR
+               WRITE ( 0, *) 'OPT : COULD NOT ALLOCATE SAINP ARRAY, ERROR NUMBER = ', NAERR
+               CALL SHUTDOWN
+               STOP 4
             ENDIF
             IF ( .NOT. FILOPEN ) THEN
                CALL FILEOPEN( 62, 3 )

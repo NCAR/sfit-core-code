@@ -31,7 +31,9 @@
       if( k .ne. -1 )then
          !T(K) = TORG(K) * DT
          !do i=1, nspec
-!print*, k, ccc(:nspec,k), T(K), TORG(k)
+
+!print*, k, nspec, ccc(:nspec,k), T(K), TORG(k), CORG(:nspec,k)
+
             !CCC(i,K) = CCC(i,K) * (TORG(K) / DT * TORG(K) )
 
             ! reset  ccc
@@ -39,9 +41,13 @@
             ! update only layer k
 !            CCC(:nspec,K) = CORG(:nspec,K) * (TORG(K) / T(K) )
             ! reset to last iteration and update k
+
             do kk = 1, kmax
                CCC(:nspec,kk) = CORG(:nspec,kk) * (TORG(kk) / T(kk) )
             enddo
+
+!print*, k, nspec, ccc(:nspec,k), T(K), TORG(k), CORG(:nspec,k)
+
 !print*, k, ccc(:nspec,k)
          !enddo
       endif

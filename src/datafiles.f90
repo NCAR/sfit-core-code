@@ -62,6 +62,29 @@
       CONTAINS
 
 !----------------------------------------------------------------------
+      SUBROUTINE FILESTOP( )
+
+! --- SOFT LANDING ON ERROR STOP
+
+!      INTEGER, INTENT(IN)  :: ERRFLAG
+      INTEGER  :: I
+
+      DO I=1, 15
+         CALL FILECLOSE( I, 1 )
+      ENDDO
+      DO I= 17, 100
+         CALL FILECLOSE( I, 1 )
+      ENDDO
+
+      CLOSE( 16 )
+
+!      write( ceflag, '(I5)') errflag
+!      STOP CEFLAG
+      RETURN
+
+      END SUBROUTINE FILESTOP
+
+!----------------------------------------------------------------------
       SUBROUTINE FILESETUP
 
 !      INTEGER :: I
@@ -205,8 +228,10 @@
 ! --- OPEN NORMAL FILES 31, 18, 20, 73
 
       IF(( INDEX .LT. 1 ) .OR. ( INDEX .GT. 100 ))THEN
-         PRINT *, 'DATAFILES: FILEOPEN: LUN INDEX : ', INDEX, '  OUT OF RANGE.'
-         STOP 'ERROR'
+         WRITE(16,*) 'DATAFILES: FILEOPEN: LUN INDEX : ', INDEX, '  OUT OF RANGE.'
+         WRITE( 0,*) 'DATAFILES: FILEOPEN: LUN INDEX : ', INDEX, '  OUT OF RANGE.'
+         CALL SHUTDOWN
+         STOP 1
       ENDIF
 
       SELECT CASE (SW)
@@ -216,7 +241,8 @@
             IF( IOS .NE. 0 )THEN
                WRITE(16,106) INDEX, TRIM(TFILE(INDEX)), IOS
                WRITE( 0,106) INDEX, TRIM(TFILE(INDEX)), IOS
-               STOP 'FILEOPEN ERROR...SEE DETAIL FILE'
+               CALL SHUTDOWN
+               STOP 1
             ENDIF
 
          CASE( 2 )
@@ -225,7 +251,8 @@
             IF( IOS .NE. 0 )THEN
                WRITE(16,106) INDEX, TRIM(TFILE(INDEX)), IOS
                WRITE( 0,106) INDEX, TRIM(TFILE(INDEX)), IOS
-               STOP 'FILEOPEN ERROR...SEE DETAIL FILE'
+               CALL SHUTDOWN
+               STOP 1
             ENDIF
 
          CASE( 3 )
@@ -234,7 +261,8 @@
             IF( IOS .NE. 0 )THEN
                WRITE(16,105) INDEX, TRIM(TFILE(INDEX)), IOS
                WRITE( 0,105) INDEX, TRIM(TFILE(INDEX)), IOS
-               STOP 'FILEOPEN ERROR...SEE DETAIL FILE'
+               CALL SHUTDOWN
+               STOP 1
             ENDIF
 
          CASE( 4 )
@@ -243,12 +271,15 @@
             IF( IOS .NE. 0 )THEN
                WRITE(16,106) INDEX, TRIM(TFILE(INDEX)), IOS
                WRITE( 0,106) INDEX, TRIM(TFILE(INDEX)), IOS
-               STOP 'FILEOPEN ERROR...SEE DETAIL FILE'
+               CALL SHUTDOWN
+               STOP 1
             ENDIF
 
          CASE DEFAULT
-             PRINT *, 'DATAFILES: FILEOPEN: SWITCH, ', SW, '  OUT OF RANGE.'
-             STOP 'ERROR'
+             WRITE(16,*) 'DATAFILES: FILEOPEN: SWITCH, ', SW, '  OUT OF RANGE.'
+             WRITE( 0,*) 'DATAFILES: FILEOPEN: SWITCH, ', SW, '  OUT OF RANGE.'
+             CALL SHUTDOWN
+             STOP 1
        END SELECT
 
 
@@ -266,8 +297,10 @@
       INTEGER             :: IOS = 0
 
       IF(( INDEX .LT. 1 ) .OR. ( INDEX .GT. 100 ))THEN
-         PRINT *, 'DATAFILES: FILECLOSE: LUN INDEX : ', INDEX, '  OUT OF RANGE.'
-         STOP 'ERROR'
+         WRITE(16,108) INDEX
+         WRITE( 0,108) INDEX
+         CALL SHUTDOWN
+         STOP 1
       ENDIF
 
 
@@ -279,7 +312,8 @@
             IF( IOS .NE. 0 )THEN
                WRITE(16,106) INDEX, TRIM(TFILE(INDEX)), IOS
                WRITE( 0,106) INDEX, TRIM(TFILE(INDEX)), IOS
-               STOP 'FILECLOSE ERROR...SEE DETAIL FILE'
+               CALL SHUTDOWN
+               STOP 1
             ENDIF
 
          CASE( 2 )
@@ -289,19 +323,52 @@
             IF( IOS .NE. 0 )THEN
                WRITE(16,105) INDEX, TRIM(TFILE(INDEX)), IOS
                WRITE( 0,105) INDEX, TRIM(TFILE(INDEX)), IOS
-               STOP 'FILECLOSE ERROR...SEE DETAIL FILE'
+               CALL SHUTDOWN
+               STOP 1
             ENDIF
 
 
          CASE DEFAULT
-             PRINT *, 'DATAFILES: FILECLOSE: SWITCH, ', SW, '  OUT OF RANGE.'
-             STOP 'ERROR'
+             WRITE(16,107) SW
+             WRITE( 0,107) SW
+             CALL SHUTDOWN
+             STOP 1
        END SELECT
 
  105  FORMAT(/,' FILECLOSE: INPUT FILE CLOSE ERROR-UNIT : ',I5, ' FILENAME: "',A,'"', ' IOSTAT: ', I5)
  106  FORMAT(/,' FILECLOSE: OUTPUT FILE CLOSE ERROR-UNIT : ',I5, ' FILENAME: "',A,'"', ' IOSTAT: ', I5)
-
+ 107  FORMAT(/, 'DATAFILES: FILECLOSE: SWITCH, ', I4, '  OUT OF RANGE.' )
+ 108  FORMAT(/, 'DATAFILES: FILECLOSE: LUN INDEX : ', I4, '  OUT OF RANGE.' )
 
       END SUBROUTINE FILECLOSE
+
+
+      SUBROUTINE SHUTDOWN
+
+!      USE SFIT4
+!      USE RETVPARAM
+!      USE SOLAR
+!      USE OPT
+!      USE DIAGNOSTIC
+ !     USE LINEPARAM
+  !    USE INITIALIZE
+
+! --- DEALLOCATE ARRAYS
+!      CALL RELEASE_MEM_INT
+!      CALL RELEASE_MEM_DIA
+!      CALL RELEASE_MEM_OPT
+!      CALL RELEASE_MEM_LP
+!      CALL RELEASE_MEM_RTP
+!      CALL RELEASE_MEM_SFT
+
+!      IF( IFCO )CALL SOLARFH ( 2 )
+
+! --- CLOSE OPEN FILES
+      CALL FILESTOP
+
+      RETURN
+
+      END SUBROUTINE SHUTDOWN
+
 
       END MODULE DATAFILES

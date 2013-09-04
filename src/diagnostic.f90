@@ -99,7 +99,6 @@
          ENDDO
          CALL FILECLOSE( 82, 1 )
 
-10       FORMAT( 2000( 12X, A14 ))
       ENDIF
 
 !  --- CALCULATE SMOOTHING ERROR FOR TARGET GAS
@@ -156,6 +155,8 @@
 !          WRITE(85,'(10000ES26.18)') ( Q(I,J), J=1, NLEV )
 !      ENDDO
 !      CALL FILECLOSE( 85, 1 )
+
+ 10   FORMAT( 2000( 12X, A14 ))
 
       END SUBROUTINE DOFS
 
