@@ -62,6 +62,9 @@
       rtln2 = 0.8325546111576977d0
       rtpinv = 1.d0/1.772453851d0
 
+      ! fitting parameters given in 1/(cm*hPa), this routine wants it in
+      ! 1/(cm*atm)
+
       lorwidth = fitting(2)*tratio**ll_ntpwid
       g2 = fitting(1)*pres*tratio**ll_ntpwid
       eta0 = pres*fitting(3)
