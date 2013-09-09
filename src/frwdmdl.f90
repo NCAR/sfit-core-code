@@ -53,7 +53,7 @@
       REAL(DOUBLE), DIMENSION(NFIT)   :: WAVE_X
       REAL(DOUBLE) :: DEL, SUMSQ, WSCALE, DWAVE, DSHIFT, FRACS, PHI, SMM, YS, &
          BKGND, YCAVE, FX, TEMPP, YCMAX !, STDEV
-      REAL(DOUBLE) , DIMENSION(4)    :: store_line
+      REAL(DOUBLE) , DIMENSION(:,:), allocatable    :: store_line
 
       COMPLEX(DBLE_COMPLEX) :: TCALL, TCALH, TCALI
 
@@ -76,7 +76,11 @@
 
       TFLG = .FALSE.
       BUG1 = .FALSE. !.TRUE.
-      store_line(:) = 0.0d0
+      ! if line parameters are disturbed, get some space to store original ones
+      if (nrlgas /= 0 .and. .not. allocated(store_line)) then
+         allocate(store_line(4,LNMAX)) 
+         store_line(:,:) = 0.0d0
+      end if
       IF (KFLG) THEN
          NVAR1 = NVAR + 1
       ELSE
@@ -162,33 +166,35 @@
             FLINE = .FALSE.
             ! setup3 one time more than perturbation, the last time with the original line parameters again.
             if ((K.gt.0).and.(k.lt.kk)) then
-               ! Find lines according to gas
-               if (nint(store_line(1)) /= 0) then
-                  ! Reset line paramters
-                  kk = nint(store_line(1))
-                  ST296(kk) = store_line(2)
-                  AAA(kk) = store_line(3)
-                  TDLIN(kk) = store_line(4)
-               end if
-               DO I=1, LINE2(NBAND)
-                  store_line(1) = i
-                  store_line(2) = ST296(i)
-                  store_line(3) = AAA(i)
-                  store_line(4) = TDLIN(i)
                   do k = 1, nrlgas
-                     IF( TRIM(s_kb_line_gas(k)) .EQ.  TRIM(NAME(ICODE(LGAS(I)))))THEN
-                        !                        print *, i, k, AZERO(i), ST296(i), ICODE(LGAS(I)), trim(NAME(ICODE(LGAS(I)))), ' ', trim(s_kb_line_gas(k))
-                        if (niline /= 0) ST296(i) = ST296(i)* (1.0d0 + parm(ncount+k))
-                        if (npline /= 0) AAA(i) = AAA(i)* (1.0d0 + parm(ncount+niline+k))
-                        if (ntline /= 0) TDLIN(i) = TDLIN(i)* (1.0d0 + parm(ncount+niline+npline+k))
-                     end IF
-                  end do
-               end DO
-               CALL SETUP3( XSC_DETAIL, -1 )
-               FLINE = .true.
+                     DO I=LINE1(NBAND), LINE2(NBAND)
+                        IF( TRIM(s_kb_line_gas(k)) .EQ.  TRIM(NAME(ICODE(LGAS(I)))))THEN
+                           !                        print *, i, k, AZERO(i), ST296(i), ICODE(LGAS(I)), trim(NAME(ICODE(LGAS(I)))), ' ', trim(s_kb_line_gas(k))
+                           store_line(2,i) = ST296(i)
+                           store_line(3,i) = AAA(i)
+                           store_line(4,i) = TDLIN(i)
+                           if (niline /= 0) ST296(i) = ST296(i)* (1.0d0 + parm(ncount+k))
+                           if (npline /= 0) AAA(i) = AAA(i)* (1.0d0 + parm(ncount+niline+k))
+                           if (ntline /= 0) TDLIN(i) = TDLIN(i)* (1.0d0 + parm(ncount+niline+npline+k))
+                        end IF
+                     end do
+                  end DO
+                  CALL SETUP3( XSC_DETAIL, -1 )
+                  ! set back line parameters
+                  do k = 1, nrlgas
+                     DO I=LINE1(NBAND), LINE2(NBAND)
+                        IF( TRIM(s_kb_line_gas(k)) .EQ.  TRIM(NAME(ICODE(LGAS(I)))))THEN
+                           !                        print *, i, k, AZERO(i), ST296(i), ICODE(LGAS(I)), trim(NAME(ICODE(LGAS(I)))), ' ', trim(s_kb_line_gas(k))
+                           ST296(i) = store_line(2,i)
+                           AAA(i)   = store_line(3,i)
+                           TDLIN(i) = store_line(4,i)
+                        end IF
+                     end do
+                  end DO
+                  FLINE = .true.
+               end if
+               NCOUNT = NCOUNT + NILINE + NPLINE + NTLINE
             end if
-            NCOUNT = NCOUNT + NILINE + NPLINE + NTLINE
-         end if
 
          FSZA = .false.
          if (ifsza /= 0) then
@@ -672,6 +678,8 @@
 
  !  --- PRINT OUT PARM ARRAY BY ITERATION
       IF( F_WRTPARM )WRITE(89,261) ITER, PARM(:NVAR)
+      IF (ALLOCATED(STORE_LINE)) DEALLOCATE(STORE_LINE)
+
 
       RETURN
 
