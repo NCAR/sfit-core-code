@@ -476,6 +476,7 @@
                   EXIT
                ENDIF
                CONVERGE = .TRUE.
+               GOTO 20 
             END DO
          ELSE
             DO I = 1, M
@@ -486,6 +487,7 @@
                   EXIT
                ENDIF
                CONVERGE = .TRUE.
+               GOTO 20
             END DO
          ENDIF
       END IF
