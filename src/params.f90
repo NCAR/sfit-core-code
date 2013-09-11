@@ -21,7 +21,7 @@
       LOGICAL, PARAMETER :: BUG = .FALSE.
       LOGICAL, PARAMETER :: ANALYTIC_K = .TRUE.
 !      LOGICAL, PARAMETER :: ANALYTIC_K = .FALSE.
-
+      LOGICAL, PARAMETER :: GENLINESHAPE = .TRUE.
       ! mp: For emission some of the predefault numbers seem to small (LNMAX, MAXGAS,LAYMAX)
 
       INTEGER, PARAMETER :: MMAX = 2*131072       ! MAXIMUM NUMBER OF SPECTRAL DATA POINTS
