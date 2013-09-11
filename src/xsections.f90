@@ -177,7 +177,7 @@
                SDVLM_PARAM(1:4) = 0.0D0
                SDVLM_PARAM(2) = (ACOFB + SCOFB)   ! PRESSURE BROADENING FOR VOIGT
                IF (HFLAG(N,SDV_FLAG)) THEN
-                  SDVLM_PARAM(1) = GAMMA2(N)*P(k) ! PRESSURE NARROWING FOR SDV
+                  SDVLM_PARAM(1) = GAMMA2(N)      ! PRESSURE NARROWING FOR SDV
                   SDVLM_PARAM(2) = ACOFB + SCOFB  ! PRESSURE BROADENING FOR SDV
                   SDVLM_PARAM(3) = 0.0!ETA2(N)    ! PRESSURE SHIFT IN SDV
                END IF
