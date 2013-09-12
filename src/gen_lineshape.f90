@@ -1,12 +1,19 @@
 module gen_lineshape
 
+! routines taken and adapted to fortran 95 from 
+! Tran, H.; Ngo, N. & Hartmann, J.-M. Efficient computation of some speed-dependent 
+! isolated line profiles Journal of Quantitative Spectroscopy and Radiative Transfer , 2013,
+
+! The model pCqSDHC is described in 
+! Ngo, N.; Lisak, D.; Tran, H. & Hartmann, J.-M. 
+! An isolated line-shape model to go beyond the Voigt profile in spectroscopic databases and 
+! radiative transfer codes Journal of Quantitative Spectroscopy and Radiative Transfer , 2013, -
+
 contains
   subroutine pCqSDHC(sg0,GamD,Gam0,Gam2,Shift0,Shift2,anuVC,eta,&
        sg,LS_pCqSDHC_R,LS_pCqSDHC_I)
 
-! routines taken and adapted to fortran 95 from 
-! Tran, H.; Ngo, N. & Hartmann, J.-M. Efficient computation of some speed-dependent 
-! isolated line profiles Journal of Quantitative Spectroscopy and Radiative Transfer , 2013,
+
 
 !-------------------------------------------------
 !	"pCqSDHC": partially-Correlated quadratic-Speed-Dependent Hard-Collision
