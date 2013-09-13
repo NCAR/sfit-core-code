@@ -1,0 +1,15 @@
+2    2              ! number of isotope seperation species (blocks), # of VMR values
+CO                  ! old name
+5 1                 ! old molec id and isotope id
+COO1                 ! new name
+81 1 28.0 1 1. 1.   ! new molec id, isotope id, mass, mode, tdep, intensity scale
+2143,1,
+0.0702E+00,  0.0702E+00,
+CO                  ! old name
+5 2                 ! old molec id and isotope id
+COO2                 ! new name
+82 1 29.0 1 1. 1.   ! new molec id, isotope id, mass, mode, tdep, intensity scale
+2143,1,
+0.0702E+00,  0.0702E+00,
+
+49, 52, 53, 54, 55, 56, 57, 70, 77+
