@@ -159,7 +159,7 @@
                ELSEIF  ( HFLAG(N,SDV_FLAG) ) THEN
                   ACOFB = GAMMA0(N)*P(K)*(1.0D0 - XGAS(IMOL,K))
                   SCOFB = SSS(N)*P(K)*XGAS(IMOL,K)
-                  G2 = GAMMA0(N)*GAMMA2(N)*P(k) ! Note HITRAN gives datas by Devi, the function 
+                  G2 = GAMMA0(N)*GAMMA2(N)*P(k) ! Note HITRAN gives data by Devi, the function 
                                                 ! implemented here (Tran) defines this parameter differently
                ELSE
                   ACOFB = AAA(N)*P(K)*(1.0D0 - XGAS(IMOL,K))
