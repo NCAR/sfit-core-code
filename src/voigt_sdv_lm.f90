@@ -82,11 +82,6 @@
       !c
       xy = 0.5d0/adop
       xy2 = xy*xy
-      delta = xy2/g2/g2
-      sqrtdelta = dsqrt(delta)
-      !c alphadelta = alpha + delta, and pshift contains the pressure shift term
-      alphadelta = lorwidth/g2 - 1.5d0 + delta
-      pshift = -eta0/g2
 
       ! this is used for SDV, if gamma_2 is 0 use voigt instead!
       if (g2.gt.tiny(g2)) then

@@ -197,10 +197,9 @@
       WRITE(20,'(A,A)') 'IBAND       NUSTART        NUSTOP         SPACE     NPTSB     PMAX    FOVDIA     ', &
                        'MEAN_SNR  NSCAN  JSCAN     INIT_SNR     CALC_SNR'
       DO I=1,NBAND
-         WRITE(20,103) I, WAVE3(I), WAVE4(I), SPAC(I), NPRIM(I), PMAX(I), FOVDIA(I), &
-                           SUM(SNR_CLC(I,1:NSCAN(I)))/DBLE(NSCAN(I)), NSCAN(I)
          DO J=1,NSCAN(I)
-            WRITE(20,104) J, SCNSNR(I,J), SNR_CLC(I,J)
+            WRITE(20,103) I, WAVE3(I), WAVE4(I), SPAC(I), NPRIM(I), PMAX(I), FOVDIA(I), &
+                 SUM(SNR_CLC(I,1:NSCAN(I)))/DBLE(NSCAN(I)), NSCAN(I), J, SCNSNR(I,J), SNR_CLC(I,J)
          ENDDO
       ENDDO
 
@@ -214,8 +213,8 @@
  100 FORMAT( /, A )
  101 FORMAT( /, I10 )
  102 FORMAT( I5, 4X, A7, L7, 3X, 2ES14.5 )
- 103 FORMAT( I5, 2F14.5, 2X,F12.9, I10, F9.2, F10.6, F13.6, I7, 3F13.6 )
- 104 FORMAT( I103, 3F13.6 )
+ 103 FORMAT( I5, 2F14.5, 2X,F12.9, I10, F9.2, F10.6, F13.6, I7, I7, 2F13.6)
+! 104 FORMAT( I103, 3F13.6 )
  105 FORMAT( 2F13.6, 3F14.3, 2I10, 2L10 )
 
        END SUBROUTINE WRTSMRY

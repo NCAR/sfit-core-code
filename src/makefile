@@ -35,7 +35,7 @@ FC = gfortran
 #FFLAGS = -Wall -fno-automatic -mcmodel=medium -fbacktrace -fdump-core -fcheck=all -ffpe-trap=invalid,zero,overflow,underflow,precision -g
 
 # optomize
-FFLAGS = -Wall -O2 -fno-automatic -fbacktrace
+#FFLAGS = -Wall -O2 -fno-automatic -fbacktrace
 
 
 
