@@ -27,7 +27,7 @@
 
 FC = gfortran
 # error check
-FFLAGS = -O2 -Wall -g -Wsurprising -Warray-bounds -Wcharacter-truncation -Wunused-parameter \
+FFLAGS = -Wall -g -Wsurprising -Warray-bounds -Wcharacter-truncation -Wunused-parameter \
          -Waliasing -Wimplicit-interface -Wunderflow  -Wline-truncation -Wunused-parameter \
          -fimplicit-none -fbounds-check -fbacktrace  -fcheck=all  -fwhole-file -std=gnu -pedantic \
          -fall-intrinsics -ffpe-trap=invalid,zero,overflow,underflow
@@ -35,7 +35,7 @@ FFLAGS = -O2 -Wall -g -Wsurprising -Warray-bounds -Wcharacter-truncation -Wunuse
 #FFLAGS = -Wall -fno-automatic -mcmodel=medium -fbacktrace -fdump-core -fcheck=all -ffpe-trap=invalid,zero,overflow,underflow,precision -g
 
 # optomize
-FFLAGS = -Wall -O2 -fno-automatic -fbacktrace
+#FFLAGS = -Wall -O2 -fno-automatic -fbacktrace
 
 
 
