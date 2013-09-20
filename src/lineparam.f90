@@ -27,7 +27,8 @@
       INTEGER,      DIMENSION(:),   ALLOCATABLE :: LGAS    ! LINE INDEX NUMBER
       REAL(DOUBLE), DIMENSION(:),   ALLOCATABLE :: GAMMA0  ! GAMMA0 FOR SDV (BOONE) ROUTINE
       REAL(DOUBLE), DIMENSION(:),   ALLOCATABLE :: GAMMA2  ! GAMMA2 FOR SDV (BOONE) ROUTINE
-      REAL(DOUBLE), DIMENSION(:),   ALLOCATABLE :: ETA2    ! ETA2 FOR SDV (BOONE) ROUTINE
+      REAL(DOUBLE), DIMENSION(:),   ALLOCATABLE :: SHIFT0  ! PRESSURE SHIFT FOR LSHAPE (TRAN) ROUTINE
+      REAL(DOUBLE), DIMENSION(:),   ALLOCATABLE :: SHIFT2  ! T-DEP OF P-SHIFT FOR LSHAPE (TRAN) ROUTINE
       REAL(DOUBLE), DIMENSION(:),   ALLOCATABLE :: LMTK1, LMTK2, YLM ! LINE MIXING PARAMETERS
 
 
@@ -68,9 +69,10 @@
          REAL(4) :: UW               ! UPPER STAT WT
          REAL(4) :: LW               ! LOWER STAT WT
          REAL(4) :: BT               ! GALATRY BETA0
-         REAL(4) :: GAMMA0           ! GAMMA 0 for SDV
-         REAL(4) :: GAMMA2           ! GAMMA 2 for SDV
-         REAL(4) :: ETA2             ! ETA 2 for SDV
+         REAL(4) :: GAMMA0           ! GAMMA 0 
+         REAL(4) :: GAMMA2           ! GAMMA 2 
+         REAL(4) :: SHIFT0           ! PRESSURE SHIFT FOR GEN LINESHAPE
+         REAL(4) :: SHIFT2           ! TEMPERATURE DEPENDENCY OF PRESSURE SHIFT FOR GEN LINESHAPE
          REAL(4) :: LMTK1            ! LMTK1 for Line Mixing
          REAL(4) :: LMTK2            ! LMTK2 for Line Mixing
          REAL(4) :: YLM              ! YLM for Line Mixing
@@ -85,7 +87,7 @@
       INTEGER      :: LINE, IBAND, ISO, MO, L, K, I, NUMLIN, TNBAND
       INTEGER      :: NLINES, NLINES_GALATRY, NLINES_LM, NLINES_SDV, NLINES_FCIA, NLINES_SCIA
       REAL(8)      :: WAVLO, WAVHI, PS, TW, ELOWER, SW, AW, SLINE, WAVNUM=0.0, DENLIN, B0
-      REAL(8)      :: G0, G2, E2, L1, L2, L3, TW5, TW6
+      REAL(8)      :: G0, G2, S0, S2, L1, L2, L3, TW5, TW6
       CHARACTER (LEN=200)        :: CHLINE
       INTEGER, DIMENSION(MAXGAS) :: NMOLINE
       LOGICAL                    :: HBIN = .TRUE., HF(8)
@@ -130,7 +132,7 @@
 
       ALLOCATE( ST296(LNMAX), AAA(LNMAX), SSS(LNMAX), AZERO(LNMAX), ETWO(LNMAX), &
            GMASS(LNMAX), PSLIN(LNMAX), TDLIN(LNMAX), BETA(LNMAX), LGAS(LNMAX), &
-           GAMMA0(LNMAX), GAMMA2(LNMAX), ETA2(LNMAX),  LMTK1(LNMAX), LMTK2(LNMAX), &
+           GAMMA0(LNMAX), GAMMA2(LNMAX), SHIFT0(LNMAX), SHIFT2(LNMAX),  LMTK1(LNMAX), LMTK2(LNMAX), &
            YLM(LNMAX), HFLAG(LNMAX,8) )
 
       LINE = 0
@@ -152,7 +154,8 @@
          B0     = REAL( HLP%BT, 8 )
          G0     = REAL( HLP%GAMMA0, 8 )
          G2     = REAL( HLP%GAMMA2, 8 )
-         E2     = REAL( HLP%ETA2, 8 )
+         S0     = REAL( HLP%SHIFT0, 8 )
+         S2     = REAL( HLP%SHIFT2, 8 )
          L1     = REAL( HLP%LMTK1, 8 )
          L2     = REAL( HLP%LMTK2, 8 )
          L3     = REAL( HLP%YLM, 8 )
@@ -249,7 +252,8 @@
       BETA(NLINES)   = B0
       GAMMA0(NLINES) = G0
       GAMMA2(NLINES) = G2
-      ETA2(NLINES)   = E2
+      SHIFT0(NLINES)   = S0
+      SHIFT2(NLINES)   = S2
       LMTK1(NLINES)  = L1
       LMTK2(NLINES)  = L2
       YLM(NLINES)    = L3
@@ -472,7 +476,7 @@
 
       IF( ALLOCATED( ST296 ))THEN
          DEALLOCATE( ST296, AAA, SSS, AZERO, ETWO, GMASS, PSLIN, TDLIN, BETA, LGAS, &
-              GAMMA0, GAMMA2, ETA2, LMTK1, LMTK2, YLM, HFLAG)
+              GAMMA0, GAMMA2, SHIFT0, SHIFT2, LMTK1, LMTK2, YLM, HFLAG)
 
       ENDIF
 

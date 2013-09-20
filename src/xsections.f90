@@ -35,7 +35,7 @@
       REAL(DOUBLE) :: DIST, TXE, VIBFAC, STIMFC, SSL, ACOFB, SCOFB, ALOR, ADOP, &
                       AKZERO, YDUM, OPTMAX, XDUM, AKV, OPTCEN, DELLOR, WLIN, START, &
                       SSTOP, ANUZ, QT, QTSTDTEMP, GI, SSLOLD, BETAP, GZ, LMTVAL
-      REAL(DOUBLE) :: AKV_R, AKV_I, G2
+      REAL(DOUBLE) :: AKV_R, AKV_I, G2, LM, S0, S2
 
       REAL (DOUBLE), DIMENSION(4) :: SDVLM_PARAM ! PARAMETERS FOR SDV AND/OR LINEMIXING
                                                  ! CALCULATION ACCORDING TO BOONE
@@ -161,10 +161,17 @@
                   SCOFB = SSS(N)*P(K)*XGAS(IMOL,K)
                   G2 = GAMMA0(N)*GAMMA2(N)*P(k) ! Note HITRAN gives data by Devi, the function 
                                                 ! implemented here (Tran) defines this parameter differently
+                  S0 = SHIFT0(N)*P(K)
+                  S2 = SHIFT2(N)
                ELSE
                   ACOFB = AAA(N)*P(K)*(1.0D0 - XGAS(IMOL,K))
                   SCOFB = SSS(N)*P(K)*XGAS(IMOL,K)
                ENDIF
+
+               LM = 0.0D0
+               IF (HFLAG(N,LM_FLAG) ) THEN 
+                  LM = YLM(N) * P(K) *(STDTEMP/T(K))**TDLIN(N)
+               end IF
 
                ALOR = (ACOFB + SCOFB)*(STDTEMP/T(K))**TDLIN(N)
                ADOP = RFACTOR*SQRT(T(K)/GMASS(N))*AZERO(N)
@@ -235,9 +242,10 @@
                   ! VOIGT WITHOUT LINEMIXING
                   AKV = AKZERO * VOIGT(XDUM,YDUM)
                ELSE
-                  call pCqSDHC(azero(N),ADOP,ALOR,G2,0.0D0,0.0D0,0.0D0,0.0D0,&
+                  call pCqSDHC(azero(N),ADOP,ALOR,G2,S0,S2,0.0D0,0.0D0,&
                        azero(N),AKV_R,AKV_I)
-                  AKV = SSL * AKV_R ! ALL OTHER PARTS OF AKZERO ARE ALREADY PART OF AKV_R
+                  AKV = SSL * (AKV_R + LM * AKV_I)! ALL OTHER PARTS OF AKZERO ARE ALREADY PART OF 
+                                                  ! AKV_R AND AKV_I
                END IF
                OPTCEN = AKV*OPTMAX
 
@@ -281,9 +289,10 @@
                      XDUM = ABS(XDUM)
                      AKV  = AKZERO*VOIGT(XDUM,YDUM)
                   else
-                     call pCqSDHC(WLIN,ADOP,ALOR,G2,0.0D0,0.0D0,0.0D0,0.0D0,&
+                     call pCqSDHC(WLIN,ADOP,ALOR,G2,S0,S2,0.0D0,0.0D0,&
                        ANUZ,AKV_R,AKV_I)
-                     AKV = SSL*AKV_R ! ALL OTHER PARTS OF AKZERO ARE ALREADY PART OF AKV_R
+                     AKV = SSL*(AKV_R + LM*AKV_I)! ALL OTHER PARTS OF AKZERO ARE ALREADY PART OF 
+                                                 ! AKV_R AND AKV_I
                   ENDIF
                   CROSS(NPOINT,K,J+INDXX) = CROSS(NPOINT,K,J+INDXX) + AKV*OPTMAX
                   !print*, j, k, CROSS(NPOINT,K,J+INDXX)

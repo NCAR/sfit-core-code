@@ -41,6 +41,8 @@ module hitran
       real(8)            :: g0_self(nglines)
       real(8)            :: s_air(nglines)
       real(8)            :: g2_air(nglines)
+      real(8)            :: ts_air(nglines)
+      real(8)            :: lmr_air(nglines) ! line mixing coefficient
    end type galatrydata
 
    type, public :: linemixfile
@@ -383,8 +385,12 @@ program hbin
               sdv(ifl)%v1(ind), sdv(ifl)%v2(ind), sdv(ifl)%branch(ind), sdv(ifl)%j(ind)
          read (buf(64:), '(f5.4,f5.3,f3.2,f8.6)') sdv(ifl)%g0_air(ind), sdv(ifl)%g0_self(ind),&
               sdv(ifl)%td_g0_air(ind),sdv(ifl)%s_air(ind)
-         read (buf, '(tr84,6a7)') (sdv_params(j), j=1,6)
+         read (buf, '(tr84,a7,a8,a8,a9,a8,a8)') (sdv_params(j), j=1,6)
          if (len_trim(sdv_params(1)).gt.0) read(sdv_params(1), *) sdv(ifl)%g2_air(ind)
+         if (len_trim(sdv_params(3)).gt.0) then
+            read(sdv_params(3), *) sdv(ifl)%lmr_air(ind)
+         end if
+
          if (sdv(ifl)%g2_air(ind) .le. tiny(0.0D0)) cycle 
          
          sdv(ifl)%n = sdv(ifl)%n + 1
@@ -424,18 +430,6 @@ program hbin
          ! --- if in band : write out that data to the hbin file
          if( wavnum .ge. wstr )then
 
-            ! --- check if this is an isotope that is to be separated out
-            do i=1, nisosep
-               !print *, i, nisosep, hlp(lun)%mo, hlp(lun)%is, oldid(i), oldiso(i), newid(i), newiso(i)
-               if((hlp(ldx)%mo .eq. oldid(i)) .and. (hlp(ldx)%is .eq. oldiso(i)))then
-                  hlp(ldx)%sl = hlp(ldx)%sl / isoscale(i)
-                  !write(6,*) i, hlp(ldx)%mo, hlp(ldx)%is, newid(i), newiso(i)
-                  hlp(ldx)%mo = newid(i)
-                  hlp(ldx)%is = newiso(i)
-                  write( hfl(ldx)%buf(1:25), 107 ) newid(i), newiso(i), hlp(ldx)%nu, hlp(ldx)%sl
-                  exit
-               endif
-            enddo
 
             ! --- check if a Galatry beta can be appended
             do ifl = 1, gnml
@@ -493,10 +487,24 @@ program hbin
                         write(6,116) 'insert gamma2: ', &
                              ifl, i, sdv(ifl)%mo(i), sdv(ifl)%is(i), sdv(ifl)%g0_air(i), &
                              sdv(ifl)%g2_air(i), hlp(ldx)%nu
-                        hlp(ldx)%gamma0  = sdv(ifl)%g0_air(i)          ! gam0 for SDV
-                        hlp(ldx)%gamma2  = sdv(ifl)%g2_air(i)          ! gam2 for SDV
-                        hlp(ldx)%eta2  = 0.0!sdv(ifl)%dt(3)            ! eta2 for SDV
-                        write( hfl(ldx)%buf(209:244), 112 ) hlp(ldx)%gamma0, hlp(ldx)%gamma2, hlp(ldx)%eta2
+                        hlp(ldx)%gamma0  = real(sdv(ifl)%g0_air(i))          ! gam0 for SDV
+                        hlp(ldx)%gamma2  = real(sdv(ifl)%g2_air(i))          ! gam2 for SDV
+                        hlp(ldx)%shift0  = real(sdv(ifl)%s_air(i))            ! shift0 for SDV
+                        hlp(ldx)%shift2  = real(sdv(ifl)%ts_air(i))            ! td shift0 for SDV
+                        hlp(ldx)%ylm = 0.0
+                        hlp(ldx)%lmtk1 = 0.0
+                        hlp(ldx)%lmtk2 = 0.0
+                        if (sdv(ifl)%lmr_air(i).gt.tiny(0.0d0)) then
+                           hlp(ldx)%ylm   = real(sdv(ifl)%lmr_air(i))
+                           hlp(ldx)%lmtk1   = 1.0d0
+                           hlp(ldx)%lmtk2   = 0.0d0
+                           hlp(ldx)%flag(LM_FLAG) = .TRUE.
+                           dum = flagoff + LM_FLAG
+                           write( hfl(ldx)%buf(dum:dum), '(l1)' ) .TRUE.
+                           write(6,*) 'insert ylm: '
+                        end if
+                        write( hfl(ldx)%buf(172:280), 112 ) hlp(ldx)%gamma0, hlp(ldx)%gamma2, &
+                             hlp(ldx)%shift0, hlp(ldx)%shift2, hlp(ldx)%lmtk1, hlp(ldx)%lmtk2, hlp(ldx)%ylm  
                         hlp(ldx)%flag(SDV_FLAG) = .TRUE.
                         dum = flagoff + SDV_FLAG
                         write( hfl(ldx)%buf(dum:dum), '(l1)' ) .TRUE.
@@ -505,6 +513,23 @@ program hbin
                   endif ! right molecule
                enddo ! i, records in file
             enddo ! line mix files
+
+
+            ! --- check if this is an isotope that is to be separated out
+            ! --- because of identification of extra line parameters via mo id and quantum numbers, 
+            !     renumbering of the isotopes has to come last.
+            do i=1, nisosep
+               !print *, i, nisosep, hlp(lun)%mo, hlp(lun)%is, oldid(i), oldiso(i), newid(i), newiso(i)
+               if((hlp(ldx)%mo .eq. oldid(i)) .and. (hlp(ldx)%is .eq. oldiso(i)))then
+                  hlp(ldx)%sl = hlp(ldx)%sl / isoscale(i)
+                  !write(6,*) i, hlp(ldx)%mo, hlp(ldx)%is, newid(i), newiso(i)
+                  hlp(ldx)%mo = newid(i)
+                  hlp(ldx)%is = newiso(i)
+                  write( hfl(ldx)%buf(1:25), 107 ) newid(i), newiso(i), hlp(ldx)%nu, hlp(ldx)%sl
+                  exit
+               endif
+            enddo
+
 
 
             ! --- save this line
@@ -599,7 +624,8 @@ subroutine filh( hd, hf )
    hd%bt     = 0.0            ! beta for galatry
    hd%gamma0 = 0.0            ! gamma 0 for sdv
    hd%gamma2 = 0.0            ! gamma 2 for sdv
-   hd%eta2   = 0.0            ! eta 2 for sdv
+   hd%shift0   = 0.0          ! shift 0 for sdv
+   hd%shift2   = 0.0          ! shift 2 for sdv
    hd%lmtk1  = 0.0            ! lmtk1 for line mixing
    hd%lmtk2  = 0.0            ! lmtk2 for line mixing
    hd%ylm    = 0.0            ! ylm for line mixing
@@ -649,7 +675,7 @@ subroutine filh( hd, hf )
 ! 161 - 172 galatry beta
 ! 173 - 184 sdv gam0
 ! 185 - 196 sdv gam2
-! 197 - 208 sdv eta2
+! 197 - 208 sdv shift0
 ! 209 - 220 lmx ltk1
 ! 221 - 232 lmx ltk2
 ! 233 - 244 lmx ylm
