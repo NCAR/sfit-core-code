@@ -1,12 +1,19 @@
 module gen_lineshape
 
+! routines taken and adapted to fortran 95 from 
+! Tran, H.; Ngo, N. & Hartmann, J.-M. Efficient computation of some speed-dependent 
+! isolated line profiles Journal of Quantitative Spectroscopy and Radiative Transfer , 2013,
+
+! The model pCqSDHC is described in 
+! Ngo, N.; Lisak, D.; Tran, H. & Hartmann, J.-M. 
+! An isolated line-shape model to go beyond the Voigt profile in spectroscopic databases and 
+! radiative transfer codes Journal of Quantitative Spectroscopy and Radiative Transfer , 2013, -
+
 contains
   subroutine pCqSDHC(sg0,GamD,Gam0,Gam2,Shift0,Shift2,anuVC,eta,&
        sg,LS_pCqSDHC_R,LS_pCqSDHC_I)
 
-! routines taken and adapted to fortran 95 from 
-! Tran, H.; Ngo, N. & Hartmann, J.-M. Efficient computation of some speed-dependent 
-! isolated line profiles Journal of Quantitative Spectroscopy and Radiative Transfer , 2013,
+
 
 !-------------------------------------------------
 !	"pCqSDHC": partially-Correlated quadratic-Speed-Dependent Hard-Collision
@@ -65,12 +72,10 @@ contains
     c2=dcmplx(Gam2,-Shift2)
     c0t=(1.d0-eta)*(c0-1.5d0*c2)+anuVC
     c2t=(1.d0-eta)*c2
-    Y=1.d0/((2.d0*cte*C2t))**2
-!
-	
-    X=(iz*(sg-sg0)+c0t)/c2t
 !	
-    if (cdabs(C2t).eq.0.d0) go to 110
+    if (cdabs(C2t).le.tiny(0.d0)) go to 110
+    Y=1.d0/((2.d0*cte*C2t))**2
+    X=(iz*(sg-sg0)+c0t)/c2t
     if (cdabs(X).le.3.d-8*cdabs(Y)) go to 120
     if (cdabs(Y).le.1.d-15*cdabs(X)) go to 140
 ! calculating Z1 and Z2

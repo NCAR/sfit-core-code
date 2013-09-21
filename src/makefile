@@ -27,7 +27,7 @@
 
 FC = gfortran
 # error check
-FFLAGS = -O2 -Wall -g -Wsurprising -Warray-bounds -Wcharacter-truncation -Wunused-parameter \
+#FFLAGS = -Wall -g -Wsurprising -Warray-bounds -Wcharacter-truncation -Wunused-parameter \
          -Waliasing -Wimplicit-interface -Wunderflow  -Wline-truncation -Wunused-parameter \
          -fimplicit-none -fbounds-check -fbacktrace  -fcheck=all  -fwhole-file -std=gnu -pedantic \
          -fall-intrinsics -ffpe-trap=invalid,zero,overflow,underflow
@@ -92,7 +92,8 @@ voigt.o \
 voigt_sdv_lm.o \
 writeout.o \
 xsections.o \
-continuum.o
+continuum.o \
+gen_lineshape.o
 
 #convert_old_data_files.o
 
@@ -134,7 +135,7 @@ cleaner:
 bandparam.o \
 : params.o
 
-binput_4_0 \
+binput_4_0.o \
 : params.o binput_parse_4_0.o retvparam.o bandparam.o lineparam.o solar.o channel.o initialize.o opt.o writeout.o
 
 binput_parse_4_0.o \
@@ -229,4 +230,5 @@ writeout.o \
 : params.o datafiles.o retvparam.o molcparam.o isotope.o bandparam.o
 
 xsections.o \
-: params.o retvparam.o vibfcn.o tips.o isotope.o lineparam.o bandparam.o molcparam.o voigt_sdv_lm.o
+: params.o retvparam.o vibfcn.o tips.o isotope.o lineparam.o bandparam.o molcparam.o voigt_sdv_lm.o \
+	gen_lineshape.o

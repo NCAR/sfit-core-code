@@ -35,7 +35,7 @@
       REAL(DOUBLE) :: DIST, TXE, VIBFAC, STIMFC, SSL, ACOFB, SCOFB, ALOR, ADOP, &
                       AKZERO, YDUM, OPTMAX, XDUM, AKV, OPTCEN, DELLOR, WLIN, START, &
                       SSTOP, ANUZ, QT, QTSTDTEMP, GI, SSLOLD, BETAP, GZ, LMTVAL
-      REAL(DOUBLE) :: AKV_R, AKV_I
+      REAL(DOUBLE) :: AKV_R, AKV_I, G2, LM, S0, S2
 
       REAL (DOUBLE), DIMENSION(4) :: SDVLM_PARAM ! PARAMETERS FOR SDV AND/OR LINEMIXING
                                                  ! CALCULATION ACCORDING TO BOONE
@@ -151,6 +151,7 @@
 !               ISO = ISCODE(IMOL)
 
 ! --- ACCOUNT FOR O2
+               G2 = 0.0D0
                IF( HFLAG(N,FCIA_FLAG) .OR. HFLAG(N,SCIA_FLAG) .OR. MO.EQ.7 )THEN
                   ACOFB = AAA(N) + (XGAS(IMOL,K)-0.21D0)*(SSS(N)-AAA(N))/0.79D0
                   ACOFB = ACOFB * P(K)
@@ -158,10 +159,19 @@
                ELSEIF  ( HFLAG(N,SDV_FLAG) ) THEN
                   ACOFB = GAMMA0(N)*P(K)*(1.0D0 - XGAS(IMOL,K))
                   SCOFB = SSS(N)*P(K)*XGAS(IMOL,K)
+                  G2 = GAMMA0(N)*GAMMA2(N)*P(k) ! Note HITRAN gives data by Devi, the function 
+                                                ! implemented here (Tran) defines this parameter differently
+                  S0 = SHIFT0(N)*P(K)
+                  S2 = SHIFT2(N)
                ELSE
                   ACOFB = AAA(N)*P(K)*(1.0D0 - XGAS(IMOL,K))
                   SCOFB = SSS(N)*P(K)*XGAS(IMOL,K)
                ENDIF
+
+               LM = 0.0D0
+               IF (HFLAG(N,LM_FLAG) ) THEN 
+                  LM = YLM(N) * P(K) *(STDTEMP/T(K))**TDLIN(N)
+               end IF
 
                ALOR = (ACOFB + SCOFB)*(STDTEMP/T(K))**TDLIN(N)
                ADOP = RFACTOR*SQRT(T(K)/GMASS(N))*AZERO(N)
@@ -188,7 +198,6 @@
                   IF (HFLAG(N,LM_FLAG)) THEN
                      LMTVAL = (T(K) - 260.0D0) / 60.0D0 ! LM-REF TEMPERATURES: 200/260/320 K
                      SDVLM_PARAM(4) = YLM(N) * (1.0D0 + LMTVAL *(LMTK1(N) + LMTVAL * LMTK2(N)))
-                     print *, SDVLM_PARAM(1), SDVLM_PARAM(2), SDVLM_PARAM(3), SDVLM_PARAM(4)
                   END IF
                   
 ! --- CHECK FOR ZERO PARAMETERS IN SVD_PARAM ESPECIALLY 1 (GAMMA2) MUST BE NON ZERO IF THIS IS NOT THE CASE,
@@ -233,9 +242,10 @@
                   ! VOIGT WITHOUT LINEMIXING
                   AKV = AKZERO * VOIGT(XDUM,YDUM)
                ELSE
-                  call pCqSDHC(azero(N),ADOP,ALOR,0.0D0,0.0D0,0.0D0,0.0D0,0.0D0,&
+                  call pCqSDHC(azero(N),ADOP,ALOR,G2,S0,S2,0.0D0,0.0D0,&
                        azero(N),AKV_R,AKV_I)
-                  AKV = SSL * AKV_R ! ALL OTHER PARTS OF AKZERO ARE ALREADY PART OF AKV_R
+                  AKV = SSL * (AKV_R + LM * AKV_I)! ALL OTHER PARTS OF AKZERO ARE ALREADY PART OF 
+                                                  ! AKV_R AND AKV_I
                END IF
                OPTCEN = AKV*OPTMAX
 
@@ -279,9 +289,10 @@
                      XDUM = ABS(XDUM)
                      AKV  = AKZERO*VOIGT(XDUM,YDUM)
                   else
-                     call pCqSDHC(WLIN,ADOP,ALOR,0.0D0,0.0D0,0.0D0,0.0D0,0.0D0,&
+                     call pCqSDHC(WLIN,ADOP,ALOR,G2,S0,S2,0.0D0,0.0D0,&
                        ANUZ,AKV_R,AKV_I)
-                     AKV = SSL*AKV_R ! ALL OTHER PARTS OF AKZERO ARE ALREADY PART OF AKV_R
+                     AKV = SSL*(AKV_R + LM*AKV_I)! ALL OTHER PARTS OF AKZERO ARE ALREADY PART OF 
+                                                 ! AKV_R AND AKV_I
                   ENDIF
                   CROSS(NPOINT,K,J+INDXX) = CROSS(NPOINT,K,J+INDXX) + AKV*OPTMAX
                   !print*, j, k, CROSS(NPOINT,K,J+INDXX)
