@@ -161,8 +161,13 @@
                   SCOFB = SSS(N)*P(K)*XGAS(IMOL,K)
                   G2 = GAMMA0(N)*GAMMA2(N)*P(k) ! Note HITRAN gives data by Devi, the function 
                                                 ! implemented here (Tran) defines this parameter differently
-                  S0 = SHIFT0(N)*P(K)
-                  S2 = SHIFT2(N)
+                  IF ( FPS ) THEN
+                     S0 = SHIFT0(N)*P(K)
+                     S2 = SHIFT2(N)*P(k)*T(K)
+                  ELSE
+                     S0 = 0.0D0
+                     S2 = 0.0D0
+                  END IF
                ELSE
                   ACOFB = AAA(N)*P(K)*(1.0D0 - XGAS(IMOL,K))
                   SCOFB = SSS(N)*P(K)*XGAS(IMOL,K)
@@ -259,6 +264,7 @@
                IF (DELLOR > DELNU) DIST = DELLOR
 !  --- CORRECT POSITION FOR PRESSURE SHIFT 
                WLIN = AZERO(N) + P(K)*PSLIN(N)
+               IF( GENLINESHAPE ) WLIN = AZERO(N)
 !!  --- IF NO PRESSURE SHIFT
                IF( .NOT. FPS ) WLIN = AZERO(N)
                START = WLIN - DIST
