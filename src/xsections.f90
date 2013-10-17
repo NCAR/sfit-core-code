@@ -152,6 +152,8 @@
 
 ! --- ACCOUNT FOR O2
                G2 = 0.0D0
+               ! IF PCQSDHC LINEMODEL IS USED AND NO SPEED DEPENDENCY, S0 CONTAINS THE FREQUENCY SHIFT 
+               IF ( FPS ) S0 = PSLIN(N)*P(K)
                IF( HFLAG(N,FCIA_FLAG) .OR. HFLAG(N,SCIA_FLAG) .OR. MO.EQ.7 )THEN
                   ACOFB = AAA(N) + (XGAS(IMOL,K)-0.21D0)*(SSS(N)-AAA(N))/0.79D0
                   ACOFB = ACOFB * P(K)
@@ -176,6 +178,7 @@
                ANUVC = 0.0D0
                IF ( HFLAG(N,GALATRY_FLAG) ) THEN 
                   BETAP = BETA(N)*P(K)
+                  BETAP = BETAP * BETAT(ICODE(IMOL),T(K))
                   ! RELATION GIVEN BY NGO ET.AL. 'AN ISOLATED LINE-SHAPE MODEL ...', JQRST, 2013
                   ANUVC = 0.75D0*BETAP
                END IF
@@ -238,7 +241,7 @@
 !  --- CALCULATE LINE CENTER OPTICAL DEPTH
   349          CONTINUE
                XDUM = 0.D0
-               IF(HFLAG(N,GALATRY_FLAG)) THEN
+               IF(.not.genlineshape.and.HFLAG(N,GALATRY_FLAG)) THEN
                   BETAP = BETA(N)*P(K)
                   BETAP = BETAP * BETAT(ICODE(IMOL),T(K))
                   GZ = ALOGSQ*BETAP/ADOP
@@ -272,9 +275,10 @@
                IF (DELLOR > DELNU) DIST = DELLOR
 !  --- CORRECT POSITION FOR PRESSURE SHIFT 
                WLIN = AZERO(N) + P(K)*PSLIN(N)
-               IF( GENLINESHAPE ) WLIN = AZERO(N)
 !!  --- IF NO PRESSURE SHIFT
                IF( .NOT. FPS ) WLIN = AZERO(N)
+!!  --- If using the pCqSDHC line shape, the pressure shifted is already included
+               IF( GENLINESHAPE ) WLIN = AZERO(N)
                START = WLIN - DIST
                SSTOP = WLIN + DIST
                JSTART = FLOOR((START - WMON(IBAND))/DN(IBAND) + 1.00000001D0)
@@ -286,7 +290,7 @@
                DO J = JSTART, JSTOP
                   ANUZ = WMON(IBAND) + (J - 1)*DN(IBAND)
                   XDUM = ALOGSQ*(ANUZ - WLIN)/ADOP
-                  IF (HFLAG(N,GALATRY_FLAG)) THEN
+                  IF (.not.genlineshape.and.HFLAG(N,GALATRY_FLAG)) THEN
                      XDUM = ABS(XDUM)
                      AKV  = AKZERO*GALATRY(XDUM,YDUM,GZ)
                   ELSEIF(.not.genlineshape.and.HFLAG(N,SDV_FLAG)) THEN
