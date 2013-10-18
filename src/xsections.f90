@@ -35,7 +35,7 @@
       REAL(DOUBLE) :: DIST, TXE, VIBFAC, STIMFC, SSL, ACOFB, SCOFB, ALOR, ADOP, &
                       AKZERO, YDUM, OPTMAX, XDUM, AKV, OPTCEN, DELLOR, WLIN, START, &
                       SSTOP, ANUZ, QT, QTSTDTEMP, GI, SSLOLD, BETAP, GZ, LMTVAL
-      REAL(DOUBLE) :: AKV_R, AKV_I, G2, LM, S0, S2
+      REAL(DOUBLE) :: AKV_R, AKV_I, G2, LM, S0, S2, ANUVC
 
       REAL (DOUBLE), DIMENSION(4) :: SDVLM_PARAM ! PARAMETERS FOR SDV AND/OR LINEMIXING
                                                  ! CALCULATION ACCORDING TO BOONE
@@ -152,6 +152,8 @@
 
 ! --- ACCOUNT FOR O2
                G2 = 0.0D0
+               ! IF PCQSDHC LINEMODEL IS USED AND NO SPEED DEPENDENCY, S0 CONTAINS THE FREQUENCY SHIFT 
+               IF ( FPS ) S0 = PSLIN(N)*P(K)
                IF( HFLAG(N,FCIA_FLAG) .OR. HFLAG(N,SCIA_FLAG) .OR. MO.EQ.7 )THEN
                   ACOFB = AAA(N) + (XGAS(IMOL,K)-0.21D0)*(SSS(N)-AAA(N))/0.79D0
                   ACOFB = ACOFB * P(K)
@@ -172,6 +174,15 @@
                   ACOFB = AAA(N)*P(K)*(1.0D0 - XGAS(IMOL,K))
                   SCOFB = SSS(N)*P(K)*XGAS(IMOL,K)
                ENDIF
+
+               ANUVC = 0.0D0
+               IF ( HFLAG(N,GALATRY_FLAG) ) THEN 
+                  BETAP = BETA(N)*P(K)
+                  BETAP = BETAP * BETAT(ICODE(IMOL),T(K))
+                  ! RELATION GIVEN BY NGO ET.AL. 'AN ISOLATED LINE-SHAPE MODEL ...', JQRST, 2013
+                  ANUVC = 0.75D0*BETAP
+               END IF
+
 
                LM = 0.0D0
                IF (HFLAG(N,LM_FLAG) ) THEN 
@@ -230,7 +241,7 @@
 !  --- CALCULATE LINE CENTER OPTICAL DEPTH
   349          CONTINUE
                XDUM = 0.D0
-               IF(HFLAG(N,GALATRY_FLAG)) THEN
+               IF(.not.genlineshape.and.HFLAG(N,GALATRY_FLAG)) THEN
                   BETAP = BETA(N)*P(K)
                   BETAP = BETAP * BETAT(ICODE(IMOL),T(K))
                   GZ = ALOGSQ*BETAP/ADOP
@@ -247,7 +258,7 @@
                   ! VOIGT WITHOUT LINEMIXING
                   AKV = AKZERO * VOIGT(XDUM,YDUM)
                ELSE
-                  call pCqSDHC(azero(N),ADOP,ALOR,G2,S0,S2,0.0D0,0.0D0,&
+                  call pCqSDHC(azero(N),ADOP,ALOR,G2,S0, S2, ANUVC,0.0D0,&
                        azero(N),AKV_R,AKV_I)
                   AKV = SSL * (AKV_R + LM * AKV_I)! ALL OTHER PARTS OF AKZERO ARE ALREADY PART OF 
                                                   ! AKV_R AND AKV_I
@@ -264,9 +275,10 @@
                IF (DELLOR > DELNU) DIST = DELLOR
 !  --- CORRECT POSITION FOR PRESSURE SHIFT 
                WLIN = AZERO(N) + P(K)*PSLIN(N)
-               IF( GENLINESHAPE ) WLIN = AZERO(N)
 !!  --- IF NO PRESSURE SHIFT
                IF( .NOT. FPS ) WLIN = AZERO(N)
+!!  --- If using the pCqSDHC line shape, the pressure shifted is already included
+               IF( GENLINESHAPE ) WLIN = AZERO(N)
                START = WLIN - DIST
                SSTOP = WLIN + DIST
                JSTART = FLOOR((START - WMON(IBAND))/DN(IBAND) + 1.00000001D0)
@@ -278,8 +290,7 @@
                DO J = JSTART, JSTOP
                   ANUZ = WMON(IBAND) + (J - 1)*DN(IBAND)
                   XDUM = ALOGSQ*(ANUZ - WLIN)/ADOP
-                  IF (HFLAG(N,GALATRY_FLAG)) THEN
-
+                  IF (.not.genlineshape.and.HFLAG(N,GALATRY_FLAG)) THEN
                      XDUM = ABS(XDUM)
                      AKV  = AKZERO*GALATRY(XDUM,YDUM,GZ)
                   ELSEIF(.not.genlineshape.and.HFLAG(N,SDV_FLAG)) THEN
@@ -295,7 +306,7 @@
                      XDUM = ABS(XDUM)
                      AKV  = AKZERO*VOIGT(XDUM,YDUM)
                   else
-                     call pCqSDHC(WLIN,ADOP,ALOR,G2,S0,S2,0.0D0,0.0D0,&
+                     call pCqSDHC(WLIN,ADOP,ALOR,G2,S0,S2,ANUVC,0.0D0,&
                        ANUZ,AKV_R,AKV_I)
                      AKV = SSL*(AKV_R + LM*AKV_I)! ALL OTHER PARTS OF AKZERO ARE ALREADY PART OF 
                                                  ! AKV_R AND AKV_I
