@@ -177,16 +177,18 @@
 
                ANUVC = 0.0D0
                IF ( HFLAG(N,GALATRY_FLAG) ) THEN 
-                  BETAP = BETA(N)*P(K)
-                  BETAP = BETAP * BETAT(ICODE(IMOL),T(K))
+                  BETAP = BETA(N)*P(K)!/(STDTEMP/T(K))**(1.0/TDLIN(N))
                   ! RELATION GIVEN BY NGO ET.AL. 'AN ISOLATED LINE-SHAPE MODEL ...', JQRST, 2013
-                  ANUVC = 0.75D0*BETAP
+                  ANUVC = 3.0D0/4.0D0*BETAP
                END IF
 
 
                LM = 0.0D0
                IF (HFLAG(N,LM_FLAG) ) THEN 
-                  LM = YLM(N) * P(K) *(STDTEMP/T(K))**TDLIN(N)
+                     LMTVAL = (T(K) - 260.0D0) / 60.0D0 ! LM-REF TEMPERATURES: 200/260/320 K
+                     LM = YLM(N) * (1.0D0 + LMTVAL *(LMTK1(N) + LMTVAL * LMTK2(N)))
+                     LM = LM*P(K)
+!                     LM = YLM(N) * P(K) *(STDTEMP/T(K))**TDLIN(N)
                end IF
 
                ALOR = (ACOFB + SCOFB)*(STDTEMP/T(K))**TDLIN(N)
@@ -242,6 +244,7 @@
   349          CONTINUE
                XDUM = 0.D0
                IF(.not.genlineshape.and.HFLAG(N,GALATRY_FLAG)) THEN
+!               IF(HFLAG(N,GALATRY_FLAG)) THEN
                   BETAP = BETA(N)*P(K)
                   BETAP = BETAP * BETAT(ICODE(IMOL),T(K))
                   GZ = ALOGSQ*BETAP/ADOP
@@ -291,6 +294,7 @@
                   ANUZ = WMON(IBAND) + (J - 1)*DN(IBAND)
                   XDUM = ALOGSQ*(ANUZ - WLIN)/ADOP
                   IF (.not.genlineshape.and.HFLAG(N,GALATRY_FLAG)) THEN
+!                  IF (HFLAG(N,GALATRY_FLAG)) THEN
                      XDUM = ABS(XDUM)
                      AKV  = AKZERO*GALATRY(XDUM,YDUM,GZ)
                   ELSEIF(.not.genlineshape.and.HFLAG(N,SDV_FLAG)) THEN
