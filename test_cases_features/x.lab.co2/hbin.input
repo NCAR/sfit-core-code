@@ -35,7 +35,7 @@
 #
 # CO2 Line mixing parameters for Boone implementation
 1
-002_CO2/co2_lm.dat
+002_CO2/02_hase_lm.dat
 #
 #
 # Speed Dependent Voigt parameter files
