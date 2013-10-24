@@ -30,7 +30,7 @@
 # 049_O2CIA/o2cia_20060420.101 - this file is a special case, molid & isotope
 #  ids are dealt with differently
 #
-001_H2O/01.H2O.edit.790
+001_H2O/001_H2Oall.atm.20120409
 002_CO2/02_hit08_f53.par
 003_O3/03_hit08.par
 004_N2O/04_hit08.par
@@ -135,20 +135,20 @@
 # molecule id numbers in these files have to match the sfit molecule id
 2
 #
-014_HF/hf_galatry.txt
-015_HCL/hcl_galatry.txt
+014_HF/14_hit12_Galatry.txt
+015_HCL/15_hit12_Galatry.txt
 #
 #
 # CO2 Line mixing parameters for Boone implementation
-1
+0
 #
-002_CO2/co2_lm.dat
+#002_CO2/02_hase_lm.dat
 #
 #
 # Speed Dependent Voigt parameter files
-1
+0
 #
-002_CO2/co2_sdv.dat
+#002_CO2/co2_sdv.dat
 #
 #
 ! end of file
