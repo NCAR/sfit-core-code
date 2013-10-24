@@ -586,7 +586,7 @@ stop
 105 format( a3 )
 106 format( a200 )
 107 format( i2,i1,f12.6,1p,e10.3,10x,0p,f5.4,f5.4,f10.4,f4.2,f8.6,f7.4)
-108 format( i2,i1,i15,i15,tr15,a6,i3,tr6,f7.4,f7.4 )
+108 format( i2,i1,a60,f7.4,f7.4 )
 !HITRAN 2008 108 format( i2,i1,f12.6,f10.0)
 109 format( a255 )
 110 format( f12.5 )
