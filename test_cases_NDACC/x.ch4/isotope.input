@@ -1,0 +1,28 @@
+3   43                  ! number of isotope seperation species (blocks), # VMR's
+H2O                     ! old name
+1 4                     ! old molec id and isotope id
+HDO                     ! new name
+53 1 19.0 3 1.5 1.      ! new molec id, isotope id, mass, mode, tdep, intensity scale
+2724,1, 1403,1, 3707,1  ! band center, degen  47                      ! number of layers & vmrs
+  3.7444e-08,  6.1674e-08,  1.6430e-07,  6.4190e-07,  1.1195e-06,
+  3.2606e-06,  5.1647e-06,  6.0464e-06,  6.4250e-06,  6.5483e-06,
+  6.6367e-06,  6.7094e-06,  6.7166e-06,  6.6780e-06,  6.6117e-06,
+  6.4917e-06,  6.3242e-06,  6.1231e-06,  5.9077e-06,  5.7118e-06,
+  5.5336e-06,  5.3702e-06,  5.2170e-06,  5.0675e-06,  4.9325e-06,
+  4.8025e-06,  4.6149e-06,  4.3436e-06,  4.0306e-06,  3.9537e-06,
+  5.6794e-06,  1.7567e-05,  4.9463e-05,  8.9637e-05,  1.6740e-04,
+  2.8163e-04,  4.1785e-04,  6.2204e-04,  1.0917e-03,  2.2887e-03,
+  4.5180e-03,  7.0894e-03,  8.0816e-03,
+H2O                 ! old name - Add as second HDO isotope
+1 5                 ! old molec id and isotope id
+HDO                 ! new name
+53 2 21.0 0 1.5 1.  ! new molec id, isotope id, mass, mode, tdep, intensity scale
+H2O                 ! old name - Add as third HDO isotope
+1 6                 ! old molec id and isotope id
+HDO                 ! new name
+53 3 20.0 0 1.5 1.  ! new molec id, isotope id, mass, mode, tdep, intensity scale
+
+
+
+
+49, 52, 53, 54, 55, 56, 57, 70, 77+
