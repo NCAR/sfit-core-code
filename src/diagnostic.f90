@@ -42,7 +42,7 @@
          WRITE(93,*) N, M, ISMIX, NLEV
          WRITE(93,10) ADJUSTR(PNAME(:N))
          DO I=1,N
-            WRITE(93,'(10000ES26.18)') ( G(I,J), J=1, M )
+            WRITE(93,'(100000ES26.18)') ( G(I,J), J=1, M )
          ENDDO
          CALL FILECLOSE( 93, 1 )
       end if

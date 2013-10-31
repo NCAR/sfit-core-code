@@ -188,6 +188,7 @@
                      LMTVAL = (T(K) - 260.0D0) / 60.0D0 ! LM-REF TEMPERATURES: 200/260/320 K
                      LM = YLM(N) * (1.0D0 + LMTVAL *(LMTK1(N) + LMTVAL * LMTK2(N)))
                      LM = LM*P(K)
+                     print *, LMTK1(N), LMTK2(N), YLM(N), LMTVAL, LM
 !                     LM = YLM(N) * P(K) *(STDTEMP/T(K))**TDLIN(N)
                end IF
 
@@ -316,7 +317,7 @@
                                                  ! AKV_R AND AKV_I
                   ENDIF
                   CROSS(NPOINT,K,J+INDXX) = CROSS(NPOINT,K,J+INDXX) + AKV*OPTMAX
-                  !print*, j, k, CROSS(NPOINT,K,J+INDXX)
+!                  print*, j, k, CROSS(NPOINT,K,J+INDXX)
                ENDDO ! J
             ENDDO ! LINES
             !print*, j-1, CROSS(NPOINT,K,J-1+INDXX)

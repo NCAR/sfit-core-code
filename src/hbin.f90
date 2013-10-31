@@ -351,7 +351,7 @@ program hbin
          ind = lmx(ifl)%n
          lmx(ifl)%g2_air(ind) = 0.0D0
          read( buf, 119 ) lmx(ifl)%mo(ind), lmx(ifl)%is(ind), lmx(ifl)%qa(ind)
-         read (buf(64:), '(f10.4,f10.4,f10.4)') lmx(ifl)%lm_air(ind), &
+         read (buf(64:), '(g10.4,1x,g10.4,1x,g10.4)') lmx(ifl)%lm_air(ind), &
               lmx(ifl)%lm_t1(ind), lmx(ifl)%lm_t2(ind)
 
          lmx(ifl)%n = lmx(ifl)%n + 1

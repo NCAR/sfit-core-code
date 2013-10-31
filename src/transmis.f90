@@ -161,6 +161,7 @@
 
                      TCALC(IPOINT,MSTOR) = TCALC(IPOINT,MSTOR) + (X(1,K)/XORG(1,K)) * CROSS_FACMAS(1,K,MSTOR)
 
+
                      IF (IEMISSION/=0) THEN
                         ! Transmission calculated below the layer ALT, needed
                         ! for calculation of contribution to emission from
@@ -231,6 +232,7 @@
                            CROSS_FACMAS(IR,K,MSTOR) = CROSS(IR,K,ICINDX)*FACMAS
                            TCALC(IPOINT,MSTOR) = &
                            TCALC(IPOINT,MSTOR) + (X(IR,K)/XORG(IR,K)) * CROSS_FACMAS(IR,K,MSTOR)
+                           
                            IF (IEMISSION/=0) THEN
                  ! Transmission calculated below the layer ALT, needed
                  ! for calculation of contribution to emission from
@@ -407,6 +409,7 @@
                ENDIF
                TCALC(IPOINT,MSTOR) = TCALC(IPOINT,MSTOR) + XFAC*CROSS(&
                     IR,K,ICINDX)*FACMAS
+!               if (IR.eq.1) print *, TCALC(IPOINT,MSTOR)
                IF (IEMISSION.EQ.1) THEN
                   ! Transmission calculated below the layer ALT, needed
                   ! for calculation of contribution to emission from
