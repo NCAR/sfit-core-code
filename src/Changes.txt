@@ -1,5 +1,9 @@
 Notes for pre release versions V003.*
 
+
+October 2013
+doubled LNMAX to 2*262144
+
 ---------------------
 July 2013
 -commented out compile time variable in makefile passing to the version string

@@ -1,0 +1,1372 @@
+  SFIT4:V0.9.4.1:20130708 RUNTIME:20130827-17:29:32
+
+ STATION.LAYERS FILE : Mean model surface :     0.3002                                                 
+  LAYER BOUNDARIES AND MIDPOINTS
+    1    120.0000    113.0000
+    2    106.0000    100.2500
+    3     94.5000     89.8500
+    4     85.2000     81.1000
+    5     77.0000     73.3850
+    6     69.7700     66.5850
+    7     63.4000     60.5900
+    8     57.7800     55.3150
+    9     52.8500     50.7000
+   10     48.5500     46.6800
+   11     44.8100     43.1900
+   12     41.5700     40.1700
+   13     38.7700     37.5550
+   14     36.3400     35.2850
+   15     34.2300     33.3000
+   16     32.3700     31.5300
+   17     30.6900     29.9150
+   18     29.1400     28.4000
+   19     27.6600     26.9400
+   20     26.2200     25.5150
+   21     24.8100     24.1250
+   22     23.4400     22.7700
+   23     22.1000     21.4500
+   24     20.8000     20.1700
+   25     19.5400     18.9250
+   26     18.3100     17.7150
+   27     17.1200     16.5400
+   28     15.9600     15.4000
+   29     14.8400     14.3000
+   30     13.7600     13.2350
+   31     12.7100     12.2050
+   32     11.7000     11.2100
+   33     10.7200     10.2496
+   34      9.7792      9.3279
+   35      8.8767      8.4397
+   36      8.0026      7.5847
+   37      7.1668      6.7631
+   38      6.3594      5.9749
+   39      5.5904      5.2251
+   40      4.8597      4.5085
+   41      4.1574      3.8254
+   42      3.4934      3.1756
+   43      2.8578      2.5591
+   44      2.2605      1.9811
+   45      1.7016      1.4363
+   46      1.1710      0.9249
+   47      0.6788      0.4519
+ BOTTOM OF RETRIEVAL GRID :       0.2250
+ NUMBER OF LAYERS         :           47
+
+ NUMBER OF RETRIEVAL LAYERS IN INPUT VARIANCE VECTORS :    47
+ NUMBER OF RETRIEVAL GASES (MAX=10)                   :     7
+ ISOTOPE SEPARATION FLAG                              :     T
+
+NUMBER OF ISOTOPES TO SEPARATE = 3
+ OLD NAME, ID, ISO     NEW NAME, ID, ISO    TDEP   S-SCALE
+ H2O        1    4     HDO       77    1     1.50  1.000000
+    2724, 1    1403, 1    3707, 1
+ADDING ISOTOPE  77/ 2 TO MOLECULE  77/ 1
+ H2O        1    5     HDO       77    2
+ADDING ISOTOPE  77/ 3 TO MOLECULE  77/ 1
+ H2O        1    6     HDO       77    3
+
+ RETRIEVAL GAS #       1                    : HCL    
+ PROFILE RETRIEVAL CODE                     :     T
+ COLUMN SCALE FACTOR:    1.00000
+ RELATIVE UNCERTAINTIES OF THE A PRIORI PROFILE
+      0.0267      0.0295      0.0328      0.0349      0.0372      0.0396
+      0.0422      0.0450      0.0482      0.0517      0.0556      0.0598
+      0.0641      0.0688      0.0733      0.0772      0.0803      0.0822
+      0.0833      0.0842      0.0854      0.0864      0.0877      0.0891
+      0.0902      0.0917      0.0928      0.0945      0.0962      0.0976
+      0.0995      0.1010      0.1031      0.1053      0.1070      0.1094
+      0.1113      0.1140      0.1170      0.1193      0.1227      0.1254
+      0.1294      0.1338      0.1373      0.1425      0.1484
+ HALF WIDTH HALF HEIGHT (KM) OF EXPONENTIAL INTERLAYER CORRELATION :  6.0000E+00
+ MINIMUM, MAXIMUM ALTITUDE (KM) FOR OFF-DIAGONAL ELEMENTS          :      0.000   120.000
+ ILOGRETRIEVAL FLAG :  0
+
+ RETRIEVAL GAS #       2                    : O3     
+ PROFILE RETRIEVAL CODE                     :     T
+ COLUMN SCALE FACTOR:    1.00000
+ RELATIVE UNCERTAINTIES OF THE A PRIORI PROFILE
+      0.0267      0.0295      0.0328      0.0349      0.0372      0.0396
+      0.0422      0.0450      0.0482      0.0517      0.0556      0.0598
+      0.0641      0.0688      0.0733      0.0772      0.0803      0.0822
+      0.0833      0.0842      0.0854      0.0864      0.0877      0.0891
+      0.0902      0.0917      0.0928      0.0945      0.0962      0.0976
+      0.0995      0.1010      0.1031      0.1053      0.1070      0.1094
+      0.1113      0.1140      0.1170      0.1193      0.1227      0.1254
+      0.1294      0.1338      0.1373      0.1425      0.1484
+ HALF WIDTH HALF HEIGHT (KM) OF GAUSSIAN INTERLAYER CORRELATION : 3.0000E+00
+ MINIMUM, MAXIMUM ALTITUDE (KM) FOR OFF-DIAGONAL ELEMENTS       :      0.000   120.000
+ ILOGRETRIEVAL FLAG :  0
+
+ RETRIEVAL GAS #       3                    : CH4    
+ PROFILE RETRIEVAL CODE                     :     T
+ COLUMN SCALE FACTOR:    1.00000
+ RELATIVE UNCERTAINTIES OF THE A PRIORI PROFILE
+      0.0267      0.0295      0.0328      0.0349      0.0372      0.0396
+      0.0422      0.0450      0.0482      0.0517      0.0556      0.0598
+      0.0641      0.0688      0.0733      0.0772      0.0803      0.0822
+      0.0833      0.0842      0.0854      0.0864      0.0877      0.0891
+      0.0902      0.0917      0.0928      0.0945      0.0962      0.0976
+      0.0995      0.1010      0.1031      0.1053      0.1070      0.1094
+      0.1113      0.1140      0.1170      0.1193      0.1227      0.1254
+      0.1294      0.1338      0.1373      0.1425      0.1484
+ HALF WIDTH HALF HEIGHT (KM) OF GAUSSIAN INTERLAYER CORRELATION : 3.0000E+00
+ MINIMUM, MAXIMUM ALTITUDE (KM) FOR OFF-DIAGONAL ELEMENTS       :      0.000   120.000
+ ILOGRETRIEVAL FLAG :  0
+
+ RETRIEVAL GAS #       4                    : NO2    
+ PROFILE RETRIEVAL CODE                     :     F
+ COLUMN RETRIEVAL SCALE AND VARIANCE        :    1.00000   0.10000
+
+ RETRIEVAL GAS #       5                    : N2O    
+ PROFILE RETRIEVAL CODE                     :     F
+ COLUMN RETRIEVAL SCALE AND VARIANCE        :    1.00000   0.01000
+
+ RETRIEVAL GAS #       6                    : HDO    
+ PROFILE RETRIEVAL CODE                     :     F
+ COLUMN RETRIEVAL SCALE AND VARIANCE        :    0.50000   0.10000
+
+ RETRIEVAL GAS #       7                    : H2O    
+ PROFILE RETRIEVAL CODE                     :     F
+ COLUMN RETRIEVAL SCALE AND VARIANCE        :    1.00000   0.10000
+
+ HALF WIDTH OF INTEGRATION INTERVAL(CM-1)   :  1.0000000
+ 
+  LINE SHAPE MODEL:
+   0 = CHOOSE MODEL DEPENDING ON EXISTANCE OF PARAMETERS
+
+ MAXIMUM NUMBER OF ITERATIONS               :    21
+
+ TEMPERATURE RETRIEVAL SWITCH               :     F
+
+ FORWARD MODEL SWITCHES:
+  INCLUDE SOLAR LINES                       :     T
+  INCLUDE PRESSURE SHIFT                    :     T
+  EFFECTIVE MODULATION FUNCTION TYPE        :     T    4   # TERMS :     0
+  EFFECTIVE PHASE FUNCTION TYPE             :     T    4   # TERMS :     0
+  COMPUTE EMISSION COMPONENT                :     0
+
+ RETRIEVAL SWITCHES: 
+  FIT SOLAR SHIFT                           :     T
+  FIT WAVENUMBER SHIFT                      :     T   TYPE       :     3
+  FIT BACKGROUND                            :     T   TYPE       :     2
+  FIT DIFFERENT SHIFT BY GAS                :     T
+  FIT SIMPLE PHASE CORRECTION               :     F
+  FIT MODULATION FUNCTION                   :     F
+  FIT PHASE FUNCTION                        :     F
+  USE LEVENBERG-MARQUARDT                   :     T
+
+ A PRIORI AND UNCERTAINTIES:
+  WAVENUMBER SHIFT AND VARIANCE             :    0.0000000   0.1000000
+  BACKGROUND SLOPE AND VARIANCE             :    0.0000000   0.1000000
+  BACKGROUND CURVATURE AND VARIANCE         :    0.0000000   0.1000000
+  SOLAR SHIFT AND VARIANCE                  :    0.0000000   0.1000000
+  SIMPLE PHASE AND VARIANCE                 :    0.0000000   0.0000000
+  ZERO LEVEL VARIANCE                       :    0.2000000
+  MODULATION FUNCTION SCALE AND VARIANCE    :    0.0000000   0.0000000
+  PHASE FUNCTION SCALE AND VARIANCE         :    0.0000000   0.0000000
+
+ LEVENBERG-MARQUARDT PARAMETERS:
+  GAMMA START VALUE                         :    10000.000
+  DECREASE BY                               :    10.000000
+  INCREASE BY                               :    10.000000
+  CONVERGENCE CRITERION                     :     0.050000
+
+ WRITE OUT FINAL GAS FILES ONLY
+
+ NUMBER OF BANDS TO FIT   :     3
+
+ BANDPASS           :     1
+ WAVENUMBER RANGE                     :  2727.630000 -  2727.900000
+ ZERO LEVEL SHIFT AND SWITCH          :     0.000000,     0
+ NUMBER OF RETRIEVAL GASES            :     4
+ SOLID ANGLE [STR]                    : 0.405778E-05
+ FOV DIAMETER [MR]                    :     2.273000
+ RETRIEVAL GAS                        : HCL     O3      H2O     HDO     
+
+ BANDPASS           :     2
+ WAVENUMBER RANGE                     :  2775.500000 -  2775.900000
+ ZERO LEVEL SHIFT AND SWITCH          :     0.000000,     0
+ NUMBER OF RETRIEVAL GASES            :     4
+ SOLID ANGLE [STR]                    : 0.405778E-05
+ FOV DIAMETER [MR]                    :     2.273000
+ RETRIEVAL GAS                        : HCL     O3      N2O     H2O     
+
+ BANDPASS           :     3
+ WAVENUMBER RANGE                     :  2925.600000 -  2926.200000
+ ZERO LEVEL SHIFT AND SWITCH          :     0.000000,     0
+ NUMBER OF RETRIEVAL GASES            :     3
+ SOLID ANGLE [STR]                    : 0.405778E-05
+ FOV DIAMETER [MR]                    :     2.273000
+ RETRIEVAL GAS                        : HCL     CH4     NO2     
+
+ BAND                                 :            1
+ WAVFAC                               :    1.0000000
+ MAX OPD [CM-1]                       :       257.14
+ FOV [MR]                             :      2.27300
+ REQUESTED POINT SPACING              :    0.0008000
+ APODIZATION CODE                     :            0
+ SNR                                  :  192.5484900
+ MONOCHROMATIC SPACE                  :   0.00064815
+ NSPAC                                :            3
+ 
+ 03/05/2002 18:59:41UT Z:84.62 DUR:203.33 RES:0.0035 APD:BX FOV:2.2727mr         
+ SPECTRUM CODE                        :        84620
+ FIRST POINT (CM-1)                   :    2727.5290
+ LAST POINT (CM-1)                    :    2728.0015
+ POINT SPACING (CM-1)                 :   0.00194444
+ NUMBER OF POINTS                     :          244
+ WSTART                               :    2727.6302
+ WSTOP                                :    2727.8985
+ NPRIME                               :          139
+ NATMOS                               :          139
+ 
+ 03/05/2002 17:59:11UT Z:83.11 DUR:203.33 RES:0.0035 APD:BX FOV:2.2727mr         
+ SPECTRUM CODE                        :        83110
+ FIRST POINT (CM-1)                   :    2727.5290
+ LAST POINT (CM-1)                    :    2728.0015
+ POINT SPACING (CM-1)                 :   0.00194444
+ NUMBER OF POINTS                     :          244
+ WSTART                               :    2727.6302
+ WSTOP                                :    2727.8985
+ NPRIME                               :          139
+ NATMOS                               :          278
+
+ BAND                                 :            2
+ WAVFAC                               :    1.0000000
+ MAX OPD [CM-1]                       :       257.14
+ FOV [MR]                             :      2.27300
+ REQUESTED POINT SPACING              :    0.0008000
+ APODIZATION CODE                     :            0
+ SNR                                  :  192.5484900
+ MONOCHROMATIC SPACE                  :   0.00064815
+ NSPAC                                :            3
+ 
+ 03/05/2002 18:59:41UT Z:84.62 DUR:203.33 RES:0.0035 APD:BX FOV:2.2727mr         
+ SPECTRUM CODE                        :        84620
+ FIRST POINT (CM-1)                   :    2775.3993
+ LAST POINT (CM-1)                    :    2776.0001
+ POINT SPACING (CM-1)                 :   0.00194444
+ NUMBER OF POINTS                     :          310
+ WSTART                               :    2775.5004
+ WSTOP                                :    2775.8990
+ NPRIME                               :          206
+ NATMOS                               :          484
+ 
+ 03/05/2002 17:59:11UT Z:83.11 DUR:203.33 RES:0.0035 APD:BX FOV:2.2727mr         
+ SPECTRUM CODE                        :        83110
+ FIRST POINT (CM-1)                   :    2775.3993
+ LAST POINT (CM-1)                    :    2776.0001
+ POINT SPACING (CM-1)                 :   0.00194444
+ NUMBER OF POINTS                     :          310
+ WSTART                               :    2775.5004
+ WSTOP                                :    2775.8990
+ NPRIME                               :          206
+ NATMOS                               :          690
+
+ BAND                                 :            3
+ WAVFAC                               :    1.0000000
+ MAX OPD [CM-1]                       :       257.14
+ FOV [MR]                             :      2.27300
+ REQUESTED POINT SPACING              :    0.0008000
+ APODIZATION CODE                     :            0
+ SNR                                  :  192.5484900
+ MONOCHROMATIC SPACE                  :   0.00064815
+ NSPAC                                :            3
+ 
+ 03/05/2002 18:59:41UT Z:84.62 DUR:203.33 RES:0.0035 APD:BX FOV:2.2727mr         
+ SPECTRUM CODE                        :        84620
+ FIRST POINT (CM-1)                   :    2925.4987
+ LAST POINT (CM-1)                    :    2926.3017
+ POINT SPACING (CM-1)                 :   0.00194444
+ NUMBER OF POINTS                     :          414
+ WSTART                               :    2925.6017
+ WSTOP                                :    2926.1987
+ NPRIME                               :          308
+ NATMOS                               :          998
+ 
+ 03/05/2002 17:59:11UT Z:83.11 DUR:203.33 RES:0.0035 APD:BX FOV:2.2727mr         
+ SPECTRUM CODE                        :        83110
+ FIRST POINT (CM-1)                   :    2925.4987
+ LAST POINT (CM-1)                    :    2926.3017
+ POINT SPACING (CM-1)                 :   0.00194444
+ NUMBER OF POINTS                     :          414
+ WSTART                               :    2925.6017
+ WSTOP                                :    2926.1987
+ NPRIME                               :          308
+ NATMOS                               :         1306
+ 
+ 03/05/2002 18:52:49UT Z:84.41 DUR:203.33 RES:0.0035 APD:BX FOV:2.2727mr         
+ SPECTRUM CODE                        :        84410
+ FIRST POINT (CM-1)                   :    2925.4987
+ LAST POINT (CM-1)                    :    2926.3017
+ POINT SPACING (CM-1)                 :   0.00194444
+ NUMBER OF POINTS                     :          414
+ WSTART                               :    2925.6017
+ WSTOP                                :    2926.1987
+ NPRIME                               :          308
+ NATMOS                               :         1614
+ 
+ 03/05/2002 17:52:17UT Z:82.99 DUR:203.33 RES:0.0035 APD:BX FOV:2.2727mr         
+ SPECTRUM CODE                        :        82990
+ FIRST POINT (CM-1)                   :    2925.4987
+ LAST POINT (CM-1)                    :    2926.3017
+ POINT SPACING (CM-1)                 :   0.00194444
+ NUMBER OF POINTS                     :          414
+ WSTART                               :    2925.6017
+ WSTOP                                :    2926.1987
+ NPRIME                               :          308
+ NATMOS                               :         1922
+
+ NUMBER OF UNIQUE SPECTRA             :            4
+ SZA CODES:
+     84620     83110     84410     82990
+
+ TOTAL NUMBER OF SPECTRAL DATA POINTS TO FIT =  1922
+
+    WSTART     WSTOP    NMON    MPT    NSTZ1    NSTZ2
+ 2727.6302 2727.8985     535   1024      171      853
+ 2775.5004 2775.8990     736   1024      171      853
+ 2925.6017 2926.1987    1042   2048      342     1706
+
+ NMONSM   =    6710
+ NCROSS   =    2313
+  
+ MAX LAYERS FOR USER MODEL GRID    :          200
+ MAX LAYERS FOR FINAL OUTPUT       :          100
+ NUM LAYERS FOR INTERNAL FINE GRID :          207
+ MAX LAYERS FOR RAYTRACING GRID    :          100
+
+  ITER, JSPEC, ASTRO SOLAR ANGLE   :      0     1    84.62000
+ NUM LAYERS FOUND IN USER MODEL    :   43
+
+ ASTRONOMICAL ZENITH ANGLE = 84.62000000
+     APPARENT ZENITH ANGLE = 84.45387175
+              BENDNG ANGLE =  0.16612777
+                     AFTER      1 ITERATIONS IN ASTRO
+ NUM LAYERS IN FINAL OUTPUT GRID   :           47
+
+  ITER, JSPEC, ASTRO SOLAR ANGLE   :      0     2    83.11000
+
+ ASTRONOMICAL ZENITH ANGLE = 83.11000000
+     APPARENT ZENITH ANGLE = 82.97526928
+              BENDNG ANGLE =  0.13473059
+                     AFTER      1 ITERATIONS IN ASTRO
+
+  ITER, JSPEC, ASTRO SOLAR ANGLE   :      0     3    84.41000
+
+ ASTRONOMICAL ZENITH ANGLE = 84.41000000
+     APPARENT ZENITH ANGLE = 84.24900817
+              BENDNG ANGLE =  0.16099144
+                     AFTER      1 ITERATIONS IN ASTRO
+
+  ITER, JSPEC, ASTRO SOLAR ANGLE   :      0     4    82.99000
+
+ ASTRONOMICAL ZENITH ANGLE = 82.99000000
+     APPARENT ZENITH ANGLE = 82.85729742
+              BENDNG ANGLE =  0.13270247
+                     AFTER      1 ITERATIONS IN ASTRO
+
+  ITER, JSPEC, ASTRO SOLAR ANGLE   :      0     5     0.00000
+
+ CALCULATION OF ASTRONOMICAL QUANTITIES FOR SOLAR SPECTRUM...
+   IBAND, ISPEC, OBSERVATION UTC/LOC  :    1   1  2002/03/05  18:59:41.0 76.530N 291.260W
+   IBAND, ISPEC, OBSERVATION UTC/LOC  :    1   2  2002/03/05  17:59:11.0 76.530N 291.260W
+   BAND, JULIAN DATE, N-LAT, E_LON    :    1    2452339.27044         76.53000        291.26000
+   RADIAL VEL. (POS. RECEDING) [KM/S] :          4.774770E-01
+   DOPPLER EFFECT SCALE FACTOR        :          9.999984E-01
+   FOV IN RELATIVE TO SOLAR DIA.      :          2.461013E-01
+   SOLAR AXIS INCLINATION [DEG.]      :         -7.247259E+00
+   IBAND, ISPEC, OBSERVATION UTC/LOC  :    2   1  2002/03/05  18:59:41.0 76.530N 291.260W
+   IBAND, ISPEC, OBSERVATION UTC/LOC  :    2   2  2002/03/05  17:59:11.0 76.530N 291.260W
+   BAND, JULIAN DATE, N-LAT, E_LON    :    2    2452339.27044         76.53000        291.26000
+   RADIAL VEL. (POS. RECEDING) [KM/S] :          4.774770E-01
+   DOPPLER EFFECT SCALE FACTOR        :          9.999984E-01
+   FOV IN RELATIVE TO SOLAR DIA.      :          2.461013E-01
+   SOLAR AXIS INCLINATION [DEG.]      :         -7.247259E+00
+   IBAND, ISPEC, OBSERVATION UTC/LOC  :    3   1  2002/03/05  18:59:41.0 76.530N 291.260W
+   IBAND, ISPEC, OBSERVATION UTC/LOC  :    3   2  2002/03/05  17:59:11.0 76.530N 291.260W
+   IBAND, ISPEC, OBSERVATION UTC/LOC  :    3   3  2002/03/05  18:52:49.0 76.530N 291.260W
+   IBAND, ISPEC, OBSERVATION UTC/LOC  :    3   4  2002/03/05  17:52:17.0 76.530N 291.260W
+   BAND, JULIAN DATE, N-LAT, E_LON    :    3    2452339.26805         76.53000        291.26000
+   RADIAL VEL. (POS. RECEDING) [KM/S] :          4.790082E-01
+   DOPPLER EFFECT SCALE FACTOR        :          9.999984E-01
+   FOV IN RELATIVE TO SOLAR DIA.      :          2.461014E-01
+   SOLAR AXIS INCLINATION [DEG.]      :         -7.247255E+00
+
+ SOLAR LINELIST FILE :/Users/jamesw/FDP/sfit/400/sfit-core/linelist/solar/120621/solar.dat                                                                                                                                                                                           
+   BAND, # SOLAR LINES FOUND          :    1     270
+
+ SOLAR LINELIST FILE :/Users/jamesw/FDP/sfit/400/sfit-core/linelist/solar/120621/solar.dat                                                                                                                                                                                           
+   BAND, # SOLAR LINES FOUND          :    2     203
+
+ SOLAR LINELIST FILE :/Users/jamesw/FDP/sfit/400/sfit-core/linelist/solar/120621/solar.dat                                                                                                                                                                                           
+   BAND, # SOLAR LINES FOUND          :    3     180
+
+ TABULAR FORM OF ILS PARAMETERS, ASSUMING N=  20
+  OPD    MODULATION       PHASE
+  0.000  1.0000E+00  2.4880E-02
+ 13.530  9.9170E-01  5.9290E-02
+ 27.050  9.8420E-01  4.9140E-02
+ 40.580  9.8850E-01  5.3810E-02
+ 54.110  9.9120E-01  4.8160E-02
+ 67.630  9.9690E-01  4.8070E-02
+ 81.160  1.0040E+00  5.0210E-02
+ 94.680  1.0100E+00  4.6610E-02
+108.200  1.0240E+00  4.4100E-02
+121.700  1.0300E+00  3.8590E-02
+135.300  1.0340E+00  3.0830E-02
+148.800  1.0370E+00  2.5610E-02
+162.300  1.0420E+00  2.2270E-02
+175.800  1.0490E+00  2.0830E-02
+189.400  1.0580E+00  2.1640E-02
+202.900  1.0640E+00  2.1380E-02
+216.400  1.0680E+00  2.1250E-02
+229.900  1.0700E+00  2.2420E-02
+243.500  1.0710E+00  2.3100E-02
+259.900  1.0710E+00  2.3330E-02
+
+ HITRAN LINELIST FILE : ./02723.588856-02930.241144.hbin
+
+ TOTAL NUMBER OF LINES IN ANALYSIS LIST       :  20501
+          USING GAS : O3     
+          USING GAS : CH3CHO 
+          USING GAS : CH4    
+          USING GAS : C2H6   
+          USING GAS : H2CO   
+          USING GAS : H2S    
+          USING GAS : C3H8   
+          USING GAS : SO2    
+          USING GAS : HDO    
+          USING GAS : CO2    
+          USING GAS : OH     
+          USING GAS : N2O    
+          USING GAS : NO     
+          USING GAS : OCS    
+          USING GAS : C2H2   
+          USING GAS : NO2    
+          USING GAS : H2O    
+          USING GAS : NH3    
+          USING GAS : HCL    
+          USING GAS : HBR    
+          USING GAS : CH3CL  
+          USING GAS : C2H4   
+
+ NUMBER OF GASES FOUND IN MICROWINDOWS        : 22
+ NUMBER OF GASES INCLUDED IN CALCULATION      : 22
+
+ MIXING RATIO PROFILE FOR: O3      ID:  3 NISO:   5 LINES: 2680
+  48.0    50.0    50.0    49.0    49.0
+  5.7526E-08  9.1562E-07  1.0904E-06  3.0311E-07  5.6619E-07  9.5200E-07
+  1.1199E-06  1.4376E-06  2.0692E-06  3.0524E-06  4.2016E-06  5.0667E-06
+  5.4336E-06  5.4230E-06  5.2244E-06  4.9618E-06  4.6932E-06  4.4348E-06
+  4.2082E-06  3.9986E-06  3.7948E-06  3.5842E-06  3.3272E-06  3.0149E-06
+  2.6237E-06  2.2134E-06  1.7685E-06  1.3898E-06  1.0821E-06  8.4731E-07
+  6.6335E-07  4.6640E-07  3.1761E-07  2.0739E-07  1.3950E-07  1.0358E-07
+  8.5126E-08  7.5373E-08  6.9461E-08  6.5140E-08  6.1565E-08  5.8393E-08
+  5.5422E-08  5.2690E-08  5.0098E-08  4.7742E-08  4.5587E-08
+
+ MIXING RATIO PROFILE FOR: CH3CHO  ID: 68 NISO:   1 LINES: 3368
+  44.0
+  1.7848E-35  2.0497E-35  1.4320E-35  6.3646E-36  4.4297E-36  5.2744E-36
+  7.4270E-36  3.3751E-35  9.7226E-34  8.5072E-32  1.0570E-29  9.1295E-28
+  5.2700E-26  2.1510E-24  5.0206E-23  6.8006E-22  5.5039E-21  2.5038E-20
+  7.7098E-20  2.6920E-19  1.3141E-18  1.0846E-17  9.2052E-17  7.1366E-16
+  4.0347E-15  1.8384E-14  6.5840E-14  1.6393E-13  3.2534E-13  5.7248E-13
+  9.6949E-13  1.9359E-12  3.9451E-12  7.5147E-12  1.2726E-11  1.8815E-11
+  2.4669E-11  2.9425E-11  3.2985E-11  3.5766E-11  3.8060E-11  3.9916E-11
+  4.1354E-11  4.2531E-11  4.3419E-11  4.3986E-11  4.3712E-11
+
+ MIXING RATIO PROFILE FOR: CH4     ID:  6 NISO:   4 LINES: 3329
+  16.0    17.0    17.0    18.0
+  7.9371E-10  1.8437E-09  1.1709E-08  5.1634E-08  9.5528E-08  1.2693E-07
+  1.5374E-07  1.8062E-07  2.0905E-07  2.4677E-07  2.9778E-07  3.5889E-07
+  4.2520E-07  4.9389E-07  5.5997E-07  6.2143E-07  6.8003E-07  7.3922E-07
+  7.9820E-07  8.5710E-07  9.1540E-07  9.7602E-07  1.0426E-06  1.1167E-06
+  1.1983E-06  1.2837E-06  1.3707E-06  1.4451E-06  1.5069E-06  1.5533E-06
+  1.5929E-06  1.6360E-06  1.6797E-06  1.7155E-06  1.7407E-06  1.7569E-06
+  1.7668E-06  1.7729E-06  1.7768E-06  1.7799E-06  1.7822E-06  1.7841E-06
+  1.7860E-06  1.7878E-06  1.7904E-06  1.7933E-06  1.7968E-06
+
+ MIXING RATIO PROFILE FOR: C2H6    ID: 38 NISO:   2 LINES: 5218
+  30.0    31.0
+  9.6962E-37  9.6790E-37  9.7012E-37  1.0425E-36  1.5909E-36  6.6731E-36
+  2.7035E-35  2.5532E-34  9.4881E-33  8.8163E-31  1.1461E-28  9.8118E-27
+  5.7896E-25  2.5655E-23  6.8703E-22  1.0865E-20  1.0385E-19  5.7576E-19
+  2.0396E-18  7.8112E-18  4.0160E-17  3.5765E-16  3.3861E-15  2.9674E-14
+  1.8504E-13  9.3989E-13  3.8462E-12  1.0557E-11  2.2600E-11  3.7917E-11
+  5.8185E-11  9.2251E-11  1.4494E-10  1.9915E-10  2.4122E-10  2.6909E-10
+  2.8548E-10  2.9435E-10  2.9901E-10  3.0132E-10  3.0231E-10  3.0229E-10
+  3.0123E-10  2.9962E-10  2.9738E-10  2.9549E-10  2.9468E-10
+
+ MIXING RATIO PROFILE FOR: H2CO    ID: 20 NISO:   3 LINES: 2240
+  30.0    31.0    32.0
+  1.0462E-13  1.2854E-12  6.5538E-11  1.3840E-10  3.8637E-11  1.8428E-11
+  2.4416E-11  3.4094E-11  4.2741E-11  4.9392E-11  5.2080E-11  4.9966E-11
+  4.5636E-11  4.1358E-11  3.7327E-11  3.3276E-11  2.9197E-11  2.5308E-11
+  2.1551E-11  1.8296E-11  1.5662E-11  1.3614E-11  1.2151E-11  1.1195E-11
+  1.0565E-11  1.0162E-11  1.0067E-11  1.0033E-11  1.0055E-11  1.0508E-11
+  1.1246E-11  1.3476E-11  1.6673E-11  2.1736E-11  2.7908E-11  3.4265E-11
+  4.0695E-11  4.7301E-11  5.4133E-11  6.1140E-11  6.8343E-11  7.5645E-11
+  8.2169E-11  8.7612E-11  8.9538E-11  8.9055E-11  8.2861E-11
+
+ MIXING RATIO PROFILE FOR: H2S     ID: 47 NISO:   3 LINES:  222
+  34.0    36.0    35.0
+  1.5050E-11  1.5019E-11  1.5000E-11  1.5000E-11  1.5001E-11  1.5001E-11
+  1.5000E-11  1.5000E-11  1.5000E-11  1.5000E-11  1.5000E-11  1.5000E-11
+  1.5000E-11  1.5000E-11  1.5000E-11  1.5000E-11  1.5000E-11  1.5000E-11
+  1.5000E-11  1.5000E-11  1.5000E-11  1.5000E-11  1.5000E-11  1.5000E-11
+  1.5000E-11  1.5000E-11  1.5000E-11  1.5000E-11  1.5000E-11  1.5000E-11
+  1.5000E-11  1.5000E-11  1.5000E-11  1.5000E-11  1.5000E-11  1.5000E-11
+  1.5000E-11  1.5000E-11  1.4999E-11  1.4999E-11  1.4998E-11  1.4997E-11
+  1.4997E-11  1.4997E-11  1.4996E-11  1.4996E-11  1.4997E-11
+
+ MIXING RATIO PROFILE FOR: C3H8    ID: 60 NISO:   1 LINES:  846
+  44.0
+  4.2157E-19  4.3024E-19  4.3437E-19  4.8915E-19  6.0174E-19  8.6064E-19
+  1.5571E-18  4.2069E-18  1.5639E-17  4.1201E-17  9.1757E-17  3.2832E-16
+  1.5275E-15  5.9398E-15  1.7119E-14  4.0485E-14  8.9749E-14  2.0901E-13
+  4.8362E-13  1.0524E-12  2.0784E-12  3.5408E-12  5.7880E-12  9.2546E-12
+  1.4286E-11  2.1354E-11  3.0607E-11  4.0714E-11  5.1079E-11  6.1486E-11
+  7.3130E-11  9.6252E-11  1.2931E-10  1.6589E-10  1.9935E-10  2.2599E-10
+  2.4564E-10  2.5960E-10  2.6960E-10  2.7732E-10  2.8376E-10  2.8938E-10
+  2.9538E-10  3.0124E-10  3.0620E-10  3.0949E-10  3.0821E-10
+
+ MIXING RATIO PROFILE FOR: SO2     ID:  9 NISO:   2 LINES:  566
+  64.0    66.0
+  3.8928E-11  3.8849E-11  3.8800E-11  3.8799E-11  3.8798E-11  3.8799E-11
+  3.8182E-11  3.6577E-11  3.3252E-11  2.8724E-11  2.2730E-11  1.6722E-11
+  1.4873E-11  1.4640E-11  1.6066E-11  1.7910E-11  1.9855E-11  2.1943E-11
+  2.4743E-11  2.7966E-11  3.1327E-11  3.4977E-11  3.9266E-11  4.4372E-11
+  5.0014E-11  5.6482E-11  6.4328E-11  7.4464E-11  8.7187E-11  1.0520E-10
+  1.2795E-10  1.5572E-10  1.8829E-10  2.1734E-10  2.3959E-10  2.5654E-10
+  2.6961E-10  2.7897E-10  2.8369E-10  2.8528E-10  2.8631E-10  2.8874E-10
+  2.9033E-10  2.9126E-10  2.9109E-10  2.9086E-10  2.9090E-10
+
+ MIXING RATIO PROFILE FOR: HDO     ID: 77 NISO:   3 LINES:   69
+  19.0    21.0    20.0
+  3.8112E-08  1.0034E-07  3.2460E-07  1.1603E-06  2.3681E-06  3.4673E-06
+  4.3737E-06  4.9954E-06  5.2495E-06  5.3506E-06  5.4169E-06  5.4550E-06
+  5.4504E-06  5.4255E-06  5.3894E-06  5.3458E-06  5.2989E-06  5.2525E-06
+  5.2071E-06  5.1565E-06  5.0911E-06  4.9797E-06  4.8443E-06  4.6928E-06
+  4.5424E-06  4.4114E-06  4.3168E-06  4.3257E-06  4.4264E-06  4.7984E-06
+  5.3163E-06  5.9298E-06  6.6170E-06  7.5504E-06  9.6350E-06  1.4255E-05
+  2.3624E-05  4.1479E-05  7.3249E-05  1.1865E-04  1.7374E-04  2.2349E-04
+  2.4151E-04  2.4317E-04  2.4337E-04  2.4337E-04  2.4337E-04
+
+ MIXING RATIO PROFILE FOR: CO2     ID:  2 NISO:   9 LINES:  216
+  44.0    45.0    46.0    45.0    47.0    46.0    48.0    47.0    49.0
+  1.1038E-04  2.0747E-04  2.9246E-04  3.3839E-04  3.5477E-04  3.6122E-04
+  3.6406E-04  3.6545E-04  3.6613E-04  3.6654E-04  3.6675E-04  3.6690E-04
+  3.6699E-04  3.6704E-04  3.6710E-04  3.6710E-04  3.6710E-04  3.6710E-04
+  3.6704E-04  3.6700E-04  3.6701E-04  3.6713E-04  3.6729E-04  3.6750E-04
+  3.6794E-04  3.6851E-04  3.6926E-04  3.7000E-04  3.7071E-04  3.7118E-04
+  3.7154E-04  3.7192E-04  3.7231E-04  3.7281E-04  3.7334E-04  3.7376E-04
+  3.7404E-04  3.7419E-04  3.7426E-04  3.7423E-04  3.7412E-04  3.7403E-04
+  3.7389E-04  3.7369E-04  3.7343E-04  3.7320E-04  3.7307E-04
+
+ MIXING RATIO PROFILE FOR: OH      ID: 13 NISO:   3 LINES:   63
+  17.0    19.0    18.0
+  1.0027E-11  5.5693E-11  5.1105E-10  4.9439E-09  3.2533E-09  1.2085E-09
+  6.6952E-10  4.5905E-10  3.3124E-10  2.1921E-10  1.2378E-10  6.2856E-11
+  3.2525E-11  1.8426E-11  1.1232E-11  7.0727E-12  4.4902E-12  2.8488E-12
+  1.7928E-12  1.1337E-12  7.3115E-13  4.8709E-13  3.3473E-13  2.3807E-13
+  1.7341E-13  1.2950E-13  1.0055E-13  7.9964E-14  6.5215E-14  5.8859E-14
+  5.5575E-14  5.2935E-14  5.0557E-14  4.6974E-14  4.1772E-14  3.6314E-14
+  3.1739E-14  2.8403E-14  2.6098E-14  2.4328E-14  2.2803E-14  2.1367E-14
+  1.9977E-14  1.8579E-14  1.6734E-14  1.5028E-14  1.3409E-14
+
+ MIXING RATIO PROFILE FOR: N2O     ID:  4 NISO:   8 LINES:  363
+  44.0    45.0    45.0    46.0    45.0    46.0    47.0    47.0
+  1.6506E-11  3.2961E-11  7.1546E-11  1.2833E-10  1.9056E-10  2.6869E-10
+  4.1338E-10  7.3087E-10  1.3637E-09  2.4264E-09  3.9979E-09  6.4794E-09
+  1.0574E-08  1.6854E-08  2.4957E-08  3.4267E-08  4.4779E-08  5.7129E-08
+  7.1100E-08  8.6513E-08  1.0275E-07  1.1982E-07  1.3861E-07  1.5936E-07
+  1.8203E-07  2.0601E-07  2.2980E-07  2.5003E-07  2.6647E-07  2.7827E-07
+  2.8793E-07  2.9680E-07  3.0525E-07  3.1103E-07  3.1418E-07  3.1572E-07
+  3.1638E-07  3.1666E-07  3.1669E-07  3.1668E-07  3.1663E-07  3.1655E-07
+  3.1649E-07  3.1641E-07  3.1625E-07  3.1609E-07  3.1591E-07
+
+ MIXING RATIO PROFILE FOR: NO      ID:  8 NISO:   3 LINES:  193
+  30.0    31.0    32.0
+  1.3839E-04  1.6068E-05  1.0057E-06  8.5096E-08  1.6390E-08  5.3823E-09
+  4.1943E-09  4.7838E-09  5.5123E-09  6.0113E-09  6.1107E-09  5.8542E-09
+  5.4456E-09  4.9654E-09  4.4056E-09  3.7928E-09  3.1787E-09  2.5861E-09
+  2.0350E-09  1.5409E-09  1.1085E-09  7.5854E-10  5.1353E-10  3.4946E-10
+  2.4709E-10  1.7895E-10  1.3294E-10  1.0212E-10  8.0977E-11  6.6243E-11
+  5.5403E-11  5.0312E-11  4.6497E-11  3.2929E-11  1.9401E-11  1.1153E-11
+  6.8400E-12  4.7110E-12  3.6174E-12  2.9964E-12  2.6265E-12  2.4441E-12
+  2.3807E-12  2.3740E-12  2.4247E-12  2.6045E-12  3.2376E-12
+
+ MIXING RATIO PROFILE FOR: OCS     ID: 19 NISO:   5 LINES:  230
+  60.0    62.0    61.0    61.0    62.0
+  1.4769E-14  1.4739E-14  1.4720E-14  1.4636E-14  1.3994E-14  1.3331E-14
+  1.2780E-14  1.2317E-14  1.1924E-14  1.1590E-14  1.1667E-14  1.7641E-14
+  8.6803E-14  1.9462E-13  6.4393E-13  2.3115E-12  5.5174E-12  1.1024E-11
+  2.3444E-11  4.6904E-11  8.2554E-11  1.2940E-10  1.8270E-10  2.3325E-10
+  2.7645E-10  3.1644E-10  3.4966E-10  3.7626E-10  3.9644E-10  4.1064E-10
+  4.2175E-10  4.2690E-10  4.2994E-10  4.3100E-10  4.3104E-10  4.3099E-10
+  4.3099E-10  4.3099E-10  4.3098E-10  4.3097E-10  4.3093E-10  4.3091E-10
+  4.3091E-10  4.3090E-10  4.3090E-10  4.3090E-10  4.3090E-10
+
+ MIXING RATIO PROFILE FOR: C2H2    ID: 40 NISO:   2 LINES:   12
+  26.0    27.0
+  8.3269E-25  7.3781E-25  6.7737E-25  7.0648E-25  7.2050E-25  7.2461E-25
+  8.0491E-25  1.1201E-24  1.6473E-24  2.3666E-24  3.7503E-24  1.7318E-23
+  1.3274E-22  6.5874E-22  2.9873E-21  1.4994E-20  6.7231E-20  2.3227E-19
+  6.7364E-19  2.5767E-18  1.4488E-17  1.0496E-16  7.2198E-16  4.4356E-15
+  2.0884E-14  8.6307E-14  3.1515E-13  8.4329E-13  1.8543E-12  3.6179E-12
+  6.7564E-12  1.3970E-11  2.8770E-11  4.8586E-11  6.8753E-11  8.6073E-11
+  9.9042E-11  1.0781E-10  1.1347E-10  1.1731E-10  1.2005E-10  1.2187E-10
+  1.2300E-10  1.2378E-10  1.2439E-10  1.2480E-10  1.2466E-10
+
+ MIXING RATIO PROFILE FOR: NO2     ID: 10 NISO:   1 LINES:  682
+  46.0
+  1.8643E-12  1.6394E-12  5.9526E-13  1.0124E-10  1.4802E-09  2.7654E-09
+  2.3949E-09  2.1968E-09  2.5426E-09  3.2142E-09  4.0558E-09  4.8256E-09
+  5.3014E-09  5.4617E-09  5.3522E-09  5.0107E-09  4.4956E-09  3.8572E-09
+  3.1875E-09  2.5476E-09  1.9581E-09  1.4425E-09  1.0404E-09  7.3819E-10
+  5.1651E-10  3.5884E-10  2.4486E-10  1.7578E-10  1.3278E-10  1.0505E-10
+  8.5446E-11  7.3434E-11  6.3956E-11  4.5811E-11  2.9244E-11  1.9291E-11
+  1.4021E-11  1.1251E-11  9.5659E-12  8.4570E-12  7.7512E-12  7.4535E-12
+  7.6703E-12  8.1865E-12  9.1887E-12  1.0376E-11  1.1833E-11
+
+ MIXING RATIO PROFILE FOR: H2O     ID:  1 NISO:   6 LINES:   31
+  18.0    20.0    19.0    19.0    21.0    20.0
+  3.8112E-08  1.0034E-07  3.2460E-07  1.1603E-06  2.3681E-06  3.4673E-06
+  4.3737E-06  4.9954E-06  5.2495E-06  5.3506E-06  5.4169E-06  5.4550E-06
+  5.4504E-06  5.4255E-06  5.3894E-06  5.3458E-06  5.2989E-06  5.2525E-06
+  5.2071E-06  5.1565E-06  5.0911E-06  4.9797E-06  4.8443E-06  4.6928E-06
+  4.5424E-06  4.4114E-06  4.3168E-06  4.3257E-06  4.4264E-06  4.7984E-06
+  5.3163E-06  5.9298E-06  6.6170E-06  7.5504E-06  9.6350E-06  1.4255E-05
+  2.3624E-05  4.1479E-05  7.3249E-05  1.1865E-04  1.7374E-04  2.2349E-04
+  2.4151E-04  2.4317E-04  2.4337E-04  2.4337E-04  2.4337E-04
+
+ MIXING RATIO PROFILE FOR: NH3     ID: 11 NISO:   2 LINES:   19
+  17.0    18.0
+  1.9464E-16  1.9425E-16  1.9400E-16  1.9400E-16  1.9401E-16  1.9423E-16
+  1.9712E-16  2.0729E-16  2.3314E-16  2.6365E-16  3.0001E-16  3.4591E-16
+  3.9515E-16  4.4517E-16  5.0694E-16  5.8174E-16  6.6397E-16  7.4387E-16
+  8.5481E-16  9.9576E-16  1.1677E-15  1.3896E-15  1.7800E-15  2.5029E-15
+  4.0159E-15  7.6685E-15  1.9418E-14  7.7698E-14  3.7212E-13  1.1485E-12
+  2.9520E-12  4.6920E-12  6.4841E-12  8.0905E-12  9.4011E-12  1.0578E-11
+  1.1684E-11  1.2759E-11  1.3939E-11  1.5802E-11  1.8539E-11  2.2595E-11
+  2.6905E-11  3.2047E-11  4.0932E-11  5.3614E-11  7.5282E-11
+
+ MIXING RATIO PROFILE FOR: HCL     ID: 15 NISO:   2 LINES:    6
+  36.0    38.0
+  1.0448E-10  4.4160E-10  1.1997E-09  2.4299E-09  2.7891E-09  2.8240E-09
+  2.8475E-09  2.8356E-09  2.7641E-09  2.6297E-09  2.4919E-09  2.4164E-09
+  2.3820E-09  2.3521E-09  2.3124E-09  2.2617E-09  2.2027E-09  2.1329E-09
+  2.0421E-09  1.9344E-09  1.8097E-09  1.6643E-09  1.5091E-09  1.3473E-09
+  1.1726E-09  9.9928E-10  8.1895E-10  6.6580E-10  5.3916E-10  4.2632E-10
+  3.3091E-10  2.1144E-10  1.2646E-10  6.5336E-11  2.9383E-11  1.2971E-11
+  6.3700E-12  3.8770E-12  2.9689E-12  2.6369E-12  2.5409E-12  2.5880E-12
+  2.6903E-12  2.7843E-12  2.7358E-12  2.6040E-12  2.2817E-12
+
+ MIXING RATIO PROFILE FOR: HBR     ID: 16 NISO:   2 LINES:   54
+  80.0    82.0
+  3.1543E-22  1.1414E-18  4.3620E-15  1.1953E-13  2.8445E-13  3.2036E-13
+  3.4798E-13  4.1475E-13  4.9197E-13  5.1337E-13  4.8571E-13  4.7610E-13
+  4.8983E-13  5.0562E-13  5.1754E-13  5.2575E-13  5.2881E-13  5.2635E-13
+  5.1236E-13  4.9086E-13  4.6398E-13  4.3412E-13  4.1269E-13  4.0198E-13
+  3.9863E-13  4.0084E-13  4.1197E-13  4.2139E-13  4.2836E-13  4.2079E-13
+  4.0711E-13  3.8467E-13  3.6007E-13  3.1348E-13  2.5523E-13  2.0966E-13
+  1.8354E-13  1.7363E-13  1.7488E-13  1.8224E-13  1.9345E-13  2.0853E-13
+  2.2684E-13  2.4573E-13  2.5986E-13  2.6889E-13  2.6398E-13
+
+ MIXING RATIO PROFILE FOR: CH3CL   ID: 30 NISO:   2 LINES:   34
+  50.0    52.0
+  1.2155E-15  3.3367E-15  9.7067E-15  2.0681E-14  3.3641E-14  5.3843E-14
+  9.2919E-14  1.7991E-13  3.7047E-13  7.2889E-13  1.3512E-12  2.6680E-12
+  5.3979E-12  1.0089E-11  1.6458E-11  2.3989E-11  3.2794E-11  4.3796E-11
+  5.7290E-11  7.3380E-11  9.1774E-11  1.1290E-10  1.3829E-10  1.6905E-10
+  2.0637E-10  2.4951E-10  2.9679E-10  3.3937E-10  3.7561E-10  4.0259E-10
+  4.2551E-10  4.4951E-10  4.7392E-10  4.9293E-10  5.0516E-10  5.1244E-10
+  5.1665E-10  5.1914E-10  5.2066E-10  5.2181E-10  5.2281E-10  5.2383E-10
+  5.2525E-10  5.2693E-10  5.2950E-10  5.3234E-10  5.3586E-10
+
+ MIXING RATIO PROFILE FOR: C2H4    ID: 39 NISO:   2 LINES:   60
+  28.0    29.0
+  1.1008E-36  1.0623E-36  1.0403E-36  1.0327E-36  1.0316E-36  1.0303E-36
+  1.0279E-36  1.0235E-36  1.0166E-36  1.0173E-36  1.5168E-36  2.0747E-35
+  4.8569E-34  8.9520E-33  2.0247E-31  4.0250E-30  6.2301E-29  9.6094E-28
+  1.3334E-26  2.2950E-25  4.4186E-24  7.2563E-23  9.2921E-22  9.9970E-21
+  1.0057E-19  7.7807E-19  4.4136E-18  3.8244E-17  3.8148E-16  4.5041E-15
+  4.6234E-14  2.0197E-13  7.1922E-13  1.8576E-12  3.7683E-12  6.3188E-12
+  9.0489E-12  1.1469E-11  1.3391E-11  1.4922E-11  1.6156E-11  1.7049E-11
+  1.7545E-11  1.7806E-11  1.7795E-11  1.7999E-11  1.9025E-11
+
+ FILE LIMITS FOR LINES= 2723.589200 2930.241000
+
+ LINE DENSITY (LINES/WAVENUMBER)              :    99.2
+ TAUMIN DEFINED AS                            :  1.00D-06
+
+ WAVENUMBER LIMITS AND INDICES FOR INCLUDED LINES
+ BANDPASS   LOWER NU LIMIT  INDEX1     UPPER NU LIMIT  INDEX2
+     1        2723.59126        5       2731.93737       6918
+     2        2771.46151     6928       2779.93790      13865
+     3        2921.56282    13873       2930.23754      20497
+
+ GALATRY FLAG & LINES WITH GALATRY PARAMETERS FOUND       :  T      2
+ FCIA FLAG & FCIA LINES FOUND                             :  F      0
+ SCIA FLAG & SCIA LINES FOUND                             :  F      0
+ SDV FLAG & LINES WITH SDV PARAMETERS FOUND               :  F      0
+ LINEMIXING FLAG & LINES WITH LINEMIXING PARAMETERS FOUND :  F      0
+
+ NFIT = 1922 NVAR =168
+
+ PRINT OUT OF PARAMETERS FOR EACH ITERATION:
+
+ BckGrdSlp      BckGrdSlp      BckGrdSlp      BckGrdSlp      BckGrdSlp     
+ BckGrdSlp      BckGrdSlp      BckGrdSlp      IWNumShft      IWNumShft     
+ IWNumShft      IWNumShft      IWNumShft      IWNumShft      IWNumShft     
+ IWNumShft      SolLnShft      DWNumShft      DWNumShft      DWNumShft     
+ DWNumShft      DWNumShft      DWNumShft      HCL            HCL           
+ HCL            HCL            HCL            HCL            HCL           
+ HCL            HCL            HCL            HCL            HCL           
+ HCL            HCL            HCL            HCL            HCL           
+ HCL            HCL            HCL            HCL            HCL           
+ HCL            HCL            HCL            HCL            HCL           
+ HCL            HCL            HCL            HCL            HCL           
+ HCL            HCL            HCL            HCL            HCL           
+ HCL            HCL            HCL            HCL            HCL           
+ HCL            HCL            HCL            HCL            HCL           
+ O3             O3             O3             O3             O3            
+ O3             O3             O3             O3             O3            
+ O3             O3             O3             O3             O3            
+ O3             O3             O3             O3             O3            
+ O3             O3             O3             O3             O3            
+ O3             O3             O3             O3             O3            
+ O3             O3             O3             O3             O3            
+ O3             O3             O3             O3             O3            
+ O3             O3             O3             O3             O3            
+ O3             O3             CH4            CH4            CH4           
+ CH4            CH4            CH4            CH4            CH4           
+ CH4            CH4            CH4            CH4            CH4           
+ CH4            CH4            CH4            CH4            CH4           
+ CH4            CH4            CH4            CH4            CH4           
+ CH4            CH4            CH4            CH4            CH4           
+ CH4            CH4            CH4            CH4            CH4           
+ CH4            CH4            CH4            CH4            CH4           
+ CH4            CH4            CH4            CH4            CH4           
+ CH4            CH4            CH4            CH4            NO2           
+ N2O            HDO            H2O           
+ 
+
+ AVGSNR=    190.2801 NVAR=168 NFIT=  1922
+
+
+ ITER= 1 AVGSNR=    190.2801 RMS(%)= 5.2155061 NVAR=168 NFIT=  1922
+ 0.0000000E+00  0.0000000E+00  0.0000000E+00  0.0000000E+00  0.0000000E+00
+ 0.0000000E+00  0.0000000E+00  0.0000000E+00  0.0000000E+00  0.0000000E+00
+ 0.0000000E+00  0.0000000E+00  0.0000000E+00  0.0000000E+00  0.0000000E+00
+ 0.0000000E+00  0.0000000E+00  0.0000000E+00  0.0000000E+00  0.0000000E+00
+ 0.0000000E+00  0.0000000E+00  0.0000000E+00  1.0000000E+00  1.0000000E+00
+ 1.0000000E+00  1.0000000E+00  1.0000000E+00  1.0000000E+00  1.0000000E+00
+ 1.0000000E+00  1.0000000E+00  1.0000000E+00  1.0000000E+00  1.0000000E+00
+ 1.0000000E+00  1.0000000E+00  1.0000000E+00  1.0000000E+00  1.0000000E+00
+ 1.0000000E+00  1.0000000E+00  1.0000000E+00  1.0000000E+00  1.0000000E+00
+ 1.0000000E+00  1.0000000E+00  1.0000000E+00  1.0000000E+00  1.0000000E+00
+ 1.0000000E+00  1.0000000E+00  1.0000000E+00  1.0000000E+00  1.0000000E+00
+ 1.0000000E+00  1.0000000E+00  1.0000000E+00  1.0000000E+00  1.0000000E+00
+ 1.0000000E+00  1.0000000E+00  1.0000000E+00  1.0000000E+00  1.0000000E+00
+ 1.0000000E+00  1.0000000E+00  1.0000000E+00  1.0000000E+00  1.0000000E+00
+ 1.0000000E+00  1.0000000E+00  1.0000000E+00  1.0000000E+00  1.0000000E+00
+ 1.0000000E+00  1.0000000E+00  1.0000000E+00  1.0000000E+00  1.0000000E+00
+ 1.0000000E+00  1.0000000E+00  1.0000000E+00  1.0000000E+00  1.0000000E+00
+ 1.0000000E+00  1.0000000E+00  1.0000000E+00  1.0000000E+00  1.0000000E+00
+ 1.0000000E+00  1.0000000E+00  1.0000000E+00  1.0000000E+00  1.0000000E+00
+ 1.0000000E+00  1.0000000E+00  1.0000000E+00  1.0000000E+00  1.0000000E+00
+ 1.0000000E+00  1.0000000E+00  1.0000000E+00  1.0000000E+00  1.0000000E+00
+ 1.0000000E+00  1.0000000E+00  1.0000000E+00  1.0000000E+00  1.0000000E+00
+ 1.0000000E+00  1.0000000E+00  1.0000000E+00  1.0000000E+00  1.0000000E+00
+ 1.0000000E+00  1.0000000E+00  1.0000000E+00  1.0000000E+00  1.0000000E+00
+ 1.0000000E+00  1.0000000E+00  1.0000000E+00  1.0000000E+00  1.0000000E+00
+ 1.0000000E+00  1.0000000E+00  1.0000000E+00  1.0000000E+00  1.0000000E+00
+ 1.0000000E+00  1.0000000E+00  1.0000000E+00  1.0000000E+00  1.0000000E+00
+ 1.0000000E+00  1.0000000E+00  1.0000000E+00  1.0000000E+00  1.0000000E+00
+ 1.0000000E+00  1.0000000E+00  1.0000000E+00  1.0000000E+00  1.0000000E+00
+ 1.0000000E+00  1.0000000E+00  1.0000000E+00  1.0000000E+00  1.0000000E+00
+ 1.0000000E+00  1.0000000E+00  1.0000000E+00  1.0000000E+00  1.0000000E+00
+ 1.0000000E+00  1.0000000E+00  1.0000000E+00  1.0000000E+00  1.0000000E+00
+ 1.0000000E+00  1.0000000E+00  1.0000000E+00  1.0000000E+00  1.0000000E+00
+ 1.0000000E+00  5.0000000E-01  1.0000000E+00
+COST FUNCTION
+CHI_2_X CHI_2_Y CHI_2 CHI_2_OLD-CHI_2
+  0.000E+00  8.868E+01  8.868E+01  0.000E+00
+
+ ITER= 2 AVGSNR=    190.2801 RMS(%)= 2.8957736 NVAR=168 NFIT=  1922
+ 4.6333257E-05  1.1244205E-03 -1.0065696E-02 -1.7767720E-02  1.6853945E-02
+ 3.7210354E-02  6.5385830E-03  8.2757362E-03  8.4298652E-08  1.6171456E-07
+ 7.8763483E-08  1.4064735E-07  7.9675835E-08  1.2155288E-07  5.6838176E-08
+ 2.3977326E-08 -8.2003943E-03  1.2187194E-07 -1.6054691E-05  4.6600575E-06
+ 2.0474689E-05  7.9495533E-05 -3.1065293E-06  1.0000001E+00  1.0000007E+00
+ 1.0000031E+00  1.0000108E+00  1.0000317E+00  1.0000807E+00  1.0001835E+00
+ 1.0003833E+00  1.0007335E+00  1.0012866E+00  1.0020920E+00  1.0031882E+00
+ 1.0045839E+00  1.0062878E+00  1.0082664E+00  1.0105467E+00  1.0128761E+00
+ 1.0150882E+00  1.0171953E+00  1.0192146E+00  1.0211970E+00  1.0229176E+00
+ 1.0244593E+00  1.0256668E+00  1.0263719E+00  1.0267438E+00  1.0265575E+00
+ 1.0260785E+00  1.0252410E+00  1.0239623E+00  1.0225259E+00  1.0207698E+00
+ 1.0190514E+00  1.0173813E+00  1.0157506E+00  1.0143841E+00  1.0131115E+00
+ 1.0120854E+00  1.0112093E+00  1.0103836E+00  1.0097415E+00  1.0091230E+00
+ 1.0086601E+00  1.0082790E+00  1.0078901E+00  1.0076385E+00  1.0074531E+00
+ 1.0000000E+00  1.0000000E+00  1.0000000E+00  1.0000000E+00  1.0000000E+00
+ 1.0000000E+00  1.0000001E+00  1.0000003E+00  1.0000012E+00  1.0000040E+00
+ 1.0000108E+00  1.0000239E+00  1.0000452E+00  1.0000763E+00  1.0001179E+00
+ 1.0001700E+00  1.0002329E+00  1.0003046E+00  1.0003856E+00  1.0004757E+00
+ 1.0005738E+00  1.0006693E+00  1.0007572E+00  1.0008251E+00  1.0008617E+00
+ 1.0008702E+00  1.0008455E+00  1.0008001E+00  1.0007368E+00  1.0006578E+00
+ 1.0005750E+00  1.0004880E+00  1.0004075E+00  1.0003357E+00  1.0002741E+00
+ 1.0002269E+00  1.0001902E+00  1.0001644E+00  1.0001460E+00  1.0001313E+00
+ 1.0001205E+00  1.0001103E+00  1.0001017E+00  1.0000934E+00  1.0000844E+00
+ 1.0000765E+00  1.0000690E+00  1.0000000E+00  1.0000000E+00  1.0000000E+00
+ 1.0000000E+00  1.0000000E+00  1.0000000E+00  9.9999999E-01  9.9999995E-01
+ 9.9999985E-01  9.9999961E-01  9.9999908E-01  9.9999801E-01  9.9999596E-01
+ 9.9999234E-01  9.9998661E-01  9.9997815E-01  9.9996604E-01  9.9994907E-01
+ 9.9992467E-01  9.9988851E-01  9.9983351E-01  9.9975117E-01  9.9962602E-01
+ 9.9943960E-01  9.9916802E-01  9.9876971E-01  9.9820420E-01  9.9738715E-01
+ 9.9622245E-01  9.9457603E-01  9.9218323E-01  9.8882361E-01  9.8407255E-01
+ 9.7767355E-01  9.6950444E-01  9.5911676E-01  9.4694918E-01  9.3267097E-01
+ 9.1718043E-01  9.0201719E-01  8.8716987E-01  8.7547183E-01  8.6619887E-01
+ 8.6079905E-01  8.6064537E-01  8.6271509E-01  8.6736813E-01  1.0002108E+00
+ 9.9999866E-01  4.9999824E-01  9.9985947E-01
+COST FUNCTION
+CHI_2_X CHI_2_Y CHI_2 CHI_2_OLD-CHI_2
+  8.030E-04  2.747E+01  2.747E+01  6.121E+01
+
+ ITER= 3 AVGSNR=    190.2801 RMS(%)= 1.7747912 NVAR=168 NFIT=  1922
+ 1.8574751E-03  1.0593938E-02 -5.8433002E-02 -7.4472836E-02 -1.3376886E-02
+ 2.1401075E-02  2.1559572E-03  1.2685319E-02  6.5296653E-08  1.3892347E-07
+ 6.5529328E-08  1.3027866E-07  9.5317816E-08  1.5397828E-07  8.4245054E-08
+ 5.2613528E-08 -3.2209254E-02  1.9202578E-07 -1.1821604E-05  3.5821548E-06
+-3.0774916E-07  1.5976467E-04 -1.3505418E-05  1.0000006E+00  1.0000038E+00
+ 1.0000179E+00  1.0000627E+00  1.0001847E+00  1.0004732E+00  1.0010823E+00
+ 1.0022713E+00  1.0043685E+00  1.0077066E+00  1.0126107E+00  1.0193470E+00
+ 1.0280069E+00  1.0386847E+00  1.0512098E+00  1.0657639E+00  1.0808281E+00
+ 1.0953764E+00  1.1094964E+00  1.1233004E+00  1.1371033E+00  1.1494247E+00
+ 1.1607521E+00  1.1699970E+00  1.1759611E+00  1.1796751E+00  1.1795460E+00
+ 1.1772958E+00  1.1724273E+00  1.1643392E+00  1.1549571E+00  1.1431737E+00
+ 1.1314993E+00  1.1200583E+00  1.1088348E+00  1.0994105E+00  1.0906240E+00
+ 1.0835371E+00  1.0774840E+00  1.0717771E+00  1.0673392E+00  1.0630627E+00
+ 1.0598618E+00  1.0572265E+00  1.0545372E+00  1.0527968E+00  1.0515151E+00
+ 1.0000000E+00  1.0000000E+00  1.0000000E+00  1.0000000E+00  1.0000001E+00
+ 1.0000002E+00  1.0000006E+00  1.0000022E+00  1.0000086E+00  1.0000287E+00
+ 1.0000782E+00  1.0001757E+00  1.0003380E+00  1.0005804E+00  1.0009110E+00
+ 1.0013329E+00  1.0018498E+00  1.0024452E+00  1.0031212E+00  1.0038726E+00
+ 1.0046868E+00  1.0054717E+00  1.0061834E+00  1.0067172E+00  1.0069809E+00
+ 1.0070042E+00  1.0067494E+00  1.0063232E+00  1.0057556E+00  1.0050708E+00
+ 1.0043661E+00  1.0036403E+00  1.0029742E+00  1.0023834E+00  1.0018752E+00
+ 1.0014777E+00  1.0011632E+00  1.0009323E+00  1.0007605E+00  1.0006263E+00
+ 1.0005270E+00  1.0004450E+00  1.0003814E+00  1.0003290E+00  1.0002818E+00
+ 1.0002439E+00  1.0002118E+00  1.0000000E+00  1.0000000E+00  1.0000000E+00
+ 1.0000000E+00  1.0000000E+00  9.9999981E-01  9.9999932E-01  9.9999792E-01
+ 9.9999431E-01  9.9998634E-01  9.9997006E-01  9.9993842E-01  9.9988058E-01
+ 9.9978337E-01  9.9963756E-01  9.9943839E-01  9.9917845E-01  9.9884910E-01
+ 9.9841710E-01  9.9783343E-01  9.9703246E-01  9.9597689E-01  9.9458198E-01
+ 9.9280967E-01  9.9065537E-01  9.8804338E-01  9.8506825E-01  9.8158637E-01
+ 9.7753722E-01  9.7275931E-01  9.6655807E-01  9.5858815E-01  9.4769407E-01
+ 9.3327840E-01  9.1503620E-01  8.9172599E-01  8.6462369E-01  8.3304568E-01
+ 7.9941145E-01  7.6748643E-01  7.3705445E-01  7.1439909E-01  6.9739466E-01
+ 6.8892660E-01  6.9174597E-01  6.9893423E-01  7.1122056E-01  9.9818472E-01
+ 9.9999769E-01  4.9997473E-01  9.9960094E-01
+COST FUNCTION
+CHI_2_X CHI_2_Y CHI_2 CHI_2_OLD-CHI_2
+  6.828E-03  1.043E+01  1.043E+01  1.703E+01
+
+ ITER= 4 AVGSNR=    190.2801 RMS(%)= 1.2129241 NVAR=168 NFIT=  1922
+ 8.1514305E-03  2.5097034E-02 -1.0004858E-01 -9.9921047E-02 -4.0490404E-02
+ 2.8831865E-03 -1.8910343E-02  2.1774550E-03  1.3501819E-07  2.1157998E-07
+ 9.4289327E-08  1.6600122E-07  9.2748890E-08  1.5821352E-07  8.9384284E-08
+ 6.5322133E-08 -2.0526365E-02  2.2755082E-07 -7.0691166E-06  3.7012571E-06
+-1.7751383E-05  1.7744810E-04 -1.3566140E-05  1.0000004E+00  1.0000025E+00
+ 1.0000119E+00  1.0000429E+00  1.0001354E+00  1.0003764E+00  1.0009306E+00
+ 1.0020789E+00  1.0042440E+00  1.0079854E+00  1.0139730E+00  1.0228950E+00
+ 1.0353151E+00  1.0517992E+00  1.0723749E+00  1.0970090E+00  1.1248594E+00
+ 1.1545932E+00  1.1865582E+00  1.2210839E+00  1.2587309E+00  1.2964928E+00
+ 1.3347724E+00  1.3705505E+00  1.4001840E+00  1.4247745E+00  1.4394363E+00
+ 1.4473215E+00  1.4464135E+00  1.4345495E+00  1.4164469E+00  1.3891366E+00
+ 1.3600010E+00  1.3300558E+00  1.2998827E+00  1.2742698E+00  1.2502394E+00
+ 1.2308164E+00  1.2142021E+00  1.1985123E+00  1.1863063E+00  1.1745265E+00
+ 1.1657059E+00  1.1584365E+00  1.1510062E+00  1.1461948E+00  1.1426487E+00
+ 1.0000000E+00  1.0000000E+00  1.0000001E+00  1.0000001E+00  1.0000005E+00
+ 1.0000020E+00  1.0000054E+00  1.0000194E+00  1.0000750E+00  1.0002485E+00
+ 1.0006723E+00  1.0015036E+00  1.0028819E+00  1.0049345E+00  1.0077240E+00
+ 1.0112674E+00  1.0155856E+00  1.0205278E+00  1.0261032E+00  1.0322534E+00
+ 1.0388548E+00  1.0451238E+00  1.0506865E+00  1.0546819E+00  1.0563729E+00
+ 1.0560299E+00  1.0533925E+00  1.0493668E+00  1.0442529E+00  1.0383088E+00
+ 1.0323280E+00  1.0263337E+00  1.0209257E+00  1.0162057E+00  1.0122039E+00
+ 1.0090796E+00  1.0066229E+00  1.0047997E+00  1.0034337E+00  1.0023835E+00
+ 1.0016047E+00  1.0010071E+00  1.0005685E+00  1.0002499E+00  1.0000231E+00
+ 9.9987024E-01  9.9977271E-01  1.0000000E+00  1.0000000E+00  1.0000000E+00
+ 1.0000000E+00  9.9999998E-01  9.9999912E-01  9.9999705E-01  9.9999091E-01
+ 9.9997503E-01  9.9993904E-01  9.9986418E-01  9.9971704E-01  9.9944798E-01
+ 9.9899910E-01  9.9833103E-01  9.9742601E-01  9.9626158E-01  9.9482466E-01
+ 9.9301167E-01  9.9067444E-01  9.8762164E-01  9.8381453E-01  9.7905930E-01
+ 9.7339222E-01  9.6700646E-01  9.5987410E-01  9.5260923E-01  9.4512557E-01
+ 9.3772950E-01  9.3054168E-01  9.2241311E-01  9.1321840E-01  9.0112632E-01
+ 8.8557220E-01  8.6643520E-01  8.4199189E-01  8.1422185E-01  7.8199096E-01
+ 7.4814916E-01  7.1692744E-01  6.8747036E-01  6.6680127E-01  6.5201659E-01
+ 6.4623212E-01  6.5247362E-01  6.6289506E-01  6.7838971E-01  9.7997467E-01
+ 1.0000708E+00  4.9915485E-01  9.9972983E-01
+COST FUNCTION
+CHI_2_X CHI_2_Y CHI_2 CHI_2_OLD-CHI_2
+  2.231E-02  4.563E+00  4.586E+00  5.849E+00
+
+ ITER= 5 AVGSNR=    190.2801 RMS(%)= 0.9688451 NVAR=168 NFIT=  1922
+ 1.4776299E-02  2.9542983E-02 -1.0555476E-01 -1.0443436E-01  8.5120916E-03
+ 4.3260547E-02  2.6906463E-02  4.0851957E-02  1.2102550E-07  1.8289675E-07
+ 5.7924269E-08  1.4229519E-07  6.1624294E-08  1.2438270E-07  5.9993869E-08
+ 3.4710267E-08 -1.1523846E-03  3.8253572E-07 -3.6460441E-06  3.5993303E-06
+-3.1619629E-05  1.1823693E-04 -1.1994808E-05  9.9999788E-01  9.9998625E-01
+ 9.9993630E-01  9.9978118E-01  9.9938338E-01  9.9851927E-01  9.9687334E-01
+ 9.9393371E-01  9.8931124E-01  9.8311730E-01  9.7592753E-01  9.6873502E-01
+ 9.6306258E-01  9.6012419E-01  9.5966552E-01  9.5620930E-01  9.6275301E-01
+ 9.8102520E-01  1.0122591E+00  1.0576404E+00  1.1180986E+00  1.1923772E+00
+ 1.2795342E+00  1.3749560E+00  1.4715226E+00  1.5659081E+00  1.6470303E+00
+ 1.7148151E+00  1.7621032E+00  1.7816476E+00  1.7792666E+00  1.7484148E+00
+ 1.7048777E+00  1.6531659E+00  1.5970554E+00  1.5480386E+00  1.5012625E+00
+ 1.4632582E+00  1.4306250E+00  1.3996649E+00  1.3755711E+00  1.3522121E+00
+ 1.3347142E+00  1.3202519E+00  1.3053812E+00  1.2957378E+00  1.2886006E+00
+ 1.0000000E+00  1.0000000E+00  1.0000003E+00  1.0000003E+00  1.0000024E+00
+ 1.0000107E+00  1.0000284E+00  1.0000996E+00  1.0003855E+00  1.0012848E+00
+ 1.0034894E+00  1.0078262E+00  1.0150354E+00  1.0257972E+00  1.0404623E+00
+ 1.0591488E+00  1.0819967E+00  1.1082353E+00  1.1379288E+00  1.1707716E+00
+ 1.2060978E+00  1.2397122E+00  1.2695541E+00  1.2909452E+00  1.2998541E+00
+ 1.2976305E+00  1.2828551E+00  1.2603732E+00  1.2318897E+00  1.1989436E+00
+ 1.1658689E+00  1.1329478E+00  1.1033393E+00  1.0775830E+00  1.0558128E+00
+ 1.0387053E+00  1.0252078E+00  1.0150100E+00  1.0072554E+00  1.0013185E+00
+ 9.9686787E-01  9.9364471E-01  9.9138849E-01  9.8997605E-01  9.8934417E-01
+ 9.8914869E-01  9.8932454E-01  1.0000000E+00  1.0000000E+00  1.0000000E+00
+ 1.0000000E+00  9.9999993E-01  9.9999715E-01  9.9999123E-01  9.9997260E-01
+ 9.9992303E-01  9.9980603E-01  9.9955685E-01  9.9906015E-01  9.9814816E-01
+ 9.9663310E-01  9.9438629E-01  9.9134730E-01  9.8746423E-01  9.8277166E-01
+ 9.7707057E-01  9.7008431E-01  9.6145650E-01  9.5136442E-01  9.3956718E-01
+ 9.2655985E-01  9.1325583E-01  8.9990301E-01  8.8831744E-01  8.7853685E-01
+ 8.7155665E-01  8.6796047E-01  8.6587639E-01  8.6540152E-01  8.6372092E-01
+ 8.5995048E-01  8.5352332E-01  8.4189302E-01  8.2640941E-01  8.0524915E-01
+ 7.8046137E-01  7.5549014E-01  7.2967934E-01  7.0955168E-01  6.9324677E-01
+ 6.8422175E-01  6.8582937E-01  6.9151367E-01  7.0237756E-01  8.3907588E-01
+ 1.0004393E+00  4.9334946E-01  1.0007274E+00
+COST FUNCTION
+CHI_2_X CHI_2_Y CHI_2 CHI_2_OLD-CHI_2
+  6.032E-02  2.394E+00  2.455E+00  2.131E+00
+
+ ITER= 6 AVGSNR=    190.2801 RMS(%)= 0.8544662 NVAR=168 NFIT=  1922
+ 3.4383972E-02  4.6987170E-02 -8.2168822E-02 -8.5292144E-02  2.6246222E-02
+ 5.8431672E-02  4.4625977E-02  5.6155163E-02  1.0332231E-07  1.6458882E-07
+ 5.2782972E-08  1.4017837E-07  5.2775362E-08  1.1486709E-07  5.2068637E-08
+ 2.6253528E-08  5.5961327E-03 -2.5813672E-07 -1.4884773E-06  3.3640450E-06
+-3.1254166E-05  5.5453339E-05 -9.3930471E-06  1.0000014E+00  1.0000091E+00
+ 1.0000420E+00  1.0001406E+00  1.0003827E+00  1.0009119E+00  1.0020455E+00
+ 1.0043563E+00  1.0085803E+00  1.0154982E+00  1.0258868E+00  1.0403450E+00
+ 1.0585474E+00  1.0774915E+00  1.0844836E+00  1.0430489E+00  1.0085132E+00
+ 9.8239602E-01  9.6776905E-01  9.6887144E-01  9.9085581E-01  1.0391453E+00
+ 1.1176438E+00  1.2265695E+00  1.3608995E+00  1.5141372E+00  1.6701532E+00
+ 1.8209530E+00  1.9496788E+00  2.0382276E+00  2.0863006E+00  2.0795631E+00
+ 2.0403026E+00  1.9776893E+00  1.9011461E+00  1.8313704E+00  1.7630796E+00
+ 1.7071618E+00  1.6588635E+00  1.6127215E+00  1.5767871E+00  1.5417163E+00
+ 1.5154244E+00  1.4936034E+00  1.4709819E+00  1.4562820E+00  1.4453413E+00
+ 1.0000000E+00  1.0000000E+00  1.0000002E+00  1.0000003E+00  1.0000032E+00
+ 1.0000140E+00  1.0000383E+00  1.0001307E+00  1.0005132E+00  1.0017512E+00
+ 1.0048599E+00  1.0111522E+00  1.0219604E+00  1.0386498E+00  1.0621804E+00
+ 1.0932109E+00  1.1324612E+00  1.1791885E+00  1.2339784E+00  1.2967550E+00
+ 1.3666387E+00  1.4361325E+00  1.5009539E+00  1.5514660E+00  1.5787200E+00
+ 1.5838531E+00  1.5627935E+00  1.5241133E+00  1.4706913E+00  1.4055626E+00
+ 1.3378700E+00  1.2687769E+00  1.2053411E+00  1.1492022E+00  1.1010338E+00
+ 1.0622905E+00  1.0311134E+00  1.0067468E+00  9.8769093E-01  9.7302227E-01
+ 9.6184306E-01  9.5420482E-01  9.4914933E-01  9.4661901E-01  9.4668883E-01
+ 9.4788930E-01  9.5015498E-01  1.0000000E+00  1.0000000E+00  1.0000000E+00
+ 1.0000000E+00  9.9999983E-01  9.9999277E-01  9.9997901E-01  9.9993913E-01
+ 9.9983362E-01  9.9959064E-01  9.9909484E-01  9.9812873E-01  9.9637546E-01
+ 9.9348698E-01  9.8923485E-01  9.8354031E-01  9.7636093E-01  9.6779812E-01
+ 9.5748536E-01  9.4494887E-01  9.2970161E-01  9.1243478E-01  8.9330380E-01
+ 8.7399835E-01  8.5709580E-01  8.4413492E-01  8.3902008E-01  8.4239605E-01
+ 8.5541878E-01  8.7747851E-01  9.0439298E-01  9.3318436E-01  9.5887579E-01
+ 9.7828190E-01  9.8901579E-01  9.8908407E-01  9.7717905E-01  9.5190735E-01
+ 9.1329453E-01  8.6367649E-01  8.0540547E-01  7.4668178E-01  6.9041621E-01
+ 6.4372622E-01  6.1333642E-01  5.9338732E-01  5.8590412E-01  4.7790300E-01
+ 9.9860069E-01  4.4461929E-01  1.0003994E+00
+COST FUNCTION
+CHI_2_X CHI_2_Y CHI_2 CHI_2_OLD-CHI_2
+  1.372E-01  1.436E+00  1.573E+00  8.811E-01
+
+ ITER= 7 AVGSNR=    190.2801 RMS(%)= 0.8350048 NVAR=168 NFIT=  1922
+ 2.7354373E-02  3.8390776E-02 -5.8482767E-02 -6.1799627E-02  2.5327433E-02
+ 5.7864161E-02  4.3756966E-02  5.5615073E-02  1.0096960E-07  1.7394545E-07
+ 7.4034126E-08  1.4228051E-07  5.7020428E-08  1.2031572E-07  5.5917298E-08
+ 3.0238756E-08  3.1117984E-03  7.7521198E-09 -9.3222512E-07  1.8545342E-06
+-2.5824906E-05  5.2112312E-05 -7.0446079E-06  1.0000041E+00  1.0000265E+00
+ 1.0001231E+00  1.0004208E+00  1.0011847E+00  1.0028871E+00  1.0063663E+00
+ 1.0130638E+00  1.0246314E+00  1.0424399E+00  1.0675703E+00  1.1005445E+00
+ 1.1399036E+00  1.1797962E+00  1.1986536E+00  1.1381994E+00  1.0819726E+00
+ 1.0303233E+00  9.8727518E-01  9.5873456E-01  9.5223070E-01  9.7647386E-01
+ 1.0384382E+00  1.1416663E+00  1.2835173E+00  1.4571294E+00  1.6449875E+00
+ 1.8349432E+00  2.0052792E+00  2.1321467E+00  2.2108136E+00  2.2220693E+00
+ 2.1900344E+00  2.1258242E+00  2.0418740E+00  1.9636931E+00  1.8861975E+00
+ 1.8225201E+00  1.7673659E+00  1.7144746E+00  1.6732795E+00  1.6329138E+00
+ 1.6026424E+00  1.5774542E+00  1.5512056E+00  1.5341265E+00  1.5213705E+00
+ 1.0000000E+00  9.9999999E-01  9.9999993E-01  9.9999996E-01  1.0000018E+00
+ 1.0000085E+00  1.0000253E+00  1.0000789E+00  1.0003126E+00  1.0011149E+00
+ 1.0031916E+00  1.0075101E+00  1.0151414E+00  1.0272771E+00  1.0449492E+00
+ 1.0691204E+00  1.1009319E+00  1.1405258E+00  1.1891808E+00  1.2477977E+00
+ 1.3166332E+00  1.3899918E+00  1.4642380E+00  1.5299675E+00  1.5773159E+00
+ 1.6054931E+00  1.6080454E+00  1.5914923E+00  1.5564652E+00  1.5041147E+00
+ 1.4438561E+00  1.3763686E+00  1.3111417E+00  1.2511310E+00  1.1981488E+00
+ 1.1558768E+00  1.1218135E+00  1.0962364E+00  1.0766860E+00  1.0610453E+00
+ 1.0491039E+00  1.0392297E+00  1.0315459E+00  1.0253883E+00  1.0202204E+00
+ 1.0162592E+00  1.0131471E+00  1.0000000E+00  1.0000000E+00  1.0000000E+00
+ 1.0000000E+00  9.9999985E-01  9.9999350E-01  9.9998010E-01  9.9994238E-01
+ 9.9985255E-01  9.9965837E-01  9.9929672E-01  9.9862499E-01  9.9744457E-01
+ 9.9552289E-01  9.9271282E-01  9.8900120E-01  9.8439320E-01  9.7886604E-01
+ 9.7191490E-01  9.6288316E-01  9.5118875E-01  9.3726158E-01  9.2139288E-01
+ 9.0524120E-01  8.9149524E-01  8.8244169E-01  8.8223525E-01  8.9207332E-01
+ 9.1238084E-01  9.4089098E-01  9.7209186E-01  1.0005838E+00  1.0210520E+00
+ 1.0303663E+00  1.0276312E+00  1.0139241E+00  9.9006360E-01  9.5640475E-01
+ 9.1303365E-01  8.6131824E-01  8.0218256E-01  7.4261868E-01  6.8477973E-01
+ 6.3570676E-01  6.0249450E-01  5.7953883E-01  5.6933496E-01  3.7602500E-01
+ 9.9456718E-01  4.8501977E-01  9.9825995E-01
+COST FUNCTION
+CHI_2_X CHI_2_Y CHI_2 CHI_2_OLD-CHI_2
+  1.689E-01  1.313E+00  1.482E+00  9.125E-02
+
+ ITER= 8 AVGSNR=    190.2801 RMS(%)= 0.8364806 NVAR=168 NFIT=  1922
+ 2.6674846E-02  3.9038813E-02 -5.3450259E-02 -5.7434194E-02  2.6546428E-02
+ 5.8897873E-02  4.4956004E-02  5.6618138E-02  1.0097435E-07  1.7420366E-07
+ 7.6277808E-08  1.4196179E-07  5.7705436E-08  1.2135812E-07  5.6198462E-08
+ 3.0105127E-08  2.9462420E-03  1.1232640E-07 -5.4901638E-07  8.9778301E-07
+-2.2790799E-05  5.1031512E-05 -5.1122975E-06  1.0000040E+00  1.0000262E+00
+ 1.0001219E+00  1.0004166E+00  1.0011735E+00  1.0028642E+00  1.0063344E+00
+ 1.0130411E+00  1.0246769E+00  1.0426959E+00  1.0682914E+00  1.1020999E+00
+ 1.1427224E+00  1.1841504E+00  1.2039401E+00  1.1412183E+00  1.0831861E+00
+ 1.0300666E+00  9.8578552E-01  9.5615561E-01  9.4864670E-01  9.7203538E-01
+ 1.0333870E+00  1.1364323E+00  1.2787446E+00  1.4535888E+00  1.6435709E+00
+ 1.8364860E+00  2.0103746E+00  2.1409281E+00  2.2229412E+00  2.2365601E+00
+ 2.2058513E+00  2.1419594E+00  2.0575644E+00  1.9787156E+00  1.9003874E+00
+ 1.8359960E+00  1.7801989E+00  1.7266490E+00  1.6849470E+00  1.6440450E+00
+ 1.6133725E+00  1.5878340E+00  1.5611802E+00  1.5438311E+00  1.5308598E+00
+ 1.0000000E+00  9.9999998E-01  9.9999986E-01  9.9999988E-01  1.0000012E+00
+ 1.0000064E+00  1.0000181E+00  1.0000532E+00  1.0002121E+00  1.0007945E+00
+ 1.0023601E+00  1.0057355E+00  1.0119098E+00  1.0220358E+00  1.0371961E+00
+ 1.0584660E+00  1.0871021E+00  1.1235155E+00  1.1691151E+00  1.2250069E+00
+ 1.2917065E+00  1.3641712E+00  1.4390346E+00  1.5072640E+00  1.5590906E+00
+ 1.5932736E+00  1.6029468E+00  1.5938716E+00  1.5659661E+00  1.5196742E+00
+ 1.4640608E+00  1.3994632E+00  1.3357194E+00  1.2760540E+00  1.2226233E+00
+ 1.1798238E+00  1.1452025E+00  1.1195046E+00  1.1001643E+00  1.0848036E+00
+ 1.0733680E+00  1.0636804E+00  1.0560687E+00  1.0496047E+00  1.0435040E+00
+ 1.0384793E+00  1.0340802E+00  1.0000000E+00  1.0000000E+00  1.0000000E+00
+ 1.0000000E+00  9.9999985E-01  9.9999344E-01  9.9997963E-01  9.9994010E-01
+ 9.9984838E-01  9.9965243E-01  9.9929461E-01  9.9863875E-01  9.9748545E-01
+ 9.9560237E-01  9.9284714E-01  9.8921008E-01  9.8468763E-01  9.7921494E-01
+ 9.7220937E-01  9.6290636E-01  9.5060705E-01  9.3563956E-01  9.1820652E-01
+ 8.9994888E-01  8.8366634E-01  8.7184581E-01  8.6912413E-01  8.7705315E-01
+ 8.9648116E-01  9.2542071E-01  9.5823527E-01  9.8951021E-01  1.0135212E+00
+ 1.0268180E+00  1.0281350E+00  1.0181745E+00  9.9740007E-01  9.6594377E-01
+ 9.2362067E-01  8.7160730E-01  8.1100930E-01  7.4891109E-01  6.8794769E-01
+ 6.3554559E-01  5.9918127E-01  5.7349271E-01  5.6113630E-01  4.0469624E-01
+ 9.9477685E-01  4.9283617E-01  9.9764014E-01
+COST FUNCTION
+CHI_2_X CHI_2_Y CHI_2 CHI_2_OLD-CHI_2
+  1.688E-01  1.314E+00  1.483E+00 -7.777E-04
+
+ ITER= 9 AVGSNR=    190.2801 RMS(%)= 0.8364520 NVAR=168 NFIT=  1922
+ 2.6649944E-02  3.9042367E-02 -5.3453103E-02 -5.7436275E-02  2.6566701E-02
+ 5.8899147E-02  4.4972403E-02  5.6618520E-02  1.0097035E-07  1.7420033E-07
+ 7.6251462E-08  1.4196208E-07  5.7701052E-08  1.2135069E-07  5.6193607E-08
+ 3.0098019E-08  2.9456745E-03  1.1243366E-07 -5.4868705E-07  8.9702598E-07
+-2.2794732E-05  5.1046097E-05 -5.1129291E-06  1.0000041E+00  1.0000262E+00
+ 1.0001221E+00  1.0004173E+00  1.0011754E+00  1.0028685E+00  1.0063423E+00
+ 1.0130534E+00  1.0246924E+00  1.0427071E+00  1.0682815E+00  1.1020421E+00
+ 1.1425825E+00  1.1839016E+00  1.2036109E+00  1.1410074E+00  1.0830540E+00
+ 1.0299858E+00  9.8573988E-01  9.5614179E-01  9.4867250E-01  9.7211347E-01
+ 1.0335280E+00  1.1366368E+00  1.2789957E+00  1.4538516E+00  1.6437903E+00
+ 1.8365984E+00  2.0103214E+00  2.1406730E+00  2.2224801E+00  2.2359318E+00
+ 2.2051115E+00  2.1411693E+00  2.0567738E+00  1.9779437E+00  1.8996473E+00
+ 1.8352842E+00  1.7795136E+00  1.7259923E+00  1.6843120E+00  1.6434345E+00
+ 1.6127803E+00  1.5872582E+00  1.5606249E+00  1.5432897E+00  1.5303299E+00
+ 1.0000000E+00  9.9999998E-01  9.9999986E-01  9.9999988E-01  1.0000013E+00
+ 1.0000064E+00  1.0000184E+00  1.0000543E+00  1.0002166E+00  1.0008084E+00
+ 1.0023955E+00  1.0058094E+00  1.0120420E+00  1.0222471E+00  1.0375047E+00
+ 1.0588849E+00  1.0876388E+00  1.1241664E+00  1.1698706E+00  1.2258468E+00
+ 1.2925956E+00  1.3650422E+00  1.4398017E+00  1.5078228E+00  1.5593332E+00
+ 1.5931101E+00  1.6023181E+00  1.5927646E+00  1.5644402E+00  1.5178857E+00
+ 1.4622502E+00  1.3979785E+00  1.3349480E+00  1.2763794E+00  1.2243367E+00
+ 1.1830658E+00  1.1498761E+00  1.1253572E+00  1.1067699E+00  1.0916312E+00
+ 1.0800065E+00  1.0697200E+00  1.0613267E+00  1.0539891E+00  1.0469852E+00
+ 1.0411724E+00  1.0361061E+00  1.0000000E+00  1.0000000E+00  1.0000000E+00
+ 1.0000000E+00  9.9999985E-01  9.9999343E-01  9.9997964E-01  9.9994019E-01
+ 9.9984846E-01  9.9965227E-01  9.9929334E-01  9.9863457E-01  9.9747615E-01
+ 9.9558516E-01  9.9281852E-01  9.8916629E-01  9.8462572E-01  9.7913583E-01
+ 9.7212028E-01  9.6282335E-01  9.5055618E-01  9.3565779E-01  9.1834070E-01
+ 9.0025262E-01  8.8419092E-01  8.7263210E-01  8.7018156E-01  8.7836923E-01
+ 8.9801354E-01  9.2709530E-01  9.5995440E-01  9.9109574E-01  1.0147327E+00
+ 1.0273601E+00  1.0277420E+00  1.0167106E+00  9.9494321E-01  9.6275885E-01
+ 9.2013755E-01  8.6833437E-01  8.0836749E-01  7.4724435E-01  6.8741164E-01
+ 6.3615128E-01  6.0081183E-01  5.7597474E-01  5.6425562E-01  4.0385512E-01
+ 9.9476421E-01  4.9221269E-01  9.9770553E-01
+COST FUNCTION
+CHI_2_X CHI_2_Y CHI_2 CHI_2_OLD-CHI_2
+  1.687E-01  1.314E+00  1.482E+00 -3.691E-04
+
+ ITER=10 AVGSNR=    190.2801 RMS(%)= 0.8361746 NVAR=168 NFIT=  1922
+ 2.6503481E-02  3.9036534E-02 -5.3518773E-02 -5.7553145E-02  2.6520228E-02
+ 5.8865045E-02  4.4926861E-02  5.6584657E-02  1.0094050E-07  1.7417347E-07
+ 7.6128541E-08  1.4197187E-07  5.7668602E-08  1.2130043E-07  5.6158605E-08
+ 3.0050310E-08  2.9628407E-03  1.1324102E-07 -5.4299300E-07  8.9548045E-07
+-2.2796208E-05  5.1132268E-05 -5.1189209E-06  1.0000041E+00  1.0000264E+00
+ 1.0001229E+00  1.0004201E+00  1.0011828E+00  1.0028841E+00  1.0063679E+00
+ 1.0130862E+00  1.0247138E+00  1.0426622E+00  1.0680648E+00  1.1014945E+00
+ 1.1415117E+00  1.1821674E+00  1.2014096E+00  1.1395486E+00  1.0821296E+00
+ 1.0294541E+00  9.8551459E-01  9.5619617E-01  9.4902919E-01  9.7280762E-01
+ 1.0345761E+00  1.1379962E+00  1.2805361E+00  1.4553623E+00  1.6449689E+00
+ 1.8371155E+00  2.0098898E+00  2.1391356E+00  2.2198522E+00  2.2324490E+00
+ 2.2010818E+00  2.1369170E+00  2.0525557E+00  1.9738554E+00  1.8957532E+00
+ 1.8315628E+00  1.7759522E+00  1.7226002E+00  1.6810512E+00  1.6403165E+00
+ 1.6097701E+00  1.5843439E+00  1.5578236E+00  1.5405642E+00  1.5276652E+00
+ 1.0000000E+00  9.9999998E-01  9.9999988E-01  9.9999990E-01  1.0000014E+00
+ 1.0000068E+00  1.0000202E+00  1.0000608E+00  1.0002424E+00  1.0008894E+00
+ 1.0026028E+00  1.0062468E+00  1.0128304E+00  1.0235146E+00  1.0393652E+00
+ 1.0614232E+00  1.0909109E+00  1.1281644E+00  1.1745557E+00  1.2311282E+00
+ 1.2983104E+00  1.3708570E+00  1.4452968E+00  1.5124742E+00  1.5625880E+00
+ 1.5945151E+00  1.6015425E+00  1.5896725E+00  1.5591211E+00  1.5106644E+00
+ 1.4535368E+00  1.3882833E+00  1.3245874E+00  1.2655318E+00  1.2130604E+00
+ 1.1711959E+00  1.1373815E+00  1.1121322E+00  1.0928857E+00  1.0773551E+00
+ 1.0654842E+00  1.0553438E+00  1.0472726E+00  1.0405015E+00  1.0343853E+00
+ 1.0294718E+00  1.0253521E+00  1.0000000E+00  1.0000000E+00  1.0000000E+00
+ 1.0000000E+00  9.9999985E-01  9.9999344E-01  9.9997976E-01  9.9994089E-01
+ 9.9984949E-01  9.9965308E-01  9.9929058E-01  9.9862132E-01  9.9744447E-01
+ 9.9552544E-01  9.9271813E-01  9.8901072E-01  9.8440358E-01  9.7885288E-01
+ 9.7181188E-01  9.6256586E-01  9.5046948E-01  9.3590310E-01  9.1911073E-01
+ 9.0174808E-01  8.8657162E-01  8.7597524E-01  8.7438227E-01  8.8317341E-01
+ 9.0299677E-01  9.3172553E-01  9.6376302E-01  9.9372222E-01  1.0161023E+00
+ 1.0276628E+00  1.0273526E+00  1.0160308E+00  9.9426175E-01  9.6217950E-01
+ 9.1962974E-01  8.6782526E-01  8.0781242E-01  7.4667654E-01  6.8691272E-01
+ 6.3582405E-01  6.0074233E-01  5.7620586E-01  5.6478881E-01  3.9753655E-01
+ 9.9464530E-01  4.8920975E-01  9.9799449E-01
+COST FUNCTION
+CHI_2_X CHI_2_Y CHI_2 CHI_2_OLD-CHI_2
+  1.683E-01  1.311E+00  1.479E+00  2.749E-03
+
+ FINAL:   AVGSNR=    190.2801 RMS(%)= 0.8361746 NVAR=168 NFIT=  1922
+ 2.6503481E-02  3.9036534E-02 -5.3518773E-02 -5.7553145E-02  2.6520228E-02
+ 5.8865045E-02  4.4926861E-02  5.6584657E-02  1.0094050E-07  1.7417347E-07
+ 7.6128541E-08  1.4197187E-07  5.7668602E-08  1.2130043E-07  5.6158605E-08
+ 3.0050310E-08  2.9628407E-03  1.1324102E-07 -5.4299300E-07  8.9548045E-07
+-2.2796208E-05  5.1132268E-05 -5.1189209E-06  1.0000041E+00  1.0000264E+00
+ 1.0001229E+00  1.0004201E+00  1.0011828E+00  1.0028841E+00  1.0063679E+00
+ 1.0130862E+00  1.0247138E+00  1.0426622E+00  1.0680648E+00  1.1014945E+00
+ 1.1415117E+00  1.1821674E+00  1.2014096E+00  1.1395486E+00  1.0821296E+00
+ 1.0294541E+00  9.8551459E-01  9.5619617E-01  9.4902919E-01  9.7280762E-01
+ 1.0345761E+00  1.1379962E+00  1.2805361E+00  1.4553623E+00  1.6449689E+00
+ 1.8371155E+00  2.0098898E+00  2.1391356E+00  2.2198522E+00  2.2324490E+00
+ 2.2010818E+00  2.1369170E+00  2.0525557E+00  1.9738554E+00  1.8957532E+00
+ 1.8315628E+00  1.7759522E+00  1.7226002E+00  1.6810512E+00  1.6403165E+00
+ 1.6097701E+00  1.5843439E+00  1.5578236E+00  1.5405642E+00  1.5276652E+00
+ 1.0000000E+00  9.9999998E-01  9.9999988E-01  9.9999990E-01  1.0000014E+00
+ 1.0000068E+00  1.0000202E+00  1.0000608E+00  1.0002424E+00  1.0008894E+00
+ 1.0026028E+00  1.0062468E+00  1.0128304E+00  1.0235146E+00  1.0393652E+00
+ 1.0614232E+00  1.0909109E+00  1.1281644E+00  1.1745557E+00  1.2311282E+00
+ 1.2983104E+00  1.3708570E+00  1.4452968E+00  1.5124742E+00  1.5625880E+00
+ 1.5945151E+00  1.6015425E+00  1.5896725E+00  1.5591211E+00  1.5106644E+00
+ 1.4535368E+00  1.3882833E+00  1.3245874E+00  1.2655318E+00  1.2130604E+00
+ 1.1711959E+00  1.1373815E+00  1.1121322E+00  1.0928857E+00  1.0773551E+00
+ 1.0654842E+00  1.0553438E+00  1.0472726E+00  1.0405015E+00  1.0343853E+00
+ 1.0294718E+00  1.0253521E+00  1.0000000E+00  1.0000000E+00  1.0000000E+00
+ 1.0000000E+00  9.9999985E-01  9.9999344E-01  9.9997976E-01  9.9994089E-01
+ 9.9984949E-01  9.9965308E-01  9.9929058E-01  9.9862132E-01  9.9744447E-01
+ 9.9552544E-01  9.9271813E-01  9.8901072E-01  9.8440358E-01  9.7885288E-01
+ 9.7181188E-01  9.6256586E-01  9.5046948E-01  9.3590310E-01  9.1911073E-01
+ 9.0174808E-01  8.8657162E-01  8.7597524E-01  8.7438227E-01  8.8317341E-01
+ 9.0299677E-01  9.3172553E-01  9.6376302E-01  9.9372222E-01  1.0161023E+00
+ 1.0276628E+00  1.0273526E+00  1.0160308E+00  9.9426175E-01  9.6217950E-01
+ 9.1962974E-01  8.6782526E-01  8.0781242E-01  7.4667654E-01  6.8691272E-01
+ 6.3582405E-01  6.0074233E-01  5.7620586E-01  5.6478881E-01  3.9753655E-01
+ 9.9464530E-01  4.8920975E-01  9.9799449E-01
+
+ MOLECULE = NO2     PROFILE SCALE FACTOR = 0.3975 +/-
+
+ MOLECULE = N2O     PROFILE SCALE FACTOR = 0.9946 +/-
+
+ MOLECULE = HDO     PROFILE SCALE FACTOR = 0.4892 +/-
+
+ MOLECULE = H2O     PROFILE SCALE FACTOR = 0.9980 +/-
+
+ RETRIEVED BACKGROUND PARAMETERS:
+ BAND   SLOPE       SIGMA     CURVATURE     SIGMA
+  1  2.6503E-02 -9.9900E+02
+  2  3.9037E-02 -9.9900E+02
+  3 -5.3519E-02 -9.9900E+02
+  4 -5.7553E-02 -9.9900E+02
+  5  2.6520E-02 -9.9900E+02
+  6  5.8865E-02 -9.9900E+02
+  7  4.4927E-02 -9.9900E+02
+  8  5.6585E-02 -9.9900E+02
+
+ RETRIEVED WAVENUMBER SHIFTS:
+ BAND   SCAN      SHIFT          SIGMA
+    1    1     2.75342E-04  6.77131E-05
+    1    2     4.83453E-04  5.59742E-05
+    2    1     4.75104E-04  5.50076E-05
+    2    2     2.11310E-04  2.94250E-05
+    3    1     2.07661E-04  2.89169E-05
+    3    2     3.94071E-04  2.42061E-05
+    3    3     1.68733E-04  2.87771E-05
+    3    4     0.00000E+00  0.00000E+00
+
+ RETRIEVED SOLAR SIMULATION PARAMETERS:
+ Sol - n/a     =   0.0000E+00  Sol - n/a     =   0.0000E+00
+ Sol - n/a     =   0.0000E+00  SolLnShft     =   2.9628E-03
+ SolLnStrn     =   0.0000E+00
+
+  RETRIEVED VERTICAL PROFILE:
+  Z[km] ZBAR[km] APRIORI_VMR RETRIEVED_VMR  SIGMA_VMR  APRIORI_COL  RETRIEVE_COL
+ 106.00 113.00   7.9371E-10   7.9371E-10   6.6648E-16   1.9638E+09   1.9638E+09
+  94.50 100.25   1.8437E-09   1.8437E-09   1.0020E-14   3.3508E+10   3.3508E+10
+  85.20  89.85   1.1709E-08   1.1709E-08   2.9479E-13   7.9151E+11   7.9151E+11
+  77.00  81.10   5.1634E-08   5.1634E-08   4.4326E-12   1.1361E+13   1.1361E+13
+  69.77  73.39   9.5528E-08   9.5528E-08   2.2853E-11   6.3612E+13   6.3612E+13
+  63.40  66.58   1.2693E-07   1.2693E-07   7.2241E-11   2.1449E+14   2.1449E+14
+  57.78  60.59   1.5374E-07   1.5373E-07   1.8369E-10   5.0080E+14   5.0079E+14
+  52.85  55.31   1.8062E-07   1.8061E-07   4.1755E-10   1.1202E+15   1.1202E+15
+  48.55  50.70   2.0905E-07   2.0901E-07   8.5188E-10   2.5054E+15   2.5051E+15
+  44.81  46.68   2.4677E-07   2.4669E-07   1.5977E-09   5.2400E+15   5.2388E+15
+  41.57  43.19   2.9778E-07   2.9757E-07   2.7938E-09   1.0057E+16   1.0053E+16
+  38.77  40.17   3.5889E-07   3.5840E-07   4.5219E-09   1.7937E+16   1.7921E+16
+  36.34  37.55   4.2520E-07   4.2411E-07   6.7244E-09   2.9929E+16   2.9883E+16
+  34.23  35.28   4.9389E-07   4.9168E-07   9.2359E-09   4.6942E+16   4.6820E+16
+  32.37  33.30   5.5997E-07   5.5589E-07   1.1402E-08   6.9869E+16   6.9579E+16
+  30.69  31.53   6.2143E-07   6.1460E-07   1.1853E-08   9.9837E+16   9.9218E+16
+  29.14  29.91   6.8003E-07   6.6942E-07   1.1698E-08   1.3846E+17   1.3724E+17
+  27.66  28.40   7.3922E-07   7.2359E-07   1.0756E-08   1.8915E+17   1.8686E+17
+  26.22  26.94   7.9820E-07   7.7570E-07   9.4438E-09   2.5592E+17   2.5175E+17
+  24.81  25.52   8.5710E-07   8.2501E-07   8.9558E-09   3.4316E+17   3.3572E+17
+  23.44  24.13   9.1540E-07   8.7006E-07   1.0507E-08   4.5445E+17   4.4150E+17
+  22.10  22.77   9.7602E-07   9.1346E-07   1.3523E-08   5.9598E+17   5.7396E+17
+  20.80  21.45   1.0426E-06   9.5826E-07   1.6717E-08   7.7390E+17   7.3748E+17
+  19.54  20.17   1.1167E-06   1.0070E-06   1.8915E-08   9.9673E+17   9.3842E+17
+  18.31  18.93   1.1983E-06   1.0624E-06   1.9319E-08   1.2770E+18   1.1869E+18
+  17.12  17.71   1.2837E-06   1.1245E-06   1.7957E-08   1.6237E+18   1.4906E+18
+  15.96  16.54   1.3707E-06   1.1985E-06   1.5915E-08   2.0510E+18   1.8642E+18
+  14.84  15.40   1.4451E-06   1.2762E-06   1.6546E-08   2.5665E+18   2.3195E+18
+  13.76  14.30   1.5069E-06   1.3607E-06   2.2044E-08   3.1808E+18   2.8742E+18
+  12.71  13.23   1.5533E-06   1.4472E-06   2.9969E-08   3.9075E+18   3.5513E+18
+  11.70  12.21   1.5929E-06   1.5352E-06   3.7758E-08   4.7497E+18   4.3630E+18
+  10.72  11.21   1.6360E-06   1.6257E-06   4.3362E-08   5.7307E+18   5.3378E+18
+   9.78  10.25   1.6797E-06   1.7067E-06   4.6626E-08   6.8550E+18   6.4802E+18
+   8.88   9.33   1.7155E-06   1.7629E-06   4.7348E-08   8.1329E+18   7.7935E+18
+   8.00   8.44   1.7407E-06   1.7883E-06   4.6026E-08   9.5827E+18   9.2830E+18
+   7.17   7.58   1.7569E-06   1.7851E-06   4.4116E-08   1.1184E+19   1.0909E+19
+   6.36   6.76   1.7668E-06   1.7567E-06   4.1736E-08   1.2945E+19   1.2660E+19
+   5.59   5.97   1.7729E-06   1.7058E-06   3.9717E-08   1.4829E+19   1.4474E+19
+   4.86   5.23   1.7768E-06   1.6340E-06   3.7933E-08   1.6808E+19   1.6294E+19
+   4.16   4.51   1.7799E-06   1.5446E-06   3.6134E-08   1.8893E+19   1.8103E+19
+   3.49   3.83   1.7822E-06   1.4397E-06   3.4808E-08   2.1046E+19   1.9842E+19
+   2.86   3.18   1.7841E-06   1.3322E-06   3.3405E-08   2.3291E+19   2.1519E+19
+   2.26   2.56   1.7860E-06   1.2268E-06   3.2414E-08   2.5575E+19   2.3087E+19
+   1.70   1.98   1.7878E-06   1.1367E-06   3.1562E-08   2.7874E+19   2.4549E+19
+   1.17   1.44   1.7904E-06   1.0756E-06   3.0525E-08   3.0224E+19   2.5961E+19
+   0.68   0.92   1.7933E-06   1.0333E-06   2.9854E-08   3.2557E+19   2.7305E+19
+   0.23   0.45   1.7968E-06   1.0148E-06   2.9306E-08   3.4834E+19   2.8591E+19
+
+  RETRIEVED VERTICAL PROFILE:
+  Z[km] ZBAR[km] APRIORI_VMR RETRIEVED_VMR  SIGMA_VMR  APRIORI_COL  RETRIEVE_COL
+ 106.00 113.00   5.7526E-08   5.7526E-08   7.6885E-21   1.4233E+11   1.4233E+11
+  94.50 100.25   9.1562E-07   9.1562E-07   3.7008E-14   1.5808E+13   1.5808E+13
+  85.20  89.85   1.0904E-06   1.0904E-06   2.5232E-13   8.6395E+13   8.6395E+13
+  77.00  81.10   3.0311E-07   3.0311E-07   7.4496E-14   1.4844E+14   1.4844E+14
+  69.77  73.39   5.6619E-07   5.6619E-07   8.8109E-13   4.5813E+14   4.5813E+14
+  63.40  66.58   9.5200E-07   9.5201E-07   6.5213E-12   1.5898E+15   1.5898E+15
+  57.78  60.59   1.1199E-06   1.1199E-06   1.9298E-11   3.6754E+15   3.6754E+15
+  52.85  55.31   1.4376E-06   1.4376E-06   8.5677E-11   8.6057E+15   8.6060E+15
+  48.55  50.70   2.0692E-06   2.0697E-06   4.5984E-10   2.2316E+16   2.2320E+16
+  44.81  46.68   3.0524E-06   3.0551E-06   2.1419E-09   5.6141E+16   5.6175E+16
+  41.57  43.19   4.2016E-06   4.2126E-06   7.4677E-09   1.2411E+17   1.2432E+17
+  38.77  40.17   5.0667E-06   5.0984E-06   1.8523E-08   2.3535E+17   2.3626E+17
+  36.34  37.55   5.4336E-06   5.5033E-06   3.4446E-08   3.8861E+17   3.9148E+17
+  34.23  35.28   5.4230E-06   5.5506E-06   5.2558E-08   5.7541E+17   5.8268E+17
+  32.37  33.30   5.2244E-06   5.4300E-06   7.0067E-08   7.8931E+17   8.0500E+17
+  30.69  31.53   4.9618E-06   5.2665E-06   8.5048E-08   1.0286E+18   1.0590E+18
+  29.14  29.91   4.6932E-06   5.1199E-06   9.6622E-08   1.2951E+18   1.3498E+18
+  27.66  28.40   4.4348E-06   5.0032E-06   1.0334E-07   1.5993E+18   1.6929E+18
+  26.22  26.94   4.2082E-06   4.9428E-06   1.0581E-07   1.9513E+18   2.1063E+18
+  24.81  25.52   3.9986E-06   4.9228E-06   1.0408E-07   2.3583E+18   2.6074E+18
+  23.44  24.13   3.7948E-06   4.9268E-06   9.8869E-08   2.8196E+18   3.2064E+18
+  22.10  22.77   3.5842E-06   4.9135E-06   9.0299E-08   3.3394E+18   3.9189E+18
+  20.80  21.45   3.3272E-06   4.8088E-06   8.0319E-08   3.9072E+18   4.7395E+18
+  19.54  20.17   3.0149E-06   4.5600E-06   7.1024E-08   4.5088E+18   5.6494E+18
+  18.31  18.93   2.6237E-06   4.0997E-06   6.2965E-08   5.1225E+18   6.6084E+18
+  17.12  17.71   2.2134E-06   3.5294E-06   5.6920E-08   5.7203E+18   7.5616E+18
+  15.96  16.54   1.7685E-06   2.8323E-06   4.9519E-08   6.2715E+18   8.4444E+18
+  14.84  15.40   1.3898E-06   2.2094E-06   4.2240E-08   6.7674E+18   9.2327E+18
+  13.76  14.30   1.0821E-06   1.6872E-06   3.4852E-08   7.2085E+18   9.9204E+18
+  12.71  13.23   8.4731E-07   1.2800E-06   2.7878E-08   7.6049E+18   1.0519E+19
+  11.70  12.21   6.6335E-07   9.6421E-07   2.1646E-08   7.9557E+18   1.1029E+19
+  10.72  11.21   4.6640E-07   6.4750E-07   1.4566E-08   8.2353E+18   1.1417E+19
+   9.78  10.25   3.1761E-07   4.2071E-07   9.3092E-09   8.4479E+18   1.1699E+19
+   8.88   9.33   2.0739E-07   2.6246E-07   5.6204E-09   8.6024E+18   1.1894E+19
+   8.00   8.44   1.3950E-07   1.6922E-07   3.5054E-09   8.7186E+18   1.2035E+19
+   7.17   7.58   1.0358E-07   1.2131E-07   2.4507E-09   8.8130E+18   1.2146E+19
+   6.36   6.76   8.5126E-08   9.6820E-08   1.9767E-09   8.8978E+18   1.2242E+19
+   5.59   5.97   7.5373E-08   8.3825E-08   1.7055E-09   8.9779E+18   1.2332E+19
+   4.86   5.23   6.9461E-08   7.5913E-08   1.5584E-09   9.0553E+18   1.2416E+19
+   4.16   4.51   6.5140E-08   7.0179E-08   1.4832E-09   9.1316E+18   1.2498E+19
+   3.49   3.83   6.1565E-08   6.5596E-08   1.4061E-09   9.2060E+18   1.2578E+19
+   2.86   3.18   5.8393E-08   6.1625E-08   1.3077E-09   9.2795E+18   1.2655E+19
+   2.26   2.56   5.5422E-08   5.8042E-08   1.2389E-09   9.3503E+18   1.2729E+19
+   1.70   1.98   5.2690E-08   5.4824E-08   1.1291E-09   9.4181E+18   1.2800E+19
+   1.17   1.44   5.0098E-08   5.1821E-08   1.0222E-09   9.4839E+18   1.2868E+19
+   0.68   0.92   4.7742E-08   4.9149E-08   9.0313E-10   9.5460E+18   1.2932E+19
+   0.23   0.45   4.5587E-08   4.6742E-08   7.9483E-10   9.6037E+18   1.2991E+19
+
+  RETRIEVED VERTICAL PROFILE:
+  Z[km] ZBAR[km] APRIORI_VMR RETRIEVED_VMR  SIGMA_VMR  APRIORI_COL  RETRIEVE_COL
+ 106.00 113.00   1.0448E-10   1.0448E-10   2.2260E-40   2.5849E+08   2.5850E+08
+  94.50 100.25   4.4160E-10   4.4161E-10   3.7675E-34   7.8139E+09   7.8141E+09
+  85.20  89.85   1.1997E-09   1.1999E-09   6.0253E-30   8.5477E+10   8.5487E+10
+  77.00  81.10   2.4299E-09   2.4309E-09   2.2576E-22   5.8290E+11   5.8311E+11
+  69.77  73.39   2.7891E-09   2.7924E-09   8.7355E-17   2.1085E+12   2.1105E+12
+  63.40  66.58   2.8240E-09   2.8321E-09   3.7829E-15   5.4654E+12   5.4771E+12
+  57.78  60.59   2.8475E-09   2.8656E-09   1.0710E-14   1.0768E+13   1.0814E+13
+  52.85  55.31   2.8356E-09   2.8727E-09   3.0068E-14   2.0493E+13   2.0666E+13
+  48.55  50.70   2.7641E-09   2.8324E-09   8.0528E-14   3.8808E+13   3.9434E+13
+  44.81  46.68   2.6297E-09   2.7419E-09   1.8919E-13   6.7950E+13   6.9818E+13
+  41.57  43.19   2.4919E-09   2.6615E-09   4.1061E-13   1.0826E+14   1.1287E+14
+  38.77  40.17   2.4164E-09   2.6616E-09   8.5169E-13   1.6131E+14   1.7131E+14
+  36.34  37.55   2.3820E-09   2.7191E-09   1.6546E-12   2.2850E+14   2.4800E+14
+  34.23  35.28   2.3521E-09   2.7805E-09   2.9477E-12   3.0952E+14   3.4378E+14
+  32.37  33.30   2.3124E-09   2.7781E-09   4.7709E-12   4.0419E+14   4.5752E+14
+  30.69  31.53   2.2617E-09   2.5774E-09   7.0802E-12   5.1326E+14   5.8182E+14
+  29.14  29.91   2.2027E-09   2.3836E-09   9.8089E-12   6.3837E+14   7.1719E+14
+  27.66  28.40   2.1329E-09   2.1958E-09   1.2759E-11   7.8463E+14   8.6777E+14
+  26.22  26.94   2.0421E-09   2.0125E-09   1.5787E-11   9.5546E+14   1.0361E+15
+  24.81  25.52   1.9344E-09   1.8496E-09   1.8820E-11   1.1523E+15   1.2244E+15
+  23.44  24.13   1.8097E-09   1.7175E-09   2.1788E-11   1.3724E+15   1.4332E+15
+  22.10  22.77   1.6643E-09   1.6191E-09   2.4250E-11   1.6137E+15   1.6680E+15
+  20.80  21.45   1.5091E-09   1.5613E-09   2.6213E-11   1.8712E+15   1.9344E+15
+  19.54  20.17   1.3473E-09   1.5333E-09   2.7368E-11   2.1401E+15   2.2404E+15
+  18.31  18.93   1.1726E-09   1.5016E-09   2.7148E-11   2.4144E+15   2.5916E+15
+  17.12  17.71   9.9928E-10   1.4543E-09   2.5846E-11   2.6843E+15   2.9844E+15
+  15.96  16.54   8.1895E-10   1.3471E-09   2.2918E-11   2.9395E+15   3.4043E+15
+  14.84  15.40   6.6580E-10   1.2231E-09   1.9702E-11   3.1771E+15   3.8407E+15
+  13.76  14.30   5.3916E-10   1.0837E-09   1.6456E-11   3.3969E+15   4.2824E+15
+  12.71  13.23   4.2632E-10   9.1195E-10   1.3166E-11   3.5963E+15   4.7090E+15
+  11.70  12.21   3.3091E-10   7.3457E-10   1.0344E-11   3.7713E+15   5.0974E+15
+  10.72  11.21   2.1144E-10   4.7203E-10   6.7127E-12   3.8981E+15   5.3805E+15
+   9.78  10.25   1.2646E-10   2.7835E-10   4.1626E-12   3.9827E+15   5.5668E+15
+   8.88   9.33   6.5336E-11   1.3962E-10   2.2521E-12   4.0314E+15   5.6708E+15
+   8.00   8.44   2.9383E-11   6.0310E-11   1.0536E-12   4.0558E+15   5.7210E+15
+   7.17   7.58   1.2971E-11   2.5603E-11   4.7353E-13   4.0677E+15   5.7444E+15
+   6.36   6.76   6.3700E-12   1.2076E-11   2.2871E-13   4.0740E+15   5.7564E+15
+   5.59   5.97   3.8770E-12   7.1010E-12   1.2850E-13   4.0781E+15   5.7640E+15
+   4.86   5.23   2.9689E-12   5.2727E-12   8.5291E-14   4.0814E+15   5.7698E+15
+   4.16   4.51   2.6369E-12   4.5423E-12   5.8809E-14   4.0845E+15   5.7751E+15
+   3.49   3.83   2.5409E-12   4.2713E-12   3.7864E-14   4.0876E+15   5.7803E+15
+   2.86   3.18   2.5880E-12   4.2452E-12   2.1903E-14   4.0909E+15   5.7856E+15
+   2.26   2.56   2.6903E-12   4.3307E-12   2.2242E-14   4.0943E+15   5.7912E+15
+   1.70   1.98   2.7843E-12   4.4112E-12   3.7925E-14   4.0979E+15   5.7969E+15
+   1.17   1.44   2.7358E-12   4.2619E-12   5.2109E-14   4.1015E+15   5.8025E+15
+   0.68   0.92   2.6040E-12   4.0116E-12   6.0580E-14   4.1049E+15   5.8077E+15
+   0.23   0.45   2.2817E-12   3.4856E-12   6.0394E-14   4.1077E+15   5.8121E+15
+
+.END OF RETRIEVAL.
+ 
+ RDRV: DONE. ELAPSED TIME =    8.0507430000000006     
