@@ -191,7 +191,7 @@ program hbin
    character (len=30)   :: hbfile, hafile
    character (len=200)  :: nam
    character (len=1)    :: pos
-   logical              :: oped, hasc=.FALSE.
+   logical              :: oped, hasc=.TRUE.
    integer              :: iost, dum
 
 ! --- we have beta data for 2 gases and not too many lines (sfit4 v0.9)
