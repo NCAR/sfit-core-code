@@ -8,6 +8,10 @@ module gen_lineshape
 ! Ngo, N.; Lisak, D.; Tran, H. & Hartmann, J.-M. 
 ! An isolated line-shape model to go beyond the Voigt profile in spectroscopic databases and 
 ! radiative transfer codes Journal of Quantitative Spectroscopy and Radiative Transfer , 2013, -
+! Erratum to:Efficient computation of some speed-dependent isolated line profiles.
+! J Quant Spectrosc Radiat Transfer 
+! 2013;129:199???203
+! H. Tran, N.H. Ngo, J.-M. Hartmann
 
 contains
   subroutine pCqSDHC(sg0,GamD,Gam0,Gam2,Shift0,Shift2,anuVC,eta,&
