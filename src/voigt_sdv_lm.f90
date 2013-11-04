@@ -323,8 +323,8 @@
 ! c
 ! for the given set of conditions).
 
-   subroutine voigtmix(nu, vgtmix)
-     real(double) :: nu, vgtmix
+   subroutine voigtmix(nu, vgtmix_r, vgtmix_i)
+     real(double) :: nu, vgtmix_r, vgtmix_i
 
      real(double), dimension(2) :: denon1,numer1,nummix1
      real(double), dimension(4) :: denon2,numer2,nummix2
@@ -344,7 +344,9 @@
         !c Voigt profile
         zv = humlicek1(nu,denon1,numer1)
         !c Voigt with line mixing
-        vgtmix = zv + mixval*mixing1(nu,denon1,nummix1)
+!        vgtmix = zv + mixval*mixing1(nu,denon1,nummix1)
+        vgtmix_r = zv
+        vgtmix_i = mixing1(nu,denon1,nummix1)
      endif
      if(zz .lt. 15.d0 .and. zz .ge. 5.5) then
         call newy2(y_keep,denon2,numer2)
@@ -352,7 +354,9 @@
         !c Voigt profile
         zv = humlicek2(nu,denon2,numer2)
         !c Voigt with line mixing
-        vgtmix = zv + mixval*mixing2(nu,denon2,nummix2)
+!        vgtmix = zv + mixval*mixing2(nu,denon2,nummix2)
+        vgtmix_r = zv
+        vgtmix_i = mixing2(nu,denon2,nummix2)
      endif
      if(zz .lt. 5.5d0 .and. y_keep .ge. z1) then
         call newy3(y_keep,denon3,numer3)
@@ -360,7 +364,9 @@
         !c Voigt profile
         zv = humlicek3(nu,denon3,numer3)
         !c Voigt with line mixing
-        vgtmix = zv + mixval*mixing3(nu,denon3,nummix3)
+!        vgtmix = zv + mixval*mixing3(nu,denon3,nummix3)
+        vgtmix_r = zv
+        vgtmix_i = mixing3(nu,denon3,nummix3)
      endif
      if(zz .lt. 5.5d0 .and. y_keep .lt. z1) then
         call newy4(y_keep,denon4,numer4)
@@ -370,10 +376,12 @@
         !c Voigt profile
         zv = humlicek4(nu,yy,y2,denon4,numer4)
         !c Voigt with line mixing
-        vgtmix = zv + mixval*mixing4(nu,yy,y2,denon4,nummix4)
+!        vgtmix = zv + mixval*mixing4(nu,yy,y2,denon4,nummix4)
+        vgtmix_r = zv
+        vgtmix_i = mixing4(nu,yy,y2,denon4,nummix4)
      endif
 
-     vgtmix = normalize*vgtmix
+!     vgtmix = normalize*vgtmix
      return
    end subroutine voigtmix
 !c-----------------------------------------------voigtmix

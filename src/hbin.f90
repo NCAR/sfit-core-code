@@ -351,8 +351,7 @@ program hbin
          ind = lmx(ifl)%n
          lmx(ifl)%g2_air(ind) = 0.0D0
          read( buf, 119 ) lmx(ifl)%mo(ind), lmx(ifl)%is(ind), lmx(ifl)%qa(ind)
-         read (buf(64:), '(g10.4,1x,g10.4,1x,g10.4)') lmx(ifl)%lm_air(ind), &
-              lmx(ifl)%lm_t1(ind), lmx(ifl)%lm_t2(ind)
+         read (buf(63:), *) lmx(ifl)%lm_t1(ind), lmx(ifl)%lm_t2(ind), lmx(ifl)%lm_air(ind)
 
          lmx(ifl)%n = lmx(ifl)%n + 1
 
@@ -461,8 +460,8 @@ program hbin
                      if (qu_equal(hlp(ldx)%qa, lmx(ifl)%qa(i))) then
                         hlp(ldx)%ylm = lmx(ifl)%lm_air(i)
                         hlp(ldx)%lmtk1 = lmx(ifl)%lm_t1(i) 
-                        hlp(ldx)%lmtk2 = lmx(ifl)%lm_t2(i) 
-                        write( hfl(ldx)%buf(220:280), 1121 ) hlp(ldx)%lmtk1, hlp(ldx)%lmtk2, hlp(ldx)%ylm  
+                        hlp(ldx)%lmtk2 = lmx(ifl)%lm_t2(i)
+                        write( hfl(ldx)%buf(220:280), 1121 ) hlp(ldx)%lmtk1, hlp(ldx)%lmtk2, hlp(ldx)%ylm
                         hlp(ldx)%flag(LM_FLAG) = .TRUE.
                         dum = flagoff + LM_FLAG
                         write( hfl(ldx)%buf(dum:dum), '(l1)' ) .TRUE.
@@ -598,7 +597,7 @@ stop
 !116 format( a,4i4,f8.4,2f14.6)
 117 format(/, i5, a, i5)
 !118 format( 3i5,i10,f12.5,2x,a)
-119 format( i2,i1,a15,a15,a15,a15 )
+119 format( i2,i1,a60 )
 
 end program hbin
 
@@ -606,7 +605,7 @@ function qu_equal(quanta1, quanta2)
   ! compares quanta1 and quanta2 field in HITRAN 2004 format, retruns T if they are equal
   ! until now, only string compare, may get more complicated though
   implicit none
-  character :: quanta1, quanta2
+  character (len=*), intent(in):: quanta1, quanta2
   logical :: qu_equal
 
   qu_equal = .false.
