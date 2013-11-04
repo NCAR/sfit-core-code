@@ -183,15 +183,6 @@
                END IF
 
 
-               LM = 0.0D0
-               IF (HFLAG(N,LM_FLAG) ) THEN 
-                     LMTVAL = (T(K) - 260.0D0) / 60.0D0 ! LM-REF TEMPERATURES: 200/260/320 K
-                     LM = YLM(N) * (1.0D0 + LMTVAL *(LMTK1(N) + LMTVAL * LMTK2(N)))
-                     LM = LM*P(K)
-                     print *, LMTK1(N), LMTK2(N), YLM(N), LMTVAL, LM
-!                     LM = YLM(N) * P(K) *(STDTEMP/T(K))**TDLIN(N)
-               end IF
-
                ALOR = (ACOFB + SCOFB)*(STDTEMP/T(K))**TDLIN(N)
                ADOP = RFACTOR*SQRT(T(K)/GMASS(N))*AZERO(N)
 
@@ -199,12 +190,24 @@
 
                AKZERO = SSL/ADOP*ALOGSQ/PISQ
 
+               LM = 0.0D0
+               ! LINE MIXING PARAMETRIZATION ACCORDING TO FRANK HASE.  FOR CO2 ONLY?
+               IF (HFLAG(N,LM_FLAG) ) THEN 
+                     LMTVAL = (T(K) - 260.0D0) / 60.0D0 ! LM-REF TEMPERATURES: 200/260/320 K
+                     LM = YLM(N) * (1.0D0 + LMTVAL *(LMTK1(N) + LMTVAL * LMTK2(N)))
+!                     print *, LM, LM*P(K), LM*P(K)/ADOP*ALOGSQ
+                     LM = LM*P(K)!*(1.0d0/ADOP*ALOGSQ/PISQ)
+!                     LM = YLM(N) * P(K) *(STDTEMP/T(K))**TDLIN(N)
+               end IF
+
+
+
                IF( HFLAG(N,FCIA_FLAG) )AKZERO=AKZERO*(1.0D0 - XGAS(IMOL,K))*PMASMX(K)
                IF( HFLAG(N,SCIA_FLAG) )AKZERO=AKZERO*XGAS(IMOL,K)*PMASMX(K)
 
                YDUM = ALOGSQ*ALOR/ADOP
 
-               if (.not.genlineshape) then
+!               if (.not.genlineshape) then
                   ! SPEED DEPENDENT VOIGT - BOONE 2011
                   SDVLM_PARAM(1:4) = 0.0D0
                   SDVLM_PARAM(2) = (ACOFB + SCOFB)   ! PRESSURE BROADENING FOR VOIGT
@@ -217,6 +220,7 @@
                   IF (HFLAG(N,LM_FLAG)) THEN
                      LMTVAL = (T(K) - 260.0D0) / 60.0D0 ! LM-REF TEMPERATURES: 200/260/320 K
                      SDVLM_PARAM(4) = YLM(N) * (1.0D0 + LMTVAL *(LMTK1(N) + LMTVAL * LMTK2(N)))
+!                     print *, AZERO(N), LMTK1(N), LMTK2(N), YLM(N), SDVLM_PARAM(4)*P(K)
                   END IF
                   
 ! --- CHECK FOR ZERO PARAMETERS IN SVD_PARAM ESPECIALLY 1 (GAMMA2) MUST BE NON ZERO IF THIS IS NOT THE CASE,
@@ -232,7 +236,7 @@
                   IF ( HFLAG(N,SDV_FLAG) .OR. HFLAG(N,LM_FLAG) )THEN
                      CALL SDV_MISC(ALOGSQ/ADOP, STDTEMP/T(K), P(K), TDLIN(N), SDVLM_PARAM)
                   ENDIF
-               end if
+ !              end if
                DO I = 1, NRET
                   IF (LGAS(N) /= IRET(I)) CYCLE
                   NPOINT = I
@@ -256,8 +260,8 @@
                   AKV = AKZERO * AKV
                ELSEIF(.not.genlineshape.and.HFLAG(N,LM_FLAG)) THEN
                   ! VOIGT WITH LINE MIXING 
-                  CALL VOIGTMIX(XDUM*ADOP/ALOGSQ,AKV)
-                  AKV = AKZERO * AKV
+                  CALL VOIGTMIX(XDUM*ADOP/ALOGSQ,AKV_R, AKV_I)
+                  AKV = AKZERO * (AKV_R +SDVLM_PARAM(4)*AKV_I) 
                ELSEIF(.not.genlineshape) THEN
                   ! VOIGT WITHOUT LINEMIXING
                   AKV = AKZERO * VOIGT(XDUM,YDUM)
@@ -304,17 +308,25 @@
                      AKV = AKZERO * AKV
                   ELSEIF(.not.genlineshape.and.HFLAG(N,LM_FLAG)) THEN
                      ! VOIGT WITH LINE MIXING 
-                     CALL VOIGTMIX(XDUM*ADOP/ALOGSQ,AKV)
-                     AKV = AKZERO * AKV
+                     CALL VOIGTMIX(XDUM*ADOP/ALOGSQ,AKV_R, AKV_I)
+                     AKV = AKZERO * (AKV_R +SDVLM_PARAM(4)*P(K)*AKV_I) 
                   ELSEif(.not.genlineshape) THEN
                      ! VOIGT WITHOUT LINEMIXING
                      XDUM = ABS(XDUM)
                      AKV  = AKZERO*VOIGT(XDUM,YDUM)
                   else
+!                     XDUM = ABS(XDUM)
+!                     print *, 'VOIGT', AKZERO*VOIGT(XDUM,YDUM)
+!                     CALL VOIGTMIX(XDUM*ADOP/ALOGSQ,AKV_R, AKV_I)
+!                     print *, 'VOIGTMIX', AKZERO*AKV_R, AKZERO*AKV_I
                      call pCqSDHC(WLIN,ADOP,ALOR,G2,S0,S2,ANUVC,0.0D0,&
                        ANUZ,AKV_R,AKV_I)
+!                     if (LM.gt.tiny(LM)) then
+!                        print *, WLIN, AKZERO*AKV, SSL*(AKV_R + LM*AKV_I)
+!                     end if
                      AKV = SSL*(AKV_R + LM*AKV_I)! ALL OTHER PARTS OF AKZERO ARE ALREADY PART OF 
                                                  ! AKV_R AND AKV_I
+!                     print *, 'pCqSDHC', SSL*AKV_R, SSL*AKV_I, LM
                   ENDIF
                   CROSS(NPOINT,K,J+INDXX) = CROSS(NPOINT,K,J+INDXX) + AKV*OPTMAX
 !                  print*, j, k, CROSS(NPOINT,K,J+INDXX)

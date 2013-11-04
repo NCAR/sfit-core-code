@@ -165,7 +165,12 @@ contains
          eta*C2*Bterm))
     
     LS_pCqSDHC_R=dreal(LS_pCqSDHC)
-    LS_pCqSDHC_I=dimag(LS_pCqSDHC)
+    ! negative, see 
+    ! Erratum to:Efficient computation of some speed-dependent isolated line profiles.
+    ! J Quant Spectrosc Radiat Transfer 
+    ! 2013;129:199???203
+    ! H. Tran, N.H. Ngo, J.-M. Hartmann
+    LS_pCqSDHC_I=-dimag(LS_pCqSDHC)
     
     
     Return
