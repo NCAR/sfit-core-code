@@ -76,7 +76,7 @@ contains
     c2=dcmplx(Gam2,-Shift2)
     c0t=(1.d0-eta)*(c0-1.5d0*c2)+anuVC
     c2t=(1.d0-eta)*c2
-!	
+! Change from original in order to avoid division by zero.	
     if (cdabs(C2t).le.tiny(0.d0)) go to 110
     Y=1.d0/((2.d0*cte*C2t))**2
     X=(iz*(sg-sg0)+c0t)/c2t
