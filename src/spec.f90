@@ -312,31 +312,33 @@ subroutine calcsnr( wavs, amps, npfile, wlim1, wlim2, spac, opdmax, nterp, noise
    if( nterp .eq. 0 )then
       allocate( outspec( np ))
       outspec = amps(iil:iih)
+      iil = 1
+      iih = np
    else
       print*,'Resample snr region...'
       opdm = opdmax
       dnue = spac
       wstart = wavs(iil)
       call sincinterp( amps(iil:iih), outspec, np, wstart, dnue, opdm, nterp )
-   endif
 
-   ! get back the snr sub-region
-   iil = 0
-   do i=1, np
-      if( (i-1)*dnue + wstart .gt. psnr(1,k) )then
-         iil = i -1
-         exit
-      endif
-   enddo
-   if( iil .eq. 0 )stop 2
-   iih = 0
-   do i=iil, np
-      if( (i-1)*dnue + wstart .gt. psnr(2,k) )then
-         iih = i -1
-         exit
-      endif
-   enddo
-   if( iih .eq. 0 )stop 3
+      ! get back the snr sub-region
+      iil = 0
+      do i=1, np
+         if( (i-1)*dnue + wstart .gt. psnr(1,k) )then
+            iil = i -1
+            exit
+         endif
+      enddo
+      if( iil .eq. 0 )stop 2
+      iih = 0
+      do i=iil, np
+         if( (i-1)*dnue + wstart .gt. psnr(2,k) )then
+            iih = i -1
+            exit
+         endif
+      enddo
+      if( iih .eq. 0 )stop 3
+   endif
 
    np = iih-iil+1
    mean = sum(outspec(iil:iih)) / real( np, 8 )
