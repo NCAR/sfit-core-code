@@ -349,7 +349,7 @@ subroutine calcsnr( wavs, amps, npfile, wlim1, wlim2, spac, opdmax, nterp, noise
       enddo
       if( iih .eq. 0 )stop 3
       np = iih-iil+1
-      allocate( outspec( np ))
+
       outspec = amps(iil:iih)
    endif
 
@@ -375,9 +375,9 @@ subroutine calcsnr( wavs, amps, npfile, wlim1, wlim2, spac, opdmax, nterp, noise
 
    ! remove polynomial from noise window
    B(:) = B(:) - matmul(X,A)
-!   do i = 1,np
-!      write(10,*)  wavs(iil)+real(i-1)*spac, outspec(i) - mean, B(i) 
-!   end do
+   do i = 1,np
+      write(10,*)  wavs(iil)+real(i-1)*spac, outspec(i) - mean, B(i) 
+   end do
 !  no polynomial fitted to noise window
 !   noise = sqrt(dot_product(outspec(1:np)-mean, outspec(1:np)-mean) / real( np, 8 ) )
    noise = sqrt(dot_product(B(:), B(:)) / real( np, 8 ) )
