@@ -54,7 +54,7 @@ read (buffer,*) nspec
 call read_ctrl()
 
 ! open output file
-open(unit=20, file='t15asc.4', status='unknown', err=555)
+open(unit=20, file=tfile(15), status='unknown', err=555)
 
 ! loop over (# of spectra) x (# of windows)
 m = 0
