@@ -54,9 +54,16 @@ contains
              tfile(10) = trim(adjustl(value))
           case ('refprofile')
              tfile(72) = trim(adjustl(value))
-       end select
-
-   elseif( trim(adjustl(keyword(2))) .eq. 'out' )then
+          case default
+             WRITE(16,*) 'BINPUT_PARSE_4_0:READ_FILE_SECTION: Key ', &
+                  trim(keyword(3)), ' not contained in section file.in'
+             WRITE( 0,*) 'BINPUT_PARSE_4_0:READ_FILE_SECTION: Key ', &
+                  trim(keyword(3)), ' not contained in section file.in'
+             CALL SHUTDOWN
+             STOP 1
+          end select
+          
+       elseif( trim(adjustl(keyword(2))) .eq. 'out' )then
 
        select case(trim(adjustl(keyword(3))))
           case ('solarspectrum')
@@ -97,11 +104,24 @@ contains
              TFILE(83) = trim(adjustl(value))
           case ('kb_matrix')
              TFILE(90) = trim(adjustl(value))
-       end select
-
+          case default
+             WRITE(16,*) 'BINPUT_PARSE_4_0:READ_FILE_SECTION: Key ', &
+                  trim(keyword(3)), ' not contained in section file.out'
+             WRITE( 0,*) 'BINPUT_PARSE_4_0:READ_FILE_SECTION: Key ', &
+                  trim(keyword(3)), ' not contained in section file.out'
+             CALL SHUTDOWN
+             STOP 1
+          end select
+       else
+       WRITE(16,*) 'BINPUT_PARSE_4_0:READ_FILE_SECTION: Key ', &
+            trim(keyword(2)), ' not contained in section file'
+       WRITE( 0,*) 'BINPUT_PARSE_4_0:READ_FILE_SECTION: Key ', &
+            trim(keyword(2)), ' not contained in section file'
+       CALL SHUTDOWN
+       STOP 1
     endif
-
-  end subroutine read_file_section
+ 
+end subroutine read_file_section
 
 
   subroutine read_gas_section(keyword, value)
