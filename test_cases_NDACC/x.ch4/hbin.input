@@ -1,10 +1,14 @@
 # Input file for hbin
+<<<<<<< HEAD
 #
 # this reads lines delivered with the ggg version 20120409
 #
 # latest tested version: d0.9.4.1 20130701
 # latest tested version: d0.9.2 20130502
 # first tested version: b3.999 beta
+=======
+# latest tested version: b3.999 beta p1.5 20130304 v0.9 1may13
+>>>>>>> BugFix_Mathias
 #
 # these lines are comments and can be anywhere
 #
@@ -30,7 +34,11 @@
 # 049_O2CIA/o2cia_20060420.101 - this file is a special case, molid & isotope
 #  ids are dealt with differently
 #
+<<<<<<< HEAD
 001_H2O/001_H2Oall.atm.20120409
+=======
+001_H2O/01_hit09.par
+>>>>>>> BugFix_Mathias
 002_CO2/02_hit08_f53.par
 003_O3/03_hit08.par
 004_N2O/04_hit08.par
@@ -134,6 +142,7 @@
 # Galatry parameters
 # molecule id numbers in these files have to match the sfit molecule id
 2
+<<<<<<< HEAD
 #
 014_HF/14_hit12_Galatry.txt
 015_HCL/15_hit12_Galatry.txt
@@ -152,3 +161,17 @@
 #
 #
 ! end of file
+=======
+014_HF/hf_galatry.txt
+015_HCL/hcl_galatry.txt
+#
+#
+# CO2 Line mixing parameters for Boone implementation
+1
+002_CO2/co2_lm.dat
+#
+#
+# Speed Dependent Voigt parameter files --- not yet!
+0
+! end of file
+>>>>>>> BugFix_Mathias

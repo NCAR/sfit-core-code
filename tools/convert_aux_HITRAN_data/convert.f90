@@ -46,6 +46,10 @@ program convert
   close(10)
   close(20)
   
+<<<<<<< HEAD
 701 format(i3,a15,a15,a15,a15,e10.4,1x,e10.4,1x,e10.4)
+=======
+701 format(i3,a15,a15,a15,a15,f10.4,f10.4,f10.4)
+>>>>>>> BugFix_Mathias
 801 format(I3,F12.6,E10.3,E10.3,F6.5,F4.3,F10.4,F4.2,F8.6,a15,a15,a15,a15,a160)  ! HIT 08 format
 end program convert

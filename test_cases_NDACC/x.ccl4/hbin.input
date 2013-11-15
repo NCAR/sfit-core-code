@@ -25,8 +25,13 @@
 # 049_O2CIA/o2cia_20060420.101 - this file is a special case, molid & isotope
 #  ids are dealt with differently
 #
+<<<<<<< HEAD
 001_H2O/001_H2Oall.atm.20120409 
 002_CO2/02_hit12.par 
+=======
+001_H2O/001_H2O.atm.20120409 
+002_CO2/02_hit08_f53.par
+>>>>>>> BugFix_Mathias
 003_O3/03_hit12.par
 004_N2O/04_hit08.par
 005_CO/05_hit08.par
@@ -135,9 +140,17 @@
 #
 # CO2 Line mixing parameters for Boone implementation
 1
+<<<<<<< HEAD
 002_CO2/02_hase_lm.dat
+=======
+002_CO2/co2_lm.dat
+>>>>>>> BugFix_Mathias
 #
 #
 # Speed Dependent Voigt parameter files --- not yet!
 0
+<<<<<<< HEAD
 ! end of file
+=======
+! end of file
+>>>>>>> BugFix_Mathias

@@ -129,8 +129,13 @@
 # Galatry parameters
 # molecule id numbers in these files have to match the sfit molecule id
 2
+<<<<<<< HEAD
 014_HF/14_hit12_Galatry.txt
 015_HCL/15_hit12_Galatry.txt
+=======
+014_HF/hf_galatry.txt
+015_HCL/hcl_galatry.txt
+>>>>>>> BugFix_Mathias
 #
 #
 # CO2 Line mixing parameters for Boone implementation

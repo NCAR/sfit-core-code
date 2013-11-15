@@ -66,11 +66,19 @@ rt.convergence = 0.01
 rt.tolerance = 0.050 
 rt.max_iteration = 30 
 rt.dwshift = F 
+<<<<<<< HEAD
 rt.wshift = T 
 rt.wshift.type = 3 
 rt.wshift.apriori = 0.000 
 rt.wshift.sigma = 0.100 
 rt.slope = T
+=======
+rt.wshift = F 
+rt.wshift.type = 3 
+rt.wshift.apriori = 0.000 
+rt.wshift.sigma = 0.100 
+rt.slope = F 
+>>>>>>> BugFix_Mathias
 rt.slope.apriori = 0.000 
 rt.slope.sigma = 0.100 
 rt.curvature = F 
@@ -94,19 +102,34 @@ rt.solstrnth.sigma = 0.500
 rt.temperature = F 
 kb = T 
 kb.temperature = T
+<<<<<<< HEAD
 kb.slope = T
 kb.curvature = T 
 kb.solshft = T
 kb.solstrnth = T 
 kb.phase = T
+=======
+kb.slope = F
+kb.curvature = T 
+kb.solshft = F
+kb.solstrnth = F 
+kb.phase = F
+>>>>>>> BugFix_Mathias
 kb.dwshift = F 
 kb.wshift = F 
 kb.apod_fcn = F 
 kb.phase_fcn = F 
+<<<<<<< HEAD
 kb.zshift = T
 kb.sza = T
 kb.omega = T 
 kb.max_opd = T 
+=======
+kb.zshift = F 
+kb.sza = F
+kb.omega = F 
+kb.max_opd = F 
+>>>>>>> BugFix_Mathias
 kb.line = F 
 kb.line.type = 1 
 kb.line.gas = CH4 

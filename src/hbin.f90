@@ -861,7 +861,7 @@ subroutine read_input( wstr, wstp, HFL, GLP, LFL, SDV )
  !     if( wavnum .lt. wstr )goto 20
  !     if( wavnum .gt. wstp )goto 20
       goto 21
-     
+
       ! --- no lines in this region
    20 close( lun )
       gnml   = gnml - 1
