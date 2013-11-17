@@ -8,7 +8,7 @@
  file.in.phase_fcn                   = ils.dat
  file.in.sa_matrix                   = sa.input
  file.in.isotope                     = isotope.input
- file.in.solarlines                  = /Users/jamesw/FDP/sfit/400/sfit-core/linelist/solar/120621/solar.dat
+ file.in.solarlines                  = ../../linelist/solar/120621/solar.dat
  file.in.linelist                    = ./02723.588856-02930.241144.hbin
 
  file.out.pbpfile                    = pbpfile
