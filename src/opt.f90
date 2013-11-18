@@ -227,9 +227,9 @@
 ! ITERATION LOOP
 !
       WRITE(16,26) SNR, N, M
-      WRITE(0,26) SNR, N, M
+      WRITE(6,26) SNR, N, M
 
-      WRITE(0,313) 'ITER', 'RMS', 'GAMMA','CHI_2_X','CHI_2_Y','CHI_2','CHI_2_OLD','D_CHI_2'
+      WRITE(6,313) 'ITER', 'RMS', 'GAMMA','CHI_2_X','CHI_2_Y','CHI_2','CHI_2_OLD','D_CHI_2'
 
    10 CONTINUE
       ITER = ITER + 1
@@ -350,8 +350,8 @@
       RMSDY = DOT_PRODUCT(DY(:M),DY(:M))
       RMSDY = SQRT(RMSDY/M)
       IF(( ITER .GT. 1 ) .AND.(( RMSDY-RMSIM1 ) > 2*RMSDELY ))THEN
-         WRITE (*, *) RMSDY, RMSIM1, RMSDELY
-         WRITE (*, *) 'THREAT OF DIVERGENCE AFTER', ITER, ' ITERATIONS'
+         WRITE(6, *) RMSDY, RMSIM1, RMSDELY
+         WRITE(6, *) 'THREAT OF DIVERGENCE AFTER', ITER, ' ITERATIONS'
          DIVWARN = .TRUE.
       ENDIF
 
@@ -497,7 +497,7 @@
          IF( F_LM )THEN
             XNP1(:N) = XN_OLD(:N)
          END IF
-         WRITE(0, 307) ITER
+         WRITE(6,307) ITER
          SNR = SQRT(SUM(SEINV(:M))/M)
          CONVERGE = .FALSE.
          GO TO 20

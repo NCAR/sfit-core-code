@@ -1,9 +1,6 @@
 module spec
 
-use matrix
-
 implicit none
-
 
 integer       (4) :: nsnr
 real          (8) :: psnr(2,100)
@@ -274,12 +271,9 @@ subroutine calcsnr( wavs, amps, npfile, wlim1, wlim2, spac, opdmax, nterp, noise
    real      (8), intent(in)   :: wavs(npfile), spac, opdmax, wlim1, wlim2
    real      (4), intent(in)   :: amps(npfile)
    real      (4), dimension(:), allocatable :: outspec
-   real      (8), dimension(:), allocatable :: A, B
-   real      (8), dimension(:,:), allocatable :: X, XIT, XINV
-   integer   (4)               :: i, j, k, iil, iih, np, order
+   integer   (4)               :: i, k, iil, iih, np
    integer   (4), dimension(1) :: ilow, ihi
-   real      (8)               :: noise, mind, mean, wstart, dnue, opdm, w1, w2, determ
-
+   real      (8)               :: noise, mind, mean, wstart, dnue, opdm, w1, w2
 
 
    ! get snr nearest to our mw
@@ -293,14 +287,8 @@ subroutine calcsnr( wavs, amps, npfile, wlim1, wlim2, spac, opdmax, nterp, noise
    enddo
 
    ! get the spectra in this region +- 1 wavenumber more
-   if (nterp.gt.0) then
-      ! no resampling
-      w1 = psnr(1,k)-3.
-      w2 = psnr(2,k)+3.
-   else
-      w1 = psnr(1,k)
-      w2 = psnr(2,k)
-   end if
+   w1 = psnr(1,k)-3.
+   w2 = psnr(2,k)+3.
    ilow = minloc(( wavs-w1 ), mask=((wavs-w1) > 0.0D0))
    ihi  = minloc(( wavs-w2 ), mask=((wavs-w2) > 0.0D0))
    iil = ilow(1) - 1
@@ -322,66 +310,41 @@ subroutine calcsnr( wavs, amps, npfile, wlim1, wlim2, spac, opdmax, nterp, noise
    ! nterp >  1 - interpolate nterp-1 points
 
    if( nterp .eq. 0 )then
+      if( allocated ( outspec ))deallocate( outspec )
       allocate( outspec( np ))
       outspec = amps(iil:iih)
+      dnue = spac
+      wstart = wavs(iil)
    else
       print*,'Resample snr region...'
       opdm = opdmax
       dnue = spac
       wstart = wavs(iil)
       call sincinterp( amps(iil:iih), outspec, np, wstart, dnue, opdm, nterp )
-
-      ! get back the snr sub-region
-      iil = 0
-      do i=1, np
-         if( (i-1)*dnue + wstart .gt. psnr(1,k) )then
-            iil = i -1
-            exit
-         endif
-      enddo
-      if( iil .eq. 0 )stop 2
-      iih = 0
-      do i=iil, np
-         if( (i-1)*dnue + wstart .gt. psnr(2,k) )then
-            iih = i -1
-            exit
-         endif
-      enddo
-      if( iih .eq. 0 )stop 3
-      np = iih-iil+1
-
-      outspec = amps(iil:iih)
    endif
 
+   ! get back the snr sub-region
+   iil = 0
+   do i=1, np
+      !print*, dnue, wstart, psnr(1,k)
+      if( (i-1)*dnue + wstart .gt. psnr(1,k) )then
+         iil = i -1
+         exit
+      endif
+   enddo
+   if( iil .eq. 0 )stop 2
+   iih = 0
+   do i=iil, np
+      if( (i-1)*dnue + wstart .gt. psnr(2,k) )then
+         iih = i -1
+         exit
+      endif
+   enddo
+   if( iih .eq. 0 )stop 3
 
-
-
-! fit <order> order polynomial to spectrum
-! see http://mathworld.wolfram.com/LeastSquaresFittingPolynomial.html
-
-!   construct matrix X
-   order = 4 ! more than 4 does not to be sensible
-   allocate(X(np,order), XIT(order,order), XINV(order,order), A(order), B(np))
-   do i = 0,order-1
-      X(:, i+1) = (/ (j**i, j=1,np) /)
-   end do
-!     
-   mean = sum(outspec(1:np)) / real( np, 8 )
-
-   B(1:np) = outspec(1:np) - mean
-   XIT = matmul(transpose(X),X)
-   call invrt(XIT, XINV,order)
-   A = matmul(matmul(XINV,transpose(X)),B)
-
-   ! remove polynomial from noise window
-   B(:) = B(:) - matmul(X,A)
-   do i = 1,np
-      write(10,*)  wavs(iil)+real(i-1)*spac, outspec(i) - mean, B(i) 
-   end do
-!  no polynomial fitted to noise window
-!   noise = sqrt(dot_product(outspec(1:np)-mean, outspec(1:np)-mean) / real( np, 8 ) )
-   noise = sqrt(dot_product(B(:), B(:)) / real( np, 8 ) )
-   deallocate(X,XIT,XINV, A, B)
+   np = iih - iil +1
+   mean = sum(outspec(iil:iih)) / real( np, 8 )
+   noise = sqrt(dot_product(outspec(iil:iih)-mean, outspec(iil:iih)-mean) / real( np, 8 ) )
 
    write(6,101) '   points in snr region     : ', np
    write(6,102) '   mean signal              : ', mean
