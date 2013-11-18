@@ -310,6 +310,7 @@ subroutine calcsnr( wavs, amps, npfile, wlim1, wlim2, spac, opdmax, nterp, noise
    ! nterp >  1 - interpolate nterp-1 points
 
    if( nterp .eq. 0 )then
+      if( allocated ( outspec ))deallocate( outspec )
       allocate( outspec( np ))
       outspec = amps(iil:iih)
       dnue = spac
