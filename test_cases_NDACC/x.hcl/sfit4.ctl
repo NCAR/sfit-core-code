@@ -5,7 +5,7 @@
  file.in.refprofile             = reference.prf
  file.in.spectrum               = spectrum
  file.in.isotope                = isotope.input
- file.in.solarlines             = /home/mathias/linelist/solar/120621/solar.dat
+ file.in.solarlines             = ../../linelist/solar/120621/solar.dat
  file.in.linelist               = 02723.671422-02930.058578.hbin
  file.out.ak_matrix             = ak.target
  file.out.ab_matrix             = AB.out
