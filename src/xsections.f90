@@ -251,7 +251,7 @@
                   ! SDV WITH OR WITHOUT LINE MIXING (Boone) 
                   CALL SDVMIX(XDUM*ADOP/ALOGSQ,AKV)
                   AKV = AKZERO * AKV
-               ELSEIF(LSHAPEMODEL.NE.3.AND.HFLAG(N,LM_FLAG)) THEN
+               ELSEIF(LSHAPEMODEL.EQ.3.AND.HFLAG(N,LM_FLAG)) THEN
                   ! VOIGT WITH LINE MIXING (Boone) 
                   CALL VOIGTMIX(XDUM*ADOP/ALOGSQ,AKV_R, AKV_I)
                   AKV = AKZERO * (AKV_R +SDVLM_PARAM(4)*AKV_I) 
@@ -295,19 +295,19 @@
                DO J = JSTART, JSTOP
                   ANUZ = WMON(IBAND) + (J - 1)*DN(IBAND)
                   XDUM = ALOGSQ*(ANUZ - WLIN)/ADOP
-                  IF (LSHAPEMODEL.NE.2.AND.HFLAG(N,GALATRY_FLAG)) THEN
+                  IF (LSHAPEMODEL.EQ.2.AND.HFLAG(N,GALATRY_FLAG)) THEN
 !                  IF (HFLAG(N,GALATRY_FLAG)) THEN
                      XDUM = ABS(XDUM)
                      AKV  = AKZERO*GALATRY(XDUM,YDUM,GZ)
-                  ELSEIF(LSHAPEMODEL.NE.3.AND.HFLAG(N,SDV_FLAG)) THEN
+                  ELSEIF(LSHAPEMODEL.EQ.3.AND.HFLAG(N,SDV_FLAG)) THEN
                      ! SDV WITH OR WITHOUT LINE MIXING 
                      CALL SDVMIX(XDUM*ADOP/ALOGSQ,AKV)
                      AKV = AKZERO * AKV
-                  ELSEIF(LSHAPEMODEL.NE.3.AND.HFLAG(N,LM_FLAG)) THEN
+                  ELSEIF(LSHAPEMODEL.EQ.3.AND.HFLAG(N,LM_FLAG)) THEN
                      ! VOIGT WITH LINE MIXING 
                      CALL VOIGTMIX(XDUM*ADOP/ALOGSQ,AKV_R, AKV_I)
                      AKV = AKZERO * (AKV_R +SDVLM_PARAM(4)*P(K)*AKV_I) 
-                  ELSEif(LSHAPEMODEL.NE.1) THEN
+                  ELSEif(LSHAPEMODEL.EQ.1) THEN
                      ! VOIGT WITHOUT LINEMIXING
                      XDUM = ABS(XDUM)
                      AKV  = AKZERO*VOIGT(XDUM,YDUM)
