@@ -10,7 +10,7 @@ module hitran
 
    implicit none
 
-   integer, parameter     :: nhit=99, ngal=2, ncia=2, nglines=64, flagoff=280
+   integer, parameter     :: nhit=99, ngal=2, ncia=2, nglines=100000, flagoff=280
    integer, parameter     :: nlmx=1, nsdv=1, nlmlines=100000, nsdlines=100000
    real(8), parameter     :: weps = 1.0d-6
    integer                :: hnml, gnml, lnml, snml
@@ -26,7 +26,7 @@ module hitran
    type, public :: galatrydata
       integer            :: n          ! number of data lines / file(gas)
       integer            :: lun        ! unit for this file
-      character (len=64) :: buf        ! read buffer
+      character (len=255) :: buf        ! read buffer
       integer            :: mo(nglines)    ! mol id
       integer            :: is(nglines)    ! isotope id #
       real(8)            :: nu(nglines)    ! wavenumber
@@ -39,13 +39,13 @@ module hitran
       real(8)            :: g0_air(nglines)
       real(8)            :: td_g0_air(nglines)
       real(8)            :: beta(nglines)
-      real(8)            :: g0_self(nglines)
-      real(8)            :: s_air(nglines)
-      real(8)            :: g2_air(nglines)
-      real(8)            :: ts_air(nglines)
-      real(8)            :: lm_air(nglines) ! line mixing coefficients
-      real(8)            :: lm_t1(nglines)  ! extra parameters of F. Hase to model 
-      real(8)            :: lm_t2(nglines)  ! temperature dependency
+      real(4)            :: g0_self(nglines)
+      real(4)            :: s_air(nglines)
+      real(4)            :: g2_air(nglines)
+      real(4)            :: ts_air(nglines)
+      real(4)            :: lm_air(nglines) ! line mixing coefficients
+      real(4)            :: lm_t1(nglines)  ! extra parameters of F. Hase to model 
+      real(4)            :: lm_t2(nglines)  ! temperature dependency
    end type galatrydata
 
    type, public :: linemixfile
@@ -200,14 +200,19 @@ program hbin
 
    use hitran
 
-   integer              :: ldx, nl, i, ifl, hblun=7, halun=8, istat, iband, inxt(1)
-   integer(long_log)    :: nulm, nuht
+   implicit none
+
+   integer              :: ldx, nl, i, j, ifl
+   integer              :: hblun=7, halun=8, istat, iband, inxt(1)
+!   integer(long_log)    :: nulm, nuht
    real(double)         :: wavnum, wstr, wstp
    character (len=30)   :: hbfile, hafile
    character (len=200)  :: nam
    character (len=1)    :: pos
+   character (len=255)  :: buf
    logical              :: oped, hasc=.TRUE.
-   integer              :: iost, dum
+   integer              :: iost, dum, ind
+   character (len=7), dimension(6) :: sdv_params
 
 ! --- we have beta data for 2 gases and not too many lines (sfit4 v0.9)
 
@@ -222,7 +227,13 @@ program hbin
    type (galatrydata), dimension(nlmx)        :: lmx
    type (galatrydata), dimension(nsdv)        :: sdv
 
+<<<<<<< HEAD
    print *, ' hbin v0.9.5.0'
+=======
+   logical :: qu_equal
+
+   print *, ' hbin v0.9.4.3'
+>>>>>>> 7bbcc17... Change hbin to quantum number based format for auxilliary files
 
    ! --- read in band, isotope info from sfit4.ctl file fr this fit
    call read_ctrl
@@ -281,8 +292,14 @@ program hbin
    do ifl = 1, gnml
 
       ! --- first buf already read
-      glp(ifl)%n = 1
-      read( glp(ifl)%buf, 108 ) glp(ifl)%mo(1), glp(ifl)%is(1), glp(ifl)%nu(1), glp(ifl)%bt(1)
+      ! glp(ifl)%n = 1
+      ! ! HITRAN 2012
+      ! print*, glp(ifl)%buf
+      ! read( glp(ifl)%buf, 108 ) glp(ifl)%mo(1), glp(ifl)%is(1), &
+      !      glp(ifl)%v1(1), glp(ifl)%v2(1), glp(ifl)%branch(1), glp(ifl)%j(1), &
+      !      glp(ifl)%g0_air(1), glp(ifl)%beta(1)
+      ! HITRAN 2008 
+      ! read( glp(ifl)%buf, 108 ) glp(ifl)%mo(1), glp(ifl)%is(1), glp(ifl)%nu(1), glp(ifl)%bt(1)
       !print *, ifl, 1, glp(ifl)%mo(1), glp(ifl)%is(1), glp(ifl)%nu(1), glp(ifl)%bt(1)
 
       ! --- loop over files
@@ -298,7 +315,9 @@ program hbin
          !         print *, buf
          !         print *, glp(ifl)%v1(ind), glp(ifl)%v2(ind), glp(ifl)%branch(ind), glp(ifl)%j(ind)
          glp(ifl)%n = glp(ifl)%n + 1
-         read( glp(ifl)%buf, 108 ) glp(ifl)%mo(i), glp(ifl)%is(i), glp(ifl)%nu(i), glp(ifl)%bt(i)
+
+      ! HITRAN 2008
+      !         read( glp(ifl)%buf,108  ) glp(ifl)%mo(i), glp(ifl)%is(i), glp(ifl)%nu(i), glp(ifl)%bt(i)
          !print *, ifl, i, glp(ifl)%mo(i), glp(ifl)%is(i), glp(ifl)%nu(i), glp(ifl)%bt(i)
          goto 6
  5       close( glp(ifl)%lun )
@@ -335,18 +354,21 @@ program hbin
          ind = lmx(ifl)%n
          lmx(ifl)%g2_air(ind) = 0.0D0
          read( buf, 119 ) lmx(ifl)%mo(ind), lmx(ifl)%is(ind), lmx(ifl)%qa(ind)
-         read (buf(64:), '(f10.4,f10.4,f10.4)') lmx(ifl)%lm_air(ind), lmx(ifl)%lm_t1(ind), &
-              lmx(ifl)%lm_t2(ind)
+         read (buf(63:), *) lmx(ifl)%lm_t1(ind), lmx(ifl)%lm_t2(ind), lmx(ifl)%lm_air(ind)
 
          if (lmx(ifl)%g2_air(ind) .le. tiny(0.0D0)) cycle 
          
          lmx(ifl)%n = lmx(ifl)%n + 1
 
+         goto 16
+         
+15       close( lmx(ifl)%lun )
+         exit
+16       continue
+         
       end do
-
-
- 15   close( lmx(ifl)%lun )
-
+      write(6,117) lmx(ifl)%n, ' lines read in LM file : ', ifl
+      
    enddo
 
    ! --- fill of Speed - Dependent Voigt data parameters from each file complete into structures
@@ -356,17 +378,17 @@ program hbin
    do ifl = 1, snml
 
       ! --- get file info
-      inquire( sfl(ifl)%lun, position=pos, opened=oped, iostat=iost, name=nam )
+      inquire( sdv(ifl)%lun, position=pos, opened=oped, iostat=iost, name=nam )
       if( iost .ne. 0 )then
          print *,''
          print *, 'S-D Voigt file error : ', trim(nam)
-         print *, sfl(ifl)%lun, pos, oped, iost, trim(nam)
+         print *, sdv(ifl)%lun, pos, oped, iost, trim(nam)
          stop 'hbin error'
       endif
 
       sdv(ifl)%n = 1
       do i = 1, nglines
-         read( sdv(ifl)%lun, 109, end=16 ) buf
+         read( sdv(ifl)%lun, 109, end=25 ) buf
          if (len_trim(buf).eq.0) cycle
          ! Read in auxiliary file in HITRAN 2012 format
          ind = sdv(ifl)%n
@@ -385,16 +407,15 @@ program hbin
          
          sdv(ifl)%n = sdv(ifl)%n + 1
 
+         goto 26
+25       close( sdv(ifl)%lun )
+         exit
+26       continue
       end do
-               
-
- 16   close( sdv(ifl)%lun )
-      exit
-
+      write(6,117) sdv(ifl)%n, ' lines read in SDV file : ', ifl               
    enddo
-      write(6,117) sdv(ifl)%n, ' lines read in SDV file : ', ifl
-
-   enddo
+   
+   
 
    nl = 0
    ! --- loop over bands
@@ -457,13 +478,10 @@ program hbin
                   if ( lmx(ifl)%mo(i) .eq. hlp(ldx)%mo .and. &
                        lmx(ifl)%is(i) .eq. hlp(ldx)%is ) then
                      if (qu_equal(hlp(ldx)%qa, lmx(ifl)%qa(i))) then
-                        write(6,116) 'insert gamma2: ', &
-                             ifl, i, lmx(ifl)%mo(i), lmx(ifl)%is(i), lmx(ifl)%g0_air(i), &
-                             lmx(ifl)%g2_air(i), hlp(ldx)%nu
-                        hlp(ldx)%ylm = lmx%lm_air(i)
-                        hlp(ldx)%lmtk1 = lmx%lm_t1(i) 
-                        hlp(ldx)%lmtk2 = lmx%lm_t2(i) 
-                        write( hfl(ldx)%buf(220:280), 1121 ) hlp(ldx)%lmtk1, hlp(ldx)%lmtk2, hlp(ldx)%ylm  
+                        hlp(ldx)%ylm = lmx(ifl)%lm_air(i)
+                        hlp(ldx)%lmtk1 = lmx(ifl)%lm_t1(i) 
+                        hlp(ldx)%lmtk2 = lmx(ifl)%lm_t2(i)
+                        write( hfl(ldx)%buf(220:280), 1121 ) hlp(ldx)%lmtk1, hlp(ldx)%lmtk2, hlp(ldx)%ylm
                         hlp(ldx)%flag(LM_FLAG) = .TRUE.
                         dum = flagoff + LM_FLAG
                         write( hfl(ldx)%buf(dum:dum), '(l1)' ) .TRUE.
@@ -507,9 +525,26 @@ program hbin
                         sfl(ifl)%ist = i
                         exit
                      endif ! right wavenumber
-                  enddo ! i, records in file
-               endif ! right molecule
+                  endif ! right molecule
+               enddo ! i, records in file
             enddo ! line mix files
+
+
+            ! --- check if this is an isotope that is to be separated out
+            ! --- because of identification of extra line parameters via mo id and quantum numbers, 
+            !     renumbering of the isotopes has to come last.
+            do i=1, nisosep
+               !print *, i, nisosep, hlp(lun)%mo, hlp(lun)%is, oldid(i), oldiso(i), newid(i), newiso(i)
+               if((hlp(ldx)%mo .eq. oldid(i)) .and. (hlp(ldx)%is .eq. oldiso(i)))then
+                  hlp(ldx)%sl = hlp(ldx)%sl / isoscale(i)
+                  !write(6,*) i, hlp(ldx)%mo, hlp(ldx)%is, newid(i), newiso(i)
+                  hlp(ldx)%mo = newid(i)
+                  hlp(ldx)%is = newiso(i)
+                  write( hfl(ldx)%buf(1:25), 107 ) newid(i), newiso(i), hlp(ldx)%nu, hlp(ldx)%sl
+                  exit
+               endif
+            enddo
+
 
 
             ! --- save this line
@@ -584,12 +619,27 @@ stop
 1121 format( 4e12.4 )
 113 format( a, a )
 !115 format(a, 2i4, 2(f14.6, 2i4))
-116 format( a,4i4,f8.4,2f14.6)
+!116 format( a,4i4,f8.4,2f14.6)
 117 format(/, i5, a, i5)
-118 format( 3i5,i10,f12.5,2x,a)
-119 format( i2,i1,a15,a15,a15,a15 )
+!118 format( 3i5,i10,f12.5,2x,a)
+119 format( i2,i1,a60 )
 
 end program hbin
+
+function qu_equal(quanta1, quanta2)
+  ! compares quanta1 and quanta2 field in HITRAN 2004 format, retruns T if they are equal
+  ! until now, only string compare, may get more complicated though
+  implicit none
+  character (len=*), intent(in):: quanta1, quanta2
+  logical :: qu_equal
+
+  qu_equal = .false.
+  if (quanta1.eq.quanta2) qu_equal = .true.
+  return
+
+end function qu_equal
+
+
 
 ! --- fill a hitran record from its buffer
 subroutine filh( hd, hf )
@@ -603,8 +653,10 @@ subroutine filh( hd, hf )
 
 ! --- fill defaults for beta, gamma, eta, lm
    hd%bt     = 0.0            ! beta for galatry
+   hd%gamma0 = 0.0            ! gamma 0 for sdv
    hd%gamma2 = 0.0            ! gamma 2 for sdv
-   hd%eta2   = 0.0            ! eta 2 for sdv
+   hd%shift0   = 0.0          ! shift 0 for sdv
+   hd%shift2   = 0.0          ! shift 2 for sdv
    hd%lmtk1  = 0.0            ! lmtk1 for line mixing
    hd%lmtk2  = 0.0            ! lmtk2 for line mixing
    hd%ylm    = 0.0            ! ylm for line mixing
@@ -654,7 +706,7 @@ subroutine filh( hd, hf )
 ! 161 - 172 galatry beta
 ! 173 - 184 sdv gam0
 ! 185 - 196 sdv gam2
-! 197 - 208 sdv eta2
+! 197 - 208 sdv shift0
 ! 209 - 220 lmx ltk1
 ! 221 - 232 lmx ltk2
 ! 233 - 244 lmx ylm
@@ -667,10 +719,16 @@ subroutine filh( hd, hf )
             a60, a18, a1, 2f7.0, f10.0 )
 110 format( 7f12.5 )
 
+
+
 end subroutine filh
 
 
+<<<<<<< HEAD
 subroutine read_input( hasc, wstr, wstp, HFL, GLP, LFL, SFL )
+=======
+subroutine read_input( wstr, wstp, HFL, GLP, LFL, SDV )
+>>>>>>> 7bbcc17... Change hbin to quantum number based format for auxilliary files
 
    use hitran
 
@@ -792,6 +850,7 @@ subroutine read_input( hasc, wstr, wstp, HFL, GLP, LFL, SFL )
    stlun = hfl(hnml)%lun
    lun   = stlun
    gnml  = 0
+   snml  = 0
    do i = 1, nfiles
 
       ! --- find the name of the next galatry input file
@@ -814,17 +873,20 @@ subroutine read_input( hasc, wstr, wstp, HFL, GLP, LFL, SFL )
       open( lun, file=filename, status='old', iostat=istat )
 
       ! --- find starting wavenumber in file
-      do
+!      do
          read( lun, 100, end=20 ) buffer
-         read( buffer, 107 ) mo, iso, wavnum
-         if( wavnum .ge. wstr )exit
-      enddo
-      if( wavnum .lt. wstr )goto 20
-      if( wavnum .gt. wstp )goto 20
+!         read( buffer, 107 ) mo, iso, wavnum
+!         if( wavnum .ge. wstr )exit
+!      enddo
+ !     if( wavnum .lt. wstr )goto 20
+ !     if( wavnum .gt. wstp )goto 20
       goto 21
 
+<<<<<<< HEAD
 !exit
 
+=======
+>>>>>>> 7bbcc17... Change hbin to quantum number based format for auxilliary files
       ! --- no lines in this region
    20 close( lun )
       gnml   = gnml - 1
@@ -835,7 +897,7 @@ subroutine read_input( hasc, wstr, wstp, HFL, GLP, LFL, SFL )
       glp(gnml)%lun = lun
       read( linebuffer(1:3), '(i3)' ) glp(gnml)%mo(1)
       write(6,110) ' File : ', trim(filename)
-      write(6,113) wstr, wstp, gnml, glp(gnml)%lun, mo, glp(gnml)%mo(1), wavnum
+      write(6,113) wstr, wstp, gnml, glp(gnml)%lun, mo, glp(gnml)%mo(1)
 
    22 continue
 
@@ -864,6 +926,7 @@ subroutine read_input( hasc, wstr, wstp, HFL, GLP, LFL, SFL )
       n = len_trim(filename)
       if( filename(n:n) .eq. '/' )cycle
 
+      lnml = lnml + 1
       write(6,110) 'Found LineMix line file : ', trim(filename)
 
       ! --- open LineMix file if its here
@@ -873,44 +936,35 @@ subroutine read_input( hasc, wstr, wstp, HFL, GLP, LFL, SFL )
          stop
       endif
 
-      lun = lun +i
+      lun = lun + lnml
       !print*, lun
       open( lun, file=filename, status='old', iostat=istat )
-
-      ! --- find starting wavenumber in file
-      do
-         read( lun, 100, end=30 ) buffer
-         read( buffer, 107 ) mo, iso, wavnum
-         if( wavnum .ge. wstr )exit
-      enddo
-      if( wavnum .lt. wstr )goto 30
-      if( wavnum .gt. wstp )goto 30
+      read( lun, 100, end=30 ) buffer
       goto 31
-
-      ! --- no lines in this region
-   30 close( lun )
-      lun = lun -1
+30    close( lun )
+      lnml = lnml - 1
       goto 32
 
       ! --- save this line
-   31 lnml           = lnml +1
-      lfl(lnml)%buf  = buffer(1:64)
+31    lfl(lnml)%buf  = buffer(1:160)
       lfl(lnml)%lun  = lun
-      read( linebuffer(1:3), '(i3)' ) lfl(lnml)%mo
+      read( linebuffer(1:3), '(i3)' ) lfl(lnml)%mo(1)
       write(6,*)''
       write(6,110) ' File : ', trim(filename)
-      write(6,113) wstr, wstp, lnml, lfl(lnml)%lun, lfl(lnml)%mo, mo, wavnum
+      write(6,113) wstr, wstp, lnml, lfl(lnml)%lun, lfl(lnml)%mo(1)
 
-   32 continue
+32    continue
 
    enddo
+
    write(6,114) '   Number of LM molecules found : ', lnml
    stlun = stlun + lnml
 
 
    ! --- Speed Dependent Voigt data files - block 3 in hbin.input
    ! --- read number of expected SDV files (max=2)
-   ! --- SDV files are unique format from hitran, Galatry, but same as Line Mixing lists...
+   ! --- From HITRAN 2012 SDV files are simlar format than GALATRY
+   ! --- !!! SDV files are unique format from hitran, Galatry, but same as Line Mixing lists...
    ! --- save position in file and read as they are written (like hitran base files)
    ! only accounting for CO2 so far
    call nextbuf( ilun, buffer )
@@ -929,6 +983,7 @@ subroutine read_input( hasc, wstr, wstp, HFL, GLP, LFL, SFL )
       n = len_trim(filename)
       if( filename(n:n) .eq. '/' )cycle
 
+      snml = snml + 1
       write(6,110) 'Found SDVoigt line file : ', trim(filename)
 
       ! --- open SDV file if its here
@@ -938,33 +993,32 @@ subroutine read_input( hasc, wstr, wstp, HFL, GLP, LFL, SFL )
          stop
       endif
 
-      lun = lun +i
+      lun = lun +snml
       !print*, lun
       open( lun, file=filename, status='old', iostat=istat )
 
       ! --- find starting wavenumber in file
-      do
+!      do
          read( lun, 100, end=40 ) buffer
-         read( buffer, 107 ) mo, iso, wavnum
-         if( wavnum .ge. wstr )exit
-      enddo
-      if( wavnum .lt. wstr )goto 40
-      if( wavnum .gt. wstp )goto 40
+      !    read( buffer, 107 ) mo, iso, wavnum
+      !    if( wavnum .ge. wstr )exit
+      ! enddo
+      ! if( wavnum .lt. wstr )goto 40
+      ! if( wavnum .gt. wstp )goto 40
       goto 41
 
       ! --- no lines in this region
    40 close( lun )
-      lun = lun -1
+      snml = snml - 1
       goto 42
 
       ! --- save this line
-   41 snml           = snml +1
-      sfl(snml)%buf  = buffer(1:64)
-      sfl(snml)%lun  = lun
-      read( linebuffer(1:3), '(i3)' ) sfl(snml)%mo
+41    sdv(snml)%buf  = buffer(1:160)
+      sdv(snml)%lun  = lun
+      read( linebuffer(1:3), '(i3)' ) sdv(snml)%mo(1)
       write(6,*)''
       write(6,110) ' File : ', trim(filename)
-      write(6,113) wstr, wstp, snml, sfl(snml)%lun, sfl(snml)%mo, mo, wavnum
+      write(6,113) wstr, wstp, snml, sdv(snml)%lun, sdv(snml)%mo(1)
 
    42 continue
 
