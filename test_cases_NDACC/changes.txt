@@ -1,0 +1,9 @@
+21.11.2013 Mathias Palm
+
+x.ch4 CH4 
+      - empirical apodization and phase
+      - inverse SA matrix as input (L2 constraint)
+x.ccl4 CCL4
+      - line mixing in CO2 Q-branch at 800 1/cm
+x.hcl
+      - uses GALATRY parameters and line shape

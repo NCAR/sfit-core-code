@@ -419,7 +419,8 @@
                IF (GASB(I,J) == NAME(IGAS(N))) GO TO 43
             END DO
             WRITE (16, 105) TRIM(GASB(I,J)), WAVE3(I), WAVE4(I)
-            !STOP
+            WRITE (*, 105) TRIM(GASB(I,J)), WAVE3(I), WAVE4(I)
+            STOP 2 ! IF list is not in the retrieval list, stop
             goto 50
    43       CONTINUE
             IGASB(I,J) = IGAS(N)
