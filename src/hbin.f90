@@ -210,7 +210,7 @@ program hbin
    character (len=200)  :: nam
    character (len=1)    :: pos
    character (len=255)  :: buf
-   logical              :: oped, hasc=.TRUE.
+   logical              :: oped, hasc=.FALSE.
    integer              :: iost, dum, ind
    character (len=7), dimension(6) :: sdv_params
 

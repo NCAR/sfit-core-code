@@ -1,6 +1,9 @@
 module spec
 
+use matrix
+
 implicit none
+
 
 integer       (4) :: nsnr
 real          (8) :: psnr(2,100)
@@ -271,9 +274,12 @@ subroutine calcsnr( wavs, amps, npfile, wlim1, wlim2, spac, opdmax, nterp, noise
    real      (8), intent(in)   :: wavs(npfile), spac, opdmax, wlim1, wlim2
    real      (4), intent(in)   :: amps(npfile)
    real      (4), dimension(:), allocatable :: outspec
-   integer   (4)               :: i, k, iil, iih, np
+   real      (8), dimension(:), allocatable :: A, B
+   real      (8), dimension(:,:), allocatable :: X, XIT, XINV
+   integer   (4)               :: i, j, k, iil, iih, np, order
    integer   (4), dimension(1) :: ilow, ihi
-   real      (8)               :: noise, mind, mean, wstart, dnue, opdm, w1, w2
+   real      (8)               :: noise, mind, mean, wstart, dnue, opdm, w1, w2, determ
+
 
 
    ! get snr nearest to our mw
@@ -287,8 +293,14 @@ subroutine calcsnr( wavs, amps, npfile, wlim1, wlim2, spac, opdmax, nterp, noise
    enddo
 
    ! get the spectra in this region +- 1 wavenumber more
-   w1 = psnr(1,k)-3.
-   w2 = psnr(2,k)+3.
+   if (nterp.gt.0) then
+      ! no resampling
+      w1 = psnr(1,k)-3.
+      w2 = psnr(2,k)+3.
+   else
+      w1 = psnr(1,k)
+      w2 = psnr(2,k)
+   end if
    ilow = minloc(( wavs-w1 ), mask=((wavs-w1) > 0.0D0))
    ihi  = minloc(( wavs-w2 ), mask=((wavs-w2) > 0.0D0))
    iil = ilow(1) - 1
@@ -321,6 +333,27 @@ subroutine calcsnr( wavs, amps, npfile, wlim1, wlim2, spac, opdmax, nterp, noise
       dnue = spac
       wstart = wavs(iil)
       call sincinterp( amps(iil:iih), outspec, np, wstart, dnue, opdm, nterp )
+
+      ! get back the snr sub-region
+      iil = 0
+      do i=1, np
+         if( (i-1)*dnue + wstart .gt. psnr(1,k) )then
+            iil = i -1
+            exit
+         endif
+      enddo
+      if( iil .eq. 0 )stop 2
+      iih = 0
+      do i=iil, np
+         if( (i-1)*dnue + wstart .gt. psnr(2,k) )then
+            iih = i -1
+            exit
+         endif
+      enddo
+      if( iih .eq. 0 )stop 3
+      np = iih-iil+1
+
+      outspec = amps(iil:iih)
    endif
 
    ! get back the snr sub-region
