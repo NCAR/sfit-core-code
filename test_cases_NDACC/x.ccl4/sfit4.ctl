@@ -4,7 +4,7 @@
  file.in.stalayers              = station.layers
  file.in.refprofile             = reference.prf
  file.in.spectrum               = spectrum
- file.in.solarlines             = /home/mathias/linelist/solar/120621/solar.dat
+ file.in.solarlines             = ../../linelist/solar/120621/solar.dat
  file.in.linelist               = 00780.871900-00811.128100.hbin
 
  # Definition for retrieval gases
@@ -108,5 +108,26 @@
  band.1.omega                =           5.981
  band.1.apodization_code     =               0
  band.1.gasb                 = CCL4   H2O    O3     CO2
+
+ kb = T 
+ kb.temperature = T
+ kb.slope = T
+ kb.curvature = T 
+ kb.solshft = T
+ kb.solstrnth = T 
+ kb.phase = T
+ kb.dwshift = T 
+ kb.wshift = T
+ kb.apod_fcn = T
+ kb.phase_fcn = T 
+ kb.zshift = T 
+ kb.sza = T
+ kb.omega = T 
+ kb.max_opd = F 
+ kb.line = T
+ kb.line.type = 1 
+ kb.line.gas = CCL4
+ kb.profile = T
+ kb.profile.gas = CO2 
 
  out.level = 1
