@@ -26,21 +26,25 @@
 #	$(FC) -c $(FFLAGS) $<
 
 FC = gfortran
-# error check
-#FFLAGS = -Wall -g -Wsurprising -Warray-bounds -Wcharacter-truncation -Wunused-parameter \
-         -Waliasing -Wimplicit-interface -Wunderflow  -Wline-truncation -Wunused-parameter \
-         -fimplicit-none -fbounds-check -fbacktrace  -fcheck=all  -fwhole-file -std=gnu -pedantic \
-         -fall-intrinsics -ffpe-trap=invalid,zero,overflow,underflow
-# -fdump-core -Warray-temporaries
-#FFLAGS = -Wall -fno-automatic -mcmodel=medium -fbacktrace -fdump-core -fcheck=all -ffpe-trap=invalid,zero,overflow,underflow,precision -g
+
+# error check everything
+FFLAGS = -Wall -Warray-bounds -Wcharacter-truncation -Wunused-parameter -Warray-temporaries \
+         -Wimplicit-interface -Wunderflow -Warray-temporaries -Wconversion-extra \
+         -Wunused-dummy-argument -Wcompare-reals \
+         -fcheck=all -fimplicit-none -fbacktrace -fwhole-file -fall-intrinsics -fno-automatic \
+         -fstack-arrays -frepack-arrays \
+         -std=gnu -pedantic \
+         -ffpe-trap=invalid,zero,overflow,underflow
+
+#error check a lot
+#FFLAGS = -Wall -fno-automatic -fcheck=all -ffpe-trap=invalid,zero,overflow,underflow -Warray-bounds \
+#         -fbounds-check -fbacktrace
 
 # optomize
-FFLAGS = -Wall -O2 -fno-automatic -fbacktrace
-
-
+#FFLAGS = -Ofast -Wall -fno-automatic -frepack-arrays
 
 # supply compile date:
-#FFLAGS = -cpp -DBDATE="\"`date +%Y%m%d`"\" -O2 -fno-automatic
+# -cpp -DBDATE="\"`date +%Y%m%d`"\" -O2 -fno-automatic
 
 # Portland compiler
 #FC = pgf90
@@ -106,7 +110,7 @@ sfit4: $(OBJS) rdrv40.o
 hbin: hbin.o $(OBJS)
 	$(FC) -o $@ $^ $(FFLAGS) $(LIBS) $(VLIB)
 
-pspec: pspec.o spec.o $(OBJS)
+pspec: pspec.o spec.o fitting.o  $(OBJS)
 	$(FC) -o $@ $^ $(FFLAGS) $(LIBS) $(VLIB)
 
 #params.o binput_4_0.o binput_parse_4_0.o datafiles.o bandparam.o
@@ -182,7 +186,10 @@ opt.o \
 : params.o datafiles.o frwdmdl.o synspec.o matrix.o writeout.o bandparam.o
 
 pspec.o \
-: spec.o params.o datafiles.o bandparam.o lineparam.o isotope.o binput_4_0.o binput_parse_4_0.o
+: spec.o params.o datafiles.o bandparam.o lineparam.o isotope.o binput_4_0.o binput_parse_4_0.o fitting.o
+
+spec.o \
+: fitting.o
 
 raytrace.o \
 : params.o molcparam.o datafiles.o retvparam.o isotope.o writeout.o
