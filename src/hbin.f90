@@ -207,13 +207,13 @@ program hbin
    type (linemixfile), dimension(nsdv)        :: sfl
    type (linemixdata), dimension(nsdlines)    :: sdv
 
-   print *, ' hbin v0.9.4.2'
+   print *, ' hbin v0.9.5.0'
 
    ! --- read in band, isotope info from sfit4.ctl file fr this fit
    call read_ctrl
 
    ! --- read in paths to HITRAN files
-   call read_input( wave5(1), wave6(nband), HFL, GLP, LFL, SFL )
+   call read_input( hasc, wave5(1), wave6(nband), HFL, GLP, LFL, SFL )
 
    ! --- see if we need to separate out isotopes
    !print *, useiso
@@ -615,18 +615,19 @@ subroutine filh( hd, hf )
 end subroutine filh
 
 
-subroutine read_input( wstr, wstp, HFL, GLP, LFL, SFL )
+subroutine read_input( hasc, wstr, wstp, HFL, GLP, LFL, SFL )
 
    use hitran
 
    implicit none
 
-   real(double)        :: wstr, wstp, wavnum
-   integer             :: lun, mo, iso
-   character (len=10)  :: ifilename = 'hbin.input'
-   integer             :: j, i, n, istat, ilun=9
-   logical             :: fexist
-   character (len=160) :: buffer, linebuffer, path, filename
+   logical, intent(inout)  :: hasc
+   real(double)            :: wstr, wstp, wavnum
+   integer                 :: lun, mo, iso
+   character (len=10)      :: ifilename = 'hbin.input'
+   integer                 :: j, i, n, istat, ilun=9
+   logical                 :: fexist
+   character (len=160)     :: buffer, linebuffer, path, filename
 
    TYPE (GALATRYDATA), intent(inout)   :: GLP(ngal)
    TYPE (HITRANFILE),  intent(inout)   :: HFL(nhit+ncia)
@@ -641,19 +642,18 @@ subroutine read_input( wstr, wstp, HFL, GLP, LFL, SFL )
    endif
    open( ilun, file=ifilename, status='old', iostat=istat )
 
+   ! --- read in ascii output flag
+   call nextbuf( ilun, buffer )
+   read(buffer,'(l10)') hasc
+   print*, hasc
+
    ! --- read path to hitran files
-   do
-      read(ilun,100) buffer
-      if( (len_trim(buffer).ne.0).and.(buffer(1:1) .ne. '#' ))exit
-   enddo
+   call nextbuf( ilun, buffer )
    path = trim( buffer )
    write(6,112) 'Linelist path : ', path
 
    ! --- read number of expected hitran files (max=99)
-   do
-      read(ilun,100) buffer
-      if( (len_trim(buffer).ne.0).and.(buffer(1:1) .ne. '#' ))exit
-   enddo
+   call nextbuf( ilun, buffer )
    read(buffer,*) nfiles
    write(6,111) 'Number of HITRAN files to search : ', nfiles
    if( nfiles .gt. nhit )stop 'too many hitran files'
@@ -668,10 +668,7 @@ subroutine read_input( wstr, wstp, HFL, GLP, LFL, SFL )
    do i = 1, nfiles
 
       ! --- find filename
-      do
-         read(ilun,110) linebuffer
-      if( (len_trim(linebuffer).ne.0).and.(linebuffer(1:1) .ne. '#' ))exit
-      enddo
+      call nextbuf( ilun, linebuffer )
       filename = trim(path) // trim(linebuffer)
       n = len_trim(filename)
       ! catch eg 065_CH3CNPL/ 2007.sudo.ch3cn
@@ -731,10 +728,7 @@ subroutine read_input( wstr, wstp, HFL, GLP, LFL, SFL )
    ! --- Galatry data files - block 2 in hbin.input
    ! --- read number of expected Galatry files (max=2)
    ! --- Galatry files are unique format from hitran
-   do
-      read(ilun,100) buffer
-      if( (len_trim(buffer).ne.0).and.(buffer(1:1) .ne. '#' ))exit
-   enddo
+   call nextbuf( ilun, buffer )
    read(buffer,*) nfiles
    write(6,114) 'Number of Galatry files to search : ', nfiles
    if( nfiles .gt. ngal )stop 'too many hitran files'
@@ -746,10 +740,7 @@ subroutine read_input( wstr, wstp, HFL, GLP, LFL, SFL )
    do i = 1, nfiles
 
       ! --- find the name of the next galatry input file
-      do
-         read(ilun,110) linebuffer
-         if( (len_trim(linebuffer).ne.0).and.(linebuffer(1:1) .ne. '#') )exit
-      enddo
+      call nextbuf( ilun, linebuffer )
       filename = trim(path) // trim(linebuffer)
       n = len_trim(filename)
       if( filename(n:n) .eq. '/' )cycle
@@ -776,7 +767,9 @@ subroutine read_input( wstr, wstp, HFL, GLP, LFL, SFL )
       if( wavnum .lt. wstr )goto 20
       if( wavnum .gt. wstp )goto 20
       goto 21
-exit
+
+!exit
+
       ! --- no lines in this region
    20 close( lun )
       gnml   = gnml - 1
@@ -800,10 +793,7 @@ exit
    ! --- LM files are unique format from hitran, Galatry...
    ! --- save position in file and read as they are written (like hitran base files)
    ! only accounting for CO2 so far
-   do
-      read(ilun,100) buffer
-      if( (len_trim(buffer).ne.0).and.(buffer(1:1) .ne. '#') )exit
-   enddo
+   call nextbuf( ilun, buffer )
    read(buffer,*) nfiles
    write(6,114) 'Number of LM files to search : ', nfiles
    if( nfiles .gt. nlmx )stop 'too many LM files'
@@ -814,10 +804,7 @@ exit
    do i = 1, nfiles
 
       ! --- find the name of the next galatry input file
-      do
-         read(ilun,110) linebuffer
-         if( (len_trim(linebuffer).ne.0).and.(linebuffer(1:1) .ne. '#') )exit
-      enddo
+      call nextbuf( ilun, linebuffer )
       filename = trim(path) // trim(linebuffer)
       n = len_trim(filename)
       if( filename(n:n) .eq. '/' )cycle
@@ -871,10 +858,7 @@ exit
    ! --- SDV files are unique format from hitran, Galatry, but same as Line Mixing lists...
    ! --- save position in file and read as they are written (like hitran base files)
    ! only accounting for CO2 so far
-   do
-      read(ilun,100) buffer
-      if( (len_trim(buffer).ne.0).and.(buffer(1:1) .ne. '#') )exit
-   enddo
+   call nextbuf( ilun, buffer )
    read(buffer,*) nfiles
    write(6,114) 'Number of SDV files to search : ', nfiles
    if( nfiles .gt. nsdv )stop 'too many SDV files'
@@ -885,10 +869,7 @@ exit
    do i = 1, nfiles
 
       ! --- find the name of the next galatry input file
-      do
-         read(ilun,110) linebuffer
-         if( (len_trim(linebuffer).ne.0).and.(linebuffer(1:1) .ne. '#') )exit
-      enddo
+      call nextbuf( ilun, linebuffer )
       filename = trim(path) // trim(linebuffer)
       n = len_trim(filename)
       if( filename(n:n) .eq. '/' )cycle
@@ -1013,4 +994,26 @@ return
 101 format( /, a, i10 )
 
 end subroutine read_ctrl
+
+!--------------------------------------------------------------------------------------------
+subroutine nextbuf(ifile, buffer)
+
+   implicit none
+
+   integer,       intent(in)   :: ifile
+   character(160),intent(out)  :: buffer
+
+   buffer(1:1) = '#'
+   do while( adjustl( buffer(1:1)) .eq. '#' )
+      read(ifile,'(a160)', err=20, end=21) buffer
+      !print *, buffer
+      if( len_trim(buffer) .eq. 0 )buffer(1:1) = '#'
+   end do
+
+   return
+
+ 20 stop 'nextbuf : error reading input file'
+ 21 stop 'nextbuf : end of input file'
+
+end subroutine nextbuf
 
