@@ -5,7 +5,7 @@
  file.in.refprofile             = reference.prf
  file.in.spectrum               = spectrum
  file.in.isotope                = isotope.input
- file.in.solarlines             = /home/mathias/linelist/solar/120621/solar.dat
+ file.in.solarlines             = ../../linelist/solar/120621/solar.dat
  file.in.linelist               = 02723.671422-02930.058578.hbin
  file.out.ak_matrix             = ak.target
  file.out.ab_matrix             = AB.out
@@ -17,8 +17,8 @@
  
  
  gas.layers                  =              41
- gas.profile.list                 = HCL
- gas.column.list                  = CH4 NO2 
+ gas.profile.list                 = HCL 
+ gas.column.list                  = CH4 NO2 O3 N2O HDO
  gas.profile.HCL.correlation        =               F
  gas.profile.HCL.correlation.type        =               2
  gas.profile.HCL.correlation.width        =               4.0
@@ -79,7 +79,7 @@
  
  # Microwindows and their parameters
  
- band                        =   3
+ band                        = 1 2 3
  band.1.nu_start             =        2727.7300
  band.1.nu_stop              =        2727.8300
  band.1.zshift               =               F
@@ -91,7 +91,7 @@
  band.1.max_opd= 180.0000
  band.1.omega= 2.3932
  band.1.apodization_code     =               0
- band.1.gasb                 = HCL  O3 HDO
+ band.1.gasb                 = HCL O3 HDO
  band.2.nu_start             =        2775.7000
  band.2.nu_stop              =        2775.8000
  band.2.zshift               =               F
@@ -117,6 +117,6 @@
  band.3.apodization_code     =               0
  band.3.gasb                 = HCL CH4 NO2 
  
- out.level = 2
- out.gas_spectra = T
- out.ak_matrix = T
+ out.level = 1
+ out.gas_spectra = F
+

@@ -1327,6 +1327,16 @@ m = m + 1 !6
 read(title,7,err=21)yy, mm, dd, hh, nn, ss, sza, azm, dur, res, fov, roe
 goto 10
 
+!BAVO add BIRA type of spectra headers
+17 continue
+m = m + 1
+!20110125 04:04:55  102s ZT=04:05:45 OPD= 81.97 FOV= 6.36 APF=BX aS 61.553  28.45
+!ZT is the median of the recording time... and was used to get the ZA
+!print *,trim(title)
+read(title,8,err=21)yy , mm, dd , dur, hh, nn, ss, fov, sza
+print *,yy,mm,dd,hh,nn,ss,dur,fov,sza
+goto 10
+
 21 print*, 'spec:parsetitle: header read', m
 print*,yy, mm, dd, hh, nn, ss, sza, azm
 stop
@@ -1341,6 +1351,7 @@ return
 5 format(2(i2,1x),i4,1x,2(i2,1x),i2,5x,f6.0,3x,f7.0,3x,f6.0,3x,f6.0,8x,f6.0)
 6 format(a1,2x,i4,5(1x,i2),5x,f5.1,5x,f6.4,5x,f4.1,5x,f5.1)
 7 format(i4,2i2,1x,2(i2,1x),i2,5x,f7.0,3x,f6.0,3x,f6.0,3x,f6.0,8x,f7.0,3x,f4.0)
+8 format(i4,2(i2),11x,f3.0,5x,3(i2,1x),15x,f6.0,10x,f6.0)
 
 end subroutine parsetitle
 
