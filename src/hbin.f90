@@ -29,7 +29,7 @@ module hitran
       character (len=255) :: buf        ! read buffer
       integer            :: mo(nglines)    ! mol id
       integer            :: is(nglines)    ! isotope id #
-      real(8)            :: nu(nglines)    ! wavenumber
+!      real(8)            :: nu(nglines)    ! wavenumber
       real(8)            :: bt(nglines)    ! intensity [cm-1/(molec/cm-2)]
       character(len=60)  :: qa(nglines)    ! quanta data
       ! The format of the quanta fields depends on the species. Refer to
@@ -210,7 +210,11 @@ program hbin
    character (len=200)  :: nam
    character (len=1)    :: pos
    character (len=255)  :: buf
+<<<<<<< HEAD
    logical              :: oped, hasc=.TRUE.
+=======
+   logical              :: oped, hasc=.FALSE.
+>>>>>>> origin/BugFix_Mathias
    integer              :: iost, dum, ind
    character (len=7), dimension(6) :: sdv_params
 
@@ -222,6 +226,7 @@ program hbin
 
 !   type (linemixfile), dimension(nlmx)        :: lfl
 !   type (linemixdata), dimension(nlmlines)    :: lmx
+<<<<<<< HEAD
 
    type (galatrydata), dimension(ngal)        :: glp
    type (galatrydata), dimension(nlmx)        :: lmx
@@ -234,12 +239,26 @@ program hbin
 
    print *, ' hbin v0.9.4.3'
 >>>>>>> 7bbcc17... Change hbin to quantum number based format for auxilliary files
+=======
+
+   type (galatrydata), dimension(ngal)        :: glp
+   type (galatrydata), dimension(nlmx)        :: lmx
+   type (galatrydata), dimension(nsdv)        :: sdv
+
+   logical :: qu_equal
+
+   print *, ' hbin v0.9.4.3'
+>>>>>>> origin/BugFix_Mathias
 
    ! --- read in band, isotope info from sfit4.ctl file fr this fit
    call read_ctrl
 
    ! --- read in paths to HITRAN files
+<<<<<<< HEAD
    call read_input( hasc, wave5(1), wave6(nband), HFL, GLP, LFL, SFL )
+=======
+   call read_input( wave5(1), wave6(nband), HFL, GLP, LMX, SDV )
+>>>>>>> origin/BugFix_Mathias
 
    ! --- see if we need to separate out isotopes
    !print *, useiso
@@ -289,6 +308,7 @@ program hbin
    enddo
 
    ! --- fill Galatry line parameters struct with all line data from each file
+   
    do ifl = 1, gnml
 
       ! --- first buf already read
@@ -356,8 +376,11 @@ program hbin
          read( buf, 119 ) lmx(ifl)%mo(ind), lmx(ifl)%is(ind), lmx(ifl)%qa(ind)
          read (buf(63:), *) lmx(ifl)%lm_t1(ind), lmx(ifl)%lm_t2(ind), lmx(ifl)%lm_air(ind)
 
+<<<<<<< HEAD
          if (lmx(ifl)%g2_air(ind) .le. tiny(0.0D0)) cycle 
          
+=======
+>>>>>>> origin/BugFix_Mathias
          lmx(ifl)%n = lmx(ifl)%n + 1
 
          goto 16
@@ -440,18 +463,6 @@ program hbin
          ! --- if in band : write out that data to the hbin file
          if( wavnum .ge. wstr )then
 
-            ! --- check if this is an isotope that is to be separated out
-            do i=1, nisosep
-               !print *, i, nisosep, hlp(lun)%mo, hlp(lun)%is, oldid(i), oldiso(i), newid(i), newiso(i)
-               if((hlp(ldx)%mo .eq. oldid(i)) .and. (hlp(ldx)%is .eq. oldiso(i)))then
-                  hlp(ldx)%sl = hlp(ldx)%sl / isoscale(i)
-                  !write(6,*) i, hlp(ldx)%mo, hlp(ldx)%is, newid(i), newiso(i)
-                  hlp(ldx)%mo = newid(i)
-                  hlp(ldx)%is = newiso(i)
-                  write( hfl(ldx)%buf(1:25), 107 ) newid(i), newiso(i), hlp(ldx)%nu, hlp(ldx)%sl
-                  exit
-               endif
-            enddo
 
             ! --- check if a Galatry beta can be appended
             do ifl = 1, gnml
@@ -459,9 +470,12 @@ program hbin
                   if ( glp(ifl)%mo(i) .eq. hlp(ldx)%mo .and. &
                        glp(ifl)%is(i) .eq. hlp(ldx)%is ) then
                      if (qu_equal(hlp(ldx)%qa, glp(ifl)%qa(i))) then
+<<<<<<< HEAD
                         write(6,116) 'insert beta: ', &
                              ifl, i, glp(ifl)%mo(i), glp(ifl)%is(i), glp(ifl)%g0_air(i), &
                              glp(ifl)%beta(i), hlp(ldx)%nu
+=======
+>>>>>>> origin/BugFix_Mathias
                         write( hfl(ldx)%buf(161:172), 110 ) glp(ifl)%beta(i)
                         hlp(ldx)%bt = real(glp(ifl)%beta(i),4)
                         hlp(ldx)%flag(GALATRY_FLAG) = .TRUE.
@@ -498,9 +512,12 @@ program hbin
                   if ( sdv(ifl)%mo(i) .eq. hlp(ldx)%mo .and. &
                        sdv(ifl)%is(i) .eq. hlp(ldx)%is ) then
                      if (qu_equal(hlp(ldx)%qa, sdv(ifl)%qa(i))) then
+<<<<<<< HEAD
                         write(6,116) 'insert gamma2: ', &
                              ifl, i, sdv(ifl)%mo(i), sdv(ifl)%is(i), sdv(ifl)%g0_air(i), &
                              sdv(ifl)%g2_air(i), hlp(ldx)%nu
+=======
+>>>>>>> origin/BugFix_Mathias
                         hlp(ldx)%gamma0  = real(sdv(ifl)%g0_air(i))          ! gam0 for SDV
                         hlp(ldx)%gamma2  = real(sdv(ifl)%g2_air(i))          ! gam2 for SDV
                         hlp(ldx)%shift0  = real(sdv(ifl)%s_air(i))            ! shift0 for SDV
@@ -515,14 +532,16 @@ program hbin
                            hlp(ldx)%flag(LM_FLAG) = .TRUE.
                            dum = flagoff + LM_FLAG
                            write( hfl(ldx)%buf(dum:dum), '(l1)' ) .TRUE.
+<<<<<<< HEAD
                            write(6,*) 'insert ylm: '
+=======
+>>>>>>> origin/BugFix_Mathias
                         end if
                         write( hfl(ldx)%buf(172:280), 112 ) hlp(ldx)%gamma0, hlp(ldx)%gamma2, &
                              hlp(ldx)%shift0, hlp(ldx)%shift2, hlp(ldx)%lmtk1, hlp(ldx)%lmtk2, hlp(ldx)%ylm  
                         hlp(ldx)%flag(SDV_FLAG) = .TRUE.
                         dum = flagoff + SDV_FLAG
                         write( hfl(ldx)%buf(dum:dum), '(l1)' ) .TRUE.
-                        sfl(ifl)%ist = i
                         exit
                      endif ! right wavenumber
                   endif ! right molecule
@@ -725,10 +744,14 @@ end subroutine filh
 
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 subroutine read_input( hasc, wstr, wstp, HFL, GLP, LFL, SFL )
 =======
 subroutine read_input( wstr, wstp, HFL, GLP, LFL, SDV )
 >>>>>>> 7bbcc17... Change hbin to quantum number based format for auxilliary files
+=======
+subroutine read_input( wstr, wstp, HFL, GLP, LFL, SDV )
+>>>>>>> origin/BugFix_Mathias
 
    use hitran
 
@@ -883,10 +906,13 @@ subroutine read_input( wstr, wstp, HFL, GLP, LFL, SDV )
       goto 21
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 !exit
 
 =======
 >>>>>>> 7bbcc17... Change hbin to quantum number based format for auxilliary files
+=======
+>>>>>>> origin/BugFix_Mathias
       ! --- no lines in this region
    20 close( lun )
       gnml   = gnml - 1
