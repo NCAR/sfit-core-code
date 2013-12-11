@@ -226,8 +226,10 @@ program hbin
    type (galatrydata), dimension(nlmx)        :: lmx
    type (galatrydata), dimension(nsdv)        :: sdv
 
-   print *, ' hbin v0.9.5.0'
    logical :: qu_equal
+
+   print *, ' hbin v0.9.5.0'
+
 
    ! --- read in band, isotope info from sfit4.ctl file fr this fit
    call read_ctrl
@@ -599,18 +601,6 @@ stop
 
 end program hbin
 
-function qu_equal(quanta1, quanta2)
-  ! compares quanta1 and quanta2 field in HITRAN 2004 format, retruns T if they are equal
-  ! until now, only string compare, may get more complicated though
-  implicit none
-  character (len=*), intent(in):: quanta1, quanta2
-  logical :: qu_equal
-
-  qu_equal = .false.
-  if (quanta1.eq.quanta2) qu_equal = .true.
-  return
-
-end function qu_equal
 
 
 
