@@ -51,6 +51,7 @@
       REAL(DOUBLE), DIMENSION(12)            :: FX = 0.0D0
       REAL(DOUBLE), DIMENSION(MOLMAX,LAYMAX) :: VERSUM = 0.0D0, VOSUM = 0.0D0
 
+
 ! ------------------------------------------------------------------------------
 
 ! --- SET FLAGS FOR OUTPUT
@@ -560,7 +561,7 @@
       INTEGER, INTENT(IN) :: NLEV
       CHARACTER (LEN=255) :: VAL
       LOGICAL             :: HFLG, IFPRF_1_ORIG
-      INTEGER             :: I, J, K, ORIG_NVAR, POS, NL = 1
+      INTEGER             :: I, J, K, L1, L2, L3, ORIG_NVAR, POS, NL = 1
 
       WRITE(16,254)
 
@@ -665,13 +666,13 @@
             ntline = 1
             nrlgas = 1
          case ('retrieval')
-            do k = 1,ngas
+            do k = 1,nret
                s_kb_line_gas(k) = trim(adjustl(gas(k)))
             end do
-            niline = ngas
-            npline = ngas
-            ntline = ngas
-            nrlgas = ngas
+            niline = nret
+            npline = nret
+            ntline = nret
+            nrlgas = nret
          case default
             val = adjustl(trim(s_kb_line_gases))
             nrlgas = 0
@@ -753,6 +754,26 @@
       CALL FM(PARM, YHAT, KHAT, NFIT, NVAR, .TRUE., -1, HFLG )
       !write(100,*) YHAT(:NFIT)
       !close(100)
+
+      ! APPEND NAMES ILINE ENTRIES IN KB MATRIX WITH GASNAMES
+
+      L1 = 1
+      L2 = 1
+      L3 = 1
+      DO I = 1,NVAR
+         SELECT CASE (PNAME(i))
+         CASE ('LineInt')
+            PNAME(I) = 'LineInt'//'_'//trim(s_kb_line_gas(L1))
+            L1 = L1 + 1
+         CASE ('LinePAir')
+            PNAME(I) = 'LinePAir'//'_'//trim(s_kb_line_gas(L2))
+            L2 = L2 + 1
+         CASE ('LineTAir')
+            PNAME(I) = 'LineTAir'//'_'//trim(s_kb_line_gas(L3))
+            L3 = L3 + 1
+         END SELECT
+      END DO
+         
 
       CALL FILEOPEN(90,1)
       WRITE(90,*) TRIM(TAG), ' KB VECTORS FOR MODEL PARAMETERS BI'
