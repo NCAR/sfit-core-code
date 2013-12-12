@@ -8,7 +8,7 @@ integer       (4) :: nsnr
 real          (8) :: psnr(2,100)
 character(len=2)  :: snrid(100)
 
-integer :: version, blun, rlun, tlun, clun, nlun, olun, ilun, vlun
+integer :: vrsn, blun, rlun, tlun, clun, nlun, olun, ilun, vlun
 
  ! blun 7  - input bnr file
  ! clun 8  - cinput
@@ -19,7 +19,7 @@ integer :: version, blun, rlun, tlun, clun, nlun, olun, ilun, vlun
  ! nlun 20 - t15asc
  ! (bp_nr = 10 sfit4.ctl)
 
-parameter( version=3, blun=7, clun=8, ilun=9, rlun=11, tlun=15, olun=16, nlun=20, vlun=12 )
+parameter( vrsn=3, blun=7, clun=8, ilun=9, rlun=11, tlun=15, olun=16, nlun=20, vlun=12 )
 
 contains
 
@@ -81,7 +81,7 @@ real(8) function bc4( sp, wv, n, wmid, n10m, old10m, vflag ) result(zero)
       if( vflag .gt. 0 )verbose = .true.
 
       if( verbose )write(vlun,303) 'bc4: midpoint spectral value : ', wmid
-      zero = 0.0
+      zero = 0.0d0
 ! --- quick check that we are in the right region
       if( wmid .lt. 1000. .or. wmid .gt. 1060. )then
          print *," bc4: Spectra out of range - no 10µ baseline corection applied not!"
@@ -217,9 +217,9 @@ real(8) function bc4( sp, wv, n, wmid, n10m, old10m, vflag ) result(zero)
          if( verbose )write(vlun,306) ' zeroed points greater then 0 : ', pos, pstd
          if( verbose )write(vlun,306) ' zeroed points less then 0 : ', neg, nstd
 
-         if( abs( pos - ndif*neg ) .le. 0.01*cn2 )exit
+         if( abs(real( pos - ndif*neg,4)) .le. 0.01*cn2 )exit
 
-         if( abs( pos - ndif*neg ) .le. 0.03*cn2 )then
+         if( abs(real( pos - ndif*neg,4)) .le. 0.03*cn2 )then
             if( pos .gt. ndif*neg ) factor = factor * 1.03d0
             if( pos .lt. ndif*neg ) factor = factor * 0.97d0
          else
@@ -326,52 +326,52 @@ real(8) function bc2( sp, wavelength, n, wmid, vflag, noise ) result (zero)
       if( vflag .gt. 1 )blockout = .true.
 
       dstncmax = 50.0d0
-      zero = 0.0
+      zero = 0.0d0
 ! quick check that we are in the right region
       if( wmid .lt. 760. .or. wmid .gt. 1340. )then
          write(6,301)"bc2 : Spectra out of range - no baseline corection applied."
-         zero = -999.
+         zero = -999.d0
          return
       endif
 
      ! the saturated regions - narrow
-     satarr(1,1)  = (751.28)
-     satarr(2,1)  = (751.41)
-     satarr(1,37) = (752.75)
-     satarr(2,37) = (752.90)
-     satarr(1,2)  = (754.20)
-     satarr(2,2)  = (754.40)
-     satarr(1,38) = (754.56)
-     satarr(2,38) = (754.73)
-     satarr(1,39) = (755.71)
-     satarr(2,39) = (755.83)
-     satarr(1,40) = (757.22)
-     satarr(2,40) = (757.38)
-     satarr(1,41) = (758.75)
-     satarr(2,41) = (758.82)
-     satarr(1,34) = (760.26)
-     satarr(2,34) = (760.30)
-     satarr(1,3)  = (776.9300)
-     satarr(2,3)  = (777.0200)
-     satarr(1,4)  = (784.4400)
-     satarr(2,4)  = (784.4800)
-     satarr(1,5)  = (795.8600)
-     satarr(2,5)  = (795.9200)
-     satarr(1,6)  = (798.5300)
-     satarr(2,6)  = (798.5800)
-     satarr(1,7)  = (803.5350)
-     satarr(2,7)  = (803.5650)
-     satarr(1,35) = (827.6500)
-     satarr(2,35) = (827.7500)
-     satarr(1,36) = (839.80)
-     satarr(2,36) = (839.95)
-     satarr(1,8)  = (849.5700)
-     satarr(2,8)  = (849.6000)
-     satarr(1,9)  = (852.4100)
-     satarr(2,9)  = (852.4500)
+     satarr(1,1)  = (751.28d0)
+     satarr(2,1)  = (751.41d0)
+     satarr(1,37) = (752.75d0)
+     satarr(2,37) = (752.90d0)
+     satarr(1,2)  = (754.20d0)
+     satarr(2,2)  = (754.40d0)
+     satarr(1,38) = (754.56d0)
+     satarr(2,38) = (754.73d0)
+     satarr(1,39) = (755.71d0)
+     satarr(2,39) = (755.83d0)
+     satarr(1,40) = (757.22d0)
+     satarr(2,40) = (757.38d0)
+     satarr(1,41) = (758.75d0)
+     satarr(2,41) = (758.82d0)
+     satarr(1,34) = (760.26d0)
+     satarr(2,34) = (760.30d0)
+     satarr(1,3)  = (776.9300d0)
+     satarr(2,3)  = (777.0200d0)
+     satarr(1,4)  = (784.4400d0)
+     satarr(2,4)  = (784.4800d0)
+     satarr(1,5)  = (795.8600d0)
+     satarr(2,5)  = (795.9200d0)
+     satarr(1,6)  = (798.5300d0)
+     satarr(2,6)  = (798.5800d0)
+     satarr(1,7)  = (803.5350d0)
+     satarr(2,7)  = (803.5650d0)
+     satarr(1,35) = (827.6500d0)
+     satarr(2,35) = (827.7500d0)
+     satarr(1,36) = (839.80d0)
+     satarr(2,36) = (839.95d0)
+     satarr(1,8)  = (849.5700d0)
+     satarr(2,8)  = (849.6000d0)
+     satarr(1,9)  = (852.4100d0)
+     satarr(2,9)  = (852.4500d0)
 
-     satarr(1,37) = (1001.0)
-     satarr(2,37) = (1070.0)
+     satarr(1,37) = (1001.0d0)
+     satarr(2,37) = (1070.0d0)
 
 !     satarr(1,42) = (992.0)
 !     satarr(2,42) = (1000.0)
@@ -379,54 +379,54 @@ real(8) function bc2( sp, wavelength, n, wmid, vflag, noise ) result (zero)
 !     satarr(1,37) = (00.0)
 !     satarr(2,37) = (00.0)
 
-     satarr(1,10) = (1106.7150)
-     satarr(2,10) = (1106.7400)
-     satarr(1,11) = (1135.7100)
-     satarr(2,11) = (1135.7800)
-     satarr(1,12) = (1174.4500)
-     satarr(2,12) = (1174.6000)
-     satarr(1,13) = (1186.9500)
-     satarr(2,13) = (1187.0800)
-     satarr(1,14) = (1198.1400)
-     satarr(2,14) = (1198.2200)
-     satarr(1,15) = (1212.1800)
-     satarr(2,15) = (1212.3200)
-     satarr(1,16) = (1244.0500)
-     satarr(2,16) = (1244.2000)
-     satarr(1,17) = (1260.1000)
-     satarr(2,17) = (1260.50)
-     satarr(1,18) = (1268.2800)
-     satarr(2,18) = (1268.5000)
-     satarr(1,19) = (1271.40)
-     satarr(2,19) = (1272.00)
-     satarr(1,20) = (1287.2000)
-     satarr(2,20) = (1287.5000)
-     satarr(1,21) = (1287.7500)
-     satarr(2,21) = (1287.8500)
-     satarr(1,22) = (1288.1500)
-     satarr(2,22) = (1288.5000)
-     satarr(1,23) = (1296.4500)
-     satarr(2,23) = (1296.5100)
-     satarr(1,24) = (1296.6500)
-     satarr(2,24) = (1296.7700)
-     satarr(1,25)=(1305.30)
-     satarr(2,25)=(1306.43)
-     satarr(1,26)=(1319.0000)
-     satarr(2,26)=(1320.50)
-     satarr(1,27)=(1336.7500)
-     satarr(2,27)=(1337.07)
-     satarr(1,28)=(1337.55)
-     satarr(2,28)=(1337.89)
-     satarr(1,29)=(1340.00)
-     satarr(2,29)=(1340.70)
-     satarr(1,30)=(1349.20)
-     satarr(2,30)=(1349.52)
-     satarr(1,31)=(1346.97)
-     satarr(2,31)=(1347.11)
-     satarr(1,32)=(1347.86)
-     satarr(2,32)=(1348.09)
-     satarr(1,33)=(1349.20)
-     satarr(2,33)=(1349.52)
+     satarr(1,10) = (1106.7150d0)
+     satarr(2,10) = (1106.7400d0)
+     satarr(1,11) = (1135.7100d0)
+     satarr(2,11) = (1135.7800d0)
+     satarr(1,12) = (1174.4500d0)
+     satarr(2,12) = (1174.6000d0)
+     satarr(1,13) = (1186.9500d0)
+     satarr(2,13) = (1187.0800d0)
+     satarr(1,14) = (1198.1400d0)
+     satarr(2,14) = (1198.2200d0)
+     satarr(1,15) = (1212.1800d0)
+     satarr(2,15) = (1212.3200d0)
+     satarr(1,16) = (1244.0500d0)
+     satarr(2,16) = (1244.2000d0)
+     satarr(1,17) = (1260.1000d0)
+     satarr(2,17) = (1260.50d0)
+     satarr(1,18) = (1268.2800d0)
+     satarr(2,18) = (1268.5000d0)
+     satarr(1,19) = (1271.40d0)
+     satarr(2,19) = (1272.00d0)
+     satarr(1,20) = (1287.2000d0)
+     satarr(2,20) = (1287.5000d0)
+     satarr(1,21) = (1287.7500d0)
+     satarr(2,21) = (1287.8500d0)
+     satarr(1,22) = (1288.1500d0)
+     satarr(2,22) = (1288.5000d0)
+     satarr(1,23) = (1296.4500d0)
+     satarr(2,23) = (1296.5100d0)
+     satarr(1,24) = (1296.6500d0)
+     satarr(2,24) = (1296.7700d0)
+     satarr(1,25)=(1305.30d0)
+     satarr(2,25)=(1306.43d0)
+     satarr(1,26)=(1319.0000d0)
+     satarr(2,26)=(1320.50d0)
+     satarr(1,27)=(1336.7500d0)
+     satarr(2,27)=(1337.07d0)
+     satarr(1,28)=(1337.55d0)
+     satarr(2,28)=(1337.89d0)
+     satarr(1,29)=(1340.00d0)
+     satarr(2,29)=(1340.70d0)
+     satarr(1,30)=(1349.20d0)
+     satarr(2,30)=(1349.52d0)
+     satarr(1,31)=(1346.97d0)
+     satarr(2,31)=(1347.11d0)
+     satarr(1,32)=(1347.86d0)
+     satarr(2,32)=(1348.09d0)
+     satarr(1,33)=(1349.20d0)
+     satarr(2,33)=(1349.52d0)
 
 ! Now put in increasing wavenumber order
    do i=1, nsat-1
@@ -529,11 +529,11 @@ real(8) function bc2( sp, wavelength, n, wmid, vflag, noise ) result (zero)
          allocate(ptwnd(k), newsp(k))
 
          wavewindow(:) = wavelength(iil:iih)
-         specwindow(:) = sp(iil:iih)
+         specwindow(:) = real(sp(iil:iih),8)
          mdwav         = (wavelength(iil) + wavelength(iih)) /2.0
          mdpnt         = mdwav - wavewindow(1)
 
-         if( satarr(1,i) .ne. 1001.0 .and. satarr(1,i) .ne. 992.0 )then
+         if( satarr(1,i) .ne. 1001.0d0 .and. satarr(1,i) .ne. 992.0d0 )then
 
             ptwnd(:)      = wavewindow(:) - wavewindow(1)
 
@@ -553,14 +553,14 @@ real(8) function bc2( sp, wavelength, n, wmid, vflag, noise ) result (zero)
             ! --- calculate the standard deviation in that region too
 
             ! --- average value of the zeroed spectrum
-            azer = sum(zeroed(:))/(max(1.,real(k,4)))
+            azer = sum(zeroed(:)) / max(1.0d0,real(k,8))
 
             ! --- calculate the standard deviation, intermediate step required here
-            runningsum=0.0
+            runningsum = 0.0d0
             do mm = 1, k
                runningsum=runningsum+((zeroed(mm)-azer)**2)
             enddo
-            stdev=sqrt(runningsum/real(k,4))
+            stdev = sqrt(runningsum/real(k,8))
 
             ! --- for plotting blocks
             if( blockout )then
@@ -572,7 +572,7 @@ real(8) function bc2( sp, wavelength, n, wmid, vflag, noise ) result (zero)
             if( verbose )write(vlun,306) 'npts mdpt mzer azer std off slp crv : ', k, mdwav, zero, azer, stdev, curve(1:3)
 
             ! --- if they pass the polynomial fit, add both the region and the std dev to arrays
-            if ( curve(3)/(wavelength(iih)-wavelength(iil)) .lt. 50. .and. zero .lt. 0.25 .and. stdev .lt. 0.05 )then
+            if ( curve(3)/(wavelength(iih)-wavelength(iil)) .lt. 50. .and. zero .lt. 0.25d0 .and. stdev .lt. 0.05 )then
 
                allsatwave(count:count+k-1)=wavewindow(:)
                allsatspec(count:count+k-1)=specwindow(:)
@@ -594,7 +594,7 @@ real(8) function bc2( sp, wavelength, n, wmid, vflag, noise ) result (zero)
 
             allsatwave(count:count+n10m-1) = old10m(1,:)
             allsatspec(count:count+n10m-1) = old10m(2,:)
-            stdarr(l) = 0.05 ! did not calc yet   stdev
+            stdarr(l) = 0.05d0 ! did not calc yet   stdev
             count     = count + n10m
 
             if( mdwav .lt. wmid )below = below +1
@@ -652,7 +652,7 @@ real(8) function bc2( sp, wavelength, n, wmid, vflag, noise ) result (zero)
 ! --- 40 gets o3 at 1002 and mid pt of 10µ region ~1025
       if(( above .eq. 0 .or. below .eq. 0 ) .and. distnc .gt. dstncmax )then
          write(6,302) 'Zero found for this region : ', zero
-         zero = 0.0
+         zero = 0.0d0
          sp(:) = real(initmax,4) * sp(:)
          print *, 'No zero offset applied...return now.'
       else
@@ -678,7 +678,7 @@ real(8) function bc2( sp, wavelength, n, wmid, vflag, noise ) result (zero)
 667   continue
       print *, ' None of the saturated regions are in this file'
       print *, ' Spectrum is probably not filter 6...'
-      zero = 0.0
+      zero = 0.0d0
 
       return
 
@@ -741,7 +741,7 @@ subroutine ratio( outspec, wstart, dnue, np )
 
    ! create abscissa array of ratio spectrum for interpolation
    do i=1, rpts
-      rwv(i)= i-1
+      rwv(i)= real(i-1,4)
       end do
    rwv = real( rwv * rspac + rlo, 4 )
    !print *, rwv(1)
@@ -749,18 +749,16 @@ subroutine ratio( outspec, wstart, dnue, np )
    ! create abscissa array of data spectrum for interpolation
    allocate( wavs( np ))
    do i=1, np
-      wavs(i)= i-1
+      wavs(i)= real(i-1,4)
       end do
    wavs = real( wavs * dnue + wstart, 4 )
-
 
    write(6,111) "Data spectra :"
    write(6,102)'low wavenumber : ', wavs(1)
    write(6,102)'high wavenumber : ', wavs(np)
    write(6,102)'spacing : ', dnue
    write(6,101)'# points : ', np
-
-   print *,''
+   write(6,*)''
 
    if(( wavs(1) .GT. rhi ) .OR. ( wavs(np) .LT. rlo )) then
       print *,' ratio and data spectra do not overlap...'
@@ -807,7 +805,7 @@ subroutine ratio( outspec, wstart, dnue, np )
    enddo
 
    ! reset output starting wavenumber & number of points
-   wstart = wavs(startpt)
+   wstart = real(wavs(startpt),8)
    np = np - startpt +1 - (np-endpt)
 
    deallocate( wavs, rwv, rmp )
@@ -879,7 +877,7 @@ subroutine sincinterp ( inspec, outspec, n, wlow, space, opdmax, nterp )
    sincradius = nint(nmaxsinc * ninterpol * deltanue_lu / deltanue_in) + 1
    !print *, ' sincradius           : ', sincradius
 
-   firstnue_out = (int((firstnue_in + sincradius * deltanue_in) / deltanue_out) + 2) * deltanue_out
+   firstnue_out = real((int((firstnue_in + sincradius * deltanue_in) / deltanue_out) + 2), 8) * deltanue_out
    write(6,102)'Final first wavenumber : ', firstnue_out
 
    nofpts_out = int(real(nofpts_in - 2 * sincradius,8) * deltanue_in / deltanue_out) - 4
@@ -1045,7 +1043,7 @@ subroutine kpno( opdmax, wl1, wl2, roe, lat, lon, nterp, rflag, oflag, zflag, vf
 
       if( idint(zflag) .eq. 2 ) zero = bc2( amps, wavs, npfile, wmid, vflag, noise )
 
-      if( zero .ne. -999. )then
+      if( zero .ne. -999.d0 )then
          write(6, 102) 'Zero offset determined : ', zero
          write(6, 102) ' at wavenumber : ', wmid
          write(6, 102) 'RMS Noise from zero : ', noise
@@ -1150,9 +1148,7 @@ subroutine kpno( opdmax, wl1, wl2, roe, lat, lon, nterp, rflag, oflag, zflag, vf
       if( vflag .gt. 0 )write(6,*)'from interp : ',np, dnue, wstart
    endif
 
-   peak = maxval( outspec(:) )
-
-
+   peak = real( maxval( outspec(:) ), 8 )
 
 ! --- Step 5: Ratio if requested
    if( rflag .eq. 1 ) call ratio( outspec, wstart, dnue, np )
@@ -1262,6 +1258,8 @@ character (len=1), intent(inout)  :: loc
 integer, intent(out)              :: yy, mm, dd, hh, nn, ss
 real, intent(out)                 :: sza, azm, dur, fov, res
 real(8)                           :: roe
+real(4)                           :: opd
+character (len=3)                 :: apd
 integer                           :: m = 0
 
 ! from bnr.c
@@ -1279,6 +1277,7 @@ integer                           :: m = 0
 !// T  - latitude
 !// N  - longitude positive West
 !// E  - ROE in direction of azimuth
+!// O  - optical path difference
 
 !06/17/2004 15:09:24UT Z:54.203 A:335.332 D:1443.00 R:0.0035 P:BX F:3.8636mr
 read(title,1,err=11)mm, dd, yy, hh, nn, ss, sza, azm, dur, res, fov
@@ -1317,29 +1316,34 @@ m = m + 1
 read(title,6,err=16)loc, yy, mm, dd, hh, nn, ss, sza, res, fov, dur
 azm = -999.0
 goto 10
-!also, required in pspec.f90 open unformatted needs access='stream'
-!either as a pre-compiler option or a flag in pspec.input
 
 16 continue
 m = m + 1 !6
 !sfit4 v0.9.4.1 (ckopus.c)
 !20120901 17:08:39UT Z:76.436 A:266.26 D:0204.7 R:0.0035 P:BX V:01.9139 E:6380
-read(title,7,err=21)yy, mm, dd, hh, nn, ss, sza, azm, dur, res, fov, roe
+read(title,7,err=17)yy, mm, dd, hh, nn, ss, sza, azm, dur, res, fov, roe
 goto 10
 
-!BAVO add BIRA type of spectra headers
 17 continue
 m = m + 1
+!BIRA type of spectra headers
 !20110125 04:04:55  102s ZT=04:05:45 OPD= 81.97 FOV= 6.36 APF=BX aS 61.553  28.45
 !ZT is the median of the recording time... and was used to get the ZA
 !print *,trim(title)
-read(title,8,err=21)yy , mm, dd , dur, hh, nn, ss, fov, sza
-print *,yy,mm,dd,hh,nn,ss,dur,fov,sza
+read(title,8,err=18)yy, mm, dd , dur, hh, nn, ss, fov, sza
+!print *,yy,mm,dd,hh,nn,ss,dur,fov,sza
+goto 10
+
+18 continue
+m = m + 1
+! zephyr2
+!20090602 09:54:13  205s ZT=09:55:55 OPD=257.14 FOV= 2.75 APF=BX aS 60.531 999.99
+read(title,9,err=21)yy, mm, dd, dur, hh, nn, ss, fov, sza, azm
 goto 10
 
 21 print*, 'spec:parsetitle: header read', m
 print*,yy, mm, dd, hh, nn, ss, sza, azm
-stop
+stop '4'
 
 10 continue
 return
@@ -1352,6 +1356,7 @@ return
 6 format(a1,2x,i4,5(1x,i2),5x,f5.1,5x,f6.4,5x,f4.1,5x,f5.1)
 7 format(i4,2i2,1x,2(i2,1x),i2,5x,f7.0,3x,f6.0,3x,f6.0,3x,f6.0,8x,f7.0,3x,f4.0)
 8 format(i4,2(i2),11x,f3.0,5x,3(i2,1x),15x,f6.0,10x,f6.0)
+9 format(i4,i2,i2,11x,f3.0,5x,3(i2,1x),16x,f4.0,11x,f6.0,1x,f6.0)
 
 end subroutine parsetitle
 
@@ -1388,10 +1393,10 @@ real(8) function interp( rmp, rspac, rwv, wav )
    !print *, wav, rwv, rspac, rmp
    n = (wav-rwv)/rspac
 
-   a = rmp(2) - rmp(1)
-   b = rmp(3) - rmp(2)
-   c = rmp(4) - rmp(3)
-   d = rmp(5) - rmp(4)
+   a = real( rmp(2) - rmp(1), 8)
+   b = real( rmp(3) - rmp(2), 8)
+   c = real( rmp(4) - rmp(3), 8)
+   d = real( rmp(5) - rmp(4), 8)
 
    e = b - a
    f = c - b
@@ -1442,7 +1447,7 @@ subroutine calcsnr( wavs, amps, npfile, wlim1, wlim2, spac, opdmax, nterp, noise
 
    ! get snr nearest to our mw
    k    = 0
-   mind = 10000.
+   mind = 10000.d0
    do i=1, nsnr
       !print*, i, psnr(:,i), wlim1, wlim2
       noise = abs( (psnr(1,i)+psnr(2,i))/2. - (wlim1+wlim2)/2.)
@@ -1462,7 +1467,7 @@ subroutine calcsnr( wavs, amps, npfile, wlim1, wlim2, spac, opdmax, nterp, noise
       iih = ihi(1)
       write(66,*) 1, iih - iil + 1
       do i=iil, iih
-         write(66,*), wavs(i), amps(i)
+         write(66,*) wavs(i), amps(i)
       enddo
    endif
 
@@ -1487,7 +1492,7 @@ subroutine calcsnr( wavs, amps, npfile, wlim1, wlim2, spac, opdmax, nterp, noise
    if( vflag .gt. 1 )then
       write(66,*) 2, iih - iil + 1
       do i=iil, iih
-         write(66,*), wavs(i), amps(i)
+         write(66,*) wavs(i), amps(i)
       enddo
    endif
 
@@ -1512,7 +1517,7 @@ subroutine calcsnr( wavs, amps, npfile, wlim1, wlim2, spac, opdmax, nterp, noise
    if( vflag .gt. 1 )then
       write(66,*) 3, np
       do i=1, np
-         write(66,*), (i-1)*dnue + wstart, outspec(i)
+         write(66,*) (i-1)*dnue + wstart, outspec(i)
       enddo
    endif
 
@@ -1542,7 +1547,7 @@ subroutine calcsnr( wavs, amps, npfile, wlim1, wlim2, spac, opdmax, nterp, noise
    if( iih .eq. 0 )stop '3'
 
    np = iih - iil +1
-   mean = sum(outspec(iil:iih)) / real( np, 8 )
+   mean = real(sum(outspec(iil:iih)), 8) / real( np, 8 )
 
    ! assume horizontal band
    !noise = sqrt(dot_product(outspec(iil:iih)-mean, outspec(iil:iih)-mean) / real( np, 8 ) )
@@ -1555,11 +1560,13 @@ subroutine calcsnr( wavs, amps, npfile, wlim1, wlim2, spac, opdmax, nterp, noise
    !print*, size(x), size( outspec(iil:iih))
 
    curve(1:3) = polyfit( x, real( outspec(iil:iih), 8 ), np, 2 )
+   do i=1, np
+      y(i) = outspec(iil+i-1) - (curve(1) + (curve(2) + curve(3)*x(i) ) * x(i))
+   enddo
 
    if( vflag .gt. 1 )then
       write(66,*) 4, np, iil*dnue + wstart, dnue
       do i=1, np
-         y(i) = outspec(iil+i-1) - (curve(1) + (curve(2) + curve(3)*x(i) ) * x(i))
          write(66,*) x(i), z(iil+i-1), outspec(iil+i-1), (curve(1) + (curve(2) + curve(3)*x(i) ) * x(i)), y(i)
       enddo
       close(66)

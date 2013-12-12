@@ -28,13 +28,15 @@
 FC = gfortran
 
 # error check everything
-FFLAGS = -Wall -Warray-bounds -Wcharacter-truncation -Wunused-parameter -Warray-temporaries \
-         -Wimplicit-interface -Wunderflow -Warray-temporaries -Wconversion-extra \
+FFLAGS = -Warray-bounds -Wcharacter-truncation -Wunused-parameter \
+         -Wimplicit-interface -Wunderflow -Wconversion-extra \
          -Wunused-dummy-argument -Wcompare-reals \
          -fcheck=all -fimplicit-none -fbacktrace -fwhole-file -fall-intrinsics -fno-automatic \
          -fstack-arrays -frepack-arrays \
          -std=gnu -pedantic \
          -ffpe-trap=invalid,zero,overflow,underflow
+
+# -Warray-temporaries too many...
 
 #error check a lot
 #FFLAGS = -Wall -fno-automatic -fcheck=all -ffpe-trap=invalid,zero,overflow,underflow -Warray-bounds \
