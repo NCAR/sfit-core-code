@@ -1,0 +1,133 @@
+  SFIT4:V0.9.5.1.PRE_RELEASE:20131202 runtime:20131211-22:54:34
+  This version uses quanta from HITRAN to attribute extra parameters to each transition record.
+
+Found number of bands :          3
+    1    6180.00000    6175.84222    6260.00000    6264.15778      64.292    0.050000
+    2    6297.00000    6292.84222    6382.00000    6386.15778      64.292    0.050000
+    3    7765.00000    7760.84222    8005.00000    8009.15778      64.292    0.050000
+
+Linelist path : /Users/jamesw/FDP/sfit/400/sfit-core/linelist/                                                                                                                  
+Number of HITRAN files to search :         99
+ 
+ File : /Users/jamesw/FDP/sfit/400/sfit-core/linelist/001_H2O/001_H2Oall.atm.20120409
+   6175.842223   8009.157777     1    10     1     1     6175.987580
+ 
+ File : /Users/jamesw/FDP/sfit/400/sfit-core/linelist/002_CO2/002_CO2.atm.20120409
+   6175.842223   8009.157777     2    11     2     2     6175.887659
+ 
+ File : /Users/jamesw/FDP/sfit/400/sfit-core/linelist/004_N2O/004_N2O.atm.20120409
+   6175.842223   8009.157777     3    12     4     4     6175.925840
+ 
+ File : /Users/jamesw/FDP/sfit/400/sfit-core/linelist/005_CO/005_CO.atm.20120409
+   6175.842223   8009.157777     4    13     5     5     6176.113972
+ 
+ File : /Users/jamesw/FDP/sfit/400/sfit-core/linelist/006_CH4/006_CH4.atm.20120409
+   6175.842223   8009.157777     5    14     6     6     6176.453900
+ 
+ File : /Users/jamesw/FDP/sfit/400/sfit-core/linelist/007_O2/007_O2.atm.20120409
+   6175.842223   8009.157777     6    15     7     7     6256.380089
+ 
+ File : /Users/jamesw/FDP/sfit/400/sfit-core/linelist/013_OH/013_OH.atm.20120409
+   6175.842223   8009.157777     7    16    13    13     6179.225800
+ 
+ File : /Users/jamesw/FDP/sfit/400/sfit-core/linelist/014_HF/014_HF.atm.20120409
+   6175.842223   8009.157777     8    17    14    14     6999.286300
+ 
+ File : /Users/jamesw/FDP/sfit/400/sfit-core/linelist/015_HCL/015_HCl.atm.20120409
+   6175.842223   8009.157777     9    18    15    15     7895.988121
+ 
+ File : /Users/jamesw/FDP/sfit/400/sfit-core/linelist/016_HBR/016_HBr.atm.20120409
+   6175.842223   8009.157777    10    19    16    16     7048.029879
+ 
+ File : /Users/jamesw/FDP/sfit/400/sfit-core/linelist/017_HI/017_HI.atm.20120409
+   6175.842223   8009.157777    11    20    17    17     6176.145048
+ 
+ File : /Users/jamesw/FDP/sfit/400/sfit-core/linelist/049_O2CIA/o2cia_20060420.101
+   6175.842223   8009.157777    12    21    49     7     7100.000000
+
+ Number of HITRAN molecules/files found :         12
+
+Number of Galatry files to search :          2
+Found Galatry line file : /Users/jamesw/FDP/sfit/400/sfit-core/linelist/014_HF/14_hit12_Galatry.txt
+ File : /Users/jamesw/FDP/sfit/400/sfit-core/linelist/014_HF/14_hit12_Galatry.txt
+   6175.842223   8009.157777     1    22    41    14
+Found Galatry line file : /Users/jamesw/FDP/sfit/400/sfit-core/linelist/015_HCL/15_hit12_Galatry.txt
+ File : /Users/jamesw/FDP/sfit/400/sfit-core/linelist/015_HCL/15_hit12_Galatry.txt
+   6175.842223   8009.157777     2    23    41    15
+
+   Number of Galatry molecules found :          2
+
+Number of LM files to search :          1
+Found LineMix line file : /Users/jamesw/FDP/sfit/400/sfit-core/linelist/002_CO2/02_hase_lm.dat
+ 
+ File : /Users/jamesw/FDP/sfit/400/sfit-core/linelist/002_CO2/02_hase_lm.dat
+   6175.842223   8009.157777     1    24     2
+
+   Number of LM molecules found :          1
+
+Number of SDV files to search :          1
+Found SDVoigt line file : /Users/jamesw/FDP/sfit/400/sfit-core/linelist/005_CO/05_hit12_SDV.txt
+ 
+ File : /Users/jamesw/FDP/sfit/400/sfit-core/linelist/005_CO/05_hit12_SDV.txt
+   6175.842223   8009.157777     1    25     5
+
+   Number of SDV molecules found :          1
+
+NUMBER OF ISOTOPES TO SEPARATE = 3
+ OLD NAME, ID, ISO     NEW NAME, ID, ISO    TDEP   S-SCALE
+ H2O        1    4     HDO       55    1     1.50  1.000000
+    2724, 1    1403, 1    3707, 1
+ADDING ISOTOPE  55/ 2 TO MOLECULE  55/ 1
+ H2O        1    5     HDO       55    2
+ADDING ISOTOPE  55/ 3 TO MOLECULE  55/ 1
+ H2O        1    6     HDO       55    3
+
+Saving binary line data to : 06175.842223-08009.157777.hbin
+Saving ascii line data to  : 06175.842223-08009.157777.hasc
+
+HITRAN file for input:
+index molid  lun  wavnum    name
+    1    1   10  6175.98758  /Users/jamesw/FDP/sfit/400/sfit-core/linelist/001_H2O/001_H2Oall.atm.20120409
+    2    2   11  6175.88766  /Users/jamesw/FDP/sfit/400/sfit-core/linelist/002_CO2/002_CO2.atm.20120409
+    3    4   12  6175.92584  /Users/jamesw/FDP/sfit/400/sfit-core/linelist/004_N2O/004_N2O.atm.20120409
+    4    5   13  6176.11397  /Users/jamesw/FDP/sfit/400/sfit-core/linelist/005_CO/005_CO.atm.20120409
+    5    6   14  6176.45390  /Users/jamesw/FDP/sfit/400/sfit-core/linelist/006_CH4/006_CH4.atm.20120409
+    6    7   15  6256.38009  /Users/jamesw/FDP/sfit/400/sfit-core/linelist/007_O2/007_O2.atm.20120409
+    7   13   16  6179.22580  /Users/jamesw/FDP/sfit/400/sfit-core/linelist/013_OH/013_OH.atm.20120409
+    8   14   17  6999.28630  /Users/jamesw/FDP/sfit/400/sfit-core/linelist/014_HF/014_HF.atm.20120409
+    9   15   18  7895.98812  /Users/jamesw/FDP/sfit/400/sfit-core/linelist/015_HCL/015_HCl.atm.20120409
+   10   16   19  7048.02988  /Users/jamesw/FDP/sfit/400/sfit-core/linelist/016_HBR/016_HBr.atm.20120409
+   11   17   20  6176.14505  /Users/jamesw/FDP/sfit/400/sfit-core/linelist/017_HI/017_HI.atm.20120409
+   12   49   21  7100.00000  /Users/jamesw/FDP/sfit/400/sfit-core/linelist/049_O2CIA/o2cia_20060420.101
+
+ 1275 lines read in Galatry file :     1
+
+ 4193 lines read in Galatry file :     2
+
+Line Mixing file for input:
+
+44403 lines read in LM file :     1
+
+Speed-Dependent Voigt file for input:
+
+  150 lines read in SDV file :     1
+
+Band:     1    6175.84222    6180.00000    6260.00000    6264.15778
+
+Band:     2    6292.84222    6297.00000    6382.00000    6386.15778
+
+Band:     3    7760.84222    7765.00000    8005.00000    8009.15778
+   closing file :           13   /Users/jamesw/FDP/sfit/400/sfit-core/linelist/005_CO/005_CO.atm.20120409
+   closing file :           20   /Users/jamesw/FDP/sfit/400/sfit-core/linelist/017_HI/017_HI.atm.20120409
+   closing file :           19   /Users/jamesw/FDP/sfit/400/sfit-core/linelist/016_HBR/016_HBr.atm.20120409
+   closing file :           14   /Users/jamesw/FDP/sfit/400/sfit-core/linelist/006_CH4/006_CH4.atm.20120409
+   closing file :           16   /Users/jamesw/FDP/sfit/400/sfit-core/linelist/013_OH/013_OH.atm.20120409
+   closing file :           12   /Users/jamesw/FDP/sfit/400/sfit-core/linelist/004_N2O/004_N2O.atm.20120409
+   closing file :           18   /Users/jamesw/FDP/sfit/400/sfit-core/linelist/015_HCL/015_HCl.atm.20120409
+   closing file :           17   /Users/jamesw/FDP/sfit/400/sfit-core/linelist/014_HF/014_HF.atm.20120409
+   closing file :           15   /Users/jamesw/FDP/sfit/400/sfit-core/linelist/007_O2/007_O2.atm.20120409
+   closing file :           11   /Users/jamesw/FDP/sfit/400/sfit-core/linelist/002_CO2/002_CO2.atm.20120409
+   closing file :           21   /Users/jamesw/FDP/sfit/400/sfit-core/linelist/049_O2CIA/o2cia_20060420.101
+   closing file :           10   /Users/jamesw/FDP/sfit/400/sfit-core/linelist/001_H2O/001_H2Oall.atm.20120409
+
+Lines saved to output hbin file :       7722

@@ -1,0 +1,20 @@
+Notes on x.co2.tccon
+
+v0.9.5.1 crashed
+
+ CALCULATING PARTITION FUNCTIONS...
+  CALCULATING CROSS SECTIONS...
+
+Program received signal SIGFPE: Floating-point exception - erroneous arithmetic operation.
+
+Backtrace for this error:
+#0  0x122C4FF97
+#1  0x122C5062E
+#2  0x7FFF8E834909
+#3  0x101DCA93C
+#4  0x101CEF613
+#5  0x101D78735
+#6  0x101DCF289
+#7  0x101DCF4CE
+/Users/jamesw/FDP/sfit/400/bin/sfit4.k: line 290: 8495: Floating exception
+/Users/jamesw/FDP/sfit/400/tc/x.co2.tccon/0.9.5.1

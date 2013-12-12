@@ -523,13 +523,11 @@ program hbin
                endif
             enddo
 
-
-
             ! --- save this line
             nl = nl +1
             !print *, 'writing ', hbuf(ldx)(1:30), ldx, hlun(ldx)
             if( hasc )write(halun,'(a)') hfl(ldx)%buf
-            write(hblun)       hlp(ldx)
+            write(hblun) hlp(ldx)
 
          endif
 
@@ -547,7 +545,8 @@ program hbin
          ! --- end of a file or last read line is too high a wavenumber
       10 continue
          inquire( hfl(ldx)%lun, name=nam )
-         print *, '  closing file : ', hfl(ldx)%lun, '  ', trim(nam)
+         write(6,120) '  closing file : ', hfl(ldx)%lun, trim(nam)
+
          close( hfl(ldx)%lun )
          do i = ldx, hnml-1
             hlp(i)    = hlp(i+1)
@@ -601,6 +600,7 @@ stop
 117 format(/, i5, a, i5)
 !118 format( 3i5,i10,f12.5,2x,a)
 119 format( i2,i1,a60 )
+120 format( a,i4,3x,a )
 
 end program hbin
 
