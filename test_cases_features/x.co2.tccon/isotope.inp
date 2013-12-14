@@ -1,0 +1,29 @@
+3    71             ! number of isotope seperation species (blocks), # of VMR values
+H2O                 ! old name
+1 4                 ! old molec id and isotope id
+HDO                 ! new name
+55 1 19.0 3 1.5 1.  ! new molec id, isotope id, mass, mode, tdep, intensity scale
+2724,1, 1403,1, 3707,1
+  0.4552E-05   0.4761E-05   0.4970E-05   0.5179E-05   0.5388E-05
+  0.5597E-05   0.5807E-05   0.5922E-05   0.6018E-05   0.6115E-05
+  0.6212E-05   0.6308E-05   0.6405E-05   0.6502E-05   0.6598E-05
+  0.6695E-05   0.6792E-05   0.6889E-05   0.6986E-05   0.7083E-05
+  0.7180E-05   0.7277E-05   0.7374E-05   0.7471E-05   0.7480E-05
+  0.7449E-05   0.7418E-05   0.7387E-05   0.7357E-05   0.7306E-05
+  0.7204E-05   0.7101E-05   0.6999E-05   0.6896E-05   0.6793E-05
+  0.6690E-05   0.6553E-05   0.6388E-05   0.6224E-05   0.6059E-05
+  0.5894E-05   0.5705E-05   0.5510E-05   0.5316E-05   0.5121E-05
+  0.4929E-05   0.4739E-05   0.4549E-05   0.4402E-05   0.4260E-05
+  0.4117E-05   0.4057E-05   0.4013E-05   0.4092E-05   0.4204E-05
+  0.4497E-05   0.4915E-05   0.5361E-05   0.6274E-05   0.7955E-05
+  0.1203E-04   0.2566E-04   0.6702E-04   0.1206E-03   0.2502E-03
+  0.3721E-03   0.4153E-03   0.4965E-03   0.8561E-03   0.1633E-02
+  0.4711E-02
+H2O                 ! old name - Add as second HDO isotope
+1 5                 ! old molec id and isotope id
+HDO                 ! new name
+55 2 21.0 0 1.5 1.  ! new molec id, isotope id, mass, mode, tdep, intensity scale
+H2O                 ! old name - Add as third HDO isotope
+1 6                 ! old molec id and isotope id
+HDO                 ! new name
+55 3 20.0 0 1.5 1.  ! new molec id, isotope id, mass, mode, tdep, intensity scale

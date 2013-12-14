@@ -3395,6 +3395,7 @@ END SUBROUTINE READLAYRS
 !
       REAL (8)     :: H1, H2, ANGLE, PHI, SH, GAMMA, CPATH, CZMAX, ZMAX, ANGMAX
       INTEGER (4)  :: ITER
+      REAL (8), EXTERNAL :: ANDEX
 
       IF (H1.LE.ZMAX.AND.H2.LE.ZMAX) RETURN
 
@@ -3616,7 +3617,7 @@ END SUBROUTINE READLAYRS
       REAL (8)     :: CPATH, CRFRCT, SH, GAMMA, CT1, CTP, CH2, CMIN
       REAL (8)     :: DH, ETA, H, HTP, HT1
       INTEGER (4)  :: N, LEN, ITER, IERROR
-!      REAL (8), EXTERNAL :: ANDEX
+      REAL (8), EXTERNAL :: ANDEX
 !      REAL (8) :: ANDEX
 
       DATA DH / 0.2D0 /,ETA / 5.0D-7 /
@@ -3785,7 +3786,7 @@ END SUBROUTINE READLAYRS
 
 ! ----------------------------------------------------------------
 !
-      REAL (8) FUNCTION ANDEX (H,SH,GAMMA)
+ !     REAL (8) FUNCTION ANDEX (H,SH,GAMMA)
 !
 !     DOUBLE PRECISION VERSION OF ANDEX - NEEDED FOR IMPROVED GEOMETRY
 !
@@ -3795,17 +3796,17 @@ END SUBROUTINE READLAYRS
 !     INDEX-1
 !     *****************************************************************
 !
-      REAL (8) :: H, SH, GAMMA
-
-      IF (SH.EQ.0.0) THEN
-         ANDEX = 1.0D0 + GAMMA
-      ELSE
-         ANDEX = 1.0D0 + GAMMA*EXP(-H/SH)
-      ENDIF
+ !     REAL (8) :: H, SH, GAMMA
+ !
+ !     IF (SH.EQ.0.0) THEN
+ !        ANDEX = 1.0D0 + GAMMA
+ !     ELSE
+ !        ANDEX = 1.0D0 + GAMMA*EXP(-H/SH)
+ !     ENDIF
 !
-      RETURN
+ !     RETURN
 !
-      END FUNCTION ANDEX
+ !     END FUNCTION ANDEX
 !
 ! ----------------------------------------------------------------
 !
@@ -3862,7 +3863,7 @@ END SUBROUTINE READLAYRS
       REAL (8)     :: ANGLEA, RHOBAR, THETA, DBETA, PBAR1, TBAR1
       REAL (8)     :: H1, H2, ANGLE, PHI, HMIN, RANGE, BETA, BENDNG
       INTEGER (4)  :: LEN, IAMT, I_2, IORDER, J2, J, IHLOW, IHIGH
-
+      REAL (8), EXTERNAL :: ANDEX
       CHARACTER (LEN=2) :: HLOW(2)
 
       DATA HLOW / 'H1','H2'/
@@ -4286,7 +4287,7 @@ END SUBROUTINE READLAYRS
       REAL (8)    :: CPATH, DX, DH, SINAI, COSAI, D31, D32, D21, DHMIN, GAMMA
       REAL (8)    :: SH, EPSILN, Z1, Z2, H1, H2, H3, Y1=0.0, Y3, PA=0.0, PB=0.0, TA, TB
       REAL (8)    :: RHOA=0.0, RHOB, DZ=0.0, HP=0.0, HRHO=0.0, DSDZ
-
+      REAL (8), EXTERNAL :: ANDEX
       REAL (8), DIMENSION(MXMOL) :: HDEN, DENA, DENB
 
       DATA EPSILN / 1.0D-5 /
@@ -4987,7 +4988,7 @@ END SUBROUTINE READLAYRS
       REAL (8)     :: H1, H2, ANGLE, RANGE, BETA, HTAN, PHI
       REAL (8)     :: CPATH, CPJ, CPJ1, SH, GAMMA, RE2
       REAL (8)     :: ZJ1, ZJ !, CRFRCT, H
-
+      REAL (8), EXTERNAL :: ANDEX
       !CRFRCT(H) = ( RE2 + H )*ANDEX( H, SH, GAMMA )
 
       RE2=RE
@@ -5054,7 +5055,7 @@ END SUBROUTINE READLAYRS
 
       REAL (8)      :: CX1, CX2, CPATH, F, FMID, SH, GAMMA
       REAL (8)      :: X1, X2, XACC, DX, XMID
-
+      REAL (8), EXTERNAL :: ANDEX
       DATA XACC / 1.0D-5 /
 
       PARAMETER (JMAX=40)
@@ -5108,7 +5109,7 @@ END SUBROUTINE READLAYRS
       REAL (8)      :: HTAN, RANGEI, BETA, ANGLE, PHI, DR, RANGEO, R1, R2, DZ, Z
       REAL (8)      :: DRNG, DBETA, R, DIFF, CPATH, SH, GAMMA, RX, RATIO, RPLDR
       REAL (8)      :: PERP, BASE, Z2
-
+      REAL (8), EXTERNAL :: ANDEX
       INTEGER (4)   :: I, LEN
 
       DATA DR / 0.005D0 /
