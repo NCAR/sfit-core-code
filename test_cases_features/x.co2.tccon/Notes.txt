@@ -1,3 +1,6 @@
+fixed in gfortran.
+
+
 Notes on x.co2.tccon
 
 v0.9.5.1 crashed

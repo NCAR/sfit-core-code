@@ -5,8 +5,7 @@
  file.in.isotope                = isotope.inp
  file.in.refprofile             = reference.prf
  file.in.spectrum               = spectrum
-# file.in.solarlines             = /home/mathias/linelist/solar/120621/solar.dat
- file.in.solarlines             = /Users/jamesw/FDP/sfit/400/dist/linelist/solar/120621/solar.dat
+ file.in.solarlines             = ../../linelist/solar/120621/solar.dat
  file.in.linelist               = 06175.842223-08009.157777.hbin
 
  # Definition for retrieval gases
