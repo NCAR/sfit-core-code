@@ -28,7 +28,7 @@
 FC = gfortran
 
 # error check everything
-FFLAGS = -Warray-bounds -Wcharacter-truncation -Wunused-parameter \
+#FFLAGS = -Warray-bounds -Wcharacter-truncation -Wunused-parameter \
          -Wimplicit-interface -Wunderflow -Wconversion-extra \
          -Wunused-dummy-argument -Wcompare-reals \
          -fcheck=all -fimplicit-none -fwhole-file -fall-intrinsics -fno-automatic \
@@ -43,14 +43,14 @@ FFLAGS = -Warray-bounds -Wcharacter-truncation -Wunused-parameter \
 #         -fbounds-check -fbacktrace
 
 # optomize
-#FFLAGS = -Ofast -Wall -fno-automatic -frepack-arrays
+FFLAGS = -Ofast -Wall -fno-automatic -frepack-arrays
 
 # supply compile date:
 # -cpp -DBDATE="\"`date +%Y%m%d`"\" -O2 -fno-automatic
 
 # intel
-FC = ifort
-FFLAGS = -fpe-all=0  -O0 -debug full
+#FC = ifort
+#FFLAGS = -fpe-all=0  -O0 -debug full
 
 #FFLAGS = -debug full
 
