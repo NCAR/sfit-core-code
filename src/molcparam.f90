@@ -189,7 +189,7 @@
        46.D0,  8*0.D0,                                               & !HCOOH
        34.D0,  36.D0, 35.D0, 6*0.D0,                                 & !H2S
       1.03D2,  8*0.D0,                                               & !CHCL2F
-       32.D0,  32.D0, 7*0.D0,                                               & !O2CIA     PL
+       32.D0,  32.0D0, 7*0.D0,                                       & !O2CIA     PL
       1.46D2,  8*0.D0/                                                 !SF6       PL
 
       DATA ((XMASS(JISO,IMOLM),JISO=1,NI),IMOLM=51,60)/ &
