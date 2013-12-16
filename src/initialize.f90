@@ -427,6 +427,15 @@
          READ(15, *, END=21) SZA1, ROE1, LAT1, LON1, BSNR
          READ(15, *, END=21) YYYY, MO, DD, HH, MI, SECS
          READ(15, 888) TITLE
+
+! CHECK THAT ALL NUMBERS ARE FINITE
+         IF (ISNAN(SZA1).OR.ISNAN(ROE1).OR.ISNAN(LAT1).OR.ISNAN(LON1).OR.ISNAN(BSNR).OR.&
+              ISNAN(SECS)) THEN
+            WRITE(16,*) "NAN DETECTED IN TAPE 15 (SPECTRUM)"
+            WRITE(0,*) "NAN DETECTED IN TAPE 15 (SPECTRUM)"
+            CALL SHUTDOWN
+            STOP 2
+         END IF
          GO TO 22
 
    21    CONTINUE
@@ -435,6 +444,12 @@
 
    22    CONTINUE
          READ (15, *) WLOW, WHI, SPACE, NPFILE
+         IF (ISNAN(WLOW).OR.ISNAN(WHI).OR.ISNAN(SPACE))THEN
+            WRITE(16,*) "NAN DETECTED IN TAPE 15 (SPECTRUM)"
+            WRITE(0,*) "NAN DETECTED IN TAPE 15 (SPECTRUM)"
+            CALL SHUTDOWN
+            STOP 2
+         END IF
 
          WLIM1 = WAVE3(IBAND)
          WLIM2 = WAVE4(IBAND)
@@ -523,6 +538,12 @@
          SMM   = 0.D0
          L5: DO I = 1, NPFILE
             READ (15, *, END=20) R4AMP
+            IF (ISNAN(R4AMP))THEN
+               WRITE(16,*) "NAN DETECTED IN TAPE 15 (SPECTRUM)"
+               WRITE(0,*) "NAN DETECTED IN TAPE 15 (SPECTRUM)"
+               CALL SHUTDOWN
+               STOP 2
+            END IF
             WAVE         = WLOW + REAL((I - 1),8)*SPAC(IBAND)
             IF (WAVE<WLIM1 .OR. WAVE>WLIM2) CYCLE L5
             NPTSB        = NPTSB + 1

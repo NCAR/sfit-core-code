@@ -96,7 +96,7 @@
          WRITE(16,*) ': COMPUTING RAYTRACE ONLY.'
          WRITE(00,*) ': COMPUTING RAYTRACE ONLY.'
          CALL SHUTDOWN
-         STOP 3
+         STOP '3'
       ENDIF
       IF( NLEV .LT. KMAX ) KMAX = NLEV
       
@@ -177,7 +177,7 @@
          WRITE(00, *) 'COULD NOT ALLOCATE SE ARRAY'
          WRITE(00, *) 'ERROR NUMBER = ', NAERR
          CALL SHUTDOWN
-         STOP 4
+         STOP '4'
       ENDIF
       SE(:)    = 0.0D0
       SED(:)   = 0.0D0
@@ -194,7 +194,7 @@
          WRITE(00, *) 'COULD NOT ALLOCATE SA ARRAY'
          WRITE(00, *) 'ERROR NUMBER = ', NAERR
          CALL SHUTDOWN
-         STOP 4
+         STOP '4'
       ENDIF
       SA(:,:)    = 0.0D0
       SHAT(:,:)  = 0.0D0
@@ -210,7 +210,7 @@
          WRITE(00, *) 'COULD NOT ALLOCATE XHAT ARRAY'
          WRITE(00, *) 'ERROR NUMBER = ', NAERR
          CALL SHUTDOWN
-         STOP 4
+         STOP '4'
       ENDIF
       XHAT(:) = 0.0D0
       YHAT(:) = 0.0D0
@@ -648,7 +648,7 @@
          F_RTSOL(4) = .TRUE.
          IFCO = .TRUE.
       END IF
-      IF( F_KB_SOLSTRNTH ) THEN                  
+      IF( F_KB_SOLSTRNTH ) THEN
          F_RTSOL(5) = .TRUE.
          IFCO = .TRUE.
       END IF
@@ -657,7 +657,7 @@
       IF( F_KB_IFDIFF )                      IFDIFF = .TRUE.
       IF( F_KB_EAP )                         F_RTAPOD = .TRUE.
       IF( F_KB_EPHS )                        F_RTPHASE = .TRUE.
-      IF( F_KB_ZSHIFT )  THEN                    
+      IF( F_KB_ZSHIFT )  THEN
          IZERO(:NBAND) = 1
          F_ZSHIFT(:NBAND) = .true.
       END IF

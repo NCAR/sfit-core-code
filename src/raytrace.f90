@@ -248,7 +248,7 @@
       IF (NAERR /= 0) THEN
          WRITE(16, *) 'RAYTRACE: READLAYERS: COULD NOT ALLOCATE Z AND ZBAR ARRAYS ERROR NUMBER = ', NAERR
          WRITE( 0, *) 'RAYTRACE: READLAYERS: COULD NOT ALLOCATE Z AND ZBAR ARRAYS ERROR NUMBER = ', NAERR
-         STOP 3
+         STOP '3'
       ENDIF
 
       READ(71,*) BUF
@@ -280,7 +280,7 @@
          WRITE(16, *) 'RAYTRACE: ITYPE 3: H1 OOR'
          WRITE( 0, *) 'RAYTRACE: ITYPE 3: H1 OOR'
          CALL SHUTDOWN
-         STOP 3
+         STOP '3'
       ENDIF
       GOTO 102
 
@@ -299,7 +299,7 @@
       WRITE(16, *) 'RAYTRACE: ITYPE 3 H1 READ ERROR.'
       WRITE( 0, *) 'RAYTRACE: ITYPE 3 H1 READ ERROR.'
       CALL SHUTDOWN
-      STOP 3
+      STOP '3'
 
  202  FORMAT(A)
  203  FORMAT(I5, 2F12.4)
@@ -1214,7 +1214,7 @@ END SUBROUTINE READLAYRS
                WRITE(16,*)' RAYTRACE : ATMPTH: COMPUTED ALTITUDE VALUE OF H1 IS NEGATIVE'
                WRITE( 0,*)' RAYTRACE : ATMPTH: COMPUTED ALTITUDE VALUE OF H1 IS NEGATIVE'
                CALL SHUTDOWN
-               STOP 3
+               STOP '3'
             ENDIF
 
             PTMP(1)  = 0.0
@@ -1272,7 +1272,7 @@ END SUBROUTINE READLAYRS
                WRITE(16,*) ' RAYTRACE : ATMPTH: COMPUTED ALTITUDE VALUE OF H2 IS NEGATIVE'
                WRITE( 0,*) ' RAYTRACE : ATMPTH: COMPUTED ALTITUDE VALUE OF H2 IS NEGATIVE'
                CALL SHUTDOWN
-               STOP 3
+               STOP '3'
             ENDIF
 
 ! --- END IF IBMAX_B < 0 - PRESSURE BOUDRARIES - INTERPOLATING ONTO Z BOUNDS
@@ -1290,7 +1290,7 @@ END SUBROUTINE READLAYRS
                   WRITE(16,*) ' RAYTRACE : ATMPTH: BOUNDARIES OUTSIDE OF ATMOS'
                   WRITE( 0,*) ' RAYTRACE : ATMPTH: BOUNDARIES OUTSIDE OF ATMOS'
                   CALL SHUTDOWN
-                  STOP 3
+                  STOP '3'
                ENDIF
             ENDIF
          ENDIF
@@ -1418,7 +1418,7 @@ END SUBROUTINE READLAYRS
             WRITE(16,*) ' RAYTRACE : ATMPTH: IERROR'
             WRITE( 0,*) ' RAYTRACE : ATMPTH: IERROR'
             CALL SHUTDOWN
-            STOP 3
+            STOP '3'
          ENDIF
 
 ! --- CALCULATE THE REFRACTED PATH THROUGH THE ATMOSPHERE
@@ -1693,14 +1693,14 @@ END SUBROUTINE READLAYRS
       WRITE(16,*) ' RAYTRACE : ATMPTH: CARD 3.1'
       WRITE( 0,*) ' RAYTRACE : ATMPTH: CARD 3.1'
       CALL SHUTDOWN
-      STOP 3
+      STOP '3'
 
   300 WRITE (0,988) (ZBND(I),I=1,IBMAX)
       PRINT 988,(ZBND(I),I=1,IBMAX)
       WRITE(16,*) ' RAYTRACE : ATMPTH: ZBND'
       WRITE( 0,*) ' RAYTRACE : ATMPTH: ZBND'
       CALL SHUTDOWN
-      STOP 3
+      STOP '3'
 
 !  301 PRINT 988,(ZTMP(I),I=2,IBMAX)
 !      STOP ' USER INPUT LEVELS TOO CLOSE - IBMAX'
@@ -1710,19 +1710,19 @@ END SUBROUTINE READLAYRS
       WRITE(16,*) ' RAYTRACE : ATMPTH: PBND'
       WRITE( 0,*) ' RAYTRACE : ATMPTH: PBND'
       CALL SHUTDOWN
-      STOP 3
+      STOP '3'
 
   310 WRITE (0,990)
       WRITE(16,*) ' RAYTRACE : ATMPTH: FSCGEO'
       WRITE( 0,*) ' RAYTRACE : ATMPTH: FSCGEO'
       CALL SHUTDOWN
-      STOP 3
+      STOP '3'
 
   320 WRITE (0,992) AVTRAT,TDIFF1,TDIFF2
       WRITE(16,*) ' RAYTRACE : AVTRAT,TDIFF'
       WRITE( 0,*) ' RAYTRACE : AVTRAT,TDIFF'
       CALL SHUTDOWN
-      STOP 3
+      STOP '3'
 
   890 FORMAT (A,I12)
   891 FORMAT( /, A, 2I6, F12.5)
@@ -1966,7 +1966,7 @@ END SUBROUTINE READLAYRS
                WRITE(16, *) 'COULD NOT ALLOCATE TORG ARRAY ERROR NUMBER = ', NAERR
                WRITE( 0, *) 'COULD NOT ALLOCATE TORG ARRAY ERROR NUMBER = ', NAERR
                CALL SHUTDOWN
-               STOP 3
+               STOP '3'
             ENDIF
          ENDIF
 
@@ -2115,14 +2115,14 @@ END SUBROUTINE READLAYRS
          WRITE(16, *) "RAYTRACE: MDLATM: NO MODEL 1-6"
          WRITE( 0, *) "RAYTRACE: MDLATM: NO MODEL 1-6"
          CALL SHUTDOWN
-         STOP 3
+         STOP '3'
       ENDIF
 
       IF( MDL .LT. 0 .OR. MDL .GT. 7 )THEN
          WRITE(16, *) "RAYTRACE: MDLATM: MODEL OUT OF RANGE"
          WRITE( 0, *) "RAYTRACE: MDLATM: MODEL OUT OF RANGE"
          CALL SHUTDOWN
-         STOP 3
+         STOP '3'
       ENDIF
 
    !40 CALL NSMDL( IREAD, ITYPE, MDL, NOPRNT, LMAX )
@@ -2178,12 +2178,12 @@ END SUBROUTINE READLAYRS
       IF( IUPDN .LT. 0 .OR. IUPDN .GT. 1 )THEN
          WRITE(16,*) 'LNGMDL IUPDN OOR'
          WRITE(00,*) 'LNGMDL IUPDN OOR'
-         STOP 3
+         STOP '3'
       ENDIF
       IF( NMOLK .LT. MOLTOTAL ) THEN
           WRITE(16,*) 'REFERENCE NMOLK (',NMOLK,') LESS THAN MOLTOTAL (',MOLTOTAL,')'
           WRITE(00,*) 'REFERENCE NMOLK (',NMOLK,') LESS THAN MOLTOTAL (',MOLTOTAL,')'
-          STOP 3
+          STOP '3'
       ENDIF
 
       ALLOCATE( RIN(NLAYK), ZLNG(NLAYK), TPLNG(NLAYK,2), GLNG(NLAYK,NMOLK), YGAS(NMOLK) )
@@ -2214,7 +2214,7 @@ END SUBROUTINE READLAYRS
                   WRITE(16,*) ' NISOVMR IS NOT EQUAL TO REFERENCE # LAYERS'
                   WRITE(00,*) ' NISOVMR IS NOT EQUAL TO REFERENCE # LAYERS'
                   CALL SHUTDOWN
-                  STOP 3
+                  STOP '3'
                ENDIF
                DO J=1, NISOSEP
                   IF( NEWID(J) .EQ. IM )THEN
@@ -2260,7 +2260,7 @@ END SUBROUTINE READLAYRS
                   WRITE(16,*) ' NISOVMR = ',NISOVMR,' IS NOT EQUAL TO REFERENCE # LAYERS (=',NLAYK,')'
                   WRITE(00,*) ' NISOVMR = ',NISOVMR,' IS NOT EQUAL TO REFERENCE # LAYERS (=',NLAYK,')'
                   CALL SHUTDOWN
-                  STOP 3
+                  STOP '3'
                ENDIF
                DO J=1, NISOSEP
                   IF( NEWID(J) .EQ. IM )THEN
@@ -2306,33 +2306,33 @@ END SUBROUTINE READLAYRS
  200  WRITE(16,*) "200 READ ERROR FIRST LINE : ", TFILE(72)
       WRITE(00,*) "200 READ ERROR FIRST LINE : ", TFILE(72)
       CALL SHUTDOWN
-      STOP 3
+      STOP '3'
  201  WRITE(16,*) "201 EOF ERROR FIRST LINE : ", TFILE(72)
       WRITE(00,*) "201 EOF ERROR FIRST LINE : ", TFILE(72)
       CALL SHUTDOWN
-      STOP 3
+      STOP '3'
  202  WRITE(16,*) "202 READ ERROR Z, P OR T : ", TFILE(72)
       WRITE(00,*) "202 READ ERROR Z, P OR T : ", TFILE(72)
       CALL SHUTDOWN
-      STOP 3
+      STOP '3'
  203  WRITE(16,*) "203 EOF ERROR Z, P OR T : ", TFILE(72)
       WRITE(00,*) "203 EOF ERROR Z, P OR T : ", TFILE(72)
       CALL SHUTDOWN
-      STOP 3
+      STOP '3'
  204  WRITE(16,*) "204 READ ERROR A GAS BLOCK HEADER : ", TFILE(72)
       WRITE(00,*) "204 READ ERROR A GAS BLOCK HEADER  : ", TFILE(72)
       CALL SHUTDOWN
-      STOP 3
+      STOP '3'
  205  WRITE(16,*) "205 EOF ERROR A GAS BLOCK HEADER  : ", TFILE(72)
       WRITE(00,*) "205 EOF ERROR A GAS BLOCK HEADER  : ", TFILE(72)
       CALL SHUTDOWN
-      STOP 3
+      STOP '3'
 
 !101   FORMAT( F10.3,1X,1PE10.3,1X,0PF7.2,8(1PE10.3),8(/,29X,8(1PE10.3)))
 !106   FORMAT( 5(E12.5,1X))
 !107   FORMAT( 5X,A75)
 108   FORMAT( I5,A8,A75)
-109   FORMAT( 5(E12.4:,1X)) !If the first line is smaller than 5 numbers, the colon stops reading out
+109   FORMAT( 5(E12.4:,1X))
 110   FORMAT( F12.2, 2G12.4, 200E12.4 )
 111   FORMAT( 200A12 )
 !112   FORMAT( 36X,200(8X,I4))
@@ -2466,7 +2466,7 @@ END SUBROUTINE READLAYRS
            WRITE(16,*) 'NSMDL IREAD OOR'
            WRITE(00,*) 'NSMDL IREAD OOR'
            CALL SHUTDOWN
-           STOP 3
+           STOP '3'
         ENDIF
 
         IF( NOPRNT .GE. 0 )THEN
@@ -2503,7 +2503,7 @@ END SUBROUTINE READLAYRS
       WRITE(16,*) ' LEVEL ERROR IN NSMDL '
       WRITE(00,*) ' LEVEL ERROR IN NSMDL '
       CALL SHUTDOWN
-      STOP 3
+      STOP '3'
 
    35 CONTINUE
 
@@ -2512,7 +2512,7 @@ END SUBROUTINE READLAYRS
       WRITE(16,*) 'INPUT ALTITUDES NOT IN ASCENDING ORDER'
       WRITE(00,*) 'INPUT ALTITUDES NOT IN ASCENDING ORDER'
       CALL SHUTDOWN
-      STOP 3
+      STOP '3'
 
 !  900 FORMAT (///,' READING IN USER SUPPLIED MODEL ATMOSPHERE',/)
  900  FORMAT(/,' NSMDL : ATMOSPHERE MODEL TYPE : ', I5 )
@@ -2678,7 +2678,7 @@ END SUBROUTINE READLAYRS
          WRITE(16,*) 'INVALID VALUE FOR JLONG ON RECORD 3.5: ',JLONG
          WRITE(00,*) 'INVALID VALUE FOR JLONG ON RECORD 3.5: ',JLONG
          CALL SHUTDOWN
-         STOP 3
+         STOP '3'
       ENDIF
       IF (IM.EQ.0 .AND. NOPRNT.GE.0) WRITE (IPR,910)
 
@@ -2740,7 +2740,7 @@ END SUBROUTINE READLAYRS
          WRITE(16,900) CHAR
          WRITE(00,900) CHAR
          CALL SHUTDOWN
-         STOP 3
+         STOP '3'
       ENDIF
 
       JOU = INDX
@@ -2783,7 +2783,7 @@ END SUBROUTINE READLAYRS
          WRITE(16,*) ' CHECK(P)'
          WRITE(00,*) ' CHECK(P)'
          CALL SHUTDOWN
-         STOP 3
+         STOP '3'
       ENDIF
 !
 !     TEMPERATURE COMVERSIONS
@@ -2795,7 +2795,7 @@ END SUBROUTINE READLAYRS
          WRITE(16,*) ' CHECK(T)'
          WRITE(00,*) ' CHECK(T)'
          CALL SHUTDOWN
-         STOP 3
+         STOP '3'
       ENDIF
 !
 !      RANGE CONVERSIONS
@@ -2810,7 +2810,7 @@ END SUBROUTINE READLAYRS
          WRITE(16,*) ' CHECK(R)'
          WRITE(00,*) ' CHECK(R)'
          CALL SHUTDOWN
-         STOP 3
+         STOP '3'
       ENDIF
 !
       END SUBROUTINE CHECK
@@ -2911,7 +2911,7 @@ END SUBROUTINE READLAYRS
             WRITE(16,900) K,JUNIT(K)
             WRITE(00,900) K,JUNIT(K)
             CALL SHUTDOWN
-            STOP 3
+            STOP '3'
          ENDIF
 
    70 END DO
@@ -3044,7 +3044,7 @@ END SUBROUTINE READLAYRS
       WRITE(16,*) 'WATVAP JUNIT OOR'
       WRITE(00,*) 'WATVAP JUNIT OOR'
       CALL SHUTDOWN
-      STOP 3
+      STOP '3'
 
    90 CONTINUE
       DENST = DENSAT(A)
@@ -3395,6 +3395,7 @@ END SUBROUTINE READLAYRS
 !
       REAL (8)     :: H1, H2, ANGLE, PHI, SH, GAMMA, CPATH, CZMAX, ZMAX, ANGMAX
       INTEGER (4)  :: ITER
+      REAL (8), EXTERNAL :: ANDEX
 
       IF (H1.LE.ZMAX.AND.H2.LE.ZMAX) RETURN
 
@@ -3616,7 +3617,7 @@ END SUBROUTINE READLAYRS
       REAL (8)     :: CPATH, CRFRCT, SH, GAMMA, CT1, CTP, CH2, CMIN
       REAL (8)     :: DH, ETA, H, HTP, HT1
       INTEGER (4)  :: N, LEN, ITER, IERROR
-!      REAL (8), EXTERNAL :: ANDEX
+      REAL (8), EXTERNAL :: ANDEX
 !      REAL (8) :: ANDEX
 
       DATA DH / 0.2D0 /,ETA / 5.0D-7 /
@@ -3705,7 +3706,7 @@ END SUBROUTINE READLAYRS
       WRITE(16,*) ' FNDHMN '
       WRITE(00,*) ' FNDHMN '
       CALL SHUTDOWN
-      STOP 3
+      STOP '3'
 
   900 FORMAT (///,' TANGENT PATH WITH H1 = ',F10.3,' AND ANGLE = ',     &
      &        F10.3,' INTERSECTS THE EARTH',//,10X,                     &
@@ -3785,7 +3786,7 @@ END SUBROUTINE READLAYRS
 
 ! ----------------------------------------------------------------
 !
-      REAL (8) FUNCTION ANDEX (H,SH,GAMMA)
+ !     REAL (8) FUNCTION ANDEX (H,SH,GAMMA)
 !
 !     DOUBLE PRECISION VERSION OF ANDEX - NEEDED FOR IMPROVED GEOMETRY
 !
@@ -3795,17 +3796,17 @@ END SUBROUTINE READLAYRS
 !     INDEX-1
 !     *****************************************************************
 !
-      REAL (8) :: H, SH, GAMMA
-
-      IF (SH.EQ.0.0) THEN
-         ANDEX = 1.0D0 + GAMMA
-      ELSE
-         ANDEX = 1.0D0 + GAMMA*EXP(-H/SH)
-      ENDIF
+ !     REAL (8) :: H, SH, GAMMA
+ !
+ !     IF (SH.EQ.0.0) THEN
+ !        ANDEX = 1.0D0 + GAMMA
+ !     ELSE
+ !        ANDEX = 1.0D0 + GAMMA*EXP(-H/SH)
+ !     ENDIF
 !
-      RETURN
+ !     RETURN
 !
-      END FUNCTION ANDEX
+ !     END FUNCTION ANDEX
 !
 ! ----------------------------------------------------------------
 !
@@ -3862,7 +3863,7 @@ END SUBROUTINE READLAYRS
       REAL (8)     :: ANGLEA, RHOBAR, THETA, DBETA, PBAR1, TBAR1
       REAL (8)     :: H1, H2, ANGLE, PHI, HMIN, RANGE, BETA, BENDNG
       INTEGER (4)  :: LEN, IAMT, I_2, IORDER, J2, J, IHLOW, IHIGH
-
+      REAL (8), EXTERNAL :: ANDEX
       CHARACTER (LEN=2) :: HLOW(2)
 
       DATA HLOW / 'H1','H2'/
@@ -4167,7 +4168,7 @@ END SUBROUTINE READLAYRS
       WRITE(16,900) HMIN
       WRITE(00,900) HMIN
       CALL SHUTDOWN
-      STOP 3
+      STOP '3'
   100 CONTINUE
       IPHMID = 0
       IP = 0
@@ -4178,7 +4179,7 @@ END SUBROUTINE READLAYRS
          WRITE(16,905) IPDIM
          WRITE( 0,905) IPDIM
          CALL SHUTDOWN
-         STOP 3
+         STOP '3'
       ENDIF
       !print *, 'zpth ', zpth
       !print*, 'im ', im, zmdl(im), iout, zout(iout), ip, zpth(ip), ioutmx
@@ -4286,7 +4287,7 @@ END SUBROUTINE READLAYRS
       REAL (8)    :: CPATH, DX, DH, SINAI, COSAI, D31, D32, D21, DHMIN, GAMMA
       REAL (8)    :: SH, EPSILN, Z1, Z2, H1, H2, H3, Y1=0.0, Y3, PA=0.0, PB=0.0, TA, TB
       REAL (8)    :: RHOA=0.0, RHOB, DZ=0.0, HP=0.0, HRHO=0.0, DSDZ
-
+      REAL (8), EXTERNAL :: ANDEX
       REAL (8), DIMENSION(MXMOL) :: HDEN, DENA, DENB
 
       DATA EPSILN / 1.0D-5 /
@@ -4319,7 +4320,7 @@ END SUBROUTINE READLAYRS
              WRITE(16,*) 'ALAYER: PRESSURES IN ADJOINING LAYERS MUST DIFFER', PB
              WRITE(00,*) 'ALAYER: PRESSURES IN ADJOINING LAYERS MUST DIFFER', PB
              CALL SHUTDOWN
-             STOP 3
+             STOP '3'
           ENDIF
           TA = TP(J)
           TB = TP(J+1)
@@ -4854,7 +4855,7 @@ END SUBROUTINE READLAYRS
       WRITE(16,*) ' ERROR FPACK '
       WRITE( 0,*) ' ERROR FPACK '
       CALL SHUTDOWN
-      STOP 3
+      STOP '3'
 
   900 FORMAT ('0FROM FPACK-  ERROR, IOUT = ',I5,'  DOES NOT MATCH ',    &
      &        'IFINMX = ',I5)
@@ -4919,7 +4920,7 @@ END SUBROUTINE READLAYRS
             WRITE(16,*) "FIXTYPE - TTPYE"
             WRITE(00,*) "FIXTYPE - TTPYE"
             CALL SHUTDOWN
-            STOP 3
+            STOP '3'
 
          ELSEIF (TTYPE.GE.1.2) THEN
 !
@@ -4987,7 +4988,7 @@ END SUBROUTINE READLAYRS
       REAL (8)     :: H1, H2, ANGLE, RANGE, BETA, HTAN, PHI
       REAL (8)     :: CPATH, CPJ, CPJ1, SH, GAMMA, RE2
       REAL (8)     :: ZJ1, ZJ !, CRFRCT, H
-
+      REAL (8), EXTERNAL :: ANDEX
       !CRFRCT(H) = ( RE2 + H )*ANDEX( H, SH, GAMMA )
 
       RE2=RE
@@ -5054,7 +5055,7 @@ END SUBROUTINE READLAYRS
 
       REAL (8)      :: CX1, CX2, CPATH, F, FMID, SH, GAMMA
       REAL (8)      :: X1, X2, XACC, DX, XMID
-
+      REAL (8), EXTERNAL :: ANDEX
       DATA XACC / 1.0D-5 /
 
       PARAMETER (JMAX=40)
@@ -5065,7 +5066,7 @@ END SUBROUTINE READLAYRS
          WRITE(16,*) 'ROOT MUST BE BRACKETED FOR BISECTION.'
          WRITE(00,*) 'ROOT MUST BE BRACKETED FOR BISECTION.'
          CALL SHUTDOWN
-         STOP 3
+         STOP '3'
       ENDIF
       IF(F.LT.0.)THEN
          RTBIS = X1
@@ -5108,7 +5109,7 @@ END SUBROUTINE READLAYRS
       REAL (8)      :: HTAN, RANGEI, BETA, ANGLE, PHI, DR, RANGEO, R1, R2, DZ, Z
       REAL (8)      :: DRNG, DBETA, R, DIFF, CPATH, SH, GAMMA, RX, RATIO, RPLDR
       REAL (8)      :: PERP, BASE, Z2
-
+      REAL (8), EXTERNAL :: ANDEX
       INTEGER (4)   :: I, LEN
 
       DATA DR / 0.005D0 /
@@ -5117,7 +5118,7 @@ END SUBROUTINE READLAYRS
          WRITE(16,*) 'STOPPED IN FNDPTH'
          WRITE(00,*) 'STOPPED IN FNDPTH'
          CALL SHUTDOWN
-         STOP 3
+         STOP '3'
       ENDIF
 !     (RANGEI .LT. DR) SHOULD NOT HAPPEN; SO THIS CHECK IS REDUNDANT.
 
@@ -5343,7 +5344,7 @@ END SUBROUTINE READLAYRS
                WRITE(16,*)'LAYER TOO THICK'
                WRITE(00,*)'LAYER TOO THICK'
                CALL SHUTDOWN
-               STOP 3
+               STOP '3'
             ENDIF
 
             XINT_TOT = C1*Y + 0.5*(C2-C1*ALPHA)*Y**2 +                  &

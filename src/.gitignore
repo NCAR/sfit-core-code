@@ -1,0 +1,7 @@
+.*
+*.o
+*.mod
+hbin
+sfit4
+pspec
+!.gitignore

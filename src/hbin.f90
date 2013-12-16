@@ -33,8 +33,8 @@ module hitran
       real(8)            :: bt(nglines)    ! intensity [cm-1/(molec/cm-2)]
       character(len=60)  :: qa(nglines)    ! quanta data
       ! The format of the quanta fields depends on the species. Refer to
-      ! Rothman, L. S. et.al. 
-      ! The HITRAN 2004 molecular spectroscopic database 
+      ! Rothman, L. S. et.al.
+      ! The HITRAN 2004 molecular spectroscopic database
       ! Journal Of Quantitative Spectroscopy & Radiative Transfer, 2005, 96, 139-204
       real(8)            :: g0_air(nglines)
       real(8)            :: td_g0_air(nglines)
@@ -44,7 +44,7 @@ module hitran
       real(4)            :: g2_air(nglines)
       real(4)            :: ts_air(nglines)
       real(4)            :: lm_air(nglines) ! line mixing coefficients
-      real(4)            :: lm_t1(nglines)  ! extra parameters of F. Hase to model 
+      real(4)            :: lm_t1(nglines)  ! extra parameters of F. Hase to model
       real(4)            :: lm_t2(nglines)  ! temperature dependency
    end type galatrydata
 
@@ -213,12 +213,15 @@ program hbin
    logical              :: oped, hasc=.TRUE.
    integer              :: iost, dum, ind
    character (len=7), dimension(6) :: sdv_params
+   logical :: qu_equal
+   character (len=10)   :: ztime='          ', zone='          '
+   character (len=8)    :: cdate='        '
+
 
 ! --- we have beta data for 2 gases and not too many lines (sfit4 v0.9)
 
    type (hitrandata),  dimension(nhit+ncia)   :: hlp
    type (hitranfile),  dimension(nhit+ncia)   :: hfl
-
 
 !   type (linemixfile), dimension(nlmx)        :: lfl
 !   type (linemixdata), dimension(nlmlines)    :: lmx
@@ -227,15 +230,16 @@ program hbin
    type (galatrydata), dimension(nlmx)        :: lmx
    type (galatrydata), dimension(nsdv)        :: sdv
 
-   logical :: qu_equal
-
-   print *, ' hbin v0.9.4.3'
+   call date_and_time (cdate, ztime, zone)
+   write (tag,*) trim(version), ' runtime:', cdate(1:8), '-', ztime(1:2), ':', ztime(3:4), ':', ztime(5:6)
+   write ( 6, *) trim(tag)
+   write(6,*) ' This version uses quanta from HITRAN to attribute extra parameters to each transition record.'
 
    ! --- read in band, isotope info from sfit4.ctl file fr this fit
    call read_ctrl
 
    ! --- read in paths to HITRAN files
-   call read_input( wave5(1), wave6(nband), HFL, GLP, LMX, SDV )
+   call read_input( hasc, wave5(1), wave6(nband), HFL, GLP, LMX, SDV )
 
    ! --- see if we need to separate out isotopes
    !print *, useiso
@@ -285,7 +289,6 @@ program hbin
    enddo
 
    ! --- fill Galatry line parameters struct with all line data from each file
-   
    do ifl = 1, gnml
 
       ! --- first buf already read
@@ -295,7 +298,7 @@ program hbin
       ! read( glp(ifl)%buf, 108 ) glp(ifl)%mo(1), glp(ifl)%is(1), &
       !      glp(ifl)%v1(1), glp(ifl)%v2(1), glp(ifl)%branch(1), glp(ifl)%j(1), &
       !      glp(ifl)%g0_air(1), glp(ifl)%beta(1)
-      ! HITRAN 2008 
+      ! HITRAN 2008
       ! read( glp(ifl)%buf, 108 ) glp(ifl)%mo(1), glp(ifl)%is(1), glp(ifl)%nu(1), glp(ifl)%bt(1)
       !print *, ifl, 1, glp(ifl)%mo(1), glp(ifl)%is(1), glp(ifl)%nu(1), glp(ifl)%bt(1)
 
@@ -303,17 +306,16 @@ program hbin
       glp(ifl)%n = 1
       do i = 1, nglines
          read( glp(ifl)%lun, 109, end=5 ) buf
+         !print *, buf
          ! HITRAN 2012
          ind = glp(ifl)%n
          glp(ifl)%beta(ind) = 0.0D0
-         read( buf, 108 ) glp(ifl)%mo(ind), glp(ifl)%is(ind), &
-              glp(ifl)%qa(ind), glp(ifl)%g0_air(ind), glp(ifl)%beta(ind)
-         if (glp(ifl)%beta(ind) .le. tiny(0.0D0)) cycle 
-         !         print *, buf
+         read( buf, 108 ) glp(ifl)%mo(ind), glp(ifl)%is(ind), glp(ifl)%qa(ind), glp(ifl)%g0_air(ind), glp(ifl)%beta(ind)
+         if (glp(ifl)%beta(ind) .le. tiny(0.0D0)) cycle
          !         print *, glp(ifl)%v1(ind), glp(ifl)%v2(ind), glp(ifl)%branch(ind), glp(ifl)%j(ind)
          glp(ifl)%n = glp(ifl)%n + 1
 
-      ! HITRAN 2008
+      ! ad hoc Galatry files from AG 2008
       !         read( glp(ifl)%buf,108  ) glp(ifl)%mo(i), glp(ifl)%is(i), glp(ifl)%nu(i), glp(ifl)%bt(i)
          !print *, ifl, i, glp(ifl)%mo(i), glp(ifl)%is(i), glp(ifl)%nu(i), glp(ifl)%bt(i)
          goto 6
@@ -356,14 +358,14 @@ program hbin
          lmx(ifl)%n = lmx(ifl)%n + 1
 
          goto 16
-         
+
 15       close( lmx(ifl)%lun )
          exit
 16       continue
-         
+
       end do
       write(6,117) lmx(ifl)%n, ' lines read in LM file : ', ifl
-      
+
    enddo
 
    ! --- fill of Speed - Dependent Voigt data parameters from each file complete into structures
@@ -398,8 +400,8 @@ program hbin
             read(sdv_params(3), *) sdv(ifl)%lm_air(ind)
          end if
 
-         if (sdv(ifl)%g2_air(ind) .le. tiny(0.0D0)) cycle 
-         
+         if (sdv(ifl)%g2_air(ind) .le. tiny(0.0D0)) cycle
+
          sdv(ifl)%n = sdv(ifl)%n + 1
 
          goto 26
@@ -407,10 +409,10 @@ program hbin
          exit
 26       continue
       end do
-      write(6,117) sdv(ifl)%n, ' lines read in SDV file : ', ifl               
+      write(6,117) sdv(ifl)%n, ' lines read in SDV file : ', ifl
    enddo
-   
-   
+
+
 
    nl = 0
    ! --- loop over bands
@@ -459,7 +461,7 @@ program hbin
                        lmx(ifl)%is(i) .eq. hlp(ldx)%is ) then
                      if (qu_equal(hlp(ldx)%qa, lmx(ifl)%qa(i))) then
                         hlp(ldx)%ylm = lmx(ifl)%lm_air(i)
-                        hlp(ldx)%lmtk1 = lmx(ifl)%lm_t1(i) 
+                        hlp(ldx)%lmtk1 = lmx(ifl)%lm_t1(i)
                         hlp(ldx)%lmtk2 = lmx(ifl)%lm_t2(i)
                         write( hfl(ldx)%buf(220:280), 1121 ) hlp(ldx)%lmtk1, hlp(ldx)%lmtk2, hlp(ldx)%ylm
                         hlp(ldx)%flag(LM_FLAG) = .TRUE.
@@ -494,7 +496,7 @@ program hbin
                            write( hfl(ldx)%buf(dum:dum), '(l1)' ) .TRUE.
                         end if
                         write( hfl(ldx)%buf(172:280), 112 ) hlp(ldx)%gamma0, hlp(ldx)%gamma2, &
-                             hlp(ldx)%shift0, hlp(ldx)%shift2, hlp(ldx)%lmtk1, hlp(ldx)%lmtk2, hlp(ldx)%ylm  
+                             hlp(ldx)%shift0, hlp(ldx)%shift2, hlp(ldx)%lmtk1, hlp(ldx)%lmtk2, hlp(ldx)%ylm
                         hlp(ldx)%flag(SDV_FLAG) = .TRUE.
                         dum = flagoff + SDV_FLAG
                         write( hfl(ldx)%buf(dum:dum), '(l1)' ) .TRUE.
@@ -506,7 +508,7 @@ program hbin
 
 
             ! --- check if this is an isotope that is to be separated out
-            ! --- because of identification of extra line parameters via mo id and quantum numbers, 
+            ! --- because of identification of extra line parameters via mo id and quantum numbers,
             !     renumbering of the isotopes has to come last.
             do i=1, nisosep
                !print *, i, nisosep, hlp(lun)%mo, hlp(lun)%is, oldid(i), oldiso(i), newid(i), newiso(i)
@@ -520,13 +522,11 @@ program hbin
                endif
             enddo
 
-
-
             ! --- save this line
             nl = nl +1
             !print *, 'writing ', hbuf(ldx)(1:30), ldx, hlun(ldx)
             if( hasc )write(halun,'(a)') hfl(ldx)%buf
-            write(hblun)       hlp(ldx)
+            write(hblun) hlp(ldx)
 
          endif
 
@@ -544,7 +544,8 @@ program hbin
          ! --- end of a file or last read line is too high a wavenumber
       10 continue
          inquire( hfl(ldx)%lun, name=nam )
-         print *, '  closing file : ', hfl(ldx)%lun, '  ', trim(nam)
+         write(6,120) '  closing file : ', hfl(ldx)%lun, trim(nam)
+
          close( hfl(ldx)%lun )
          do i = ldx, hnml-1
             hlp(i)    = hlp(i+1)
@@ -598,6 +599,7 @@ stop
 117 format(/, i5, a, i5)
 !118 format( 3i5,i10,f12.5,2x,a)
 119 format( i2,i1,a60 )
+120 format( a,i4,3x,a )
 
 end program hbin
 
@@ -699,18 +701,19 @@ subroutine filh( hd, hf )
 end subroutine filh
 
 
-subroutine read_input( wstr, wstp, HFL, GLP, LFL, SDV )
+subroutine read_input( hasc, wstr, wstp, HFL, GLP, LFL, SDV )
 
    use hitran
 
    implicit none
 
-   real(double)        :: wstr, wstp, wavnum
-   integer             :: lun, mo, iso
-   character (len=10)  :: ifilename = 'hbin.input'
-   integer             :: j, i, n, istat, ilun=9
-   logical             :: fexist
-   character (len=160) :: buffer, linebuffer, path, filename
+   logical, intent(inout)  :: hasc
+   real(double)            :: wstr, wstp, wavnum
+   integer                 :: lun, mo, iso
+   character (len=10)      :: ifilename = 'hbin.input'
+   integer                 :: j, i, n, istat, ilun=9
+   logical                 :: fexist
+   character (len=160)     :: buffer, linebuffer, path, filename
 
    TYPE (GALATRYDATA), intent(inout)   :: GLP(ngal)
    TYPE (HITRANFILE),  intent(inout)   :: HFL(nhit+ncia)
@@ -725,19 +728,18 @@ subroutine read_input( wstr, wstp, HFL, GLP, LFL, SDV )
    endif
    open( ilun, file=ifilename, status='old', iostat=istat )
 
+   ! --- read in ascii output flag
+   call nextbuf( ilun, buffer )
+   read(buffer,'(l10)') hasc
+   !print*, hasc
+
    ! --- read path to hitran files
-   do
-      read(ilun,100) buffer
-      if( (len_trim(buffer).ne.0).and.(buffer(1:1) .ne. '#' ))exit
-   enddo
+   call nextbuf( ilun, buffer )
    path = trim( buffer )
    write(6,112) 'Linelist path : ', path
 
    ! --- read number of expected hitran files (max=99)
-   do
-      read(ilun,100) buffer
-      if( (len_trim(buffer).ne.0).and.(buffer(1:1) .ne. '#' ))exit
-   enddo
+   call nextbuf( ilun, buffer )
    read(buffer,*) nfiles
    write(6,111) 'Number of HITRAN files to search : ', nfiles
    if( nfiles .gt. nhit )stop 'too many hitran files'
@@ -752,10 +754,7 @@ subroutine read_input( wstr, wstp, HFL, GLP, LFL, SDV )
    do i = 1, nfiles
 
       ! --- find filename
-      do
-         read(ilun,110) linebuffer
-      if( (len_trim(linebuffer).ne.0).and.(linebuffer(1:1) .ne. '#' ))exit
-      enddo
+      call nextbuf( ilun, linebuffer )
       filename = trim(path) // trim(linebuffer)
       n = len_trim(filename)
       ! catch eg 065_CH3CNPL/ 2007.sudo.ch3cn
@@ -815,10 +814,7 @@ subroutine read_input( wstr, wstp, HFL, GLP, LFL, SDV )
    ! --- Galatry data files - block 2 in hbin.input
    ! --- read number of expected Galatry files (max=2)
    ! --- Galatry files are unique format from hitran
-   do
-      read(ilun,100) buffer
-      if( (len_trim(buffer).ne.0).and.(buffer(1:1) .ne. '#' ))exit
-   enddo
+   call nextbuf( ilun, buffer )
    read(buffer,*) nfiles
    write(6,114) 'Number of Galatry files to search : ', nfiles
    if( nfiles .gt. ngal )stop 'too many hitran files'
@@ -831,10 +827,7 @@ subroutine read_input( wstr, wstp, HFL, GLP, LFL, SDV )
    do i = 1, nfiles
 
       ! --- find the name of the next galatry input file
-      do
-         read(ilun,110) linebuffer
-         if( (len_trim(linebuffer).ne.0).and.(linebuffer(1:1) .ne. '#') )exit
-      enddo
+      call nextbuf( ilun, linebuffer )
       filename = trim(path) // trim(linebuffer)
       n = len_trim(filename)
       if( filename(n:n) .eq. '/' )cycle
@@ -885,10 +878,7 @@ subroutine read_input( wstr, wstp, HFL, GLP, LFL, SDV )
    ! --- LM files are unique format from hitran, Galatry...
    ! --- save position in file and read as they are written (like hitran base files)
    ! only accounting for CO2 so far
-   do
-      read(ilun,100) buffer
-      if( (len_trim(buffer).ne.0).and.(buffer(1:1) .ne. '#') )exit
-   enddo
+   call nextbuf( ilun, buffer )
    read(buffer,*) nfiles
    write(6,114) 'Number of LM files to search : ', nfiles
    if( nfiles .gt. nlmx )stop 'too many LM files'
@@ -899,10 +889,7 @@ subroutine read_input( wstr, wstp, HFL, GLP, LFL, SDV )
    do i = 1, nfiles
 
       ! --- find the name of the next galatry input file
-      do
-         read(ilun,110) linebuffer
-         if( (len_trim(linebuffer).ne.0).and.(linebuffer(1:1) .ne. '#') )exit
-      enddo
+      call nextbuf( ilun, linebuffer )
       filename = trim(path) // trim(linebuffer)
       n = len_trim(filename)
       if( filename(n:n) .eq. '/' )cycle
@@ -948,10 +935,7 @@ subroutine read_input( wstr, wstp, HFL, GLP, LFL, SDV )
    ! --- !!! SDV files are unique format from hitran, Galatry, but same as Line Mixing lists...
    ! --- save position in file and read as they are written (like hitran base files)
    ! only accounting for CO2 so far
-   do
-      read(ilun,100) buffer
-      if( (len_trim(buffer).ne.0).and.(buffer(1:1) .ne. '#') )exit
-   enddo
+   call nextbuf( ilun, buffer )
    read(buffer,*) nfiles
    write(6,114) 'Number of SDV files to search : ', nfiles
    if( nfiles .gt. nsdv )stop 'too many SDV files'
@@ -962,10 +946,7 @@ subroutine read_input( wstr, wstp, HFL, GLP, LFL, SDV )
    do i = 1, nfiles
 
       ! --- find the name of the next galatry input file
-      do
-         read(ilun,110) linebuffer
-         if( (len_trim(linebuffer).ne.0).and.(linebuffer(1:1) .ne. '#') )exit
-      enddo
+      call nextbuf( ilun, linebuffer )
       filename = trim(path) // trim(linebuffer)
       n = len_trim(filename)
       if( filename(n:n) .eq. '/' )cycle
@@ -1090,4 +1071,28 @@ return
 101 format( /, a, i10 )
 
 end subroutine read_ctrl
+
+
+!--------------------------------------------------------------------------------------------
+subroutine nextbuf(ifile, buffer)
+
+   implicit none
+
+   integer,       intent(in)   :: ifile
+   character(160),intent(out)  :: buffer
+
+   buffer(1:1) = '#'
+   do while( adjustl( buffer(1:1)) .eq. '#' )
+      read(ifile,'(a160)', err=20, end=21) buffer
+      !print *, buffer
+      if( len_trim(buffer) .eq. 0 )buffer(1:1) = '#'
+   end do
+
+   return
+
+ 20 stop 'nextbuf : error reading input file'
+ 21 stop 'nextbuf : end of input file'
+
+end subroutine nextbuf
+
 
