@@ -99,6 +99,7 @@ kb.solshft = T
 kb.solstrnth = T 
 kb.phase = T
 kb.wshift = T
+kb.dwshift = T
 kb.apod_fcn = T
 kb.phase_fcn = T 
 kb.zshift = F 
@@ -107,12 +108,9 @@ kb.omega = T
 kb.max_opd = T 
 kb.line = T
 kb.line.type = 1 
-kb.line.gas = CH4 
-<<<<<<< HEAD
-=======
+kb.line.gas =  retrieval
 kb.profile = T
 kb.profile.gas = CO2 
->>>>>>> c536b4762fc6203b58f3db422e52a647aab1385c
 band = 1 2 3 4 
 band.1.nu_start = 2613.7000 
 band.1.nu_stop = 2615.4000 
