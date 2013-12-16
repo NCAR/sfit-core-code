@@ -756,6 +756,7 @@
       !close(100)
 
       ! APPEND NAMES ILINE ENTRIES IN KB MATRIX WITH GASNAMES
+      ! MIGTH BE BETTER IN THE SUBFUNCTION INIT_PARM, BUT ALL IMPLICATIONS HAVE TO BE CHECKED!!!
 
       L1 = 1
       L2 = 1
@@ -772,6 +773,16 @@
             PNAME(I) = 'LineTAir'//'_'//trim(s_kb_line_gas(L3))
             L3 = L3 + 1
          END SELECT
+      END DO
+
+      ! DWNUMSHIFT ONLY CALCULATED FOR INTERFERING GASES
+      L1 = 2
+      DO I = 1,NVAR
+         SELECT CASE (PNAME(i))
+         CASE ('DWNumShft')
+            PNAME(I) = 'DWNumShft'//'_'//trim(GAS(L1))
+            L1 = L1 + 1
+        END SELECT
       END DO
          
 
