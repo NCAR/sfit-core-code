@@ -1,5 +1,20 @@
 Notes for pre release versions V003.*
 
+December 2013 Mathias Palm
+
+- Appended DWNumShft, LineInt, LinePAir and LineTAir with the gasnames
+  the entries apply to.
+- Introduced a second molecule of HF (needed for HITRAN 2012)
+- changed the match of extra parameters (line mixing, beta for
+  Galatry, SDV parameters for CO as given in HITRAN 2012) from
+  wavenumber to quantum numbers in hbin.f90.
+  The Line mixing parameter file creatre by Frank Hase has been
+  modified accordingly.
+- kb matrices are calculated even if empirical apodisation and phase
+  are not included into the forward model. Both function are taken as
+  a three dimensional function with the apriori value 1. 
+
+
 ---------------------
 July 2013
 -commented out compile time variable in makefile passing to the version string

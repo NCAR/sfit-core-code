@@ -625,11 +625,26 @@
          F_RTSOL(5) = .TRUE.
          IFCO = .TRUE.
       END IF
-      IF( F_KB_PHASE )                       IFPHASE = .TRUE.
+      ! ERROR FOR SIMPLE PHASE ONLY WHEN NO ERROR FOR EMPIRICAL PHASE IS NOT CALCULATED
+      IF( F_KB_PHASE .AND..NOT. F_KB_EPHS)   IFPHASE = .TRUE.
       IF( F_KB_TEMP )                        IFTEMP = .TRUE.
       IF( F_KB_IFDIFF )                      IFDIFF = .TRUE.
-      IF( F_KB_EAP )                         F_RTAPOD = .TRUE.
-      IF( F_KB_EPHS )                        F_RTPHASE = .TRUE.
+      IF( F_KB_EAP.AND..NOT.F_RTAPOD ) then
+         F_RTAPOD = .TRUE.
+         F_EAPOD  = .TRUE.
+         IEAP = 2
+         NEAP = 3
+         EAPF(:NEAP) = 1.0D0
+         EAPPAR = 1.0D0
+      end IF
+      IF( F_KB_EPHS.AND..NOT.F_RTPHASE ) then
+         F_RTPHASE = .TRUE.
+         F_EPHASE = .TRUE.
+         IEPHS = 2
+         NEPHS = 3
+         EPHSF(:NEPHS) = 1.0D0
+         EPHSPAR = 1.0D0
+      end IF
       IF( F_KB_ZSHIFT )  THEN
          IZERO(:NBAND) = 1
          F_ZSHIFT(:NBAND) = .true.
