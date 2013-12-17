@@ -32,6 +32,8 @@ program pspec
    real          (8) :: obs_lat, obs_lon, obs_alt, roe, newlo, newhi, zflag
    integer       (4) :: nspec, j, n, m
    integer       (4) :: nterp, rflag, iband, bflag, fflag, oflag, vflag
+   character (len=10)   :: ztime='          ', zone='          '
+   character (len=8)    :: cdate='        '
 
    ! blun 7  - input bnr file
    ! clun 8  - cinput
@@ -75,6 +77,9 @@ program pspec
      ! = 1 ratio
      ! = 0 not
 
+   call date_and_time (cdate, ztime, zone)
+   write (tag,*) trim(version), ' runtime:', cdate(1:8), '-', ztime(1:2), ':', ztime(3:4), ':', ztime(5:6)
+   write (6,  *) trim(tag)
 
    open (unit=ilun, file='pspec.input', status='old', err=668)
    call gonext(ilun, buffer)
@@ -138,7 +143,7 @@ program pspec
          open(unit=blun, file=bnrfile(1:len_trim(bnrfile)), form='unformatted', access='stream', status='old', err=666)
       else
          print*, ' file flag out of range 0 - fortran type or 1 c-type.'
-         stop 1
+         stop '1'
       endif
 
       if( rflag .eq. 1) then
@@ -151,7 +156,7 @@ program pspec
             open(unit=rlun, file=ratfile(1:len_trim(bnrfile)), form='unformatted', access='stream', status='old', err=666)
          else
             print*, ' file flag out of range 0 - fortran type or 1 c-type.'
-            stop 2
+            stop '2'
          endif
       endif
 

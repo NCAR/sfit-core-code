@@ -213,6 +213,10 @@ program hbin
    logical              :: oped, hasc=.TRUE.
    integer              :: iost, dum, ind
    character (len=7), dimension(6) :: sdv_params
+   logical :: qu_equal
+   character (len=10)   :: ztime='          ', zone='          '
+   character (len=8)    :: cdate='        '
+
 
 ! --- we have beta data for 2 gases and not too many lines (sfit4 v0.9)
 
@@ -226,7 +230,10 @@ program hbin
    type (galatrydata), dimension(nlmx)        :: lmx
    type (galatrydata), dimension(nsdv)        :: sdv
 
-   logical :: qu_equal
+   call date_and_time (cdate, ztime, zone)
+   write (tag,*) trim(version), ' runtime:', cdate(1:8), '-', ztime(1:2), ':', ztime(3:4), ':', ztime(5:6)
+   write ( 6, *) trim(tag)
+   write(6,*) ' This version uses quanta from HITRAN to attribute extra parameters to each transition record.'
 
    print *, ' hbin v0.9.5.0'
 
@@ -303,17 +310,16 @@ program hbin
       glp(ifl)%n = 1
       do i = 1, nglines
          read( glp(ifl)%lun, 109, end=5 ) buf
+         !print *, buf
          ! HITRAN 2012
          ind = glp(ifl)%n
          glp(ifl)%beta(ind) = 0.0D0
-         read( buf, 108 ) glp(ifl)%mo(ind), glp(ifl)%is(ind), &
-              glp(ifl)%qa(ind), glp(ifl)%g0_air(ind), glp(ifl)%beta(ind)
+         read( buf, 108 ) glp(ifl)%mo(ind), glp(ifl)%is(ind), glp(ifl)%qa(ind), glp(ifl)%g0_air(ind), glp(ifl)%beta(ind)
          if (glp(ifl)%beta(ind) .le. tiny(0.0D0)) cycle
-         !         print *, buf
          !         print *, glp(ifl)%v1(ind), glp(ifl)%v2(ind), glp(ifl)%branch(ind), glp(ifl)%j(ind)
          glp(ifl)%n = glp(ifl)%n + 1
 
-      ! HITRAN 2008
+      ! ad hoc Galatry files from AG 2008
       !         read( glp(ifl)%buf,108  ) glp(ifl)%mo(i), glp(ifl)%is(i), glp(ifl)%nu(i), glp(ifl)%bt(i)
          !print *, ifl, i, glp(ifl)%mo(i), glp(ifl)%is(i), glp(ifl)%nu(i), glp(ifl)%bt(i)
          goto 6
@@ -520,13 +526,11 @@ program hbin
                endif
             enddo
 
-
-
             ! --- save this line
             nl = nl +1
             !print *, 'writing ', hbuf(ldx)(1:30), ldx, hlun(ldx)
             if( hasc )write(halun,'(a)') hfl(ldx)%buf
-            write(hblun)       hlp(ldx)
+            write(hblun) hlp(ldx)
 
          endif
 
@@ -544,7 +548,8 @@ program hbin
          ! --- end of a file or last read line is too high a wavenumber
       10 continue
          inquire( hfl(ldx)%lun, name=nam )
-         print *, '  closing file : ', hfl(ldx)%lun, '  ', trim(nam)
+         write(6,120) '  closing file : ', hfl(ldx)%lun, trim(nam)
+
          close( hfl(ldx)%lun )
          do i = ldx, hnml-1
             hlp(i)    = hlp(i+1)
@@ -598,11 +603,9 @@ stop
 117 format(/, i5, a, i5)
 !118 format( 3i5,i10,f12.5,2x,a)
 119 format( i2,i1,a60 )
+120 format( a,i4,3x,a )
 
 end program hbin
-
-
-
 
 ! --- fill a hitran record from its buffer
 subroutine filh( hd, hf )
@@ -1083,13 +1086,16 @@ end subroutine nextbuf
 
 
 !--------------------------------------------------------------------------------------------
-logical function qu_equal(qanta1, quanta2)
+logical function qu_equal(quanta1, quanta2)
   ! compares quanta1 and quanta2 field in HITRAN 2004 format, retruns T if they are equal
   ! until now, only string compare, may get more complicated though
-  character :: quanta1, quanta2
+  implicit none
+  character (len=*), intent(in):: quanta1, quanta2
+  !logical :: qu_equal
 
   qu_equal = .false.
   if (quanta1.eq.quanta2) qu_equal = .true.
   return
 
 end function qu_equal
+

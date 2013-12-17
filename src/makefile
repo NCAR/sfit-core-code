@@ -28,13 +28,15 @@
 FC = gfortran
 
 # error check everything
-#FFLAGS = -Wall -Warray-bounds -Wcharacter-truncation -Wunused-parameter -Warray-temporaries \
-         -Wimplicit-interface -Wunderflow -Warray-temporaries -Wconversion-extra \
+FFLAGS = -Warray-bounds -Wcharacter-truncation -Wunused-parameter \
+         -Wimplicit-interface -Wunderflow -Wconversion-extra \
          -Wunused-dummy-argument -Wcompare-reals \
-         -fcheck=all -fimplicit-none -fbacktrace -fwhole-file -fall-intrinsics -fno-automatic \
+         -fcheck=all -fimplicit-none -fwhole-file -fall-intrinsics -fno-automatic \
          -fstack-arrays -frepack-arrays \
          -std=gnu -pedantic \
-         -ffpe-trap=invalid,zero,overflow,underflow
+         -ffpe-trap=invalid,zero,overflow,underflow -g -fbacktrace -fsanitize=address
+
+# -Warray-temporaries too many...
 
 #error check a lot
 #FFLAGS = -Wall -fno-automatic -fcheck=all -ffpe-trap=invalid,zero,overflow,underflow -Warray-bounds \
@@ -45,6 +47,13 @@ FFLAGS = -Ofast -Wall -fno-automatic -frepack-arrays
 
 # supply compile date:
 # -cpp -DBDATE="\"`date +%Y%m%d`"\" -O2 -fno-automatic
+
+# intel
+#FC = ifort
+#FFLAGS = -fpe-all=0  -O0 -debug full
+
+#FFLAGS = -debug full
+
 
 # Portland compiler
 #FC = pgf90
@@ -95,6 +104,7 @@ vibfcn.o \
 voigt.o \
 voigt_sdv_lm.o \
 writeout.o \
+andex.o \
 xsections.o
 
 #convert_old_data_files.o
@@ -192,7 +202,7 @@ spec.o \
 : fitting.o
 
 raytrace.o \
-: params.o molcparam.o datafiles.o retvparam.o isotope.o writeout.o
+: params.o molcparam.o datafiles.o retvparam.o isotope.o writeout.o andex.o
 
 rdrv.o \
 : params.o datafiles.o binput_4_0.o
