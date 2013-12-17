@@ -49,10 +49,10 @@ fw.linemixing = T
 fw.linemixing.gas = CO2 
 fw.solar_spectrum = T 
 fw.pressure_shift = T 
-fw.apod_fcn = T 
+fw.apod_fcn =  F
 fw.apod_fcn.type = 2
 fw.apod_fcn.order = 2 
-fw.phase_fcn = T 
+fw.phase_fcn = F 
 fw.phase_fcn.type = 2 
 fw.phase_fcn.order = 2 
 fw.emission = F 
@@ -97,8 +97,9 @@ kb.slope = T
 kb.curvature = T 
 kb.solshft = T
 kb.solstrnth = T 
-kb.phase = T
+kb.phase = F
 kb.wshift = T
+kb.dwshift = T
 kb.apod_fcn = T
 kb.phase_fcn = T 
 kb.zshift = F 
@@ -107,12 +108,9 @@ kb.omega = T
 kb.max_opd = T 
 kb.line = T
 kb.line.type = 1 
-kb.line.gas = CH4 
-<<<<<<< HEAD
-=======
+kb.line.gas =  retrieval
 kb.profile = T
 kb.profile.gas = CO2 
->>>>>>> c536b4762fc6203b58f3db422e52a647aab1385c
 band = 1 2 3 4 
 band.1.nu_start = 2613.7000 
 band.1.nu_stop = 2615.4000 

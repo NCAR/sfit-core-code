@@ -234,6 +234,10 @@ program hbin
    write (tag,*) trim(version), ' runtime:', cdate(1:8), '-', ztime(1:2), ':', ztime(3:4), ':', ztime(5:6)
    write ( 6, *) trim(tag)
    write(6,*) ' This version uses quanta from HITRAN to attribute extra parameters to each transition record.'
+   logical :: qu_equal
+
+   print *, ' hbin v0.9.5.0'
+
 
    ! --- read in band, isotope info from sfit4.ctl file fr this fit
    call read_ctrl

@@ -253,6 +253,7 @@
       EAPDZ = 0.0D0
       XP = X/PMA
 
+
       IF( F_EAPOD )THEN
 
          SELECT CASE (IEAP)

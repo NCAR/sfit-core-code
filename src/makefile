@@ -43,7 +43,7 @@ FFLAGS = -Warray-bounds -Wcharacter-truncation -Wunused-parameter \
 #         -fbounds-check -fbacktrace
 
 # optomize
-#FFLAGS = -Ofast -Wall -fno-automatic -frepack-arrays
+FFLAGS = -Ofast -Wall -fno-automatic -frepack-arrays
 
 # supply compile date:
 # -cpp -DBDATE="\"`date +%Y%m%d`"\" -O2 -fno-automatic

@@ -51,6 +51,7 @@
       REAL(DOUBLE), DIMENSION(12)            :: FX = 0.0D0
       REAL(DOUBLE), DIMENSION(MOLMAX,LAYMAX) :: VERSUM = 0.0D0, VOSUM = 0.0D0
 
+
 ! ------------------------------------------------------------------------------
 
 ! --- SET FLAGS FOR OUTPUT
@@ -394,7 +395,8 @@
       ENDDO
 
 !  --- CALCULATE DEGREES OF FREEDOM FOR SIGNAL USING APOSTERIORI SOLUTION
-      CALL DOFS(NFIT,NVAR,ISMIX,NLEV)
+!  --- ONLY IF REALLY RETRIEVED, SOME MATRICES ARE NOT CALCULATED
+      IF ( RETFLG ) CALL DOFS(NFIT,NVAR,ISMIX,NLEV)
 
       INDXX = ISMIX
       DO KK = 1, NRET
@@ -415,22 +417,24 @@
 
 !  --- PRINT OUT RETRIEVED  PROFILES
       PRINT *,''
-      INDXX = ISMIX
-      DO K = NRET, 1, -1
-         IF( .NOT. IFPRF(K) )CYCLE
-         N = NLAYERS
-         !PRINT 408, NAME(IGAS(K)), VERSUM(K,N), FX(K), 100.0D0*FX(K)/VERSUM(K,N)
-         !WRITE(16,408) NAME(IGAS(K)), VERSUM(K,N), FX(K), 100.0D0*FX(K)/VERSUM(K,N)
-         WRITE(16,406) !NAME(IGAS(K))
-         DO KK = 1, N
-            INDXX = INDXX + 1
-            SIGMA = SQRT(ABS(SM(INDXX,INDXX)))*XORG(K,KK)
-!            print 0,SQRT(ABS(SM(INDXX,INDXX)))
-            WRITE (16, 407) Z(KK), ZBAR(KK), XORG(K,KK), X(K,KK), SIGMA, VOSUM(K,KK), VERSUM(K,KK)
+      IF ( RETFLG ) THEN
+         INDXX = ISMIX
+         DO K = NRET, 1, -1
+            IF( .NOT. IFPRF(K) )CYCLE
+            N = NLAYERS
+            !PRINT 408, NAME(IGAS(K)), VERSUM(K,N), FX(K), 100.0D0*FX(K)/VERSUM(K,N)
+            !WRITE(16,408) NAME(IGAS(K)), VERSUM(K,N), FX(K), 100.0D0*FX(K)/VERSUM(K,N)
+            WRITE(16,406) !NAME(IGAS(K))
+            DO KK = 1, N
+               INDXX = INDXX + 1
+               SIGMA = SQRT(ABS(SM(INDXX,INDXX)))*XORG(K,KK)
+               !            print 0,SQRT(ABS(SM(INDXX,INDXX)))
+               WRITE (16, 407) Z(KK), ZBAR(KK), XORG(K,KK), X(K,KK), SIGMA, VOSUM(K,KK), VERSUM(K,KK)
+            END DO
          END DO
-      END DO
 
-      WRITE(16,253)
+         WRITE(16,253)
+      END IF
 
 !  --- WRITE OUT TABLE OF PROFILES APRIORI ATMOSPHERE & VMR
       IF( F_WRTAPRF )CALL WRTAPRF( NRET, NLEV, KVERT )
@@ -449,7 +453,8 @@
 
 
 !  --- WRITE OUT A SUMMARY OF RETRIEVAL PARAMETERS
-      IF( F_WRTSUMRY )CALL WRTSMRY( DOF, ITER, CHI_2_Y, FOVDIA, RMS, NLEV, VOSUM, VERSUM )
+      print *, RETFLG
+      IF( RETFLG .AND. F_WRTSUMRY ) CALL WRTSMRY( DOF, ITER, CHI_2_Y, FOVDIA, RMS, NLEV, VOSUM, VERSUM )
 
 
 !  --- PRINT A SHORT SUMMARY TO THE CONSOLE
@@ -560,7 +565,7 @@
       INTEGER, INTENT(IN) :: NLEV
       CHARACTER (LEN=255) :: VAL
       LOGICAL             :: HFLG, IFPRF_1_ORIG
-      INTEGER             :: I, J, K, ORIG_NVAR, POS, NL = 1
+      INTEGER             :: I, J, K, L1, L2, L3, ORIG_NVAR, POS, NL = 1
 
       WRITE(16,254)
 
@@ -624,11 +629,26 @@
          F_RTSOL(5) = .TRUE.
          IFCO = .TRUE.
       END IF
-      IF( F_KB_PHASE )                       IFPHASE = .TRUE.
+      ! ERROR FOR SIMPLE PHASE ONLY WHEN NO ERROR FOR EMPIRICAL PHASE IS NOT CALCULATED
+      IF( F_KB_PHASE .AND..NOT. F_KB_EPHS)   IFPHASE = .TRUE.
       IF( F_KB_TEMP )                        IFTEMP = .TRUE.
       IF( F_KB_IFDIFF )                      IFDIFF = .TRUE.
-      IF( F_KB_EAP )                         F_RTAPOD = .TRUE.
-      IF( F_KB_EPHS )                        F_RTPHASE = .TRUE.
+      IF( F_KB_EAP.AND..NOT.F_RTAPOD ) then
+         F_RTAPOD = .TRUE.
+         F_EAPOD  = .TRUE.
+         IEAP = 2
+         NEAP = 3
+         EAPF(:NEAP) = 1.0D0
+         EAPPAR = 1.0D0
+      end IF
+      IF( F_KB_EPHS.AND..NOT.F_RTPHASE ) then
+         F_RTPHASE = .TRUE.
+         F_EPHASE = .TRUE.
+         IEPHS = 2
+         NEPHS = 3
+         EPHSF(:NEPHS) = 1.0D0
+         EPHSPAR = 1.0D0
+      end IF
       IF( F_KB_ZSHIFT )  THEN
          IZERO(:NBAND) = 1
          F_ZSHIFT(:NBAND) = .true.
@@ -665,13 +685,13 @@
             ntline = 1
             nrlgas = 1
          case ('retrieval')
-            do k = 1,ngas
+            do k = 1,nret
                s_kb_line_gas(k) = trim(adjustl(gas(k)))
             end do
-            niline = ngas
-            npline = ngas
-            ntline = ngas
-            nrlgas = ngas
+            niline = nret
+            npline = nret
+            ntline = nret
+            nrlgas = nret
          case default
             val = adjustl(trim(s_kb_line_gases))
             nrlgas = 0
@@ -753,6 +773,37 @@
       CALL FM(PARM, YHAT, KHAT, NFIT, NVAR, .TRUE., -1, HFLG )
       !write(100,*) YHAT(:NFIT)
       !close(100)
+
+      ! APPEND NAMES ILINE ENTRIES IN KB MATRIX WITH GASNAMES
+      ! MIGTH BE BETTER IN THE SUBFUNCTION INIT_PARM, BUT ALL IMPLICATIONS HAVE TO BE CHECKED!!!
+
+      L1 = 1
+      L2 = 1
+      L3 = 1
+      DO I = 1,NVAR
+         SELECT CASE (PNAME(i))
+         CASE ('LineInt')
+            PNAME(I) = 'LineInt'//'_'//trim(s_kb_line_gas(L1))
+            L1 = L1 + 1
+         CASE ('LinePAir')
+            PNAME(I) = 'LinePAir'//'_'//trim(s_kb_line_gas(L2))
+            L2 = L2 + 1
+         CASE ('LineTAir')
+            PNAME(I) = 'LineTAir'//'_'//trim(s_kb_line_gas(L3))
+            L3 = L3 + 1
+         END SELECT
+      END DO
+
+      ! DWNUMSHIFT ONLY CALCULATED FOR INTERFERING GASES
+      L1 = 2
+      DO I = 1,NVAR
+         SELECT CASE (PNAME(i))
+         CASE ('DWNumShft')
+            PNAME(I) = 'DWNumShft'//'_'//trim(GAS(L1))
+            L1 = L1 + 1
+        END SELECT
+      END DO
+         
 
       CALL FILEOPEN(90,1)
       WRITE(90,*) TRIM(TAG), ' KB VECTORS FOR MODEL PARAMETERS BI'
