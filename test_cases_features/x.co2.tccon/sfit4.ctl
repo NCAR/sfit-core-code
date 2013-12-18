@@ -91,7 +91,7 @@
  band.3.nu_stop              =        8005.000
  band.3.zshift               =               F
  band.3.beam                 =               0
- band.3.calc_point_space     =       5.000E-02
+ band.3.calc_point_space     =       5.000E-03
  band.3.wave_factor          =           1.000
  band.3.max_opd= 64.2924
  band.3.omega= 2.3923
