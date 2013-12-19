@@ -803,7 +803,9 @@
             IF (IZERO(I) .NE. 1 ) CYCLE
             N = NSCAN(I)
             IF (N > 0) THEN
-               PNAME(NVAR+1:N+NVAR) = 'ZeroLev'
+               do kk = 1, n
+                  write(PNAME(kk+NVAR),'(a8,i1)') 'ZeroLev_',i
+               end do
                PARM(NVAR+1:N+NVAR) = ZSHIFT(I,1)
                SPARM(NVAR+1:N+NVAR) = SZERO(I)
                NVAR = N + NVAR
