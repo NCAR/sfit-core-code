@@ -857,7 +857,9 @@
       !  --- DIFFERENTIAL WAVENUMBER SHIFT FOR RETRIEVAL GASES
       NDIFF = 0
       IF (IFDIFF .AND. NRET.GT.1) THEN
-         PNAME(NVAR+1:NRET-1+NVAR) = 'DWNumShft'
+         do kk = 2, nret
+            PNAME(kk+NVAR) = 'DWNumShft_'//trim(GAS(kk))
+         end do
          PARM(NVAR+1:NRET-1+NVAR)  = WSHFT
          SPARM(NVAR+1:NRET-1+NVAR) = SWSHFT
          NDIFF = NRET - 1

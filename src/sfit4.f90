@@ -795,14 +795,14 @@
       END DO
 
       ! DWNUMSHIFT ONLY CALCULATED FOR INTERFERING GASES
-      L1 = 2
-      DO I = 1,NVAR
-         SELECT CASE (PNAME(i))
-         CASE ('DWNumShft')
-            PNAME(I) = 'DWNumShft'//'_'//trim(GAS(L1))
-            L1 = L1 + 1
-        END SELECT
-      END DO
+      ! L1 = 2
+      ! DO I = 1,NVAR
+      !    SELECT CASE (PNAME(i))
+      !    CASE ('DWNumShft')
+      !       PNAME(I) = 'DWNumShft'//'_'//trim(GAS(L1))
+      !       L1 = L1 + 1
+      !   END SELECT
+      ! END DO
          
 
       CALL FILEOPEN(90,1)
