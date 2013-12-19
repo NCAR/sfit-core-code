@@ -603,7 +603,7 @@
          do k = 1,nrprfgas
             do j = 1,nret
                if (trim(adjustl(s_kb_prf_gas(k))).eq.gas(j)) then
-                  ! only retrieved if originally it was not a profile
+                  ! only calculated if originally it was not a profile
                   if(.not.ifprf(j)) ifprf_kb(j) = .true.
                   ! but now it needs to be set to profile in order to setup correctly
                   ifprf(j) = .true.
@@ -633,7 +633,7 @@
       IF( F_KB_PHASE .AND..NOT. F_KB_EPHS)   IFPHASE = .TRUE.
       IF( F_KB_TEMP )                        IFTEMP = .TRUE.
       IF( F_KB_IFDIFF )                      IFDIFF = .TRUE.
-      IF( F_KB_EAP.AND..NOT.F_RTAPOD ) then
+      IF( .NOT.F_KB_EAP.AND..NOT.F_RTAPOD ) then
          F_RTAPOD = .TRUE.
          F_EAPOD  = .TRUE.
          IEAP = 2
@@ -641,7 +641,7 @@
          EAPF(:NEAP) = 1.0D0
          EAPPAR = 1.0D0
       end IF
-      IF( F_KB_EPHS.AND..NOT.F_RTPHASE ) then
+      IF( .NOT.F_KB_EPHS.AND..NOT.F_RTPHASE ) then
          F_RTPHASE = .TRUE.
          F_EPHASE = .TRUE.
          IEPHS = 2
