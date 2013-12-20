@@ -167,7 +167,7 @@
             ! setup3 one time more than perturbation, the last time with the original line parameters again.
             if ((K.gt.0).and.(k.lt.kk)) then
                   do k = 1, nrlgas
-                     DO I=LINE1(NBAND), LINE2(NBAND)
+                     DO I=LINE1(1), LINE2(NBAND)
                         IF( TRIM(s_kb_line_gas(k)) .EQ.  TRIM(NAME(ICODE(LGAS(I)))))THEN
                            !                        print *, i, k, AZERO(i), ST296(i), ICODE(LGAS(I)), trim(NAME(ICODE(LGAS(I)))), ' ', trim(s_kb_line_gas(k))
                            store_line(2,i) = ST296(i)
@@ -182,7 +182,7 @@
                   CALL SETUP3( XSC_DETAIL, -1 )
                   ! set back line parameters
                   do k = 1, nrlgas
-                     DO I=LINE1(NBAND), LINE2(NBAND)
+                     DO I=LINE1(1), LINE2(IBAND)
                         IF( TRIM(s_kb_line_gas(k)) .EQ.  TRIM(NAME(ICODE(LGAS(I)))))THEN
                            !                        print *, i, k, AZERO(i), ST296(i), ICODE(LGAS(I)), trim(NAME(ICODE(LGAS(I)))), ' ', trim(s_kb_line_gas(k))
                            ST296(i) = store_line(2,i)
@@ -309,7 +309,7 @@
 
          IF (IPARM == 0) GO TO 8
 !  --- DO NOT CALCULATE SPECTRUM IF NOT NECESSARY.
-         NCOUNT = NBKFIT + NSHIFT + NZERO + NSOLAR + NEAPRT  + NEPHSRT +  NPHASE ! + NDIFF
+         NCOUNT = NBKFIT + NSHIFT + NZERO + NSOLAR + NEAPRT  + NEPHSRT +  NPHASE! + NDIFF
          IF( BUG1 )PRINT *, '    IPARM, NCOUNT : ', IPARM, NCOUNT
          IF (IPARM .LT. NCOUNT) GO TO 9
 
@@ -707,7 +707,7 @@
  556  FORMAT(/,' COULD NOT CREATE INDIVIDUAL GAS FILE')
  610  FORMAT('spc.all.',I2.2,'.',I2.2,'.final')
  620  FORMAT('spc.all.',I2.2,'.',I2.2,'.',I2.2)
- !630  FORMAT('SFIT2 ALLGASES file')
+ !630  FORMAT('SFIT4 ALLGASES file')
  640  FORMAT(A80)
  690  FORMAT('spc.',a,'.',I2.2,'.',I2.2,'.final')
  700  FORMAT('spc.',a,'.',I2.2,'.',I2.2,'.',I2.2)

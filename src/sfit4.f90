@@ -395,7 +395,8 @@
       ENDDO
 
 !  --- CALCULATE DEGREES OF FREEDOM FOR SIGNAL USING APOSTERIORI SOLUTION
-      CALL DOFS(NFIT,NVAR,ISMIX,NLEV)
+!  --- ONLY IF REALLY RETRIEVED, SOME MATRICES ARE NOT CALCULATED
+      IF ( RETFLG ) CALL DOFS(NFIT,NVAR,ISMIX,NLEV)
 
       INDXX = ISMIX
       DO KK = 1, NRET
@@ -416,22 +417,24 @@
 
 !  --- PRINT OUT RETRIEVED  PROFILES
       PRINT *,''
-      INDXX = ISMIX
-      DO K = NRET, 1, -1
-         IF( .NOT. IFPRF(K) )CYCLE
-         N = NLAYERS
-         !PRINT 408, NAME(IGAS(K)), VERSUM(K,N), FX(K), 100.0D0*FX(K)/VERSUM(K,N)
-         !WRITE(16,408) NAME(IGAS(K)), VERSUM(K,N), FX(K), 100.0D0*FX(K)/VERSUM(K,N)
-         WRITE(16,406) !NAME(IGAS(K))
-         DO KK = 1, N
-            INDXX = INDXX + 1
-            SIGMA = SQRT(ABS(SM(INDXX,INDXX)))*XORG(K,KK)
-!            print 0,SQRT(ABS(SM(INDXX,INDXX)))
-            WRITE (16, 407) Z(KK), ZBAR(KK), XORG(K,KK), X(K,KK), SIGMA, VOSUM(K,KK), VERSUM(K,KK)
+      IF ( RETFLG ) THEN
+         INDXX = ISMIX
+         DO K = NRET, 1, -1
+            IF( .NOT. IFPRF(K) )CYCLE
+            N = NLAYERS
+            !PRINT 408, NAME(IGAS(K)), VERSUM(K,N), FX(K), 100.0D0*FX(K)/VERSUM(K,N)
+            !WRITE(16,408) NAME(IGAS(K)), VERSUM(K,N), FX(K), 100.0D0*FX(K)/VERSUM(K,N)
+            WRITE(16,406) !NAME(IGAS(K))
+            DO KK = 1, N
+               INDXX = INDXX + 1
+               SIGMA = SQRT(ABS(SM(INDXX,INDXX)))*XORG(K,KK)
+               !            print 0,SQRT(ABS(SM(INDXX,INDXX)))
+               WRITE (16, 407) Z(KK), ZBAR(KK), XORG(K,KK), X(K,KK), SIGMA, VOSUM(K,KK), VERSUM(K,KK)
+            END DO
          END DO
-      END DO
 
-      WRITE(16,253)
+         WRITE(16,253)
+      END IF
 
 !  --- WRITE OUT TABLE OF PROFILES APRIORI ATMOSPHERE & VMR
       IF( F_WRTAPRF )CALL WRTAPRF( NRET, NLEV, KVERT )
@@ -450,7 +453,8 @@
 
 
 !  --- WRITE OUT A SUMMARY OF RETRIEVAL PARAMETERS
-      IF( F_WRTSUMRY )CALL WRTSMRY( DOF, ITER, CHI_2_Y, FOVDIA, RMS, NLEV, VOSUM, VERSUM )
+      print *, RETFLG
+      IF( RETFLG .AND. F_WRTSUMRY ) CALL WRTSMRY( DOF, ITER, CHI_2_Y, FOVDIA, RMS, NLEV, VOSUM, VERSUM )
 
 
 !  --- PRINT A SHORT SUMMARY TO THE CONSOLE
@@ -599,7 +603,7 @@
          do k = 1,nrprfgas
             do j = 1,nret
                if (trim(adjustl(s_kb_prf_gas(k))).eq.gas(j)) then
-                  ! only retrieved if originally it was not a profile
+                  ! only calculated if originally it was not a profile
                   if(.not.ifprf(j)) ifprf_kb(j) = .true.
                   ! but now it needs to be set to profile in order to setup correctly
                   ifprf(j) = .true.
@@ -629,7 +633,7 @@
       IF( F_KB_PHASE .AND..NOT. F_KB_EPHS)   IFPHASE = .TRUE.
       IF( F_KB_TEMP )                        IFTEMP = .TRUE.
       IF( F_KB_IFDIFF )                      IFDIFF = .TRUE.
-      IF( F_KB_EAP.AND..NOT.F_RTAPOD ) then
+      IF( .NOT.F_KB_EAP.AND..NOT.F_RTAPOD ) then
          F_RTAPOD = .TRUE.
          F_EAPOD  = .TRUE.
          IEAP = 2
@@ -637,7 +641,7 @@
          EAPF(:NEAP) = 1.0D0
          EAPPAR = 1.0D0
       end IF
-      IF( F_KB_EPHS.AND..NOT.F_RTPHASE ) then
+      IF( .NOT.F_KB_EPHS.AND..NOT.F_RTPHASE ) then
          F_RTPHASE = .TRUE.
          F_EPHASE = .TRUE.
          IEPHS = 2
@@ -791,14 +795,14 @@
       END DO
 
       ! DWNUMSHIFT ONLY CALCULATED FOR INTERFERING GASES
-      L1 = 2
-      DO I = 1,NVAR
-         SELECT CASE (PNAME(i))
-         CASE ('DWNumShft')
-            PNAME(I) = 'DWNumShft'//'_'//trim(GAS(L1))
-            L1 = L1 + 1
-        END SELECT
-      END DO
+      ! L1 = 2
+      ! DO I = 1,NVAR
+      !    SELECT CASE (PNAME(i))
+      !    CASE ('DWNumShft')
+      !       PNAME(I) = 'DWNumShft'//'_'//trim(GAS(L1))
+      !       L1 = L1 + 1
+      !   END SELECT
+      ! END DO
          
 
       CALL FILEOPEN(90,1)
