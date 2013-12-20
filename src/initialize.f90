@@ -744,7 +744,9 @@
          IF (NBACK == 2) THEN
             IF (NFITS > 0) THEN
                !  --- BACKGROUND SLOPE - NBACK=2
-               PNAME(NVAR+1:NFITS) = 'BckGrdSlp'
+               do i = 1,nfits
+                  WRITE(PNAME(NVAR+I), '(a10,i1)') 'BckGrdSlp_', i
+               end do
                PARM(NVAR+1:NFITS) = BCKSL
                SPARM(NVAR+1:NFITS) = SBCKSL
                !  --- BACKGROUND CURVATURE - NBACK=3
@@ -754,11 +756,16 @@
             IF (NBACK == 3) THEN
                IF (NFITS > 0) THEN
                   !  --- BACKGROUND SLOPE - NBACK=2
-                  PNAME(NVAR+1:NFITS*2-1+NVAR:2) = 'BckGrdSlp'
+                  do i = 1,nfits
+                     write(PNAME(I*2-1+NVAR), '(a10,i1)') 'BckGrdSlp_', i
+                  end do
                   PARM(NVAR+1:NFITS*2-1+NVAR:2) = BCKSL
                   SPARM(NVAR+1:NFITS*2-1+NVAR:2) = SBCKSL
                   !  --- BACKGROUND CURVATURE - NBACK=3
-                  PNAME(NVAR+2:NFITS*2+NVAR:2) = 'BckGrdCur'
+                  do i = 1,nfits
+                     write(PNAME(I*2+NVAR), '(a10,i1)') 'BckGrdCrv_', i
+                  end do
+!                  PNAME(NVAR+2:NFITS*2+NVAR:2) = 'BckGrdCur'
                   PARM(NVAR+2:NFITS*2+NVAR:2) = BCKCRV
                   SPARM(NVAR+2:NFITS*2+NVAR:2) = SBCKCRV
                   NVAR = NFITS*2 + NVAR
@@ -858,7 +865,7 @@
       NDIFF = 0
       IF (IFDIFF .AND. NRET.GT.1) THEN
          do kk = 2, nret
-            PNAME(kk+NVAR) = 'DWNumShft_'//trim(GAS(kk))
+            PNAME(kk+NVAR-1) = 'DWNumShft_'//trim(GAS(kk))
          end do
          PARM(NVAR+1:NRET-1+NVAR)  = WSHFT
          SPARM(NVAR+1:NRET-1+NVAR) = SWSHFT
@@ -914,13 +921,13 @@
 
       do i = 1,nband
          if (iffov /= 0) then
-            PNAME(NVAR+1:NVAR+2) = 'FOV'
+            write(PNAME(NVAR+1:NVAR+2), '(a4,i1)'), 'FOV_', i
             PARM(NVAR+1:NVAR+2)  = 0.0D0
             SPARM(NVAR+1:NVAR+2) = 1.0D0
             NVAR = NVAR + 1
          end if
          if (ifopd /= 0) then
-            PNAME(NVAR+1:NVAR+2) = 'OPD'
+            write(PNAME(NVAR+1:NVAR+2), '(a4,i1)'), 'OPD_', i
             PARM(NVAR+1:NVAR+2)  = 0.0D0
             SPARM(NVAR+1:NVAR+2) = 1.0D0
             NVAR = NVAR + 1
