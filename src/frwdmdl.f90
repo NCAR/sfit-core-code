@@ -182,7 +182,7 @@
                   CALL SETUP3( XSC_DETAIL, -1 )
                   ! set back line parameters
                   do k = 1, nrlgas
-                     DO I=LINE1(1), LINE2(IBAND)
+                     DO I=LINE1(1), LINE2(NBAND)
                         IF( TRIM(s_kb_line_gas(k)) .EQ.  TRIM(NAME(ICODE(LGAS(I)))))THEN
                            !                        print *, i, k, AZERO(i), ST296(i), ICODE(LGAS(I)), trim(NAME(ICODE(LGAS(I)))), ' ', trim(s_kb_line_gas(k))
                            ST296(i) = store_line(2,i)
@@ -317,7 +317,7 @@
 !  --- ANAYLITC K-MATICES MAY BE CHOSEN IN PARAM_M.F90 MP
     8    CONTINUE
 
-         IF ((.NOT.ANALYTIC_K).OR.(.NOT.XRET).OR.(TRET).OR.(ICOUNT.EQ.1).or.FLINE.or.FSZA) THEN
+         IF ((.NOT.ANALYTIC_K).OR.(.NOT.XRET).OR.(TRET).OR.(ICOUNT.EQ.1).or.FLINE.or.FSZA.OR.IFDIFF) THEN
             CALL TALL
             IF( BUG1 )PRINT*, '    TALL', IPARM
             !print*, nmonsm, TCALC(1,:100)
