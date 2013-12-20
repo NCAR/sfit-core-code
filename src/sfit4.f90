@@ -1,4 +1,4 @@
-      MODULE SFIT4
+       MODULE SFIT4
 
       USE PARAMS
       USE VIBFCN
