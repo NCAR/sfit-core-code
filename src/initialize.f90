@@ -763,9 +763,8 @@
                   SPARM(NVAR+1:NFITS*2-1+NVAR:2) = SBCKSL
                   !  --- BACKGROUND CURVATURE - NBACK=3
                   do i = 1,nfits
-                     write(PNAME(I*2+NVAR), '(a10,i1)') 'BckGrdCrv_', i
+                     write(PNAME(I*2+NVAR), '(a10,i1)') 'BckGrdCur_', i
                   end do
-!                  PNAME(NVAR+2:NFITS*2+NVAR:2) = 'BckGrdCur'
                   PARM(NVAR+2:NFITS*2+NVAR:2) = BCKCRV
                   SPARM(NVAR+2:NFITS*2+NVAR:2) = SBCKCRV
                   NVAR = NFITS*2 + NVAR
