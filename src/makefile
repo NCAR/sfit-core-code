@@ -49,8 +49,8 @@ FFLAGS = -Ofast -Wall -fno-automatic -frepack-arrays
 # -cpp -DBDATE="\"`date +%Y%m%d`"\" -O2 -fno-automatic
 
 # intel
-FC = ifort
-FFLAGS = -fpe-all=0  -O0 -debug full
+#FC = ifort
+#FFLAGS = -fpe-all=0  -O0 -debug full
 
 #FFLAGS = -debug full
 

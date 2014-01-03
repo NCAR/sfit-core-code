@@ -11,6 +11,7 @@
 #
 # first non-comment line is a path to the directory tree where the gas subdirectories are
 #
+F
 ../../linelist/
 #
 # next non-comment entry is the number of path/files to look for
@@ -129,13 +130,8 @@
 # Galatry parameters
 # molecule id numbers in these files have to match the sfit molecule id
 2
-<<<<<<< HEAD
-014_HF/hf_galatry.txt
-015_HCL/hcl_galatry.txt
-=======
 014_HF/14_hit12_Galatry.txt
 015_HCL/15_hit12_Galatry.txt
->>>>>>> c536b4762fc6203b58f3db422e52a647aab1385c
 #
 #
 # CO2 Line mixing parameters for Boone implementation

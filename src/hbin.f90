@@ -235,7 +235,6 @@ program hbin
    write ( 6, *) trim(tag)
    write(6,*) ' This version uses quanta from HITRAN to attribute extra parameters to each transition record.'
 
-
    print *, ' hbin v0.9.5.0'
 
 

@@ -1,4 +1,4 @@
-      MODULE SFIT4
+       MODULE SFIT4
 
       USE PARAMS
       USE VIBFCN
@@ -603,7 +603,7 @@
          do k = 1,nrprfgas
             do j = 1,nret
                if (trim(adjustl(s_kb_prf_gas(k))).eq.gas(j)) then
-                  ! only retrieved if originally it was not a profile
+                  ! only calculated if originally it was not a profile
                   if(.not.ifprf(j)) ifprf_kb(j) = .true.
                   ! but now it needs to be set to profile in order to setup correctly
                   ifprf(j) = .true.
@@ -633,7 +633,7 @@
       IF( F_KB_PHASE .AND..NOT. F_KB_EPHS)   IFPHASE = .TRUE.
       IF( F_KB_TEMP )                        IFTEMP = .TRUE.
       IF( F_KB_IFDIFF )                      IFDIFF = .TRUE.
-      IF( F_KB_EAP.AND..NOT.F_RTAPOD ) then
+      IF( F_KB_EAP.AND..NOT.F_EAPOD ) then
          F_RTAPOD = .TRUE.
          F_EAPOD  = .TRUE.
          IEAP = 2
@@ -641,7 +641,7 @@
          EAPF(:NEAP) = 1.0D0
          EAPPAR = 1.0D0
       end IF
-      IF( F_KB_EPHS.AND..NOT.F_RTPHASE ) then
+      IF( F_KB_EPHS.AND..NOT.F_EPHASE ) then
          F_RTPHASE = .TRUE.
          F_EPHASE = .TRUE.
          IEPHS = 2
@@ -727,7 +727,20 @@
       IS_IN_KB(:NVAR) = .TRUE.
       do k=1, NVAR
          do i=1, ORIG_NVAR
-
+            ! --- DWNUMSHIFT IS SET TO RETRIEVED PARAMETER OF IWNUMSHIFT
+            if( ORIG_PNAME(i)(:9) .eq. 'IWNumShft' .and. PNAME(k)(:9) .eq. 'DWNumShft' )then
+               print *, PNAME(k)
+               parm(k) = xhat(i)
+               IS_IN_KB(k) = .false.
+               !               exit
+            end if
+            ! --- IWNUMSHIFT GETS SET TO RETRIEVED VALUE OF SWNUMSHIFT
+            if( ORIG_PNAME(i)(:9) .eq. 'SWNumShft' .and. PNAME(k)(:9) .eq. 'IWNumShft' )then
+               ORIG_PNAME(i) = ''
+               parm(k) = xhat(i)
+               IS_IN_KB(k) = .false.
+               exit
+            end if
 ! --- DON'T COMPUTE K FOR RETRIEVED B
             if (ORIG_PNAME(i).eq.PNAME(k)) then
                ORIG_PNAME(i) = ''
@@ -743,16 +756,9 @@
                END DO
                exit
             end if
-
-! --- IWNUMSHIFT GETS SET TO RETRIEVED VALUE OF SWNUMSHIFT
-            if( ORIG_PNAME(i) .eq. 'SWNumShft' .and. PNAME(k) .eq. 'IWNumShft' )then
-               ORIG_PNAME(i) = ''
-               parm(k) = xhat(i)
-               IS_IN_KB(k) = .false.
-               exit
-            end if
          end do
       end do
+
 
 !         PRINT *, PNAME
 !         print *, XHAT(:ORIG_NVAR)
@@ -794,15 +800,6 @@
          END SELECT
       END DO
 
-      ! DWNUMSHIFT ONLY CALCULATED FOR INTERFERING GASES
-      L1 = 2
-      DO I = 1,NVAR
-         SELECT CASE (PNAME(i))
-         CASE ('DWNumShft')
-            PNAME(I) = 'DWNumShft'//'_'//trim(GAS(L1))
-            L1 = L1 + 1
-        END SELECT
-      END DO
          
 
       CALL FILEOPEN(90,1)

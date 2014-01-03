@@ -21,9 +21,7 @@
 .TRUE.
 #
 # next non-comment line is a path to the directory tree where the gas subdirectories are
-#/Users/jamesw/FDP/sfit/400/linelist.all/
-/Users/jamesw/FDP/sfit/400/sfit-core/linelist/
-#../../sfit-core/linelist/
+../../linelist/
 #
 # next non-comment entry is the number of path/files to look for
 99
