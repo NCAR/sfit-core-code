@@ -790,7 +790,9 @@
             IF (ISPARM == 2) N = NBAND
             IF (ISPARM == 3) N = NFITS
             IF (N > 0) THEN
-               PNAME(NVAR+1:N+NVAR) = 'IWNumShft'
+               do i = 1,N
+                  WRITE(PNAME(NVAR+I), '(a10,i1)') 'IWNumShft_', i
+               end do
                PARM(NVAR+1:N+NVAR) = WSHFT
                SPARM(NVAR+1:N+NVAR) = SWSHFT
                NVAR = N + NVAR
@@ -879,7 +881,9 @@
          DO I = 1, NBAND
             N = NSCAN(I)
             IF (N > 0) THEN
-               PNAME(NVAR+1:N+NVAR) = 'SPhsErr'
+               do kk = 1, n
+                  write(PNAME(kk+NVAR),'(a8,i1)') 'SPhsErr_',i
+               end do
                PARM(NVAR+1:N+NVAR) = PHS
                SPARM(NVAR+1:N+NVAR) = SPHS
                NVAR = N + NVAR
