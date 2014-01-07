@@ -9,7 +9,9 @@
 # eg a files containing hitran lines is read from one subdir in linelist then the molid will be changed
 # to the 2digit integer 0NN of the subdir name and assumed to be for gas 'abcdef' from subdir 0NN_abcdef
 #
-# first non-comment line is a path to the directory tree where the gas subdirectories are
+# first input: flag to print out ascii file ( FORTRAN logical T or .TRUE. or F or .FALSE. )
+.FALSE.
+# Path to the directory tree where the gas subdirectories are
 #
 ../../linelist/
 #
