@@ -2220,6 +2220,7 @@ END SUBROUTINE READLAYRS
                   IF( NEWID(J) .EQ. IM )THEN
                      RIN = NEWVMR(:NLAYK,J)
                      GLNG(1:NLAYK,IM) = RIN
+                     !GLNG(1:NLAYK,IM) = GLNG(1:NLAYK,oldid(j))
                      FLAG = .TRUE.
                      CYCLE
                   ENDIF ! NEWID
@@ -2266,6 +2267,7 @@ END SUBROUTINE READLAYRS
                   IF( NEWID(J) .EQ. IM )THEN
                      RIN = NEWVMR(:NLAYK,J)
                      GLNG(1:NLAYK,IM) = DREV( RIN, NLAYK )
+                     !GLNG(1:NLAYK,IM) = GLNG(1:NLAYK,oldid(j))
                      FLAG = .TRUE.
                      CYCLE
                   ENDIF ! NEWID
