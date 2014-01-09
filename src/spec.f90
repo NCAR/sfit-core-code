@@ -1259,8 +1259,12 @@ integer, intent(out)              :: yy, mm, dd, hh, nn, ss
 real, intent(out)                 :: sza, azm, dur, fov, res
 real(8)                           :: roe
 real(4)                           :: opd
-character (len=3)                 :: apd
-integer                           :: m = 0
+character (len=3)                 :: apd, mstr
+integer                           :: i, j, m = 0
+
+character (len=3), dimension(12)  :: month_str = (/ &
+     'JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', &
+     'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC' /)
 
 ! from bnr.c
 !// 1char key for values in header
@@ -1338,7 +1342,19 @@ goto 10
 m = m + 1
 ! zephyr2
 !20090602 09:54:13  205s ZT=09:55:55 OPD=257.14 FOV= 2.75 APF=BX aS 60.531 999.99
-read(title,9,err=21)yy, mm, dd, dur, hh, nn, ss, fov, sza, azm
+read(title,9,err=19)yy, mm, dd, dur, hh, nn, ss, fov, sza, azm
+goto 10
+
+19 continue
+m = m + 1
+! Jungfraujoch headers
+! JJB-S09A01JK.MOY 01 OCT 2009  4.400 mK 1.45 mm Ap.ZA=72.359 S/N= 3201 h= 8.299
+read(title,100,err=21) dd, mstr, yy, fov, sza
+do i = 1,12
+   if (mstr.eq.month_str(i)) mm = i
+end do
+
+
 goto 10
 
 21 print*, 'spec:parsetitle: header read', m
@@ -1357,6 +1373,7 @@ return
 7 format(i4,2i2,1x,2(i2,1x),i2,5x,f7.0,3x,f6.0,3x,f6.0,3x,f6.0,8x,f7.0,3x,f4.0)
 8 format(i4,2(i2),11x,f3.0,5x,3(i2,1x),15x,f6.0,10x,f6.0)
 9 format(i4,i2,i2,11x,f3.0,5x,3(i2,1x),16x,f4.0,11x,f6.0,1x,f6.0)
+100 format(17x, i2, 1x, a3, 1x, i4, 10x, f5.2, 10x, f6.3, 5x, 5x, 9x)
 
 end subroutine parsetitle
 
@@ -1584,7 +1601,7 @@ subroutine calcsnr( wavs, amps, npfile, wlim1, wlim2, spac, opdmax, nterp, noise
    write(6,102) 'RMS noise : ', noise
    write(6,102) 'Mean SNR in snr region : ', mean/noise
 
-   deallocate( x, y, z, curve )
+   deallocate( x, y, z, curve, outspec )
 
    return
 
