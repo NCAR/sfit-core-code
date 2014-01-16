@@ -1,3 +1,21 @@
+!-----------------------------------------------------------------------------
+!    Copyright (c) 2013-2014 NDACC/IRWG
+!    This file is part of sfit.
+!
+!    sfit is free software: you can redistribute it and/or modify
+!    it under the terms of the GNU General Public License as published by
+!    the Free Software Foundation, either version 3 of the License, or
+!    any later version.
+!
+!    sfit is distributed in the hope that it will be useful,
+!    but WITHOUT ANY WARRANTY; without even the implied warranty of
+!    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!    GNU General Public License for more details.
+!
+!    You should have received a copy of the GNU General Public License
+!    along with sfit.  If not, see <http://www.gnu.org/licenses/>
+!-----------------------------------------------------------------------------
+
       MODULE PARAMS
 
       INTEGER, PARAMETER :: BYTE_LOG = SELECTED_INT_KIND(2)
@@ -15,7 +33,7 @@
 !  --- VERSION STRING - NO SPACES: USE AS FIRST WORD IN OUTPUT FILE TAG
 !      CHARACTER(len=10) :: BUILDDATE = BDATE
       CHARACTER (LEN=15),  PARAMETER :: VERSION1 = 'SFIT4:V0.9.5.2.'
-      CHARACTER (LEN=100),  PARAMETER :: VERSION2 = ':Pre-Release:20140109'
+      CHARACTER (LEN=100),  PARAMETER :: VERSION2 = ':Pre-Release:20140116'
       CHARACTER (LEN=255) :: VERSION = VERSION1//VERSION2
       CHARACTER (LEN=255)            :: TAG              ! OUTPUT FILE TAG IS VERSION + RUNTIME
 
