@@ -1275,7 +1275,7 @@ character (len=80), intent(out)   :: title
 character (len=1), intent(inout)  :: loc
 integer, intent(out)              :: yy, mm, dd, hh, nn, ss
 real, intent(out)                 :: sza, azm, dur, fov, res
-real(8)                           :: roe
+real(8)                           :: roe, hour
 real(4)                           :: opd
 character (len=3)                 :: apd, mstr
 integer                           :: i, j, m = 0
@@ -1367,10 +1367,14 @@ goto 10
 m = m + 1
 ! Jungfraujoch headers
 ! JJB-S09A01JK.MOY 01 OCT 2009  4.400 mK 1.45 mm Ap.ZA=72.359 S/N= 3201 h= 8.299
-read(title,100,err=21) dd, mstr, yy, fov, sza
+read(title,100,err=21) dd, mstr, yy, fov, sza, hour
 do i = 1,12
    if (mstr.eq.month_str(i)) mm = i
 end do
+hour = hour -1 
+hh = floor(hour)
+nn = floor(mod(hour,1.0d0)*60.0d0) 
+ss = floor(mod(hour*60.0d0,1.0d0)*60.0d0) 
 
 
 goto 10
@@ -1391,7 +1395,7 @@ return
 7 format(i4,2i2,1x,2(i2,1x),i2,5x,f7.0,3x,f6.0,3x,f6.0,3x,f6.0,8x,f7.0,3x,f4.0)
 8 format(i4,2(i2),11x,f3.0,5x,3(i2,1x),15x,f6.0,10x,f6.0)
 9 format(i4,i2,i2,11x,f3.0,5x,3(i2,1x),16x,f4.0,11x,f6.0,1x,f6.0)
-100 format(17x, i2, 1x, a3, 1x, i4, 10x, f5.2, 10x, f6.3, 5x, 5x, 9x)
+100 format(17x, i2, 1x, a3, 1x, i4, 10x, f5.2, 10x, f6.3, 13x, f5.3)
 
 end subroutine parsetitle
 
@@ -1515,6 +1519,8 @@ subroutine calcsnr( wavs, amps, npfile, wlim1, wlim2, spac, opdmax, nterp, noise
    iih = ihi(1)
    np = iih-iil+1
 
+   print *, w1, w2, minval(wavs), maxval(wavs)
+   call flush()
    write(6,102) 'SNR region : ', psnr(1,k), psnr(2,k)
    write(6,102) 'Resample region : ', wavs(iil), wavs(iih)
    write(6,101) 'Points in resample : ', np
