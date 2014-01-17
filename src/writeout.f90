@@ -1,3 +1,21 @@
+!-----------------------------------------------------------------------------
+!    Copyright (c) 2013-2014 NDACC/IRWG
+!    This file is part of sfit.
+!
+!    sfit is free software: you can redistribute it and/or modify
+!    it under the terms of the GNU General Public License as published by
+!    the Free Software Foundation, either version 3 of the License, or
+!    any later version.
+!
+!    sfit is distributed in the hope that it will be useful,
+!    but WITHOUT ANY WARRANTY; without even the implied warranty of
+!    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!    GNU General Public License for more details.
+!
+!    You should have received a copy of the GNU General Public License
+!    along with sfit.  If not, see <http://www.gnu.org/licenses/>
+!-----------------------------------------------------------------------------
+
       MODULE WRITEOUT
 
       USE PARAMS
@@ -197,9 +215,10 @@
       WRITE(20,'(A,A)') 'IBAND       NUSTART        NUSTOP         SPACE     NPTSB     PMAX    FOVDIA     ', &
                        'MEAN_SNR  NSCAN  JSCAN     INIT_SNR     CALC_SNR'
       DO I=1,NBAND
+         WRITE(20,103) I, WAVE3(I), WAVE4(I), SPAC(I), NPRIM(I), PMAX(I), FOVDIA(I), &
+                           SUM(SNR_CLC(I,1:NSCAN(I)))/DBLE(NSCAN(I)), NSCAN(I)
          DO J=1,NSCAN(I)
-            WRITE(20,103) I, WAVE3(I), WAVE4(I), SPAC(I), NPRIM(I), PMAX(I), FOVDIA(I), &
-                           SUM(SNR_CLC(I,1:NSCAN(I)))/DBLE(NSCAN(I)), NSCAN(I), J, SCNSNR(I,J), SNR_CLC(I,J)
+            WRITE(20,104) J, SCNSNR(I,J), SNR_CLC(I,J)
          ENDDO
       ENDDO
 
@@ -213,7 +232,7 @@
  100 FORMAT( /, A )
  101 FORMAT( /, I10 )
  102 FORMAT( I5, 4X, A7, L7, 3X, 2ES14.5 )
- 103 FORMAT( I5, 2F14.5, 2X,F12.9, I10, F9.2, F10.6, F13.6, I7, I7, 3F13.6 )
+ 103 FORMAT( I5, 2F14.5, 2X,F12.9, I10, F9.2, F10.6, F13.6, I7, 3F13.6 )
  104 FORMAT( I103, 3F13.6 )
  105 FORMAT( 2F13.6, 3F14.3, 2I10, 2L10 )
 
@@ -243,8 +262,8 @@
       RETURN
 
   409 FORMAT('      Z   ZBAR  TEMPERATURE       PRESSURE        AIRMASS', 99(A15))
-  408 FORMAT(2(I7),I13,110(I15))
-  407 FORMAT(2(F7.3),F13.3,255(ES15.4))
+  408 FORMAT(2(I8),I13,110(I15))
+  407 FORMAT(2(F8.3),F13.3,255(ES15.4))
 
       END SUBROUTINE WRTAPRF
 
@@ -293,8 +312,8 @@
       RETURN
 
   409 FORMAT('      Z   ZBAR  TEMPERATURE       PRESSURE        AIRMASS', 99(A15))
-  408 FORMAT(2(I7),I13,110(I15))
-  407 FORMAT(2(F7.3),F13.3,255(ES15.4))
+  408 FORMAT(2(I8),I13,110(I15))
+  407 FORMAT(2(F8.3),F13.3,255(ES15.4))
 
       END SUBROUTINE WRTRPRF
 
