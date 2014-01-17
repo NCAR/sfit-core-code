@@ -1,12 +1,22 @@
 Notes for pre release versions V003.*
 
-August 2013
+December 2013 Mathias Palm
 
-modified hbin to skip empty lines in hbin.input
-
-corrected calculation of single gas spectra to write out emission spectra correctly
-removed a bug in testing of gas spectra are written out, specvtra were written out if the out.gas_spectra.type was set to non-zero, if 
-if out.gas_spectra = F
+- Appended DWNumShft, LineInt, LinePAir and LineTAir with the gasnames
+  the entries apply to.
+- Introduced a second molecule of HF (needed for HITRAN 2012)
+- changed the match of extra parameters (line mixing, beta for
+  Galatry, SDV parameters for CO as given in HITRAN 2012) from
+  wavenumber to quantum numbers in hbin.f90.
+  The Line mixing parameter file creatre by Frank Hase has been
+  modified accordingly.
+- kb matrices are calculated even if empirical apodisation and phase
+  are not included into the forward model. Both functions are taken as
+  a three dimensional function with the apriori value 1. 
+- Added two more isotopes for HCL which appear in HITRAN 2012 with the
+  isotopologue number 25 an 27. I guess this are DCL isotopes and
+  assigned them the weigth 38 and 40 (the weigths of 15 and 17 plus 2
+  for deuterium)
 
 ---------------------
 July 2013

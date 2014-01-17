@@ -28,7 +28,7 @@
 FC = gfortran
 
 # error check everything
-#FFLAGS = -Warray-bounds -Wcharacter-truncation -Wunused-parameter \
+FFLAGS = -Warray-bounds -Wcharacter-truncation -Wunused-parameter \
          -Wimplicit-interface -Wunderflow -Wconversion-extra \
          -Wunused-dummy-argument -Wcompare-reals \
          -fcheck=all -fimplicit-none -fwhole-file -fall-intrinsics -fno-automatic \

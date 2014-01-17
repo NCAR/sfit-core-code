@@ -6,7 +6,7 @@
  file.in.refprofile             = reference.prf
  file.in.spectrum               = spectrum
  file.in.solarlines             = ../../linelist/solar/120621/solar.dat
- file.in.linelist               = 06175.842223-08009.157777.hbin
+ file.in.linelist               = 06175.842223-08009.162777.hbin
 
  # Definition for retrieval gases
 
@@ -54,6 +54,9 @@
  rt.solshift                 =               T
  rt.solshift.apriori         =             0.0
  rt.solshift.sigma              =          0.1
+ rt.solstrnth                 =               T
+ rt.solstrnth.apriori         =             0.0
+ rt.solstrnth.sigma              =          0.1
  rt.temperature              =               F
 
  # Kb matrices
@@ -74,7 +77,6 @@
  band.1.omega= 2.3923
  band.1.apodization_code     =               0
  band.1.gasb                 = CO2 H2O CH4 HDO
- band.1.snr= 58.6616
  band.2.nu_start             =        6297.000
  band.2.nu_stop              =        6382.000
  band.2.zshift               =               F
@@ -85,17 +87,15 @@
  band.2.omega= 2.3923
  band.2.apodization_code     =               0
  band.2.gasb                 = CO2 H2O CH4 HDO
- band.2.snr= 57.1603
  band.3.nu_start             =        7765.000
  band.3.nu_stop              =        8005.000
  band.3.zshift               =               F
  band.3.beam                 =               0
- band.3.calc_point_space     =       5.000E-02
+ band.3.calc_point_space     =       5.000E-03
  band.3.wave_factor          =           1.000
  band.3.max_opd= 64.2924
  band.3.omega= 2.3923
  band.3.apodization_code    =               0
- band.3.snr= 33.0584
  band.3.gasb                 = O2 O2CIA H2O
 
 

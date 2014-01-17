@@ -1,3 +1,21 @@
+!-----------------------------------------------------------------------------
+!    Copyright (c) 2013-2014 NDACC/IRWG
+!    This file is part of sfit.
+!
+!    sfit is free software: you can redistribute it and/or modify
+!    it under the terms of the GNU General Public License as published by
+!    the Free Software Foundation, either version 3 of the License, or
+!    any later version.
+!
+!    sfit is distributed in the hope that it will be useful,
+!    but WITHOUT ANY WARRANTY; without even the implied warranty of
+!    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!    GNU General Public License for more details.
+!
+!    You should have received a copy of the GNU General Public License
+!    along with sfit.  If not, see <http://www.gnu.org/licenses/>
+!-----------------------------------------------------------------------------
+
       MODULE molcparam
 
 ! June 2013
@@ -149,7 +167,7 @@
        63.D0, 8*0.D0,                                                & !HNO3
        17.D0,  19.D0,  18.D0, 6*0.D0,                                & !OH
        20.D0,  22.D0, 7*0.D0,                                        & !HF
-       36.D0,  38.D0, 7*0.D0,                                        & !HCL
+       36.D0,  38.D0, 38.D0,  40.D0, 5*0.D0,                         & !HCL
        80.D0,  82.D0, 7*0.D0,                                        & !HBR
       128.D0, 8*0.D0,                                                & !HI
        51.D0,  53.D0, 7*0.D0,                                        & !CLO
@@ -189,7 +207,7 @@
        46.D0,  8*0.D0,                                               & !HCOOH
        34.D0,  36.D0, 35.D0, 6*0.D0,                                 & !H2S
       1.03D2,  8*0.D0,                                               & !CHCL2F
-       32.D0,  32.D0, 7*0.D0,                                               & !O2CIA     PL
+       32.D0,  32.0D0, 7*0.D0,                                       & !O2CIA     PL
       1.46D2,  8*0.D0/                                                 !SF6       PL
 
       DATA ((XMASS(JISO,IMOLM),JISO=1,NI),IMOLM=51,60)/ &
@@ -254,7 +272,7 @@
 
       DATA NHIISO/ &
         6,  9,  5,  8,  6,  4,  3,  3,  2,  1,                       & !1-10
-        2,  1,  3,  2,  2,  2,  1,  2,  5,  3,                       & !11-20
+        2,  1,  3,  2,  4,  2,  1,  2,  5,  3,                       & !11-20
         2,  1,  1,  1,  1,  1,  2,  3,  1,  2,                       & !21-30
         1,  1,  1,  1,  1,  1,  1,  2,  2,  2,                       & !31-40
         1,  1,  1,  2,  1,  1,  3,  1,  2,  1,                       & !41-50

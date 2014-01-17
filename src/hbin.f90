@@ -1,3 +1,22 @@
+!-----------------------------------------------------------------------------
+!    Copyright (c) 2013-2014 NDACC/IRWG
+!    This file is part of sfit.
+!
+!    sfit is free software: you can redistribute it and/or modify
+!    it under the terms of the GNU General Public License as published by
+!    the Free Software Foundation, either version 3 of the License, or
+!    any later version.
+!
+!    sfit is distributed in the hope that it will be useful,
+!    but WITHOUT ANY WARRANTY; without even the implied warranty of
+!    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!    GNU General Public License for more details.
+!
+!    You should have received a copy of the GNU General Public License
+!    along with sfit.  If not, see <http://www.gnu.org/licenses/>
+!-----------------------------------------------------------------------------
+
+
 module hitran
 
    use params
@@ -234,6 +253,9 @@ program hbin
    write (tag,*) trim(version), ' runtime:', cdate(1:8), '-', ztime(1:2), ':', ztime(3:4), ':', ztime(5:6)
    write ( 6, *) trim(tag)
    write(6,*) ' This version uses quanta from HITRAN to attribute extra parameters to each transition record.'
+
+   print *, ' hbin v0.9.5.0'
+
 
    ! --- read in band, isotope info from sfit4.ctl file fr this fit
    call read_ctrl

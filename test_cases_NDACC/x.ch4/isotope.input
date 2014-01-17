@@ -2,11 +2,7 @@
 H2O                     ! old name
 1 4                     ! old molec id and isotope id
 HDO                     ! new name
-<<<<<<< HEAD
-53 1 19.0 3 1.5 1.      ! new molec id, isotope id, mass, mode, tdep, intensity scale
-=======
 77 1 19.0 3 1.5 1.      ! new molec id, isotope id, mass, mode, tdep, intensity scale
->>>>>>> BugFix_Mathias
 2724,1, 1403,1, 3707,1  ! band center, degen  47                      ! number of layers & vmrs
   3.7444e-08,  6.1674e-08,  1.6430e-07,  6.4190e-07,  1.1195e-06,
   3.2606e-06,  5.1647e-06,  6.0464e-06,  6.4250e-06,  6.5483e-06,
@@ -20,16 +16,6 @@ HDO                     ! new name
 H2O                 ! old name - Add as second HDO isotope
 1 5                 ! old molec id and isotope id
 HDO                 ! new name
-<<<<<<< HEAD
-53 2 21.0 0 1.5 1.  ! new molec id, isotope id, mass, mode, tdep, intensity scale
-H2O                 ! old name - Add as third HDO isotope
-1 6                 ! old molec id and isotope id
-HDO                 ! new name
-53 3 20.0 0 1.5 1.  ! new molec id, isotope id, mass, mode, tdep, intensity scale
-
-
-
-=======
 77 2 21.0 0 1.5 1.  ! new molec id, isotope id, mass, mode, tdep, intensity scale
 H2O                 ! old name - Add as third HDO isotope
 1 6                 ! old molec id and isotope id
@@ -105,6 +91,5 @@ HDO                 ! new name
   2.8491E-02  3.6855E-02
 
 spare id's
->>>>>>> BugFix_Mathias
 
 49, 52, 53, 54, 55, 56, 57, 70, 77+

@@ -16,6 +16,7 @@
 #
 # first non-comment line is a path to the directory tree where the gas subdirectories are
 #
+F
 ../../linelist/
 #
 # next non-comment entry is the number of path/files to look for

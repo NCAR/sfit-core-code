@@ -49,10 +49,10 @@ fw.linemixing = T
 fw.linemixing.gas = CO2 
 fw.solar_spectrum = T 
 fw.pressure_shift = T 
-fw.apod_fcn = T 
+fw.apod_fcn =  F
 fw.apod_fcn.type = 2
 fw.apod_fcn.order = 2 
-fw.phase_fcn = T 
+fw.phase_fcn = F 
 fw.phase_fcn.type = 2 
 fw.phase_fcn.order = 2 
 fw.emission = F 
@@ -102,6 +102,7 @@ kb.slope = T
 kb.curvature = T 
 kb.solshft = T
 kb.solstrnth = T 
+<<<<<<< HEAD
 kb.phase = T
 kb.dwshift = F 
 kb.wshift = F 
@@ -117,7 +118,11 @@ kb.curvature = T
 kb.solshft = T
 kb.solstrnth = T 
 kb.phase = T
+=======
+kb.phase = F
+>>>>>>> BugFix_Mathias
 kb.wshift = T
+kb.dwshift = T
 kb.apod_fcn = T
 kb.phase_fcn = T 
 kb.zshift = F 
@@ -125,7 +130,11 @@ kb.sza = T
 kb.omega = T 
 kb.line = T
 kb.line.type = 1 
+<<<<<<< HEAD
 kb.line.gas = CH4 
+=======
+kb.line.gas =  retrieval
+>>>>>>> BugFix_Mathias
 kb.profile = T
 kb.profile.gas = CO2 
 band = 1 2 3 4 

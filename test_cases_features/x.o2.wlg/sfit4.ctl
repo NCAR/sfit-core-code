@@ -9,7 +9,7 @@
  file.in.phase_fcn                   = ilp_poly.dat
  file.in.sa_matrix                   = sa_38.input
  file.in.isotope                     = isotope.input
- file.in.solarlines                  = /Users/jamesw/FDP/sfit/400/sfit-core/linelist/solar/120621/solar.dat
+ file.in.solarlines                  = ../../linelist/solar/120621/solar.dat
  file.in.linelist                    = ./07760.768891-08009.231109.hbin
 
  file.out.pbpfile                    = pbpfile
@@ -35,7 +35,7 @@
 
  gas.layers                          = 48
 
- gas.profile.list                    = O2
+ gas.profile.list                    = #O2
 
  gas.profile.O2.scale               = 1.0D0
  gas.profile.O2.correlation         = T
@@ -57,14 +57,13 @@
 
 
 
- gas.column.list                     =
- #H2O O2CIA
+ gas.column.list                     = O2 H2O O2CIA
 
  gas.column.O2.scale                        = 1.00000
  gas.column.O2.sigma                        = 0.04560
 
- gas.column.O2CIA.sigma                     = 0.00001
- gas.column.O2CIA.scale                     = 1.00000
+ gas.column.O2CIA.scale                     = 0.00001
+ gas.column.O2CIA.sigma                     = 1.00000
 
  gas.column.H2O.sigma                       = 1.00000
  gas.column.H2O.scale                       = 1.00000
@@ -90,14 +89,13 @@
 
 # Retrieval parameter
 
- rt                                  = F
+ rt                                  = T
  rt.lm                               = F
  rt.convergence                      = 0.01
- rt.tolerance                        = 0.050
  rt.max_iteration                    = 13
  rt.dwshift                          = F
  rt.wshift                           = T
- rt.wshift.type                      = 2
+ rt.wshift.type                      = 3
  rt.wshift.apriori                   = 0.000
  rt.wshift.sigma                     = 0.100
  rt.slope                            = T
@@ -127,8 +125,7 @@
 # Microwindows and their parameters
 
  band                                = 1
- band.1.gasb                         = O2
- #H2O O2CIA
+ band.1.gasb                         = O2 H2O O2CIA
  band.1.nu_start                     = 7765.000
  band.1.nu_stop                      = 8005.000
  band.1.zshift                       = F
