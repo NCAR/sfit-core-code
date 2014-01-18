@@ -12,7 +12,7 @@
  
  gas.layers                  =              1
 
- gas.column.list                         = NH3 O3
+ gas.column.list                         = NH3 #O3
  gas.profile.list                         = 
  
 
@@ -53,10 +53,10 @@
  # Microwindows and their parameters
  
  band                        =   1 
- band.1.nu_start             =  800.0
-# band.1.nu_stop              =  931.4
-# band.1.nu_start             =  930.43
- band.1.nu_stop              =  1200.0
+# band.1.nu_start             =  800.0
+ band.1.nu_stop              =  931.4
+ band.1.nu_start             =  930.43
+# band.1.nu_stop              =  1200.0
  band.1.zshift               =               F
  band.1.beam                 =               0
  band.1.calc_point_space     =       0.0500E-03
@@ -64,7 +64,7 @@
  band.1.max_opd    = 98.11368
  band.1.omega  = 3.0
  band.1.apodization_code                  =               7
- band.1.gasb                 = NH3 O3
+ band.1.gasb                 = NH3 #O3
  
  out.level = 1
  out.gas_spectra = F

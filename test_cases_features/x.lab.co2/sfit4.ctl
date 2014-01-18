@@ -5,7 +5,7 @@
  file.in.refprofile             = reference.prf
  file.in.spectrum               = 961027R0.002.asc
  file.in.solarlines             = /home/mathias/linelist/solar/120621/solar.dat
- file.in.linelist               = 00780.821506-00811.178494.hbin
+ file.in.linelist               = 00786.821506-00798.178494.hbin
 
  
  # Definition for retrieval gases
@@ -41,7 +41,7 @@
  rt                          =              T
  rt.max_iteration = 10
  rt.convergence = 0.1
- rt.dwshift = T
+ rt.dwshift = F
  rt.wshift = T
  rt.wshift.type = 3
  rt.wshift.apriori = 0.0

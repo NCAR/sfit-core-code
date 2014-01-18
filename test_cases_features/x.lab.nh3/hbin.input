@@ -10,6 +10,7 @@
 # to the 2digit integer 0NN of the subdir name and assumed to be for gas 'abcdef' from subdir 0NN_abcdef
 #
 # first non-comment line is a path to the directory tree where the gas subdirectories are
+F
 ../../linelist/
 #
 # next entry is the number of path/files to look for
