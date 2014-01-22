@@ -511,7 +511,7 @@ program hbin
                         hlp(ldx)%lmtk2 = 0.0
                         if (sdv(ifl)%lm_air(i).gt.tiny(0.0d0)) then
                            hlp(ldx)%ylm   = real(sdv(ifl)%lm_air(i))
-                           hlp(ldx)%lmtk1   = 1.0d0
+                           hlp(ldx)%lmtk1   = 0.0d0
                            hlp(ldx)%lmtk2   = 0.0d0
                            hlp(ldx)%flag(LM_FLAG) = .TRUE.
                            dum = flagoff + LM_FLAG
