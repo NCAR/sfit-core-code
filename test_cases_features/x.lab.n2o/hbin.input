@@ -14,7 +14,7 @@ T
 ../../linelist/
 #
 # next entry is the number of path/files to look for
-4
+6
 #
 # Then the next lines are paths to each gas file that will be searched for lines in the
 #  desired wavenember region
@@ -25,6 +25,8 @@ T
 002_CO2/02_hit12.par
 004_N2O/04_fit_JL_merged.par
 005_CO/05_hit08.par
+007_O2/07_hit08.par
+041_N2/22_hit08.par
 #
 #
 # Galatry parameters
