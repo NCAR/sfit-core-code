@@ -620,7 +620,7 @@
          end do
          do k = 1,nrprfgas
             do j = 1,nret
-               if (trim(adjustl(s_kb_prf_gas(k))).eq.gas(j)) then
+               if (trim(adjustl(s_kb_prf_gas(k))).eq.trim(adjustl(gas(j)))) then
                   ! only calculated if originally it was not a profile
                   if(.not.ifprf(j)) ifprf_kb(j) = .true.
                   ! but now it needs to be set to profile in order to setup correctly
