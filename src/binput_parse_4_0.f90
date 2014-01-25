@@ -526,7 +526,7 @@ end subroutine read_file_section
     character (len=*), intent(in) :: value
 
     character (len=255) :: tmpstr
-    !integer :: nr
+    integer :: nr
     logical :: tflag
 
     if (len_trim(keyword(2)).eq.0) then
@@ -540,12 +540,12 @@ end subroutine read_file_section
           read(value,*) f_contabs
        else
           select case (trim(adjustl(keyword(3))))
-          case ('type')
-             read(value,*) abscont_type
-          case ('strength')
-             read(value,*) abscont_param(1)
-          case ('tilt')
-             read(value,*) abscont_param(2)
+          case ('order')
+             read(value,*) abscont_order
+          case ('apriori')
+             read(value,'(f3.1)') (abscont_param(nr), nr=1,CONT_POLY_MAX)
+          case ('sigma')
+             read(value,'(f3.1)') (abscont_sparam(nr), nr=1,CONT_POLY_MAX)
           end select
        endif
     case ('temperature')
