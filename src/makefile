@@ -105,7 +105,8 @@ voigt.o \
 voigt_sdv_lm.o \
 writeout.o \
 andex.o \
-xsections.o
+xsections.o \
+continuum.o
 
 #convert_old_data_files.o
 
@@ -151,7 +152,7 @@ binput_4_0 \
 : params.o binput_parse_4_0.o retvparam.o bandparam.o lineparam.o solar.o channel.o initialize.o opt.o writeout.o
 
 binput_parse_4_0.o \
-: params.o retvparam.o frwdmdl.o bandparam.o lineparam.o solar.o channel.o initialize.o opt.o datafiles.o isotope.o writeout.o
+: params.o retvparam.o frwdmdl.o bandparam.o lineparam.o solar.o channel.o initialize.o opt.o datafiles.o isotope.o writeout.o continuum.o
 
 channel.o \
 : params.o writeout.o synspec.o datafiles.o
@@ -178,7 +179,7 @@ hbin.o \
 : params.o datafiles.o bandparam.o lineparam.o isotope.o binput_4_0.o binput_parse_4_0.o
 
 initialize.o \
-: params.o retvparam.o transmis.o molcparam.o xsections.o datafiles.o synspec.o lineparam.o bandparam.o raytrace.o solar.o writeout.o channel.o
+: params.o retvparam.o transmis.o molcparam.o xsections.o datafiles.o synspec.o lineparam.o bandparam.o raytrace.o solar.o writeout.o channel.o continuum.o
 
 isotope.o \
 : params.o molcparam.o retvparam.o vibfcn.o datafiles.o

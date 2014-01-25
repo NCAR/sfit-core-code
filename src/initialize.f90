@@ -31,7 +31,7 @@
       USE SOLAR
       USE WRITEOUT
       USE CHANNEL
-
+      USE CONTINUUM
 
       IMPLICIT NONE
 
@@ -965,6 +965,17 @@
          end if
       end do
 
+
+      ! continuum absorption
+      if (f_contabs) then
+         n_contabs = abscont_order
+         if (allocated(cont_param)) deallocate(cont_param)
+         allocate(cont_param(n_contabs))
+         PNAME(NVAR+1:NVAR+n_contabs) = 'CONTINUUM'
+         PARM(NVAR+1:NVAR+n_contabs)  = abscont_param(:n_contabs)
+         SPARM(NVAR+1:NVAR+n_contabs) = abscont_sparam(:n_contabs)
+         NVAR = NVAR + n_contabs
+      end if
       !  ---  RETRIEVAL GAS MIXING RATIOS
       !  ---  MIXING RATIO AT ISMIX +1
       ISMIX = NVAR
