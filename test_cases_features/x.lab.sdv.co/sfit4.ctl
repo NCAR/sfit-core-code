@@ -38,7 +38,10 @@
  # Forward model parameters
  
  fw.delnu                    =           0.10000
- fw.lshapemodel              =               1
+ fw.lshapemodel              =               0
+ fw.lshapemodel.sdv          = F
+ fw.lshapemodel.dicke        = T
+ fw.lshapemodel.corr         = T
  fw.linemixing = T
  fw.linemixing.gas = COO1 COO2 COO3 COO4
  fw.solar_spectrum	     =               F

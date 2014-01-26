@@ -322,7 +322,22 @@ end subroutine read_file_section
     case ('delnu')
        read(value,*) delnu
     case('lshapemodel')
-       read(value,*) lshapemodel
+       if (len_trim(keyword(3)).eq.0) then
+          read(value,*) lshapemodel
+       else
+          select case (trim(adjustl(keyword(3))))
+          case('sdv')
+             read(value,*) lsm_sdv
+          case('dicke') 
+             read(value,*) lsm_dicke
+          case('corr') 
+             read(value,*) lsm_corr
+          case default
+             write(*,*) 'BINPUT_PARSE_4_0:READ_FW_SECTION: Parameter ', trim(keyword(3)), 'not defined for fm.lshapemodel'
+             write(16,*) 'BINPUT_PARSE_4_0:READ_FW_SECTION: Parameter ', trim(keyword(3)), 'not defined for fm.lshapemodel'
+             stop
+          end select
+       end if
     case('lab')
        if (len_trim(keyword(3)).eq.0) then
           read(value, *) is_cellspectra
