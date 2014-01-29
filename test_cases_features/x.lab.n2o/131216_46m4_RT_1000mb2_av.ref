@@ -1,0 +1,205 @@
+           1          2          99
+ Standard fascod altitudes
+   1.0e0       0.0E0    
+ NCEP model pressure
+   9.33253     9.33254  
+ NCEP model temperature
+ 292.84995     292.84995
+   1  H2O      WACCM 3548 refb2.1 1980-2020 A1B/GHG, AB/HALOGEN, AR4/SST, CCMVal, 2009
+   1.000E-05,  1.000E-05, 
+   2  CO2      WACCM 3548 refb2.1 1980-2020 A1B/GHG, AB/HALOGEN, AR4/SST, CCMVal, 2009
+   2.2E-07,  2.2E-07,
+   3  O3      WACCM 3548 refb2.1 1980-2020 A1B/GHG, AB/HALOGEN, AR4/SST, CCMVal, 2009
+   0.000E+00,  0.000E+00,
+   4  N2O      WACCM 3548 refb2.1 1980-2020 A1B/GHG, AB/HALOGEN, AR4/SST, CCMVal, 2009
+   1.000E-05,  1.000E-05,
+   5  CO      WACCM 3548 refb2.1 1980-2020 A1B/GHG, AB/HALOGEN, AR4/SST, CCMVal, 2009
+   1.500E-09,  1.500E-09,
+   6  CH4      WACCM 3548 refb2.1 1980-2020 A1B/GHG, AB/HALOGEN, AR4/SST, CCMVal, 2009
+   0.000E+00,  0.000E+00,
+   7  O2      WACCM 3548 refb2.1 1980-2020 A1B/GHG, AB/HALOGEN, AR4/SST, CCMVal, 2009
+   0.209E+00,  0.209E+00,
+   8  NO      WACCM 3548 refb2.1 1980-2020 A1B/GHG, AB/HALOGEN, AR4/SST, CCMVal, 2009
+   0.000E+00,  0.000E+00,
+   9  SO2      TURCO ET AL.(1981), INN ET AL.(1979,1981) (interpol 120km)
+   0.000E+00,  0.000E+00,
+   10  NO2      WACCM 3548 refb2.1 1980-2020 A1B/GHG, AB/HALOGEN, AR4/SST, CCMVal, 2009
+   0.000E+00,  0.000E+00,
+   11  NH3         (interpol 120km)
+   0.0   ,     0.0,
+   12  HNO3     LAZRUS ET AL.(1974), HARRIES ET AL.(1976).(scaled!) (interpol 120km)
+   0.000E+00,  0.000E+00,
+   13  OH      WACCM 3548 refb2.1 1980-2020 A1B/GHG, AB/HALOGEN, AR4/SST, CCMVal, 2009
+   0.000E+00,  0.000E+00,
+   14  HF      ATMOS 30N MEAN PROFILE DOWN TO 16 KM; SMITH REPORT BELOW (interpol 120km)
+   0.000E+00,  0.000E+00,
+   15  HCL      WACCM 3548 refb2.1 1980-2020 A1B/GHG, AB/HALOGEN, AR4/SST, CCMVal, 2009
+   0.000E+00,  0.000E+00,
+   16  HBR      WACCM 3548 refb2.1 1980-2020 A1B/GHG, AB/HALOGEN, AR4/SST, CCMVal, 2009
+   0.000E+00,  0.000E+00,
+   17  HI         CICERONE (1981) (interpol 120km)
+   0.000E+00,  0.000E+00,
+   18  CLO      WACCM 3548 refb2.1 1980-2020 A1B/GHG, AB/HALOGEN, AR4/SST, CCMVal, 2009
+   0.000E+00,  0.000E+00,
+   19  OCS            CRUTZEN, PRIVATE COMM. 8/8/79 (1-D MODEL) (interpol 120km)
+   0.000E+00,  0.000E+00,
+   20  H2CO        BARBE ET AL.(1979), EHHALT AND TONNISEN (1979) (interpol 120km)
+   0.000E+00,  0.000E+00,
+   21  HOCL      WACCM 3548 refb2.1 1980-2020 A1B/GHG, AB/HALOGEN, AR4/SST, CCMVal, 2009
+   0.000E+00,  0.000E+00,
+   22  HO2      WACCM 3548 refb2.1 1980-2020 A1B/GHG, AB/HALOGEN, AR4/SST, CCMVal, 2009
+   0.000E+00,  0.000E+00,
+   23  H2O2      WACCM 3548 refb2.1 1980-2020 A1B/GHG, AB/HALOGEN, AR4/SST, CCMVal, 2009
+   0.000E+00,  0.000E+00,
+   24  HONO         ATMOS STANDARD VOLUME MIXING RATIO (interpol 120km)
+   0.000E+00,  0.000E+00,
+   25  HO2NO2      WACCM 3548 refb2.1 1980-2020 A1B/GHG, AB/HALOGEN, AR4/SST, CCMVal, 2009
+   0.000E+00,  0.000E+00,
+   26  N2O5      WACCM 3548 refb2.1 1980-2020 A1B/GHG, AB/HALOGEN, AR4/SST, CCMVal, 2009
+   0.000E+00,  0.000E+00,
+   27  CLONO2      WACCM 3548 refb2.1 1980-2020 A1B/GHG, AB/HALOGEN, AR4/SST, CCMVal, 2009
+   0.000E+00,  0.000E+00,
+   28  HCN        R.J.CICERONE AND R.ZELLNER (1983) (interpol 120km)
+   0.000E+00,  0.000E+00,
+   29  CH3F         ATMOS STANDARD VOLUME MIXING RATIO (interpol 120km)
+   0.000E+00,  0.000E+00,
+   30  CH3CL      WACCM 3548 refb2.1 1980-2020 A1B/GHG, AB/HALOGEN, AR4/SST, CCMVal, 2009
+   0.000E+00,  0.000E+00,
+   31  CF4          ATMOS STANDARD VOLUME MIXING RATIO (interpol 120km)
+   0.000E+00,  0.000E+00,
+   32  CCL2F2       ATMOS STANDARD VOLUME MIXING RATIO x 2.0 (interpol 120km)
+   0.000E+00,  0.000E+00,
+   33  CCL3F        ATMOS STANDARD VOLUME MIXING RATIO x 2.0 (interpol 120km)
+   0.000E+00,  0.000E+00,
+   34  CH3CCL3      WACCM 3548 refb2.1 1980-2020 A1B/GHG, AB/HALOGEN, AR4/SST, CCMVal, 2009
+   0.000E+00,  0.000E+00,
+   35  CCL4      WACCM 3548 refb2.1 1980-2020 A1B/GHG, AB/HALOGEN, AR4/SST, CCMVal, 2009
+   0.000E+00,  0.000E+00,
+   36  COF2         ATMOS STANDARD VOLUME MIXING RATIO (interpol 120km)
+   0.000E+00,  0.000E+00,
+   37  COCLF        ATMOS STANDARD VOLUME MIXING RATIO (interpol 120km)
+   0.000E+00,  0.000E+00,
+   38  C2H6     CRONN AND ROBINSON(1979), RUDOLPH ET AL.(1981) (interpol 120km)
+   0.000E+00,  0.000E+00,
+   39  C2H4         ATMOS STANDARD VOLUME MIXING RATIO (interpol 120km)
+   0.000E+00,  0.000E+00,
+   40  C2H2     GOLDMAN ET AL(1981A), CRONN+ROBINSON(1979) (interpol 120km)
+   0.000E+00,  0.000E+00,
+   41  N2          1976 U.S. STANDARD ATM. (interpol 120km)
+   0.791E+00,  0.791E+00,
+   42  CHF2CL     ATMOS SPACELAB 3 x 1.7 (interpol 120km)
+   0.000E+00,  0.000E+00,
+   43  COCL2        ATMOS STANDARD VOLUME MIXING RATIO (interpol 120km)
+   0.000E+00,  0.000E+00,
+   44  CH3BR      WACCM 3548 refb2.1 1980-2020 A1B/GHG, AB/HALOGEN, AR4/SST, CCMVal, 2009
+   0.000E+00,  0.000E+00,
+   45  CH3I         ATMOS STANDARD VOLUME MIXING RATIO (interpol 120km)
+   0.000E+00,  0.000E+00,
+   46  HCOOH        ATMOS STANDARD VOLUME MIXING RATIO (interpol 120km)
+   0.000E+00,  0.000E+00,
+   47  H2S         ATMOS STANDARD VOLUME MIXING RATIO (interpol 120km)
+   0.000E+00,  0.000E+00,
+   48  CHCL2F       ATMOS STANDARD VOLUME MIXING RATIO (interpol 120km)
+   0.000E+00,  0.000E+00,
+   49  HDO      76 U.S. STANDARD ATM (interpol 120km)
+   0.000E+00,  0.000E+00,
+   50  SF6          ATMOS STANDARD VOLUME MIXING RATIO (interpol 120km)
+   0.000E+00,  0.000E+00,
+   51  H218O    76 U.S. STANDARD ATMOSPHERE (interpol 120km)
+   0.000E+00,  0.000E+00,
+   52  H217O    76 U.S. STANDARD ATMOSPHERE (interpol 120km)
+   0.000E+00,  0.000E+00,
+   53  CH3D     ATMOS/SL3 N.H. ZONAL MEAN 14-65 KM (GUNSON ET AL., 1989) (interpol 120km)
+   0.000E+00,  0.000E+00,
+   54  O3668    1976 U.S. STANDARD ATM. (KRUEGER AND MINZNER, 1976) (interpol 120km)
+   0.000E+00,  0.000E+00,
+   55  O3686    1976 U.S. STANDARD ATM. (KRUEGER AND MINZNER, 1976) (interpol 120km)
+   0.000E+00,  0.000E+00,
+   56  O3667    1976 U.S. STANDARD ATM. (KRUEGER AND MINZNER, 1976) (interpol 120km)
+   0.000E+00,  0.000E+00,
+   57  O3676    1976 U.S. STANDARD ATM. (KRUEGER AND MINZNER, 1976) (interpol 120km)
+   0.000E+00,  0.000E+00,
+   58  OCLO         Not much known about it (interpol 120km)
+   0.000E+00,  0.000E+00,
+   59  F134A    (CH2FCF3) CMDL Rep 24, US Dep of Commerce, 1998 (interpol 120km)
+   0.000E+00,  0.000E+00,
+   60  C3H8     M. Kanakidou et al., JGR 96, 15395-15413, 1991 (c2h6 *0.3) (interpol 120km)
+   0.000E+00,  0.000E+00,
+   61  F142B    (C2H3F2CL) CMDL Rep 24, US Dep of Commerce, 1998 (interpol 120km)
+   0.000E+00,  0.000E+00,
+   62  CFC113   (C2F3CL3) ground concentr.: WMO Report 44, 1999, Table 1-2 (interpol 120km)
+   0.000E+00,  0.000E+00,
+   63  F141B    (C2H3FCl2) CMDL Rep 24, US Dep of Commerce, 1998 (interpol 120km)
+   0.000E+00,  0.000E+00,
+   64  CH3OH (interpol 120km)
+   0.000E+00,  0.000E+00,
+   65  OTHER (interpol 120km)
+   0.000E+00,  0.000E+00,
+   66  OTHER (interpol 120km)
+   0.000E+00,  0.000E+00,
+   67  OTHER (interpol 120km)
+   0.000E+00,  0.000E+00,
+   68  OTHER (interpol 120km)
+   0.000E+00,  0.000E+00,
+   69  OTHER (interpol 120km)
+   0.000E+00,  0.000E+00,
+   70  OTHER (interpol 120km)
+   0.000E+00,  0.000E+00,
+   71  OTHER (interpol 120km)
+   0.000E+00,  0.000E+00,
+   72  OTHER (interpol 120km)
+   0.000E+00,  0.000E+00,
+   73  OTHER (interpol 120km)
+   0.000E+00,  0.000E+00,
+   74  OTHER (interpol 120km)
+   0.000E+00,  0.000E+00,
+   75  OTHER (interpol 120km)
+   0.000E+00,  0.000E+00,
+   76  OTHER (interpol 120km)
+   0.000E+00,  0.000E+00,
+   77  OTHER (interpol 120km)
+   0.000E+00,  0.000E+00,
+   78  OTHER (interpol 120km)
+   0.000E+00,  0.000E+00,
+   79  OTHER (interpol 120km)
+   0.000E+00,  0.000E+00,
+   80  OTHER (interpol 120km)
+   0.000E+00,  0.000E+00,
+   81  OTHER (interpol 120km)
+   0.000E+00,  0.000E+00,
+   82  OTHER (interpol 120km)
+   0.000E+00,  0.000E+00,
+   83  OTHER (interpol 120km)
+   0.000E+00,  0.000E+00,
+   84  OTHER (interpol 120km)
+   0.000E+00,  0.000E+00,
+   85  OTHER (interpol 120km)
+   0.000E+00,  0.000E+00,
+   86  OTHER (interpol 120km)
+   0.000E+00,  0.000E+00,
+   87  OTHER (interpol 120km)
+   0.000E+00,  0.000E+00,
+   88  OTHER (interpol 120km)
+   0.000E+00,  0.000E+00,
+   89  OTHER (interpol 120km)
+   0.000E+00,  0.000E+00,
+   90  OTHER (interpol 120km)
+   0.000E+00,  0.000E+00,
+   91  OTHER (interpol 120km)
+   0.000E+00,  0.000E+00,
+   92  OTHER (interpol 120km)
+   0.000E+00,  0.000E+00,
+   93  OTHER (interpol 120km)
+   0.000E+00,  0.000E+00,
+   94  OTHER (interpol 120km)
+   0.000E+00,  0.000E+00,
+   95  OTHER (interpol 120km)
+   0.000E+00,  0.000E+00,
+   96  OTHER (interpol 120km)
+   0.000E+00,  0.000E+00,
+   97  OTHER (interpol 120km)
+   0.000E+00,  0.000E+00,
+   98  OTHER (interpol 120km)
+   0.000E+00,  0.000E+00,
+   99  OTHER (interpol 120km)
+   0.000E+00,  0.000E+00,

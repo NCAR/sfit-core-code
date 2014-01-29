@@ -1,0 +1,44 @@
+# Input file for hbin
+# v003.991 beta
+# July 2012 sfit4 version v003.92 jwh
+# these lines are comments and can be anywhere
+#
+# implemented in version 3.99:
+# the linelist directory structure is the key to the gas names and the molecule id numbers
+# those id's and names must be the same in the reference.prf file
+# eg a files containing hitran lines is read from one subdir in linelist then the molid will be changed
+# to the 2digit integer 0NN of the subdir name and assumed to be for gas 'abcdef' from subdir 0NN_abcdef
+#
+# first non-comment line is a path to the directory tree where the gas subdirectories are
+T
+../../linelist/
+#
+# next entry is the number of path/files to look for
+6
+#
+# Then the next lines are paths to each gas file that will be searched for lines in the
+#  desired wavenember region
+# the id numbers are in sfit order - not exactly HITRAN, BUT KEEP these directory names
+# the files are in HITRAN format
+# tip: put a blank after the '/' to skip that gas
+001_H2O/01_hit12.par
+002_CO2/02_hit12.par
+004_N2O/04_fit_JL_merged.par
+005_CO/05_hit08.par
+007_O2/07_hit08.par
+041_N2/22_hit08.par
+#
+#
+# Galatry parameters
+# molecule id numbers in these files have to match the sfit molecule id
+0
+#
+#
+# CO2 Line mixing parameters for Boone implementation
+0
+#
+#
+# Speed Dependent Voigt parameter files
+1
+004_N2O/04_fit_JL_SDV_merged.txt
+! end of file

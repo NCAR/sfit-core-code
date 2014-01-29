@@ -69,8 +69,9 @@
       REAL(DOUBLE), DIMENSION(NMONSM) :: Y_INFTY, DELTA_Y
       REAL(DOUBLE), DIMENSION(MAXSPE) :: ZSHIFTSAV
       REAL(DOUBLE), DIMENSION(NFIT)   :: WAVE_X
+      REAL(DOUBLE), DIMENSION(MAXSPE)   :: YCAVE, YCMAX
       REAL(DOUBLE) :: DEL, SUMSQ, WSCALE, DWAVE, DSHIFT, FRACS, PHI, SMM, YS, &
-         BKGND, YCAVE, FX, TEMPP, YCMAX !, STDEV
+         BKGND, FX, TEMPP!, STDEV
       REAL(DOUBLE) , DIMENSION(:,:), allocatable    :: store_line
 
       COMPLEX(DBLE_COMPLEX) :: TCALL, TCALH, TCALI
@@ -501,8 +502,8 @@
                ! spectra only or normalization is explicitely
                ! required for emission spectra. mp
                IF (IEMISSION.EQ.0 .OR. IENORM(IBAND).NE.0) THEN
-                  YCAVE = SMM/N3
-                  YC(JATMOS-N3+1:JATMOS) = YC(JATMOS-N3+1:JATMOS)/YCAVE
+                  YCAVE(IBAND) = SMM/N3
+                  YC(JATMOS-N3+1:JATMOS) = YC(JATMOS-N3+1:JATMOS)/YCAVE(IBAND)
                ELSE
                   YCAVE = 1.0D0
                END IF
@@ -541,14 +542,14 @@
                   OPEN(UNIT=80, FILE=GASFNAME, STATUS='REPLACE', ERR=555)
                   WRITE (80, 640) TITLE
                   WRITE (80, *) WSTART(IBAND), WSTOP(IBAND), SPAC(IBAND), N3
-                  YCMAX = 1.0D0
+                  YCMAX(IBAND) = 1.0D0
                   IF (IEMISSION.EQ.0) THEN
-                     YCMAX = maxval(YC(JATMOS-N3+1:JATMOS))
+                     YCMAX(IBAND) = maxval(YC(JATMOS-N3+1:JATMOS))
                   else
-                     YCMAX = 1.0D0
+                     YCMAX(IBAND) = 1.0D0
                   end IF
                   DO III=JATMOS-N3+1,JATMOS
-                     WRITE (80, *) YC(III)/YCMAX
+                     WRITE (80, *) YC(III)/YCMAX(IBAND)
                   ENDDO
                   CLOSE (80)
 
@@ -577,7 +578,7 @@
                      WRITE (80, *) WSTART(IBAND), WSTOP(IBAND), SPAC(IBAND), N3
                      DO J = 1, N3
                         I = N1 + (J - 1)*NSPAC(IBAND)
-                        WRITE (80, *) DBLE(TCONV(I))
+                        WRITE (80, *) DBLE(TCONV(I))!/YCAVE(IBAND)
                      ENDDO
                      CLOSE (80)
                   ENDDO
