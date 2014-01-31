@@ -277,7 +277,10 @@
            IF (INDXX >= JMIN) THEN
               DO I = 1, NM(IBAND)
                  WAVE_NR = WSTART(IBAND) + (I-1)*DN(IBAND)
-
+                 IF( ABS( TCALC(IPOINT,MADD+I-1)) .GT. 664.0D0 ) THEN
+                    ! LIMIT SO ONLY GET EXPONENT < 664.0
+                    TCALC(IPOINT,MADD+I-1) = 664.0D0
+                 ENDIF
                  IF (EMISSION_OBJECT.EQ.'M') THEN
                     TCALC(IPOINT, MADD+I-1) &
                          = (PLANCK(WAVE_NR,EMISSION_T_BACK) + 1.D-6 *PLANCK(WAVE_NR ,6000.0D0)) &
@@ -288,8 +291,8 @@
                          * EXP((-TCALC(IPOINT,MADD+I-1)))
                  END IF
                  DO K=1, KSMAX2
-                    IF( ABS( TCALC_E(IPOINT,MADD+I-1,K)) .GT. 664.0 ) THEN
-                       ! LIMIT SO ONLY GET EXPONENT < 300
+                    IF( ABS( TCALC_E(IPOINT,MADD+I-1,K)) .GT. 664.0D0 ) THEN
+                       ! LIMIT SO ONLY GET EXPONENT < 664.0
                        TCALC_E(IPOINT,MADD+I-1,K) = 664.0D0
                     ENDIF
                     ! Transmission from altitude K to the ground
@@ -325,7 +328,7 @@
            IF (INDXX >= JMIN) THEN
               DO I = 1, NMON
                  IF( ABS( TCALC(IPOINT,MADD+I-1)) .GT. 664.0 ) THEN
-                    ! LIMIT SO ONLY GET EXPONENT < 300
+                    ! LIMIT SO ONLY GET EXPONENT < 664.0
                     TCALC(IPOINT,MADD+I-1) = 664.0D0
                  ENDIF
                  TCALC(IPOINT,MADD+I-1) = EXP((-TCALC(IPOINT,MADD+I-1)))
@@ -487,8 +490,11 @@
 
         REAL(DOUBLE) :: F, T
 ! --- CALCULATE CONSTANTS FOR PLANCK FUNCTION TO SPEED UP
-        PLANCK = PLANCK_C1 * F**3 / (EXP(PLANCK_C2 * F / T ) - 1.0D0)
-
+        if ((PLANCK_C2 * F / T).gt.100.0d0) then
+           planck = 0.0d0
+        else
+           PLANCK = PLANCK_C1 * F**3 / (EXP(PLANCK_C2 * F / T ) - 1.0D0)
+        end if
       END FUNCTION PLANCK
 
       END MODULE TRANSMIS
