@@ -5,10 +5,12 @@ module continuum
 
   implicit none
   
+  integer, parameter :: cont_poly_max = 10
+
   integer :: ncont = 0, n_contabs
   logical :: f_contabs = .false.
-  integer :: abscont_type
-  real(double), dimension(2) :: abscont_param
+  integer :: abscont_type, abscont_order
+  real(double), dimension(cont_poly_max) :: abscont_param, abscont_sparam
   real(double), dimension(:), allocatable :: cont_param
   
   contains
@@ -22,10 +24,10 @@ module continuum
     real(double), dimension(:), intent(in) :: param
     
 
-    integer :: iband, k, j
+    integer :: iband, k, j, l
     integer :: mone, mxne
     real(double) :: wone, wxne, wmid
-    
+    real(double) :: polynom
 
     select case (abscont_type) 
     case (0)
@@ -47,11 +49,32 @@ module continuum
           DO K = 1, KMAX     
              CROSS(nret+2,K,mone:mxne) = param(1)*(P(k)/P(kmax))
              do j = mone,mxne
-                CROSS(nret+2,K,j) = CROSS(nret+2,K,j) * ( 1 + param(2)*((wone+dble(j)*dn(iband))-wmid)/(wxne-wone) )
+                CROSS(nret+2,K,j) = CROSS(nret+2,K,j) * ( 1.0D0 + param(2)*((wone+dble(j)*dn(iband))-wmid)/(wxne-wone) )
              end do
           end DO
           mone = mone + nm(iband)
        end DO
+    case (2)
+       ! n-th order polynomial
+       mone = 1
+       DO IBAND = 1, NBAND
+          mxne = mone + nm(iband) - 1
+          wone = wstart(iband)
+          wxne = wstart(iband) + dn(iband)*nm(iband)
+          wmid = (wone + wxne)/2.0d0
+!          print *, mone, mxne, wone, wxne, wmid, dn(iband)
+!          print *, param(1), param(2), abscont_strength, abscont_tilt
+          polynom = 0.0d0
+          DO K = 1, KMAX     
+             do j = mone,mxne
+                do l = 0,n_contabs
+                   polynom = polynom + param(l+1)*(((wone+dble(j)*dn(iband))-wmid)/(wxne-wone))**l
+                end do
+                CROSS(nret+2,K,j) = CROSS(nret+2,K,j) * ( 1.0d0 + polynom)*(P(k)/P(kmax))
+             end do
+          end DO
+          mone = mone + nm(iband)
+       end DO       
     end select
   end subroutine calc_continuum
   

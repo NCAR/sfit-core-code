@@ -66,7 +66,14 @@
                                                 ! 0 = CHOOSE LINEPARAM DEPENDING ON EXISTANCE OF PARAMETERS
                                                 ! 1 = FORCE VOIGT FOR ALL LINES
                                                 ! 2 = USE GALATRY FOR LINES WITH PARAMETERS, VOIGT ELSE
-                                                ! 3 = USE SDV FOR LINES WITH PARAMETERS
+                                                ! 3 = USE Boone SDV FOR LINES WITH PARAMETERS
+
+      ! if lshapemodel = 0, the following switches may be used to switch certain features
+      ! by default all switched on for default line shape
+      logical :: lsm_sdv = .true.              ! if TRUE, speed dependent Voigt is used
+      logical :: lsm_dicke = .true.            ! if TRUE, Dicke narrowing is calculated
+      logical :: lsm_corr = .true.            ! if TRUE, crosscorrelation between SDV and Dicke 
+                                                ! narrowing is calculated
 
       INTEGER, PARAMETER   :: GALATRY_FLAG=1,FCIA_FLAG=2,SCIA_FLAG=3,SDV_FLAG=4,LM_FLAG=5
 
@@ -277,7 +284,7 @@
       YLM(NLINES)    = L3
 
       HFLAG(NLINES,1:8) = .FALSE.
-      IF( HF(GALATRY_FLAG) .AND. ((LSHAPEMODEL == 0).OR.(LSHAPEMODEL==2))) THEN
+      IF( LSM_DICKE.AND.HF(GALATRY_FLAG) .AND. ((LSHAPEMODEL == 0).OR.(LSHAPEMODEL==2))) THEN
          HFLAG(NLINES,GALATRY_FLAG) = .TRUE.
          NLINES_GALATRY = NLINES_GALATRY + 1
          !print *, HFLAG(NLINES,GALATRY_FLAG), nlines
@@ -290,7 +297,7 @@
          HFLAG(NLINES,SCIA_FLAG) = .TRUE.
          NLINES_SCIA = NLINES_SCIA + 1
       END IF
-      IF( HF(SDV_FLAG).AND.((LSHAPEMODEL == 0).OR.(LSHAPEMODEL==3))) THEN
+      IF( LSM_SDV.and.HF(SDV_FLAG).AND.((LSHAPEMODEL == 0).OR.(LSHAPEMODEL==3))) THEN
          HFLAG(NLINES,SDV_FLAG) = .TRUE.
          NLINES_SDV = NLINES_SDV + 1
       END IF

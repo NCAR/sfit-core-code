@@ -968,17 +968,12 @@
 
       ! continuum absorption
       if (f_contabs) then
-         select case (abscont_type)
-            case (0)
-               n_contabs = 1
-            case (1)
-               n_contabs = 2
-         end select
+         n_contabs = abscont_order
          if (allocated(cont_param)) deallocate(cont_param)
          allocate(cont_param(n_contabs))
          PNAME(NVAR+1:NVAR+n_contabs) = 'CONTINUUM'
-         PARM(NVAR+1:NVAR+n_contabs)  = abscont_param(1:n_contabs)
-         SPARM(NVAR+1:NVAR+n_contabs) = 1.0d0
+         PARM(NVAR+1:NVAR+n_contabs)  = abscont_param(:n_contabs)
+         SPARM(NVAR+1:NVAR+n_contabs) = abscont_sparam(:n_contabs)
          NVAR = NVAR + n_contabs
       end if
       !  ---  RETRIEVAL GAS MIXING RATIOS

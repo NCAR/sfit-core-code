@@ -53,7 +53,7 @@
       REAL(DOUBLE) :: DIST, TXE, VIBFAC, STIMFC, SSL, ACOFB, SCOFB, ALOR, ADOP, &
                       AKZERO, YDUM, OPTMAX, XDUM, AKV, OPTCEN, DELLOR, WLIN, START, &
                       SSTOP, ANUZ, QT, QTSTDTEMP, GI, SSLOLD, BETAP, GZ, LMTVAL
-      REAL(DOUBLE) :: AKV_R, AKV_I, G2, LM, S0, S2, ANUVC
+      REAL(DOUBLE) :: AKV_R, AKV_I, G2, LM, S0, S2, ANUVC, ETA
 
       REAL (DOUBLE), DIMENSION(4) :: SDVLM_PARAM ! PARAMETERS FOR SDV AND/OR LINEMIXING
                                                  ! CALCULATION ACCORDING TO BOONE
@@ -178,7 +178,7 @@
                   ACOFB = AAA(N) + (XGAS(IMOL,K)-0.21D0)*(SSS(N)-AAA(N))/0.79D0
                   ACOFB = ACOFB * P(K)
                   SCOFB = 0.0D0
-               ELSEIF  ( LSHAPEMODEL.NE.3.and.HFLAG(N,SDV_FLAG) ) THEN
+               ELSEIF  ( LSM_SDV.and.LSHAPEMODEL.NE.3.and.HFLAG(N,SDV_FLAG) ) THEN
                   ACOFB = GAMMA0(N)*P(K)*(1.0D0 - XGAS(IMOL,K))
                   SCOFB = SSS(N)*P(K)*XGAS(IMOL,K)
                   G2 = GAMMA0(N)*GAMMA2(N)*P(k) ! Note HITRAN gives data by Devi, the function 
@@ -191,6 +191,7 @@
                      S2 = 0.0D0
                   END IF
                ELSEIF ( LSHAPEMODEL.EQ.3.AND.HFLAG(N,SDV_FLAG) ) THEN
+                  ! Boone's implementation of SDV
                   SDVLM_PARAM(1) = GAMMA2(N)*P(k) ! PRESSURE NARROWING FOR SDV
                   SDVLM_PARAM(2) = ACOFB + SCOFB  ! PRESSURE BROADENING FOR SDV
                   SDVLM_PARAM(3) = 0.0!ETA2(N)    ! PRESSURE SHIFT IN SDV
@@ -198,12 +199,20 @@
                   ACOFB = AAA(N)*P(K)*(1.0D0 - XGAS(IMOL,K))
                   SCOFB = SSS(N)*P(K)*XGAS(IMOL,K)
                END IF
+
                ANUVC = 0.0D0
-               IF ( LSHAPEMODEL.NE.2.AND.HFLAG(N,GALATRY_FLAG) ) THEN 
+               IF ( LSM_DICKE.AND.LSHAPEMODEL.NE.2.AND.HFLAG(N,GALATRY_FLAG) ) THEN 
+                  ! Tran's implemeatation of Line shape
                   BETAP = BETA(N)*P(K)
                   ! RELATION GIVEN BY NGO ET.AL. 'AN ISOLATED LINE-SHAPE MODEL ...', JQRST, 2013
                   ANUVC = BETAP !3.0D0/4.0D0*BETAP
                END IF
+
+               eta = 0.0d0
+               if(LSM_CORR.and.LSHAPEMODEL.EQ.0) then
+                  ! not yet implementated because no measured line parameters exist.
+                  eta = 0.0d0
+               end if
 
 
                ALOR = (ACOFB + SCOFB)*(STDTEMP/T(K))**TDLIN(N)
@@ -278,7 +287,7 @@
                   AKV = AKZERO * VOIGT(XDUM,YDUM)
                ELSEIF (LSHAPEMODEL.EQ.0) THEN
                   ! pCqSDHC MODEL (Tran)
-                  call pCqSDHC(azero(N),ADOP,ALOR,G2,S0, S2, ANUVC,0.0D0,&
+                  call pCqSDHC(azero(N),ADOP,ALOR,G2,S0, S2, ANUVC,ETA,&
                        azero(N),AKV_R,AKV_I)
                   AKV = SSL * (AKV_R + LM * AKV_I)! ALL OTHER PARTS OF AKZERO ARE ALREADY PART OF 
                                                   ! AKV_R AND AKV_I
@@ -301,7 +310,7 @@
 !!  --- IF NO PRESSURE SHIFT
                IF( .NOT. FPS ) WLIN = AZERO(N)
 !!  --- If using the pCqSDHC line shape, the pressure shifted is already included
-               IF( LSHAPEMODEL.EQ.4 ) WLIN = AZERO(N)
+               IF( LSHAPEMODEL.EQ.0 ) WLIN = AZERO(N)
                START = WLIN - DIST
                SSTOP = WLIN + DIST
                JSTART = FLOOR((START - WMON(IBAND))/DN(IBAND) + 1.00000001D0)
@@ -330,7 +339,7 @@
                      XDUM = ABS(XDUM)
                      AKV  = AKZERO*VOIGT(XDUM,YDUM)
                   ELSEIF (LSHAPEMODEL.EQ.0) THEN
-                     call pCqSDHC(WLIN,ADOP,ALOR,G2,S0,S2,ANUVC,0.0D0,&
+                     call pCqSDHC(WLIN,ADOP,ALOR,G2,S0,S2,ANUVC,ETA,&
                           ANUZ,AKV_R,AKV_I)
                      AKV = SSL*(AKV_R + LM*AKV_I)! ALL OTHER PARTS OF AKZERO ARE ALREADY PART OF 
                      ! AKV_R AND AKV_I
