@@ -53,20 +53,20 @@
  rt.wshift.type              =               3
  rt.wshift.apriori           =           0.000
  rt.wshift.sigma             =           0.100
- rt.slope                    =              T 
+ rt.slope                    =               T
  rt.slope.apriori            =           0.000
  rt.slope.sigma              =           0.100
+ rt.continuum                = F
+ rt.continuum.type = 1
+ rt.continuum.strength       = 0.0
+ rt.continuum.tilt       = 0.0
  rt.temperature              =               F
-# rt.continuum                = F
-# rt.continuum.type = 1
-# rt.continuum.strength       = 0.001
-# rt.continuum.tilt       = 0.001
  rt.temperature.sigma =
- 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1
- 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1
- 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1
- 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1
- 0.1 
+ 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001
+ 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001
+ 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001
+ 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001
+ 0.001 
 
 
 
@@ -79,15 +79,14 @@
  band.1.beam                 =               0
  band.1.calc_point_space     =            0.04
  band.1.wave_factor          =           1.000
- band.1.max_opd                 =           3.86 
- band.1.omega                =            1.0 
+ band.1.max_opd                 =            1.00
+ band.1.omega                =              45.0
  band.1.apodization_code        =               0
  band.1.gasb                 = CO O3 N2O H2O OCS
- band.1.tempretb = F   
+ band.1.tempretb = F 
 
 
 
  out.level = 1
  out.gas_spectra = T
- out.gas_spectra.type =1 
  out.pbpfile = T
