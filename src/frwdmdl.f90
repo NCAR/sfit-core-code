@@ -349,7 +349,7 @@
 !  --- ANAYLITC K-MATICES MAY BE CHOSEN IN PARAM_M.F90 MP
     8    CONTINUE
 
-         IF ((.NOT.ANALYTIC_K).OR.(.NOT.XRET).OR.(TRET).OR.(ICOUNT.EQ.1).or.FLINE.or.FSZA.or.TALL_FLAG.or.IFDIFF) THEN
+         IF ((.NOT.ANALYTIC_K).OR.(.NOT.XRET).OR.(TRET).OR.(ICOUNT.EQ.1).or.FLINE.or.FSZA.or.TALL_FLAG) THEN
             CALL TALL
             IF( BUG1 )PRINT*, '    TALL', IPARM
             !print*, nmonsm, TCALC(1,:100)
@@ -583,6 +583,34 @@
                      CLOSE (80)
                   ENDDO
 
+!  --- Continuum absorption if calculated
+                  if (f_contabs) then
+                     CALL CONTNTRAN( IBAND,JSCAN,2,MONONE,MXONE )
+                     !  --- COMPUTE FFTS
+                     CALL FSPEC1 (IBAND, MONONE, MXONE)
+                     CALL FSPEC2 (IBAND, MONONE, PHI)
+                     IF( GASOUTTYPE .EQ. 1 .AND. ITER .EQ. -1 )THEN
+                        WRITE(GASFNAME,750)IBAND,JSCAN
+                     ELSEIF( GASOUTTYPE .EQ. 2 )THEN
+                        IF (ITER == -1 ) THEN
+                           WRITE(GASFNAME,750)IBAND,JSCAN
+                        ELSE
+                           WRITE(GASFNAME,760)IBAND,JSCAN,ITER
+                        ENDIF
+                     ENDIF
+                     WRITE(TITLE,710) 'CONT', IBAND, JSCAN, ITER
+
+                     OPEN(UNIT=80, FILE=GASFNAME, STATUS='REPLACE', ERR=555)
+                     WRITE (80, 640) TITLE
+                     WRITE (80, *) WSTART(IBAND), WSTOP(IBAND), SPAC(IBAND), N3
+                     DO J = 1, N3
+                        I = N1 + (J - 1)*NSPAC(IBAND)
+                        WRITE (80, *) DBLE(TCONV(I))
+                     ENDDO
+                     CLOSE (80)
+                  ENDIF
+                     
+
 !  --- FINALLY SOLAR SPECTRUM
                   IFCO = IFCOSAVE
                   IF( IFCO )THEN
@@ -752,6 +780,8 @@
  710  FORMAT('GAS ',a7,' BAND ', I2, ' SCAN ', I2, ' ITER ', I3)
  730  FORMAT('spc.sol.',I2.2,'.',I2.2,'.final')
  740  FORMAT('spc.sol.',I2.2,'.',I2.2,'.',I2.2)
+ 750  FORMAT('spc.CON.',I2.2,'.',I2.2,'.final')
+ 760  FORMAT('spc.CON.',I2.2,'.',I2.2,'.',I2.2)
 ! 750  FORMAT('GAS SOLAR',' BAND ', I2, ' SCAN ', I2, ' ITER ', I3)
 
   888 FORMAT(5(1P,E14.7,1X))

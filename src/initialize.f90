@@ -968,10 +968,12 @@
 
       ! continuum absorption
       if (f_contabs) then
-         n_contabs = abscont_order
+         n_contabs = abscont_order + 1 ! 0-th order already needs one param.
          if (allocated(cont_param)) deallocate(cont_param)
          allocate(cont_param(n_contabs))
-         PNAME(NVAR+1:NVAR+n_contabs) = 'CONTINUUM'
+         do i = 1,n_contabs
+            write(PNAME(NVAR+I:NVAR+1+I), '(a10,i1)'), 'CONTINUUM_', i-1
+         end do
          PARM(NVAR+1:NVAR+n_contabs)  = abscont_param(:n_contabs)
          SPARM(NVAR+1:NVAR+n_contabs) = abscont_sparam(:n_contabs)
          NVAR = NVAR + n_contabs

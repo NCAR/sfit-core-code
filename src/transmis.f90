@@ -395,9 +395,6 @@
       INTEGER :: NMON, NSCANS, KSMAX2, K, JSCAN,ICINDX, MSTOR, MXMAX, J, MADD, I, ALT
       REAL(DOUBLE) :: FACMAS, XFAC, WAVE_NR
 
-! MP update gas spectrum for emission eg wave_nr...in progress
-
-
 !  --- NMON=NUMBER OF MONOCHROMATIC POINTS FOR THE BANDPASS CALCULATION
       NMON   = NM(IBAND)
       NSCANS = NSCAN(IBAND)
@@ -442,13 +439,6 @@
                              TCALC_E(IPOINT,MSTOR,ALT) + (X(IR,K)/XORG(IR,K)) * CROSS_FACMAS(IR,K,MSTOR)
                      END IF
                   END DO
-                  DO ALT=1,KSMAX2
-                     IF( ABS( TCALC_E(IPOINT,MSTOR,ALT)) .GT. 664.0 ) THEN
-                        ! LIMIT SO ONLY GET EXPONENT < 300
-                        TCALC_E(IPOINT,MSTOR,ALT) = 664.0D0
-                     ENDIF
-                     TCALC_E(IPOINT,MSTOR,ALT) = exp(-TCALC_E(IPOINT,MSTOR,ALT))
-                  end DO
                END IF
             END DO
          ENDIF
@@ -461,6 +451,13 @@
             TCALC(IPOINT,MADD+I-1) = 664.0d0
          ENDIF
          if (IEMISSION.EQ.1) then
+            DO ALT=1,KSMAX2
+               IF( ABS( TCALC_E(IPOINT,MADD+I-1,ALT)) .GT. 664.0 ) THEN
+                  ! LIMIT SO ONLY GET EXPONENT < 300
+                  TCALC_E(IPOINT,MADD+I-1,ALT) = 664.0D0
+               ENDIF
+               TCALC_E(IPOINT,MAdd+i-1,ALT) = exp(-TCALC_E(IPOINT,Madd+i-1,ALT))
+            end DO
             TCALC(IPOINT, MADD+I-1) = 0.0D0
             ! Background
             !                  TCALC(IPOINT, MADD+I-1) &
@@ -523,6 +520,111 @@
       RETURN
 
       END SUBROUTINE ZERONTRAN
+
+
+!---------------------------------------------------------------------------
+      SUBROUTINE CONTNTRAN(IBAND, JMIN, IPOINT, MONONE, MXONE)
+
+!     COMPUTE MONOCHROMATIC TRANSMITTANCES FOR THE CONTINUUM ABSORPTION 
+!     AT EACH WAVELENGTH.
+!     TRANMSITTANCES ARE COMPUTED FOR SPECTRA
+!     BETWEEN SPECTRUM ISCAN(IBAND,JMIN) AND ISCAN(IBAND,NSCAN(IBAND)).
+!
+!          IBAND=BAND PASS NUMBER
+!          JSCAN=ISCAN(IBAND,J)=SPECTRUM NUMBER FOR CALCULATIONS
+!          IPOINT,MONONE-INDICES IN TCALC ARRAY FOR CALCULATED TRANSMITTANCES
+
+      INTEGER, INTENT(IN) :: IBAND, IPOINT, MONONE, JMIN, MXONE
+
+      INTEGER :: NMON, KSMAX2, JSCAN, NSCANS, K, ICINDX, MSTOR, J, MADD, I, ALT
+      REAL(DOUBLE) :: FACMAS, WAVE_NR
+
+      !REAL(DOUBLE) :: FACMAS
+
+!  --- NMON=NUMBER OF MONOCHROMATIC POINTS FOR THE BANDPASS CALCULATION
+      NMON = NM(IBAND)
+      MADD = MONONE
+      !NSCANS = NSCAN(IBAND)
+!  --- ZERO APPROPRIATE TRANSMISSION ARRAY ELEMENTS FOR CROSS SECTION
+!  ---  CALCULATIONS
+      TCALC(IPOINT,MADD:NMON-1+MADD) = 0.D0
+!  --- COMPUTE MONOCHROMATIC TRANSMITTANCES FROM CROSS SECTION SUMS
+      NSCANS = NSCAN(IBAND)
+
+!  --- MAXIMUM LAYER FOR SUMMING CROSS SECTIONS CALCULATIONS
+      KSMAX2 = KZTAN(ISCAN(IBAND,NSCANS))
+!                   ------------LOOP OVER LAYERS
+      DO K = 1, KSMAX2
+         MADD = MONONE
+         JSCAN = ISCAN(IBAND,JMIN)
+         IF (K <= KZTAN(JSCAN)) THEN
+            FACMAS = CCC(JSCAN,K)/PMASMX(K)
+            !                   ------------LOOP OVER FREQUENCIES
+            DO J = 1, NMON
+               ICINDX = MXONE + J - 1
+               MSTOR = MADD + J - 1
+               WAVE_NR = WSTART(IBAND) + (J-1)*DN(IBAND)
+               if( ABS( TCALC(IPOINT,MADD+J-1)) .GT. 664.0 ) THEN
+                  ! LIMIT SO ONLY GET EXPONENT < 300
+                  TCALC(IPOINT,MADD+I-1) = 664.0d0
+               ENDIF
+               if (f_contabs) then
+                  CROSS_FACMAS(NRET+2,K,MSTOR) = CROSS(NRET+2,K,ICINDX)*FACMAS
+                  TCALC(IPOINT,MSTOR) = TCALC(IPOINT,MSTOR) + CROSS_FACMAS(NRET+2,K,MSTOR)
+                  
+                  IF (IEMISSION/=0) THEN
+                  TCALC_E(IPOINT,MSTOR,:KSMAX2) = 0.0D0
+                     DO ALT=1,KSMAX2
+                        IF (ZBAR(ALT) > ZBAR(K)) THEN
+                           TCALC_E(IPOINT,MSTOR,ALT) = &
+                                TCALC_E(IPOINT,MSTOR,ALT) + CROSS_FACMAS(NRET+2,K,MSTOR)
+                        ENDIF
+                     ENDDO
+                     DO ALT=1,KSMAX2
+                        IF( ABS( TCALC_E(IPOINT,MSTOR,ALT)) .GT. 664.0 ) THEN
+                           ! LIMIT SO ONLY GET EXPONENT < 300
+                           TCALC_E(IPOINT,MSTOR,ALT) = 664.0D0
+                        ENDIF
+                        TCALC_E(IPOINT,MSTOR,ALT) = exp(-TCALC_E(IPOINT,MSTOR,ALT))
+                     end DO                     
+                  ENDIF
+               end if
+            end DO
+         end IF
+      end DO
+      !  --- COMPUTE MONOCHROMATIC TRANSMITTANCES FROM CROSS SECTION SUMS
+      MADD = MONONE
+      DO I = 1, NMON
+         if( ABS( TCALC(IPOINT,MADD+I-1)) .GT. 664.0 ) THEN
+            ! LIMIT SO ONLY GET EXPONENT < 300
+            TCALC(IPOINT,MADD+I-1) = 664.0d0
+         ENDIF
+         if (IEMISSION.EQ.1) then
+            TCALC(IPOINT, MADD+I-1) = 0.0D0
+            ! Background
+            !                  TCALC(IPOINT, MADD+I-1) &
+            !                       = PLANCK(WAVE_NR,EMISSION_T_BACK) !&
+            !* EXP((-TCALC(IPOINT,MADD+I-1)))
+            TCALC_E(IPOINT,MADD+I-1,KMAX+1) = TCALC(IPOINT, MADD+I-1)
+            TCALC_S(IPOINT, MADD+I-1, 1)=0.D0
+            DO K=2,KSMAX2
+               ! Calculates the spectrum, Planck is the emission of a black body at the temperature
+               ! of T(K) in layer K,
+               ! TCALC_E(IPOINT,MADD+I-1,K) - TCALC_E(IPOINT,MADD+I-1,K-1) is the absorption
+               ! of the layer K alone
+               TCALC_S(IPOINT, MADD+I-1, K) = PLANCK(WAVE_NR,T(K))&
+                    *(TCALC_E(IPOINT,MADD+I-1,K) - TCALC_E(IPOINT,MADD+I-1,K-1))
+               ! TCALC contains the spectrum
+               TCALC(IPOINT, MADD+I-1) = TCALC(IPOINT, MADD+I-1) &
+                    + TCALC_S(IPOINT, MADD+I-1, K)
+            end DO
+         else
+            TCALC(IPOINT,MADD+I-1) = EXP((-TCALC(IPOINT,MADD+I-1)))
+         END if
+      end DO
+      RETURN
+      
+    END SUBROUTINE CONTNTRAN
 
 
 !----------------------------------------------------------------------
