@@ -38,7 +38,7 @@
 001_H2O/01_hit09.par
 002_CO2/02_hit08_f53.par
 003_O3/03_hit08.par
-004_N2O/04_hit08.par
+004_N2O/04_fit_JL_merged.par
 005_CO/05_hit08.par
 006_CH4/06_hit08.par
 007_O2/07_hit08.par
@@ -150,5 +150,5 @@
 #
 # Speed Dependent Voigt parameter files --- not yet!
 1
-005_CO/05_hit12_SDV.txt
+004_N2O/04_fit_JL_SDV.txt
 ! end of file
