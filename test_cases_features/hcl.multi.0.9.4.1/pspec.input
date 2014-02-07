@@ -9,6 +9,7 @@
 # Altitude of Observation [masl]
 225.0
 #
+1 1
 # filter bands and regions for calculating SNR
 7
 f1  4038.727 4038.871
@@ -31,13 +32,13 @@ f8  907.854  907.977
 # radius of earth, zero fill factor, ratioflag
 # ratio file name (bnr format) if ratioflag eq 1, skip if 0
 temp.bnr.00
-6396.2   1     0
+6396.2   1     0 0 0 
 #
 temp.bnr.01
-6396.2   1     0
+6396.2   1     0 0 0
 #
 temp.bnr.02
-6396.2   1     0
+6396.2   1     0 0 0
 #
 temp.bnr.03
-6396.2   1     0
+6396.2   1     0 0 0
