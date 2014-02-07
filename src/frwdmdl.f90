@@ -583,6 +583,31 @@
                      CLOSE (80)
                   ENDDO
 
+!  --- Spectrum due to not retrieved gases
+                  call GASNTRAN(NRET+1,IBAND,JSCAN,2,MONONE,MXONE)
+                  !  --- COMPUTE FFTS
+                  CALL FSPEC1 (IBAND, MONONE, MXONE)
+                  CALL FSPEC2 (IBAND, MONONE, PHI)
+                  IF( GASOUTTYPE .EQ. 1 .AND. ITER .EQ. -1 )THEN
+                     WRITE(GASFNAME,770)IBAND,JSCAN
+                  ELSEIF( GASOUTTYPE .EQ. 2 )THEN
+                     IF (ITER == -1 ) THEN
+                        WRITE(GASFNAME,770)IBAND,JSCAN
+                     ELSE
+                        WRITE(GASFNAME,780)IBAND,JSCAN,ITER
+                     ENDIF
+                  ENDIF
+                  WRITE(TITLE,710) 'REST', IBAND, JSCAN, ITER
+                  
+                  OPEN(UNIT=80, FILE=GASFNAME, STATUS='REPLACE', ERR=555)
+                  WRITE (80, 640) TITLE
+                  WRITE (80, *) WSTART(IBAND), WSTOP(IBAND), SPAC(IBAND), N3
+                  DO J = 1, N3
+                     I = N1 + (J - 1)*NSPAC(IBAND)
+                     WRITE (80, *) DBLE(TCONV(I))
+                  ENDDO
+                  CLOSE (80)
+
 !  --- Continuum absorption if calculated
                   if (f_contabs) then
                      call GASNTRAN(NRET+2,IBAND,JSCAN,2,MONONE,MXONE)
@@ -729,14 +754,18 @@
             NS2 = SUM(NPRIM(1:IBAND))
          ENDIF
 
+         ! Zero out for molecules not retrieved in a particular bank
+         ! NGIDX(KK,0,IBAND) -- Molecule retrieved in band IBAND?
+         ! NGIDX(KK,1,IBAND) -- start index for this molecule in state vector
+         ! NGIDX(KK,2,IBAND) -- last index for this molecule in state vector
          SPEC1: DO JSCAN = 1, NS
-            NR = NRETB(IBAND)
 
             RET1: DO KK = 1, NRET
                IF( NGIDX(KK,0,IBAND) == 0 ) THEN
                  KN( NS1:NS2 , NGIDX(KK,1,0): NGIDX(KK,2,0) ) = 0.0D0
                ELSE
                ENDIF
+               
 
             END DO RET1
          END DO SPEC1
@@ -783,6 +812,8 @@
  740  FORMAT('spc.sol.',I2.2,'.',I2.2,'.',I2.2)
  750  FORMAT('spc.CON.',I2.2,'.',I2.2,'.final')
  760  FORMAT('spc.CON.',I2.2,'.',I2.2,'.',I2.2)
+ 770  FORMAT('spc.REST.',I2.2,'.',I2.2,'.final')
+ 780  FORMAT('spc.REST.',I2.2,'.',I2.2,'.',I2.2)
 ! 750  FORMAT('GAS SOLAR',' BAND ', I2, ' SCAN ', I2, ' ITER ', I3)
 
   888 FORMAT(5(1P,E14.7,1X))
