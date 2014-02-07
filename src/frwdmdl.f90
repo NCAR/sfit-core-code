@@ -585,7 +585,8 @@
 
 !  --- Continuum absorption if calculated
                   if (f_contabs) then
-                     CALL CONTNTRAN( IBAND,JSCAN,2,MONONE,MXONE )
+                     call GASNTRAN(NRET+2,IBAND,JSCAN,2,MONONE,MXONE)
+!                     CALL CONTNTRAN( IBAND,JSCAN,2,MONONE,MXONE )
                      !  --- COMPUTE FFTS
                      CALL FSPEC1 (IBAND, MONONE, MXONE)
                      CALL FSPEC2 (IBAND, MONONE, PHI)
