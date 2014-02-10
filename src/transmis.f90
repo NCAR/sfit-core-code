@@ -432,8 +432,8 @@
                   ICINDX = MAX0(MXONE,ICINDX)
                   ICINDX = MIN0(MXMAX,ICINDX)
                ENDIF
-               CROSS_FACMAS(NRET+2,K,MSTOR) = CROSS(NRET+2,K,ICINDX)*FACMAS
-               TCALC(IPOINT,MSTOR) = TCALC(IPOINT,MSTOR) + CROSS_FACMAS(NRET+2,K,MSTOR) 
+               CROSS_FACMAS(IR,K,MSTOR) = CROSS(IR,K,ICINDX)*FACMAS
+               TCALC(IPOINT,MSTOR) = TCALC(IPOINT,MSTOR) + CROSS_FACMAS(IR,K,MSTOR) 
 !               if (IR.eq.1) print *, TCALC(IPOINT,MSTOR)
                IF (IEMISSION.EQ.1) THEN
                   ! Transmission calculated below the layer ALT, needed

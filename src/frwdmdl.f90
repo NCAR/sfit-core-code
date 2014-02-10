@@ -69,8 +69,8 @@
       REAL(DOUBLE), DIMENSION(NMONSM) :: Y_INFTY, DELTA_Y
       REAL(DOUBLE), DIMENSION(MAXSPE) :: ZSHIFTSAV
       REAL(DOUBLE), DIMENSION(NFIT)   :: WAVE_X
-      REAL(DOUBLE), DIMENSION(MAXSPE)   :: YCAVE, YCMAX
-      REAL(DOUBLE) :: DEL, SUMSQ, WSCALE, DWAVE, DSHIFT, FRACS, PHI, SMM, YS, &
+      REAL(DOUBLE), DIMENSION(MAXSPE)   :: YCAVE, YCMAX, WSCALE
+      REAL(DOUBLE) :: DEL, SUMSQ, WA, WE, SP, DWAVE, DSHIFT, FRACS, PHI, SMM, YS, &
          BKGND, FX, TEMPP!, STDEV
       REAL(DOUBLE) , DIMENSION(:,:), allocatable    :: store_line
 
@@ -405,28 +405,28 @@
                   IF (ISPARM == 3) GO TO 131
 
 !  --- SINGLE PARAMETER FOR ALL BANDPASSES
-                  WSCALE = PARM(NBKFIT+1)
+                  WSCALE(IBAND) = PARM(NBKFIT+1)
                   GO TO 14
                ENDIF
 
 !  --- INDEPENDENT PARAMETER FOR EACH BANDPASS
-               WSCALE = PARM(NBKFIT+IBAND)
+               WSCALE(IBAND) = PARM(NBKFIT+IBAND)
                GO TO 14
 
 !  --- INDEPENDENT PARAMETER FOR EACH FIT
   131          CONTINUE
                KFIT2 = KFIT2 + 1
-               WSCALE = PARM(NBKFIT+KFIT2)
+               WSCALE(IBAND) = PARM(NBKFIT+KFIT2)
                GO TO 14
 
 !  --- NO WAVENUMBER SHIFT
     3          CONTINUE
-               WSCALE = 0.0D0
+               WSCALE(IBAND) = 0.0D0
 
 !  --- CALCULATE SHIFT IN WAVENUMBERS
    14          CONTINUE
 
-               DWAVE = 0.5D0*(WAVE3(IBAND)+WAVE4(IBAND))*((WAVFAC(IBAND) + WSCALE) - 1.D0)
+               DWAVE = 0.5D0*(WAVE3(IBAND)+WAVE4(IBAND))*((WAVFAC(IBAND) + WSCALE(IBAND)) - 1.D0)
 
 !  --- CALCULATE NUMBER OF MONOCHROMATIC POINTS TO SHIFT
                DSHIFT = DWAVE/DN(IBAND)
@@ -513,6 +513,10 @@
                  .AND.( (GASOUTTYPE .EQ. 1) .AND. (ITER .EQ. -1)  &
                  .OR.   (GASOUTTYPE .EQ. 2) ))THEN
 !  --- SAVE TCALC
+
+                  WA = WSTART(IBAND)! * (WAVFAC(IBAND) + WSCALE(IBAND))
+                  WE = WSTOP(IBAND)! * (WAVFAC(IBAND) + WSCALE(IBAND))
+                  SP = SPAC(IBAND)! * (WAVFAC(IBAND) + WSCALE(IBAND))
                   ALLOCATE (TCONVSAV(NMONSM), STAT=NAERR)
                   IF (NAERR /= 0) THEN
                        WRITE (16, *) 'FWRDMDL: COULD NOT ALLOCATE TCONVSAV ARRAY, ERROR NUMBER = ', NAERR
@@ -541,7 +545,7 @@
                   WRITE(TITLE,710) 'ALL', IBAND, JSCAN, ITER
                   OPEN(UNIT=80, FILE=GASFNAME, STATUS='REPLACE', ERR=555)
                   WRITE (80, 640) TITLE
-                  WRITE (80, *) WSTART(IBAND), WSTOP(IBAND), SPAC(IBAND), N3
+                  WRITE (80, *) WA, WE, SP, N3
                   YCMAX(IBAND) = 1.0D0
                   IF (IEMISSION.EQ.0) THEN
                      YCMAX(IBAND) = maxval(YC(JATMOS-N3+1:JATMOS))
@@ -575,7 +579,7 @@
 
                      OPEN(UNIT=80, FILE=GASFNAME, STATUS='REPLACE', ERR=555)
                      WRITE (80, 640) TITLE
-                     WRITE (80, *) WSTART(IBAND), WSTOP(IBAND), SPAC(IBAND), N3
+                  WRITE (80, *) WA, WE, SP, N3
                      DO J = 1, N3
                         I = N1 + (J - 1)*NSPAC(IBAND)
                         WRITE (80, *) DBLE(TCONV(I))!/YCAVE(IBAND)
@@ -601,7 +605,7 @@
                   
                   OPEN(UNIT=80, FILE=GASFNAME, STATUS='REPLACE', ERR=555)
                   WRITE (80, 640) TITLE
-                  WRITE (80, *) WSTART(IBAND), WSTOP(IBAND), SPAC(IBAND), N3
+                  WRITE (80, *) WA, WE, SP, N3
                   DO J = 1, N3
                      I = N1 + (J - 1)*NSPAC(IBAND)
                      WRITE (80, *) DBLE(TCONV(I))
@@ -628,14 +632,13 @@
 
                      OPEN(UNIT=80, FILE=GASFNAME, STATUS='REPLACE', ERR=555)
                      WRITE (80, 640) TITLE
-                     WRITE (80, *) WSTART(IBAND), WSTOP(IBAND), SPAC(IBAND), N3
+                  WRITE (80, *) WA, WE, SP, N3
                      DO J = 1, N3
                         I = N1 + (J - 1)*NSPAC(IBAND)
                         WRITE (80, *) DBLE(TCONV(I))
                      ENDDO
                      CLOSE (80)
                   ENDIF
-                     
 
 !  --- FINALLY SOLAR SPECTRUM
                   IFCO = IFCOSAVE
