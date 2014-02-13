@@ -1,0 +1,22 @@
+ SFIT4:V0.9.4.3 :Release -- January 2014 RUNTIME:20140213-09:11:24 RETRIEVAL SUMMARY 
+
+         2
+  23/06/2000, 20:32:03, SCAN TIME:142.41 SEC. RES= 0.0050  APOD FN = BX          
+  23/06/2000, 20:32:03, SCAN TIME:142.41 SEC. RES= 0.0050  APOD FN = BX          
+
+         4
+ IRET   GAS_NAME  IFPRF       APR_COLUMN    RET_COLUMN
+    1         HF      T      3.61759E+14   1.16530E+15
+    2        H2O      F      2.50341E+22   3.32483E+22
+    3        CH4      F      3.71597E+19   3.39807E+19
+    4        HDO      F      1.44555E+23   2.93529E+22
+
+         2
+IBAND       NUSTART        NUSTOP         SPACE     NPTSB     PMAX    FOVDIA     MEAN_SNR  NSCAN  JSCAN     INIT_SNR     CALC_SNR
+    1    4038.70000    4039.20000   0.001674025       299   180.00  2.392300    38.091898      1
+                                                                                                      1    40.000000    38.091898
+    2    4109.40000    4110.20000   0.001674025       478   180.00  2.392300    17.227232      1
+                                                                                                      1    15.000000    17.227232
+
+       FITRMS      CHI_2_Y      DOFS_ALL      DOFS_TRG      DOFS_TPR      ITER  MAX_ITER CONVERGED   DIVWARN
+     4.829981     0.888336         4.776         1.127         0.000         7        30         T         F

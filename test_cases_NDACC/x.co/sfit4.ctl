@@ -4,7 +4,7 @@
  file.in.stalayers              = station.layers
  file.in.refprofile             = reference.prf
  file.in.spectrum               = spectrum
- file.in.solarlines             = /home/mathias/sfit-core-code/linelist/solar/120621/solar.dat
+ file.in.solarlines             = ../../linelist/solar/120621/solar.dat
  file.in.linelist               = 02053.641622-02163.208378.hbin
  file.out.ak_matrix= ak.out
  
