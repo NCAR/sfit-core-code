@@ -600,7 +600,7 @@
          WRITE(16,102) WSTART(IBAND), WSTOP(IBAND), NPTSB, NATMOS
 
 ! ---  NORMALIZE AMPLITUDES TO AVERAGE VALUE IF ABSORPTION MEASUREMENTS OR EMISSION SPECTRA ARE NORMALIZED
-         IF( IEMISSION .EQ. 0 .OR. IENORM(IBAND) .EQ. 1) THEN
+         IF( IEMISSION .EQ. 0 .OR. IENORM .EQ. 1) THEN
             TAVE              = SMM/REAL(NPTSB,8)
             TOBS(NREF:NATMOS) = TOBS(NREF:NATMOS)/TAVE
             !print *, 'tave ', tave, NREF, NATMOS
@@ -713,14 +713,14 @@
             IF ((WWV(IW) .LT. WAVE3(IBAND)) .OR. (WWV(IW) .GT. WAVE4(IBAND))) CYCLE
             DO JSCAN=1, NSCAN(IBAND)
                IF(( IW.GE.ISCNDX(1,IBAND,JSCAN)) .AND. (IW.LE.ISCNDX(2,IBAND,JSCAN)) )THEN
-                  IF ((IEMISSION .eq. 0) .OR. (IENORM(IBAND) .eq. 1)) THEN
+                  IF ((IEMISSION .eq. 0) .OR. (IENORM .eq. 1)) THEN
                      STNR(IW) = 1.0D0 / SCNSNR(IBAND,JSCAN)
                   ELSE
                      STNR(IW) = SCNSNR(IBAND,JSCAN)
                   ENDIF
                   DO K = 1, NSTNR
                      IF ((WWV(IW) .LT. WWV0(K)) .OR. (WWV(IW) .GT. WWV1(K))) CYCLE
-                     IF ((IEMISSION .EQ. 0) .OR.( IENORM(IBAND) .eq. 1)) THEN
+                     IF ((IEMISSION .EQ. 0) .OR.( IENORM .eq. 1)) THEN
                         STNR(IW) = 1.0D0 / GSTNR(K)
                      ELSE
                         STNR(IW) = GSTNR(IBAND)

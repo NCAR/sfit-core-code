@@ -501,7 +501,7 @@
                ! -- normalization of spectra only when absorption
                ! spectra only or normalization is explicitely
                ! required for emission spectra. mp
-               IF (IEMISSION.EQ.0 .OR. IENORM(IBAND).NE.0) THEN
+               IF (IEMISSION.EQ.0 .OR. IENORM.NE.0) THEN
                   YCAVE(IBAND) = SMM/N3
                   YC(JATMOS-N3+1:JATMOS) = YC(JATMOS-N3+1:JATMOS)/YCAVE(IBAND)
                ELSE

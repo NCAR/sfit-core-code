@@ -19,7 +19,7 @@
 module spec
 
 use fitting
-
+use transmis, only: iemission, ienorm
 implicit none
 
 integer       (4) :: nsnr
@@ -1206,16 +1206,23 @@ subroutine kpno( opdmax, wl1, wl2, roe, lat, lon, nterp, rflag, oflag, zflag, vf
    write(*,102)'High wavenuumber : ',whi
    write(*,102)'Spacing : ',dnue
    write(*,101)'Number of points : ',np
-   write(*,102)'Peak signal : ',peak
-   write(*,102)'RMS SNR in fit region : ',peak/noise
-
+   if (iemission.eq.1.and.ienorm.eq.0) then
+      write(*,102)'RMS in fit region : ',noise
+   else
+      write(*,102)'Peak signal : ',peak
+      write(*,102)'RMS SNR in fit region : ',peak/noise
+   end if
    print *,''
 
    if( oflag .eq. 1 .or. oflag .eq. 3 )then
 
       ! write to t15asc
       write(6, 103) 'Writing to : ', 't15asc.4'
-      write(tlun, 106) sza, roe, lat, lon, peak/noise
+      if (iemission.eq.1.and.ienorm.eq.0) then
+         write(tlun, 106) sza, roe, lat, lon, noise
+      else
+         write(tlun, 106) sza, roe, lat, lon, peak/noise
+      end if
       write(tlun, 107) yy, mm, dd, hh, nn, ss
       write(tlun, 888) title
       write(tlun, 108) wlow, whi, dnue, np
@@ -1621,9 +1628,11 @@ subroutine calcsnr( wavs, amps, npfile, wlim1, wlim2, spac, opdmax, nterp, noise
    noise = sqrt( noise / real(np,8))
 
    write(6,101) 'Points in snr region : ', np
-   write(6,102) 'Mean signal : ', mean
    write(6,102) 'RMS noise : ', noise
-   write(6,102) 'Mean SNR in snr region : ', mean/noise
+   if (iemission.eq.0.and.ienorm.eq.0) then
+      write(6,102) 'Mean signal : ', mean
+      write(6,102) 'Mean SNR in snr region : ', mean/noise
+   end if
 
    deallocate( x, y, z, curve, outspec )
 

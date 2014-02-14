@@ -37,6 +37,9 @@
       REAL(DOUBLE), DIMENSION(:,:,:), ALLOCATABLE :: TCALC_S !mp
       REAL(DOUBLE), DIMENSION(:,:,:), ALLOCATABLE :: CROSS_FACMAS !mp
 
+      INTEGER                         :: IEMISSION, IENORM
+ 
+
       CONTAINS
 
 !----------------------------------------------------------------------
