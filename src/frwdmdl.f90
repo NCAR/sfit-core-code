@@ -69,8 +69,15 @@
       REAL(DOUBLE), DIMENSION(NMONSM) :: Y_INFTY, DELTA_Y
       REAL(DOUBLE), DIMENSION(MAXSPE) :: ZSHIFTSAV
       REAL(DOUBLE), DIMENSION(NFIT)   :: WAVE_X
+<<<<<<< HEAD
+      REAL(DOUBLE), DIMENSION(MAXSPE)   :: YCAVE, YCMAX
       REAL(DOUBLE) :: DEL, SUMSQ, WSCALE, DWAVE, DSHIFT, FRACS, PHI, SMM, YS, &
-         BKGND, YCAVE, FX, TEMPP, YCMAX !, STDEV
+         BKGND, FX, TEMPP
+=======
+      REAL(DOUBLE), DIMENSION(MAXSPE)   :: YCAVE, YCMAX, WSCALE
+      REAL(DOUBLE) :: DEL, SUMSQ, WA, WE, SP, DWAVE, DSHIFT, FRACS, PHI, SMM, YS, &
+         BKGND, FX, TEMPP!, STDEV
+>>>>>>> 3bb71c7... BugFix in single spectra calculation
       REAL(DOUBLE) , DIMENSION(:,:), allocatable    :: store_line
 
       COMPLEX(DBLE_COMPLEX) :: TCALL, TCALH, TCALI
@@ -391,28 +398,28 @@
                   IF (ISPARM == 3) GO TO 131
 
 !  --- SINGLE PARAMETER FOR ALL BANDPASSES
-                  WSCALE = PARM(NBKFIT+1)
+                  WSCALE(IBAND) = PARM(NBKFIT+1)
                   GO TO 14
                ENDIF
 
 !  --- INDEPENDENT PARAMETER FOR EACH BANDPASS
-               WSCALE = PARM(NBKFIT+IBAND)
+               WSCALE(IBAND) = PARM(NBKFIT+IBAND)
                GO TO 14
 
 !  --- INDEPENDENT PARAMETER FOR EACH FIT
   131          CONTINUE
                KFIT2 = KFIT2 + 1
-               WSCALE = PARM(NBKFIT+KFIT2)
+               WSCALE(IBAND) = PARM(NBKFIT+KFIT2)
                GO TO 14
 
 !  --- NO WAVENUMBER SHIFT
     3          CONTINUE
-               WSCALE = 0.0D0
+               WSCALE(IBAND) = 0.0D0
 
 !  --- CALCULATE SHIFT IN WAVENUMBERS
    14          CONTINUE
 
-               DWAVE = 0.5D0*(WAVE3(IBAND)+WAVE4(IBAND))*((WAVFAC(IBAND) + WSCALE) - 1.D0)
+               DWAVE = 0.5D0*(WAVE3(IBAND)+WAVE4(IBAND))*((WAVFAC(IBAND) + WSCALE(IBAND)) - 1.D0)
 
 !  --- CALCULATE NUMBER OF MONOCHROMATIC POINTS TO SHIFT
                DSHIFT = DWAVE/DN(IBAND)
@@ -488,10 +495,10 @@
                ! spectra only or normalization is explicitely
                ! required for emission spectra. mp
                IF (IEMISSION.EQ.0 .OR. IENORM(IBAND).NE.0) THEN
-                  YCAVE = SMM/N3
-                  YC(JATMOS-N3+1:JATMOS) = YC(JATMOS-N3+1:JATMOS)/YCAVE
+                  YCAVE(IBAND) = SMM/N3
+                  YC(JATMOS-N3+1:JATMOS) = YC(JATMOS-N3+1:JATMOS)/YCAVE(IBAND)
                ELSE
-                  YCAVE = 1.0D0
+                  YCAVE(IBAND) = 1.0D0
                END IF
 
 !  --- WRITE SPECTRA BY GAS, BAND, SCAN & ITERATION
@@ -499,6 +506,10 @@
                  .AND.( (GASOUTTYPE .EQ. 1) .AND. (ITER .EQ. -1)  &
                  .OR.   (GASOUTTYPE .EQ. 2) ))THEN
 !  --- SAVE TCALC
+
+                  WA = WSTART(IBAND)! * (WAVFAC(IBAND) + WSCALE(IBAND))
+                  WE = WSTOP(IBAND)! * (WAVFAC(IBAND) + WSCALE(IBAND))
+                  SP = SPAC(IBAND)! * (WAVFAC(IBAND) + WSCALE(IBAND))
                   ALLOCATE (TCONVSAV(NMONSM), STAT=NAERR)
                   IF (NAERR /= 0) THEN
                        WRITE (16, *) 'FWRDMDL: COULD NOT ALLOCATE TCONVSAV ARRAY, ERROR NUMBER = ', NAERR
@@ -527,10 +538,15 @@
                   WRITE(TITLE,710) 'ALL', IBAND, JSCAN, ITER
                   OPEN(UNIT=80, FILE=GASFNAME, STATUS='REPLACE', ERR=555)
                   WRITE (80, 640) TITLE
-                  WRITE (80, *) WSTART(IBAND), WSTOP(IBAND), SPAC(IBAND), N3
-                  YCMAX = maxval(YC(JATMOS-N3+1:JATMOS))
+                  WRITE (80, *) WA, WE, SP, N3
+                  YCMAX(IBAND) = 1.0D0
+                  IF (IEMISSION.EQ.0) THEN
+                     YCMAX(IBAND) = maxval(YC(JATMOS-N3+1:JATMOS))
+                  else
+                     YCMAX(IBAND) = 1.0D0
+                  end IF
                   DO III=JATMOS-N3+1,JATMOS
-                     WRITE (80, *) YC(III)/YCMAX
+                     WRITE (80, *) YC(III)/YCMAX(IBAND)
                   ENDDO
                   CLOSE (80)
 
@@ -556,13 +572,70 @@
 
                      OPEN(UNIT=80, FILE=GASFNAME, STATUS='REPLACE', ERR=555)
                      WRITE (80, 640) TITLE
-                     WRITE (80, *) WSTART(IBAND), WSTOP(IBAND), SPAC(IBAND), N3
+                  WRITE (80, *) WA, WE, SP, N3
+                     DO J = 1, N3
+                        I = N1 + (J - 1)*NSPAC(IBAND)
+                        WRITE (80, *) DBLE(TCONV(I))!/YCAVE(IBAND)
+                     ENDDO
+                     CLOSE (80)
+                  ENDDO
+
+!  --- Spectrum due to not retrieved gases
+                  call GASNTRAN(NRET+1,IBAND,JSCAN,2,MONONE,MXONE)
+                  !  --- COMPUTE FFTS
+                  CALL FSPEC1 (IBAND, MONONE, MXONE)
+                  CALL FSPEC2 (IBAND, MONONE, PHI)
+                  IF( GASOUTTYPE .EQ. 1 .AND. ITER .EQ. -1 )THEN
+                     WRITE(GASFNAME,770)IBAND,JSCAN
+                  ELSEIF( GASOUTTYPE .EQ. 2 )THEN
+                     IF (ITER == -1 ) THEN
+                        WRITE(GASFNAME,770)IBAND,JSCAN
+                     ELSE
+                        WRITE(GASFNAME,780)IBAND,JSCAN,ITER
+                     ENDIF
+                  ENDIF
+                  WRITE(TITLE,710) 'REST', IBAND, JSCAN, ITER
+                  
+                  OPEN(UNIT=80, FILE=GASFNAME, STATUS='REPLACE', ERR=555)
+                  WRITE (80, 640) TITLE
+                  WRITE (80, *) WA, WE, SP, N3
+                  DO J = 1, N3
+                     I = N1 + (J - 1)*NSPAC(IBAND)
+                     WRITE (80, *) DBLE(TCONV(I))
+                  ENDDO
+                  CLOSE (80)
+
+<<<<<<< HEAD
+                     
+=======
+!  --- Continuum absorption if calculated
+                  if (f_contabs) then
+                     call GASNTRAN(NRET+2,IBAND,JSCAN,2,MONONE,MXONE)
+!                     CALL CONTNTRAN( IBAND,JSCAN,2,MONONE,MXONE )
+                     !  --- COMPUTE FFTS
+                     CALL FSPEC1 (IBAND, MONONE, MXONE)
+                     CALL FSPEC2 (IBAND, MONONE, PHI)
+                     IF( GASOUTTYPE .EQ. 1 .AND. ITER .EQ. -1 )THEN
+                        WRITE(GASFNAME,750)IBAND,JSCAN
+                     ELSEIF( GASOUTTYPE .EQ. 2 )THEN
+                        IF (ITER == -1 ) THEN
+                           WRITE(GASFNAME,750)IBAND,JSCAN
+                        ELSE
+                           WRITE(GASFNAME,760)IBAND,JSCAN,ITER
+                        ENDIF
+                     ENDIF
+                     WRITE(TITLE,710) 'CONT', IBAND, JSCAN, ITER
+
+                     OPEN(UNIT=80, FILE=GASFNAME, STATUS='REPLACE', ERR=555)
+                     WRITE (80, 640) TITLE
+                  WRITE (80, *) WA, WE, SP, N3
                      DO J = 1, N3
                         I = N1 + (J - 1)*NSPAC(IBAND)
                         WRITE (80, *) DBLE(TCONV(I))
                      ENDDO
                      CLOSE (80)
-                  ENDDO
+                  ENDIF
+>>>>>>> 3bb71c7... BugFix in single spectra calculation
 
 !  --- FINALLY SOLAR SPECTRUM
                   IFCO = IFCOSAVE
@@ -681,21 +754,28 @@
             NS2 = SUM(NPRIM(1:IBAND))
          ENDIF
 
+         ! Zero out for molecules not retrieved in a particular bank
+         ! NGIDX(KK,0,IBAND) -- Molecule retrieved in band IBAND?
+         ! NGIDX(KK,1,IBAND) -- start index for this molecule in state vector
+         ! NGIDX(KK,2,IBAND) -- last index for this molecule in state vector
          SPEC1: DO JSCAN = 1, NS
-            NR = NRETB(IBAND)
 
             RET1: DO KK = 1, NRET
                IF( NGIDX(KK,0,IBAND) == 0 ) THEN
                  KN( NS1:NS2 , NGIDX(KK,1,0): NGIDX(KK,2,0) ) = 0.0D0
                ELSE
                ENDIF
+               
 
             END DO RET1
          END DO SPEC1
       END DO BAND1
 
  !  --- PRINT OUT PARM ARRAY BY ITERATION
-      IF( F_WRTPARM )WRITE(89,261) ITER, PARM(:NVAR)
+      IF( F_WRTPARM ) THEN
+         WRITE(89,261) ITER, PARM(:NVAR)
+         CALL flush(89)
+      END IF
       IF (ALLOCATED(STORE_LINE)) DEALLOCATE(STORE_LINE)
 
 
@@ -704,6 +784,7 @@
    17 CONTINUE
       WRITE (16, 18) N1, N2, IBAND, NSTART(IBAND), MSHIFT, MONONE, NPRIM(IBAND), NSPAC(IBAND)
       WRITE (16,*) "WAVENUMBER SHIFT OUT OF SPECTRAL RANGE."
+      WRITE ( 0, 18) N1, N2, IBAND, NSTART(IBAND), MSHIFT, MONONE, NPRIM(IBAND), NSPAC(IBAND)
       WRITE ( 0,*) "WAVENUMBER SHIFT OUT OF SPECTRAL RANGE."
       TFLG=.TRUE.
       RETURN
@@ -732,6 +813,8 @@
  710  FORMAT('GAS ',a7,' BAND ', I2, ' SCAN ', I2, ' ITER ', I3)
  730  FORMAT('spc.sol.',I2.2,'.',I2.2,'.final')
  740  FORMAT('spc.sol.',I2.2,'.',I2.2,'.',I2.2)
+ 770  FORMAT('spc.REST.',I2.2,'.',I2.2,'.final')
+ 780  FORMAT('spc.REST.',I2.2,'.',I2.2,'.',I2.2)
 ! 750  FORMAT('GAS SOLAR',' BAND ', I2, ' SCAN ', I2, ' ITER ', I3)
 
   888 FORMAT(5(1P,E14.7,1X))
