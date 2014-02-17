@@ -62,10 +62,10 @@
  rt.slope                    =               F
  rt.slope.apriori            =           0.000
  rt.slope.sigma              =           0.100
- rt.continuum                = F
- rt.continuum.type = 1
- rt.continuum.strength       = 0.0
- rt.continuum.tilt       = 0.0
+ rt.continuum                = T
+ rt.continuum.order =0 
+ rt.continuum.apriori       = 0.0
+ rt.continuum.sigma       = 0.1
  rt.temperature = F
  rt.temperature.sigma =
  0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1
@@ -99,5 +99,5 @@
 
  out.level = 2
  out.gas_spectra = T
- out.gas_spectra.type = 2
+ out.gas_spectra.type = 1 
  out.pbpfile = T

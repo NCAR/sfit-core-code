@@ -290,7 +290,7 @@
       IND = 0
       DO I = 1, NBAND
          ! Normalized if emission is switched off or the emission spectra are normalized
-         IF (IEMISSION.EQ.0.OR.IENORM(I).EQ.1) THEN
+         IF (IEMISSION.EQ.0.OR.IENORM.EQ.1) THEN
             N = NSCAN(I)
             DO K = 1, N
                YMAX = 0.D0

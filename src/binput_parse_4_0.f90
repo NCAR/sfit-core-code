@@ -558,9 +558,13 @@ end subroutine read_file_section
           case ('order')
              read(value,*) abscont_order
           case ('apriori')
-             read(value,'(f3.1)') (abscont_param(nr), nr=1,CONT_POLY_MAX)
+             ! be default, all coefficients get the same apriori and sigma, this may change later on
+             ! it definitely should be changed when calculating the KB-matrix
+             read(value,*) abscont_param(1)
+             abscont_param(:) = abscont_param(1)
           case ('sigma')
-             read(value,'(f3.1)') (abscont_sparam(nr), nr=1,CONT_POLY_MAX)
+             read(value,*) abscont_sparam(1)
+             abscont_sparam(:) = abscont_sparam(1)
           end select
        endif
     case ('temperature')

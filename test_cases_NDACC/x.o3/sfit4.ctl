@@ -11,7 +11,7 @@
  
  gas.layers                  =              41
  gas.profile.list            = O3 H2O O3668 O3686
- gas.column.list             = CO2 C2H4
+ gas.column.list             = CO2 C2H4 
  gas.profile.O3.correlation          =               F
  gas.profile.O3.logstate             =               F
  gas.profile.O3.scale                =               1.0
@@ -67,6 +67,8 @@
  gas.column.CO2.sigma               = 1.0
  gas.column.C2H4.scale              = 1.0
  gas.column.C2H4.sigma              = 1.0
+ gas.column.CH4.scale              = 1.0
+ gas.column.CH4.sigma              = 1.0
  
  # Forward model parameters
  
@@ -101,6 +103,18 @@
  rt.phase.apriori            =           0.000
  rt.phase.sigma              =           0.200
  rt.dwshift                  =               F
+ rt.temperature = F
+ rt.temperature.sigma =
+ 0.2   0.2   0.2   0.2   0.2
+ 0.2   0.2   0.2   0.2   0.2
+ 0.2   0.2   0.2   0.2   0.2
+ 0.2   0.2   0.2   0.2   0.2
+ 0.2   0.2   0.2   0.2   0.2
+ 0.2   0.2   0.2   0.2   0.2
+ 0.2   0.2   0.2   0.2   0.2
+ 0.2   0.2   0.2   0.2   0.2
+ 0.2
+
  
  # Microwindows and their parameters
  
@@ -147,7 +161,8 @@
  band.4.max_opd= 180.0000
  band.4.omega= 2.3923
  band.4.apodization_code     = 0
- band.4.gasb                 = O3     H2O    CO2 O3668 O3686
+ band.4.gasb                 = O3     H2O    CO2 O3668 O3686 C2H4
+ band.4.tempretb = F
 
  sp.snr = 1 2 
  sp.snr.1.nu_start = 1000.85
@@ -168,6 +183,7 @@
  out.sa_matrix= T
  out.retprofiles= T
  out.aprprofiles= T
+ out.parm_vectors = T
  file.out.ak_matrix= ak.out
  file.out.k_matrix= k.out
  file.out.g_matrix= g.out
@@ -176,7 +192,7 @@
  file.out.retprofiles= rprfs.table
  file.out.aprprofiles= aprfs.table
  file.out.summary= summary
- kb= T
+ kb= F
  kb.slope= T
  kb.curvature= T
  kb.solshft= T
