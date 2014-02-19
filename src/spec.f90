@@ -1,3 +1,21 @@
+!-----------------------------------------------------------------------------
+!    Copyright (c) 2013-2014 NDACC/IRWG
+!    This file is part of sfit.
+!
+!    sfit is free software: you can redistribute it and/or modify
+!    it under the terms of the GNU General Public License as published by
+!    the Free Software Foundation, either version 3 of the License, or
+!    any later version.
+!
+!    sfit is distributed in the hope that it will be useful,
+!    but WITHOUT ANY WARRANTY; without even the implied warranty of
+!    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!    GNU General Public License for more details.
+!
+!    You should have received a copy of the GNU General Public License
+!    along with sfit.  If not, see <http://www.gnu.org/licenses/>
+!-----------------------------------------------------------------------------
+
 module spec
 
 use fitting
@@ -324,7 +342,7 @@ real(8) function bc2( sp, wavelength, n, wmid, vflag, noise ) result (zero)
       blockout = .false.
       if( vflag .gt. 0 )verbose  = .true.
       if( vflag .gt. 1 )blockout = .true.
-
+print*,blockout
       dstncmax = 50.0d0
       zero = 0.0d0
 ! quick check that we are in the right region
@@ -1459,6 +1477,7 @@ subroutine calcsnr( wavs, amps, npfile, wlim1, wlim2, spac, opdmax, nterp, noise
 
   if( vflag .gt. 1 )then
       open(66,file='noisefit.txt')
+      write(66,*)'Nearest exact noise region in raw spectrum'
       w1 = psnr(1,k)
       w2 = psnr(2,k)
       ilow = minloc(( wavs-w1 ), mask=((wavs-w1) > 0.0D0))
@@ -1471,7 +1490,7 @@ subroutine calcsnr( wavs, amps, npfile, wlim1, wlim2, spac, opdmax, nterp, noise
       enddo
    endif
 
-   ! get the spectra in this region +- 1 wavenumber more
+   ! get the spectra in this region +- wavenumber buffer
    w1 = psnr(1,k)-50.*nterp/opdmax
    w2 = psnr(2,k)+50.*nterp/opdmax
    ilow = minloc(( wavs-w1 ), mask=((wavs-w1) > 0.0D0))
@@ -1490,6 +1509,7 @@ subroutine calcsnr( wavs, amps, npfile, wlim1, wlim2, spac, opdmax, nterp, noise
    end if
 
    if( vflag .gt. 1 )then
+      write(66,*)'Extended noise region in raw spectrum'
       write(66,*) 2, iih - iil + 1
       do i=iil, iih
          write(66,*) wavs(i), amps(i)
@@ -1515,6 +1535,7 @@ subroutine calcsnr( wavs, amps, npfile, wlim1, wlim2, spac, opdmax, nterp, noise
    endif
 
    if( vflag .gt. 1 )then
+      write(66,*)'Extended noise region in resampled spectrum'
       write(66,*) 3, np
       do i=1, np
          write(66,*) (i-1)*dnue + wstart, outspec(i)
@@ -1565,6 +1586,7 @@ subroutine calcsnr( wavs, amps, npfile, wlim1, wlim2, spac, opdmax, nterp, noise
    enddo
 
    if( vflag .gt. 1 )then
+      write(66,*)'Exact noise region in resampled spectrum, i, w#, spec, fit, diff'
       write(66,*) 4, np, iil*dnue + wstart, dnue
       do i=1, np
          write(66,*) x(i), z(iil+i-1), outspec(iil+i-1), (curve(1) + (curve(2) + curve(3)*x(i) ) * x(i)), y(i)
