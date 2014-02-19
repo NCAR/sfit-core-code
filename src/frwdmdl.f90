@@ -1,3 +1,21 @@
+!-----------------------------------------------------------------------------
+!    Copyright (c) 2013-2014 NDACC/IRWG
+!    This file is part of sfit.
+!
+!    sfit is free software: you can redistribute it and/or modify
+!    it under the terms of the GNU General Public License as published by
+!    the Free Software Foundation, either version 3 of the License, or
+!    any later version.
+!
+!    sfit is distributed in the hope that it will be useful,
+!    but WITHOUT ANY WARRANTY; without even the implied warranty of
+!    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!    GNU General Public License for more details.
+!
+!    You should have received a copy of the GNU General Public License
+!    along with sfit.  If not, see <http://www.gnu.org/licenses/>
+!-----------------------------------------------------------------------------
+
       MODULE FRWDMDL
 
       USE PARAMS
@@ -317,7 +335,7 @@
 !  --- ANAYLITC K-MATICES MAY BE CHOSEN IN PARAM_M.F90 MP
     8    CONTINUE
 
-         IF ((.NOT.ANALYTIC_K).OR.(.NOT.XRET).OR.(TRET).OR.(ICOUNT.EQ.1).or.FLINE.or.FSZA.OR.IFDIFF) THEN
+         IF ((.NOT.ANALYTIC_K).OR.(.NOT.XRET).OR.(TRET).OR.(ICOUNT.EQ.1).or.FLINE.or.FSZA) THEN
             CALL TALL
             IF( BUG1 )PRINT*, '    TALL', IPARM
             !print*, nmonsm, TCALC(1,:100)

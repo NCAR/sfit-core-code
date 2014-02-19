@@ -1,4 +1,22 @@
-       MODULE SFIT4
+!-----------------------------------------------------------------------------
+!    Copyright (c) 2013-2014 NDACC/IRWG
+!    This file is part of sfit.
+!
+!    sfit is free software: you can redistribute it and/or modify
+!    it under the terms of the GNU General Public License as published by
+!    the Free Software Foundation, either version 3 of the License, or
+!    any later version.
+!
+!    sfit is distributed in the hope that it will be useful,
+!    but WITHOUT ANY WARRANTY; without even the implied warranty of
+!    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!    GNU General Public License for more details.
+!
+!    You should have received a copy of the GNU General Public License
+!    along with sfit.  If not, see <http://www.gnu.org/licenses/>
+!-----------------------------------------------------------------------------
+
+    MODULE SFIT4
 
       USE PARAMS
       USE VIBFCN
@@ -602,7 +620,7 @@
          end do
          do k = 1,nrprfgas
             do j = 1,nret
-               if (trim(adjustl(s_kb_prf_gas(k))).eq.gas(j)) then
+               if (trim(adjustl(s_kb_prf_gas(k))).eq.trim(adjustl(gas(j)))) then
                   ! only calculated if originally it was not a profile
                   if(.not.ifprf(j)) ifprf_kb(j) = .true.
                   ! but now it needs to be set to profile in order to setup correctly

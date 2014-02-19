@@ -512,6 +512,7 @@ print*,blockout
       if( verbose )write(vlun,304) ' ? sat bands above midpt : ', above
       if( verbose )write(vlun,310) ' Closest sat band to midpt : ', distnc
 
+!0test
       if( (above .eq. 0 .or. below .eq. 0) .and. distnc .gt. dstncmax )return
 
       allocate(allsatwave(count2))
@@ -683,13 +684,13 @@ print*,blockout
          enddo
       endif
 
-      if( allocated(wavewindow) ) deallocate( wavewindow )
-      if( allocated(specwindow) ) deallocate( specwindow )
-      if( allocated(zeroed) )     deallocate( zeroed )
-      if( allocated(newsp) )      deallocate( newsp )
-      if( allocated(ptwnd) )      deallocate( ptwnd )
-      if( allocated(allsatwave) ) deallocate( allsatwave )
-      if( allocated(allsatspec) ) deallocate( allsatspec )
+      if( allocated( wavewindow) ) deallocate( wavewindow )
+      if( allocated( specwindow) ) deallocate( specwindow )
+      if( allocated( zeroed) )     deallocate( zeroed )
+      if( allocated( newsp) )      deallocate( newsp )
+      if( allocated( ptwnd) )      deallocate( ptwnd )
+      if( allocated( allsatwave) ) deallocate( allsatwave )
+      if( allocated( allsatspec) ) deallocate( allsatspec )
 
       return
 
@@ -1129,6 +1130,7 @@ subroutine kpno( opdmax, wl1, wl2, roe, lat, lon, nterp, rflag, oflag, zflag, vf
 ! --- Step 3 : Calculate SNR
    ! calculate snr at nearest interval
    write(6,111) 'Calculate noise...'
+   !noise=0.0 !0test
    call calcsnr( wavs, amps, npfile, wlim1, wlim2, spac, opdmax, nterp, noise, vflag )
 
 
