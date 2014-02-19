@@ -1931,7 +1931,8 @@ END SUBROUTINE READLAYRS
 ! --- UPSIDE DOWN!
 ! --- MASS PATHS ARE TOTAL MASS PATHS IN CM*ATM
       DO IL = 1, LMAX
-         CCC(JSPEC,IL)  = TBAR(LMAX-IL+1)*WETAIR(LMAX-IL+1)/CONST
+         !CCC(JSPEC,IL)  = TBAR(LMAX-IL+1)*WETAIR(LMAX-IL+1)/CONST
+         CCC(JSPEC,IL)  = TBAR(LMAX-IL+1)*DRAIRL(LMAX-IL+1)/CONST
          CORG(JSPEC,IL) = CCC(JSPEC,IL)
       END DO
 
@@ -1939,16 +1940,14 @@ END SUBROUTINE READLAYRS
       IF( IREAD .EQ. 999 )THEN
          APPANG(JSPEC) = 0.0
          DO IL = 1, LMAX
-            CCC(JSPEC,IL) = WETAIR(LMAX-IL+1)*1.0D0
+            !CCC(JSPEC,IL) = WETAIR(LMAX-IL+1)*1.0D0
+            CCC(JSPEC,IL) = DRAIRL(LMAX-IL+1)*1.0D0
             CORG(JSPEC,IL) = CCC(JSPEC,IL)
          END DO
       ENDIF
 !      write(0,'(a,4i5,2f10.2)') 'refout ',iter, jspec, nspec, lmax, app, astang(jspec)
 
       IF( ITER .NE. 0 .AND. JSPEC .NE. 1 )RETURN
-
-
-
 
 ! --- FOR NOW JSPEC = 1 IS SPECIAL SHOULD HAVE MOST LAYERS - LARGEST SZA (WHEN > 90)
       !IF( JSPEC .EQ. 1 )THEN
@@ -1971,8 +1970,8 @@ END SUBROUTINE READLAYRS
 ! --- MIXING RATIOS
          DO IM=1, NMOL
             DO IL=1, LMAX
-               FXGAS(IM,IL) =  AMOUNT(IM,LMAX-IL+1)/WETAIR(LMAX-IL+1)
-               !FXGAS(IM,IL) =  AMOUNT(IM,LMAX-IL+1)/DRAIRL(LMAX-IL+1)
+               !FXGAS(IM,IL) =  AMOUNT(IM,LMAX-IL+1)/WETAIR(LMAX-IL+1)
+               FXGAS(IM,IL) =  AMOUNT(IM,LMAX-IL+1)/DRAIRL(LMAX-IL+1)
                !WRITE(90,206) (AMOUNT(IM,IL)/WETAIR(IL),IL=LMAX,1,-1)
             ENDDO
          ENDDO
