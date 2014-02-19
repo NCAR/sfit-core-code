@@ -1,3 +1,21 @@
+!-----------------------------------------------------------------------------
+!    Copyright (c) 2013-2014 NDACC/IRWG
+!    This file is part of sfit.
+!
+!    sfit is free software: you can redistribute it and/or modify
+!    it under the terms of the GNU General Public License as published by
+!    the Free Software Foundation, either version 3 of the License, or
+!    any later version.
+!
+!    sfit is distributed in the hope that it will be useful,
+!    but WITHOUT ANY WARRANTY; without even the implied warranty of
+!    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!    GNU General Public License for more details.
+!
+!    You should have received a copy of the GNU General Public License
+!    along with sfit.  If not, see <http://www.gnu.org/licenses/>
+!-----------------------------------------------------------------------------
+
       MODULE READIN
 
       USE PARAMS
@@ -56,7 +74,7 @@
             WRITE(16,*) 'PUT COLUMN RETREAVAL GAS AFTER LAST PROFILE GAS'
             WRITE(00,*) 'PUT COLUMN RETREAVAL GAS AFTER LAST PROFILE GAS'
             CALL SHUTDOWN
-            STOP 2
+            STOP '2'
          ENDIF
       ENDDO
 
@@ -70,7 +88,7 @@
          WRITE (00, *) "NUMBER OF LAYERS FROM INPUT  ",NLAYERS," FOR GAS ",GAS(J)
          WRITE (00, *) "DOES NOT MATCH LAYERS FROM STATION.LAYERS FILE (USED IN RAYTRACING) ",NLEV
          CALL SHUTDOWN
-         STOP 2
+         STOP '2'
       ENDIF
 
 ! --- SEE IF WE NEED TO SEPARATE OUT ISOTOPES
@@ -87,7 +105,7 @@
             WRITE (16, 610) GAS(J)
             WRITE (00, 610) GAS(J)
             CALL SHUTDOWN
-            STOP 2
+            STOP '2'
 
   176       CONTINUE
             IGAS(J) = I
@@ -101,13 +119,13 @@
                   WRITE (16, *) "APRIORI VMR SCALE FOR COLUMN GAS: ",GAS(J), " IS NOT SET IN SFIT4.CTL FILE"
                   WRITE ( 0, *) "APRIORI VMR SCALE FOR COLUMN GAS: ",GAS(J), " IS NOT SET IN SFIT4.CTL FILE"
                   CALL SHUTDOWN
-                  STOP 2
+                  STOP '2'
                ENDIF
                IF( ABS(SCOLSF(J)) .LT. TINY(0.0D0) )THEN
                   WRITE (16, *) "COLUMN SIGMA FOR GAS: ",GAS(J), " IS NOT SET IN SFIT4.CTL FILE"
                   WRITE ( 0, *) "COLUMN SIGMA FOR GAS: ",GAS(J), " IS NOT SET IN SFIT4.CTL FILE"
                   CALL SHUTDOWN
-                  STOP 2
+                  STOP '2'
                ENDIF
 
                CYCLE
@@ -123,7 +141,7 @@
                WRITE (16, *) "APRIORI VMR SCALE PROFILE FOR  ",GAS(J), " IS NOT SET IN SFIT4.CTL FILE"
                WRITE ( 0, *) "APRIORI VMR SCALE PROFILE FOR  ",GAS(J), " IS NOT SET IN SFIT4.CTL FILE"
                CALL SHUTDOWN
-               STOP 2
+               STOP '2'
             ENDIF
             WRITE (16, 611) COLSF(J)
             SELECT CASE ( IFOFF(J) )
@@ -153,7 +171,7 @@
                WRITE(16,*) ' READCK1: FLAG IFOFF MUST BE ONE OF 0, 1, 2, 4, 5'
                WRITE(00,*) ' READCK1: FLAG IFOFF MUST BE ONE OF 0, 1, 2, 4, 5'
                CALL SHUTDOWN
-               STOP 2
+               STOP '2'
             END SELECT
 
             WRITE(16,619) ILOGRETRIEVAL(J)
@@ -176,7 +194,7 @@
                WRITE(16,*)' LINE SHAPE MODEL FLAG OUT OF RANGE MIST BE 0, 1, 2, 3)'
                WRITE(00,*)' LINE SHAPE MODEL FLAG OUT OF RANGE MIST BE 0, 1, 2, 3)'
                CALL SHUTDOWN
-               STOP 2
+               STOP '2'
          END SELECT
 
          NEGFLAG = -1
@@ -196,7 +214,7 @@
          WRITE(16,651)
          WRITE(00,651)
          CALL SHUTDOWN
-         STOP 2
+         STOP '2'
       ENDIF
 
 !      WRITE (16, 605) NRMAX
@@ -207,7 +225,7 @@
       WRITE (16, 606) NPGAS, MAXPRF
       WRITE (00, 606) NPGAS, MAXPRF
       CALL SHUTDOWN
-      STOP 2
+      STOP '2'
 
 
   402 FORMAT(/,' NUMBER OF RETRIEVAL LAYERS IN INPUT VARIANCE VECTORS : ', I5 )
@@ -311,7 +329,7 @@
             WRITE(16,130) ' PARAMETER OUTPUT.WRT_GASFILES.TYPE OUT OF RANGE (1 || 2 ONLY)'
             WRITE(16,130) ' PARAMETER OUTPUT.WRT_GASFILES.TYPE OUT OF RANGE (1 || 2 ONLY)'
             CALL SHUTDOWN
-            STOP 2
+            STOP '2'
          END SELECT
       ENDIF
 
@@ -391,7 +409,7 @@
             WRITE(16,*) 'SFIT4.CTRL: BANDPASS LIMITS OUT OF ORDER'
             WRITE(00,*) 'SFIT4.CTRL: BANDPASS LIMITS OUT OF ORDER'
             CALL SHUTDOWN
-            STOP 2
+            STOP '2'
          ENDIF
 
          WRITE (16, 101) I
@@ -419,7 +437,8 @@
                IF (GASB(I,J) == NAME(IGAS(N))) GO TO 43
             END DO
             WRITE (16, 105) TRIM(GASB(I,J)), WAVE3(I), WAVE4(I)
-            !STOP
+            WRITE (*, 105) TRIM(GASB(I,J)), WAVE3(I), WAVE4(I)
+            STOP 2 ! IF list is not in the retrieval list, stop
             goto 50
    43       CONTINUE
             IGASB(I,J) = IGAS(N)
@@ -446,7 +465,7 @@
             WRITE(16,*) ' NOT RETRIEVING ANY QUANTITY IN THIS BAND'
             WRITE(00,*) ' NOT RETRIEVING ANY QUANTITY IN THIS BAND'
             CALL SHUTDOWN
-            STOP 2
+            STOP '2'
          ENDIF
 
 ! --- CHANNEL PARAMETERS IF EXISTS
@@ -467,7 +486,7 @@
          WRITE(16,*) ' IFTEMP SET BUT NOT IN A BAND'
          WRITE(00,*) ' IFTEMP SET BUT NOT IN A BAND'
          CALL SHUTDOWN
-         STOP 2
+         STOP '2'
       ENDIF
 
       DO I = 2, NBAND
@@ -475,7 +494,7 @@
          WRITE(16, *) 'MICRO-WINDOWS MUST BE IN ASCENDING WAVENUMBER ORDER'
          WRITE(00, *) 'MICRO-WINDOWS MUST BE IN ASCENDING WAVENUMBER ORDER'
          CALL SHUTDOWN
-         STOP 2
+         STOP '2'
       END DO
 
       DO J = 1, NRET
@@ -483,7 +502,7 @@
             WRITE(16,114) J, NAME(IGAS(J))
             WRITE(0 ,114) J, NAME(IGAS(J))
             CALL SHUTDOWN
-            STOP 2
+            STOP '2'
          ENDIF
       ENDDO
 

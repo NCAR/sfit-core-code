@@ -1,3 +1,21 @@
+!-----------------------------------------------------------------------------
+!    Copyright (c) 2013-2014 NDACC/IRWG
+!    This file is part of sfit.
+!
+!    sfit is free software: you can redistribute it and/or modify
+!    it under the terms of the GNU General Public License as published by
+!    the Free Software Foundation, either version 3 of the License, or
+!    any later version.
+!
+!    sfit is distributed in the hope that it will be useful,
+!    but WITHOUT ANY WARRANTY; without even the implied warranty of
+!    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!    GNU General Public License for more details.
+!
+!    You should have received a copy of the GNU General Public License
+!    along with sfit.  If not, see <http://www.gnu.org/licenses/>
+!-----------------------------------------------------------------------------
+
       MODULE XSECTIONS
 
       USE PARAMS
@@ -34,6 +52,7 @@
       REAL(DOUBLE) :: DIST, TXE, VIBFAC, STIMFC, SSL, ACOFB, SCOFB, ALOR, ADOP, &
                       AKZERO, YDUM, OPTMAX, XDUM, AKV, OPTCEN, DELLOR, WLIN, START, &
                       SSTOP, ANUZ, QT, QTSTDTEMP, GI, SSLOLD, BETAP, GZ, LMTVAL
+      REAL(DOUBLE) :: AKV_R, AKV_I, G2, LM, S0, S2, ANUVC
 
       REAL (DOUBLE), DIMENSION(4) :: SDVLM_PARAM ! PARAMETERS FOR SDV AND/OR LINEMIXING
                                                  ! CALCULATION ACCORDING TO BOONE
@@ -173,9 +192,9 @@
                ! SPEED DEPENDENT VOIGT - BOONE 2011
                SDVLM_PARAM(1:4) = 0.0D0
                IF (HFLAG(N,SDV_FLAG)) THEN
-                  SDVLM_PARAM(1) = GAMMA2(N) ! ASYMMETRY FOR SDV (MIXING COEFFICIENT)
+                  SDVLM_PARAM(1) = GAMMA2(N)*P(K) ! ASYMMETRY FOR SDV (MIXING COEFFICIENT)
                   SDVLM_PARAM(2) = GAMMA0(N) ! PRESSURE BROADENING FOR SDV
-                  SDVLM_PARAM(3) = ETA2(N)   ! PRESSURE SHIFT FOR SPEED DEPENDENT VOIGT
+                  SDVLM_PARAM(3) = 0.0!ETA2(N)   ! PRESSURE SHIFT FOR SPEED DEPENDENT VOIGT
                END IF
                ! LINE MIXING PARAMETRIZATION ACCORDING TO HASE.  FOR CO2 ONLY?
                IF (HFLAG(N,LM_FLAG)) THEN

@@ -1,3 +1,21 @@
+!-----------------------------------------------------------------------------
+!    Copyright (c) 2013-2014 NDACC/IRWG
+!    This file is part of sfit.
+!
+!    sfit is free software: you can redistribute it and/or modify
+!    it under the terms of the GNU General Public License as published by
+!    the Free Software Foundation, either version 3 of the License, or
+!    any later version.
+!
+!    sfit is distributed in the hope that it will be useful,
+!    but WITHOUT ANY WARRANTY; without even the implied warranty of
+!    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!    GNU General Public License for more details.
+!
+!    You should have received a copy of the GNU General Public License
+!    along with sfit.  If not, see <http://www.gnu.org/licenses/>
+!-----------------------------------------------------------------------------
+
       MODULE PARAMS
 
       INTEGER, PARAMETER :: BYTE_LOG = SELECTED_INT_KIND(2)
@@ -14,8 +32,10 @@
 
 !  --- VERSION STRING - NO SPACES: USE AS FIRST WORD IN OUTPUT FILE TAG
 !      CHARACTER(len=10) :: BUILDDATE = BDATE
-      CHARACTER (LEN=78),  PARAMETER :: VERSION = 'SFIT4:V0.9.4.1:20130708'
-      CHARACTER (LEN=100)            :: TAG              ! OUTPUT FILE TAG IS VERSION + RUNTIME
+      CHARACTER (LEN=15),  PARAMETER :: VERSION1 = 'SFIT4:V0.9.4.3'
+      CHARACTER (LEN=100),  PARAMETER :: VERSION2 = ':Release -- January 2014'
+      CHARACTER (LEN=255) :: VERSION = VERSION1//VERSION2
+      CHARACTER (LEN=255)            :: TAG              ! OUTPUT FILE TAG IS VERSION + RUNTIME
 
 !      LOGICAL, PARAMETER :: BUG = .TRUE.
       LOGICAL, PARAMETER :: BUG = .FALSE.
@@ -30,7 +50,7 @@
       INTEGER, PARAMETER :: LAYMAX = 100          ! MAXIMUM NUMBER OF ATMOSPHERIC LAYERS
       INTEGER, PARAMETER :: MAXSPE = 40           ! MAXIMUM NUMBER OF SPECTRA (SCANS)
       INTEGER, PARAMETER :: MAXGAS = 100          ! MAXIMUM NUMBER OF GASES IN BANDPASS
-      INTEGER, PARAMETER :: LNMAX = 2*262144      ! MAXIMUM NUMBER OF LINES
+      INTEGER, PARAMETER :: LNMAX = 8*131072      ! MAXIMUM NUMBER OF LINES
       INTEGER, PARAMETER :: MAXPRF = 10            ! MAXIMUM NUMBER OF PROFILE RETRIEVALS
       INTEGER, PARAMETER :: MAXBND = 125          ! MAXIMUM NUMBER OF BANDPASSES
 !      INTEGER MAXCROSS                           ! MAXIMUM NUMBER OF MONOCHROMATIC

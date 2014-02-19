@@ -1,3 +1,21 @@
+!-----------------------------------------------------------------------------
+!    Copyright (c) 2013-2014 NDACC/IRWG
+!    This file is part of sfit.
+!
+!    sfit is free software: you can redistribute it and/or modify
+!    it under the terms of the GNU General Public License as published by
+!    the Free Software Foundation, either version 3 of the License, or
+!    any later version.
+!
+!    sfit is distributed in the hope that it will be useful,
+!    but WITHOUT ANY WARRANTY; without even the implied warranty of
+!    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!    GNU General Public License for more details.
+!
+!    You should have received a copy of the GNU General Public License
+!    along with sfit.  If not, see <http://www.gnu.org/licenses/>
+!-----------------------------------------------------------------------------
+
       MODULE LINEPARAM
 
 ! --- HITRAN LINE PARAMETERS
@@ -25,9 +43,10 @@
       REAL(DOUBLE), DIMENSION(:),   ALLOCATABLE :: TDLIN   ! COEFFICIENT TEMP. DEP. AIR H-W
       REAL(DOUBLE), DIMENSION(:),   ALLOCATABLE :: BETA    ! BETA0 FOR GALATRY ROUTINE
       INTEGER,      DIMENSION(:),   ALLOCATABLE :: LGAS    ! LINE INDEX NUMBER
-      REAL(DOUBLE), DIMENSION(:),   ALLOCATABLE :: GAMMA0  ! GAMMA2 FOR SDV (BOONE) ROUTINE
+      REAL(DOUBLE), DIMENSION(:),   ALLOCATABLE :: GAMMA0  ! GAMMA0 FOR SDV (BOONE) ROUTINE
       REAL(DOUBLE), DIMENSION(:),   ALLOCATABLE :: GAMMA2  ! GAMMA2 FOR SDV (BOONE) ROUTINE
-      REAL(DOUBLE), DIMENSION(:),   ALLOCATABLE :: ETA2    ! ETA2 FOR SDV (BOONE) ROUTINE
+      REAL(DOUBLE), DIMENSION(:),   ALLOCATABLE :: SHIFT0  ! PRESSURE SHIFT FOR LSHAPE (TRAN) ROUTINE
+      REAL(DOUBLE), DIMENSION(:),   ALLOCATABLE :: SHIFT2  ! T-DEP OF P-SHIFT FOR LSHAPE (TRAN) ROUTINE
       REAL(DOUBLE), DIMENSION(:),   ALLOCATABLE :: LMTK1, LMTK2, YLM ! LINE MIXING PARAMETERS
 
 
@@ -68,9 +87,10 @@
          REAL(4) :: UW               ! UPPER STAT WT
          REAL(4) :: LW               ! LOWER STAT WT
          REAL(4) :: BT               ! GALATRY BETA0
-         REAL(4) :: GAMMA0           ! GAMMA 0 for SDV
-         REAL(4) :: GAMMA2           ! GAMMA 2 for SDV
-         REAL(4) :: ETA2             ! ETA 2 for SDV
+         REAL(4) :: GAMMA0           ! GAMMA 0 
+         REAL(4) :: GAMMA2           ! GAMMA 2 
+         REAL(4) :: SHIFT0           ! PRESSURE SHIFT FOR GEN LINESHAPE
+         REAL(4) :: SHIFT2           ! TEMPERATURE DEPENDENCY OF PRESSURE SHIFT FOR GEN LINESHAPE
          REAL(4) :: LMTK1            ! LMTK1 for Line Mixing
          REAL(4) :: LMTK2            ! LMTK2 for Line Mixing
          REAL(4) :: YLM              ! YLM for Line Mixing
@@ -85,7 +105,7 @@
       INTEGER      :: LINE, IBAND, ISO, MO, L, K, I, NUMLIN, TNBAND
       INTEGER      :: NLINES, NLINES_GALATRY, NLINES_LM, NLINES_SDV, NLINES_FCIA, NLINES_SCIA
       REAL(8)      :: WAVLO, WAVHI, PS, TW, ELOWER, SW, AW, SLINE, WAVNUM=0.0, DENLIN, B0
-      REAL(8)      :: G0, G2, E2, L1, L2, L3, TW5, TW6
+      REAL(8)      :: G0, G2, S0, S2, L1, L2, L3, TW5, TW6
       CHARACTER (LEN=200)        :: CHLINE
       INTEGER, DIMENSION(MAXGAS) :: NMOLINE
       LOGICAL                    :: HBIN = .TRUE., HF(8)
@@ -130,7 +150,7 @@
 
       ALLOCATE( ST296(LNMAX), AAA(LNMAX), SSS(LNMAX), AZERO(LNMAX), ETWO(LNMAX), &
            GMASS(LNMAX), PSLIN(LNMAX), TDLIN(LNMAX), BETA(LNMAX), LGAS(LNMAX), &
-           GAMMA0(LNMAX), GAMMA2(LNMAX), ETA2(LNMAX),  LMTK1(LNMAX), LMTK2(LNMAX), &
+           GAMMA0(LNMAX), GAMMA2(LNMAX), SHIFT0(LNMAX), SHIFT2(LNMAX),  LMTK1(LNMAX), LMTK2(LNMAX), &
            YLM(LNMAX), HFLAG(LNMAX,8) )
 
       LINE = 0
@@ -152,7 +172,8 @@
          B0     = REAL( HLP%BT, 8 )
          G0     = REAL( HLP%GAMMA0, 8 )
          G2     = REAL( HLP%GAMMA2, 8 )
-         E2     = REAL( HLP%ETA2, 8 )
+         S0     = REAL( HLP%SHIFT0, 8 )
+         S2     = REAL( HLP%SHIFT2, 8 )
          L1     = REAL( HLP%LMTK1, 8 )
          L2     = REAL( HLP%LMTK2, 8 )
          L3     = REAL( HLP%YLM, 8 )
@@ -247,14 +268,16 @@
       TDLIN(NLINES)  = TW
       PSLIN(NLINES)  = PS
       BETA(NLINES)   = B0
+      GAMMA0(NLINES) = G0
       GAMMA2(NLINES) = G2
-      ETA2(NLINES)   = E2
+      SHIFT0(NLINES)   = S0
+      SHIFT2(NLINES)   = S2
       LMTK1(NLINES)  = L1
       LMTK2(NLINES)  = L2
       YLM(NLINES)    = L3
 
       HFLAG(NLINES,1:8) = .FALSE.
-      IF( HF(GALATRY_FLAG) .AND. ((LSHAPEMODEL == 0).OR.(LSHAPEMODEL==2)) ) THEN
+      IF( HF(GALATRY_FLAG) .AND. ((LSHAPEMODEL == 0).OR.(LSHAPEMODEL==2))) THEN
          HFLAG(NLINES,GALATRY_FLAG) = .TRUE.
          NLINES_GALATRY = NLINES_GALATRY + 1
          !print *, HFLAG(NLINES,GALATRY_FLAG), nlines
@@ -389,17 +412,17 @@
       WRITE (16, 112) LNMAX
       WRITE ( 0, 112) LNMAX
       CALL SHUTDOWN
-      STOP 2
+      STOP '2'
   665 CONTINUE
       WRITE (16, 110) MO
       WRITE ( 0, 110) MO
       CALL SHUTDOWN
-      STOP 2
+      STOP '2'
   667 CONTINUE
       WRITE (16, 101) IBAND
       WRITE ( 0, 101) IBAND
       CALL SHUTDOWN
-      STOP 2
+      STOP '2'
   668 CONTINUE
       WRITE (16, 102) LINE, ICODE(LGAS(NLINES)), ISO, NHIISO(ICODE(LGAS(NLINES)))
       WRITE (16, 103) AZERO(LINE)
@@ -411,12 +434,12 @@
       WRITE (16, 113) TRIM(TFILE(14))
       WRITE ( 0, 113) TRIM(TFILE(14))
       CALL SHUTDOWN
-      STOP 2
+      STOP '2'
   670 CONTINUE
       WRITE (16, 114) MAXGAS
       WRITE ( 0, 114) MAXGAS
       CALL SHUTDOWN
-      STOP 2
+      STOP '2'
 
 
    88 FORMAT(A7,': OPTLIN: MIXING RATIO NOT FOUND TAPE12, SET TO ZERO FOR ALL LAYERS')
@@ -471,7 +494,7 @@
 
       IF( ALLOCATED( ST296 ))THEN
          DEALLOCATE( ST296, AAA, SSS, AZERO, ETWO, GMASS, PSLIN, TDLIN, BETA, LGAS, &
-              GAMMA0, GAMMA2, ETA2, LMTK1, LMTK2, YLM, HFLAG)
+              GAMMA0, GAMMA2, SHIFT0, SHIFT2, LMTK1, LMTK2, YLM, HFLAG)
 
       ENDIF
 

@@ -1,3 +1,21 @@
+!-----------------------------------------------------------------------------
+!    Copyright (c) 2013-2014 NDACC/IRWG
+!    This file is part of sfit.
+!
+!    sfit is free software: you can redistribute it and/or modify
+!    it under the terms of the GNU General Public License as published by
+!    the Free Software Foundation, either version 3 of the License, or
+!    any later version.
+!
+!    sfit is distributed in the hope that it will be useful,
+!    but WITHOUT ANY WARRANTY; without even the implied warranty of
+!    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!    GNU General Public License for more details.
+!
+!    You should have received a copy of the GNU General Public License
+!    along with sfit.  If not, see <http://www.gnu.org/licenses/>
+!-----------------------------------------------------------------------------
+
       MODULE VIBFCN
 
 ! --- DEFAULT VIBRATION FUNCTION CALCULATION
@@ -48,7 +66,7 @@
 
       DATA NMODE/ &
         3,  3,  3,  3,  1,  4,  1,  1,  3,  3,                       & !1-10
-        4,  9,  1,  1,  1,  1,  1,  1,  3,  6,                       & !11-20
+        4,  9,  1,  2,  1,  1,  1,  1,  3,  6,                       & !11-20
         3,  3,  6,  6, 11,  9,  8,  3,  6,  6,                       & !21-30
         4,  9,  6, 12,  4,  6,  6, 11, 12,  5,                       & !31-40
         1,  9,  6,  6,  6,  9,  3,  9,  1, 15,                       & !41-50

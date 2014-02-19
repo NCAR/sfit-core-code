@@ -1,3 +1,21 @@
+!-----------------------------------------------------------------------------
+!    Copyright (c) 2013-2014 NDACC/IRWG
+!    This file is part of sfit.
+!
+!    sfit is free software: you can redistribute it and/or modify
+!    it under the terms of the GNU General Public License as published by
+!    the Free Software Foundation, either version 3 of the License, or
+!    any later version.
+!
+!    sfit is distributed in the hope that it will be useful,
+!    but WITHOUT ANY WARRANTY; without even the implied warranty of
+!    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!    GNU General Public License for more details.
+!
+!    You should have received a copy of the GNU General Public License
+!    along with sfit.  If not, see <http://www.gnu.org/licenses/>
+!-----------------------------------------------------------------------------
+
 module binput_parse_4_0
 
   use params
@@ -53,9 +71,16 @@ contains
              tfile(10) = trim(adjustl(value))
           case ('refprofile')
              tfile(72) = trim(adjustl(value))
-       end select
-
-   elseif( trim(adjustl(keyword(2))) .eq. 'out' )then
+          case default
+             WRITE(16,*) 'BINPUT_PARSE_4_0:READ_FILE_SECTION: Key ', &
+                  trim(keyword(3)), ' not contained in section file.in'
+             WRITE( 0,*) 'BINPUT_PARSE_4_0:READ_FILE_SECTION: Key ', &
+                  trim(keyword(3)), ' not contained in section file.in'
+             CALL SHUTDOWN
+             STOP 1
+          end select
+          
+       elseif( trim(adjustl(keyword(2))) .eq. 'out' )then
 
        select case(trim(adjustl(keyword(3))))
           case ('solarspectrum')
@@ -96,11 +121,24 @@ contains
              TFILE(83) = trim(adjustl(value))
           case ('kb_matrix')
              TFILE(90) = trim(adjustl(value))
-       end select
-
+          case default
+             WRITE(16,*) 'BINPUT_PARSE_4_0:READ_FILE_SECTION: Key ', &
+                  trim(keyword(3)), ' not contained in section file.out'
+             WRITE( 0,*) 'BINPUT_PARSE_4_0:READ_FILE_SECTION: Key ', &
+                  trim(keyword(3)), ' not contained in section file.out'
+             CALL SHUTDOWN
+             STOP 1
+          end select
+       else
+       WRITE(16,*) 'BINPUT_PARSE_4_0:READ_FILE_SECTION: Key ', &
+            trim(keyword(2)), ' not contained in section file'
+       WRITE( 0,*) 'BINPUT_PARSE_4_0:READ_FILE_SECTION: Key ', &
+            trim(keyword(2)), ' not contained in section file'
+       CALL SHUTDOWN
+       STOP 1
     endif
-
-  end subroutine read_file_section
+ 
+end subroutine read_file_section
 
 
   subroutine read_gas_section(keyword, value)
@@ -703,7 +741,7 @@ contains
        scnsnr(nr_band,2:maxspe) = scnsnr(nr_band,1)
     case ('gasb')
        val = value
-       pos = index(adjustl(val),' ')
+       pos = index(adjustl(trim(val)),' ')
        if (pos.eq.0) write(*,*) 'No gas given in band ', nr_band, '?'
        nretb(nr_band) = 0
        do

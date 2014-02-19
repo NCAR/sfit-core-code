@@ -1,3 +1,21 @@
+!-----------------------------------------------------------------------------
+!    Copyright (c) 2013-2014 NDACC/IRWG
+!    This file is part of sfit.
+!
+!    sfit is free software: you can redistribute it and/or modify
+!    it under the terms of the GNU General Public License as published by
+!    the Free Software Foundation, either version 3 of the License, or
+!    any later version.
+!
+!    sfit is distributed in the hope that it will be useful,
+!    but WITHOUT ANY WARRANTY; without even the implied warranty of
+!    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!    GNU General Public License for more details.
+!
+!    You should have received a copy of the GNU General Public License
+!    along with sfit.  If not, see <http://www.gnu.org/licenses/>
+!-----------------------------------------------------------------------------
+
       MODULE INITIALIZE
 
       USE PARAMS
@@ -417,6 +435,15 @@
          READ(15, *, END=21) SZA1, ROE1, LAT1, LON1, BSNR
          READ(15, *, END=21) YYYY, MO, DD, HH, MI, SECS
          READ(15, 888) TITLE
+
+! CHECK THAT ALL NUMBERS ARE FINITE
+         IF (ISNAN(SZA1).OR.ISNAN(ROE1).OR.ISNAN(LAT1).OR.ISNAN(LON1).OR.ISNAN(BSNR).OR.&
+              ISNAN(SECS)) THEN
+            WRITE(16,*) "NAN DETECTED IN TAPE 15 (SPECTRUM)"
+            WRITE(0,*) "NAN DETECTED IN TAPE 15 (SPECTRUM)"
+            CALL SHUTDOWN
+            STOP 2
+         END IF
          GO TO 22
 
    21    CONTINUE
@@ -425,6 +452,12 @@
 
    22    CONTINUE
          READ (15, *) WLOW, WHI, SPACE, NPFILE
+         IF (ISNAN(WLOW).OR.ISNAN(WHI).OR.ISNAN(SPACE))THEN
+            WRITE(16,*) "NAN DETECTED IN TAPE 15 (SPECTRUM)"
+            WRITE(0,*) "NAN DETECTED IN TAPE 15 (SPECTRUM)"
+            CALL SHUTDOWN
+            STOP 2
+         END IF
 
          WLIM1 = WAVE3(IBAND)
          WLIM2 = WAVE4(IBAND)
@@ -513,6 +546,12 @@
          SMM   = 0.D0
          L5: DO I = 1, NPFILE
             READ (15, *, END=20) R4AMP
+            IF (ISNAN(R4AMP))THEN
+               WRITE(16,*) "NAN DETECTED IN TAPE 15 (SPECTRUM)"
+               WRITE(0,*) "NAN DETECTED IN TAPE 15 (SPECTRUM)"
+               CALL SHUTDOWN
+               STOP 2
+            END IF
             WAVE         = WLOW + REAL((I - 1),8)*SPAC(IBAND)
             IF (WAVE<WLIM1 .OR. WAVE>WLIM2) CYCLE L5
             NPTSB        = NPTSB + 1
@@ -723,7 +762,9 @@
          IF (NBACK == 2) THEN
             IF (NFITS > 0) THEN
                !  --- BACKGROUND SLOPE - NBACK=2
-               PNAME(NVAR+1:NFITS) = 'BckGrdSlp'
+               do i = 1,nfits
+                  WRITE(PNAME(NVAR+I), '(a10,i1)') 'BckGrdSlp_', i
+               end do
                PARM(NVAR+1:NFITS) = BCKSL
                SPARM(NVAR+1:NFITS) = SBCKSL
                !  --- BACKGROUND CURVATURE - NBACK=3
@@ -733,11 +774,15 @@
             IF (NBACK == 3) THEN
                IF (NFITS > 0) THEN
                   !  --- BACKGROUND SLOPE - NBACK=2
-                  PNAME(NVAR+1:NFITS*2-1+NVAR:2) = 'BckGrdSlp'
+                  do i = 1,nfits
+                     write(PNAME(I*2-1+NVAR), '(a10,i1)') 'BckGrdSlp_', i
+                  end do
                   PARM(NVAR+1:NFITS*2-1+NVAR:2) = BCKSL
                   SPARM(NVAR+1:NFITS*2-1+NVAR:2) = SBCKSL
                   !  --- BACKGROUND CURVATURE - NBACK=3
-                  PNAME(NVAR+2:NFITS*2+NVAR:2) = 'BckGrdCur'
+                  do i = 1,nfits
+                     write(PNAME(I*2+NVAR), '(a10,i1)') 'BckGrdCur_', i
+                  end do
                   PARM(NVAR+2:NFITS*2+NVAR:2) = BCKCRV
                   SPARM(NVAR+2:NFITS*2+NVAR:2) = SBCKCRV
                   NVAR = NFITS*2 + NVAR
@@ -763,7 +808,9 @@
             IF (ISPARM == 2) N = NBAND
             IF (ISPARM == 3) N = NFITS
             IF (N > 0) THEN
-               PNAME(NVAR+1:N+NVAR) = 'IWNumShft'
+               do i = 1,N
+                  WRITE(PNAME(NVAR+I), '(a10,i1)') 'IWNumShft_', i
+               end do
                PARM(NVAR+1:N+NVAR) = WSHFT
                SPARM(NVAR+1:N+NVAR) = SWSHFT
                NVAR = N + NVAR
@@ -782,7 +829,9 @@
             IF (IZERO(I) .NE. 1 ) CYCLE
             N = NSCAN(I)
             IF (N > 0) THEN
-               PNAME(NVAR+1:N+NVAR) = 'ZeroLev'
+               do kk = 1, n
+                  write(PNAME(kk+NVAR),'(a8,i1)') 'ZeroLev_',i
+               end do
                PARM(NVAR+1:N+NVAR) = ZSHIFT(I,1)
                SPARM(NVAR+1:N+NVAR) = SZERO(I)
                NVAR = N + NVAR
@@ -834,7 +883,9 @@
       !  --- DIFFERENTIAL WAVENUMBER SHIFT FOR RETRIEVAL GASES
       NDIFF = 0
       IF (IFDIFF .AND. NRET.GT.1) THEN
-         PNAME(NVAR+1:NRET-1+NVAR) = 'DWNumShft'
+         do kk = 2, nret
+            PNAME(kk+NVAR-1) = 'DWNumShft_'//trim(GAS(kk))
+         end do
          PARM(NVAR+1:NRET-1+NVAR)  = WSHFT
          SPARM(NVAR+1:NRET-1+NVAR) = SWSHFT
          NDIFF = NRET - 1
@@ -848,7 +899,9 @@
          DO I = 1, NBAND
             N = NSCAN(I)
             IF (N > 0) THEN
-               PNAME(NVAR+1:N+NVAR) = 'SPhsErr'
+               do kk = 1, n
+                  write(PNAME(kk+NVAR),'(a8,i1)') 'SPhsErr_',i
+               end do
                PARM(NVAR+1:N+NVAR) = PHS
                SPARM(NVAR+1:N+NVAR) = SPHS
                NVAR = N + NVAR
@@ -889,13 +942,13 @@
 
       do i = 1,nband
          if (iffov /= 0) then
-            PNAME(NVAR+1:NVAR+2) = 'FOV'
+            write(PNAME(NVAR+1:NVAR+2), '(a4,i1)'), 'FOV_', i
             PARM(NVAR+1:NVAR+2)  = 0.0D0
             SPARM(NVAR+1:NVAR+2) = 1.0D0
             NVAR = NVAR + 1
          end if
          if (ifopd /= 0) then
-            PNAME(NVAR+1:NVAR+2) = 'OPD'
+            write(PNAME(NVAR+1:NVAR+2), '(a4,i1)'), 'OPD_', i
             PARM(NVAR+1:NVAR+2)  = 0.0D0
             SPARM(NVAR+1:NVAR+2) = 1.0D0
             NVAR = NVAR + 1

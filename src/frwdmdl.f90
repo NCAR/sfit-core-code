@@ -1,3 +1,21 @@
+!-----------------------------------------------------------------------------
+!    Copyright (c) 2013-2014 NDACC/IRWG
+!    This file is part of sfit.
+!
+!    sfit is free software: you can redistribute it and/or modify
+!    it under the terms of the GNU General Public License as published by
+!    the Free Software Foundation, either version 3 of the License, or
+!    any later version.
+!
+!    sfit is distributed in the hope that it will be useful,
+!    but WITHOUT ANY WARRANTY; without even the implied warranty of
+!    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!    GNU General Public License for more details.
+!
+!    You should have received a copy of the GNU General Public License
+!    along with sfit.  If not, see <http://www.gnu.org/licenses/>
+!-----------------------------------------------------------------------------
+
       MODULE FRWDMDL
 
       USE PARAMS
@@ -53,13 +71,12 @@
       REAL(DOUBLE), DIMENSION(NFIT)   :: WAVE_X
       REAL(DOUBLE) :: DEL, SUMSQ, WSCALE, DWAVE, DSHIFT, FRACS, PHI, SMM, YS, &
          BKGND, YCAVE, FX, TEMPP, YCMAX !, STDEV
-      REAL(DOUBLE) , DIMENSION(4)    :: store_line
+      REAL(DOUBLE) , DIMENSION(:,:), allocatable    :: store_line
 
       COMPLEX(DBLE_COMPLEX) :: TCALL, TCALH, TCALI
 
 !  --- PARAMETER INCREMENT FOR PARTIALS
 
-      DATA DEL/0.1D-05/
       COMPLEX(DBLE_COMPLEX), DIMENSION(:), ALLOCATABLE :: TCONVSAV
       INTEGER :: NAERR
 
@@ -77,8 +94,11 @@
 
       TFLG = .FALSE.
       BUG1 = .FALSE. !.TRUE.
-      store_line(:) = 0.0d0
-
+      ! if line parameters are disturbed, get some space to store original ones
+      if (nrlgas /= 0 .and. .not. allocated(store_line)) then
+         allocate(store_line(4,LNMAX)) 
+         store_line(:,:) = 0.0d0
+      end if
       IF (KFLG) THEN
          NVAR1 = NVAR + 1
       ELSE
@@ -101,6 +121,7 @@
          JATMOS = 0
          SUMSQ  = 0.D0
          IPARM  = 0
+         DEL = 0.1D-05
 
          IF( ICOUNT .GT. 1 )IPARM = ICOUNT -1
 
@@ -163,60 +184,66 @@
             FLINE = .FALSE.
             ! setup3 one time more than perturbation, the last time with the original line parameters again.
             if ((K.gt.0).and.(k.lt.kk)) then
-               ! Find lines according to gas
-               if (nint(store_line(1)) /= 0) then
-                  ! Reset line paramters
-                  kk = nint(store_line(1))
-                  ST296(kk) = store_line(2)
-                  AAA(kk) = store_line(3)
-                  TDLIN(kk) = store_line(4)
-               end if
-               DO I=1, LINE2(NBAND)
-                  store_line(1) = i
-                  store_line(2) = ST296(i)
-                  store_line(3) = AAA(i)
-                  store_line(4) = TDLIN(i)
                   do k = 1, nrlgas
-                     IF( TRIM(s_kb_line_gas(k)) .EQ.  TRIM(NAME(ICODE(LGAS(I)))))THEN
-!                        print *, i, k, AZERO(i), ST296(i), ICODE(LGAS(I)), trim(NAME(ICODE(LGAS(I)))), ' ', trim(s_kb_line_gas(k))
-                        if (niline /= 0) ST296(i) = ST296(i)* (1.0d0 + parm(ncount+k))
-                        if (npline /= 0) AAA(i) = AAA(i)* (1.0d0 + parm(ncount+niline+k))
-                        if (ntline /= 0) TDLIN(i) = TDLIN(i)* (1.0d0 + parm(ncount+niline+npline+k))
-                     end IF
-                  end do
-               end DO
-               CALL SETUP3( XSC_DETAIL, -1 )
-               FLINE = .true.
+                     DO I=LINE1(1), LINE2(NBAND)
+                        IF( TRIM(s_kb_line_gas(k)) .EQ.  TRIM(NAME(ICODE(LGAS(I)))))THEN
+                           !                        print *, i, k, AZERO(i), ST296(i), ICODE(LGAS(I)), trim(NAME(ICODE(LGAS(I)))), ' ', trim(s_kb_line_gas(k))
+                           store_line(2,i) = ST296(i)
+                           store_line(3,i) = AAA(i)
+                           store_line(4,i) = TDLIN(i)
+                           if (niline /= 0) ST296(i) = ST296(i)* (1.0d0 + parm(ncount+k))
+                           if (npline /= 0) AAA(i) = AAA(i)* (1.0d0 + parm(ncount+niline+k))
+                           if (ntline /= 0) TDLIN(i) = TDLIN(i)* (1.0d0 + parm(ncount+niline+npline+k))
+                        end IF
+                     end do
+                  end DO
+                  CALL SETUP3( XSC_DETAIL, -1 )
+                  ! set back line parameters
+                  do k = 1, nrlgas
+                     DO I=LINE1(1), LINE2(NBAND)
+                        IF( TRIM(s_kb_line_gas(k)) .EQ.  TRIM(NAME(ICODE(LGAS(I)))))THEN
+                           !                        print *, i, k, AZERO(i), ST296(i), ICODE(LGAS(I)), trim(NAME(ICODE(LGAS(I)))), ' ', trim(s_kb_line_gas(k))
+                           ST296(i) = store_line(2,i)
+                           AAA(i)   = store_line(3,i)
+                           TDLIN(i) = store_line(4,i)
+                        end IF
+                     end do
+                  end DO
+                  FLINE = .true.
+               end if
+               NCOUNT = NCOUNT + NILINE + NPLINE + NTLINE
             end if
-            NCOUNT = NCOUNT + NILINE + NPLINE + NTLINE
-         end if
 
          FSZA = .false.
          if (ifsza /= 0) then
             ! setup2 and setup3 must run one time more than perturbation sza in order to get the old state again
             k = ICOUNT - NCOUNT -1
-            if (k.gt. 0 .and. k.lt.nspec+2) then
-               if (k.lt.nspec+1) then
-                  !print *,k
-                  astang(k) = astang0(k)*(1.0d0+parm(ncount+k))
-               end if
+            do kk = 1,nspec
+               astang(kk) = astang0(kk)*(1.0d0+parm(ncount+kk))
+            end do
+            if (k.gt. 0 .and. k.lt.nspec+2) THEN
                CALL LBLATM( 0, KMAX )
                CALL SETUP3( XSC_DETAIL, -1 )
                FSZA = .true.
             end if
-            NCOUNT = NCOUNT + 1
+            NCOUNT = NCOUNT + NSPEC
          end if
 
          do k = 1,nband
             ! Error in Field of View
             if (iffov /= 0) then
-               OMEGA0(iband) = OMEGA(iband)*(1.0d0 + parm(ncount))
                ncount = ncount + 1
+               OMEGA(k) = OMEGA0(k)*(1.0d0 + parm(ncount))
             end if
             ! Error in Field of MaxOPD
             if (ifopd /= 0) then
-               PMAX0(iband) = PMAX0(IBAND) * (1.0d0 + parm(ncount))
                ncount = ncount + 1
+               if (ICOUNT == NCOUNT+1) then
+                  ! usual DEL = 0.1D-5 is to small to cause any KB.
+                  parm(ncount) = parm(ncount) - DEL + 0.1
+                  DEL = 0.1
+               end if
+               PMAX(k) = PMAX0(k) * (1.0d0 + parm(ncount))
             end if
          end do
 
@@ -268,8 +295,8 @@
             !IF( BUG1 )PRINT *, IFTEMP, IPARM, NCOUNT, NTEMP1, NTEMP, PARM(NCOUNT+1:NCOUNT+1)
             TRET = .FALSE.
             ! --- ONLY CONSIDERING PROFILE FIT
-            K = IPARM - NCOUNT
-            IF( K .GE. 1 .AND. K .LE. KMAX )THEN
+            K = IPARM - NCOUNT 
+            IF( K .GE. 1 .AND. K .LE. KMAX)THEN
                !IF( NCOUNT+1 .GE. NTEMP1 .AND. NCOUNT+1 .LT. NTEMP1 + NTEMP )THEN
                TRET = .TRUE.
                !if(ntemp1 .eq. ncount+1) print*, k, t(k), torg(k)
@@ -300,7 +327,7 @@
 
          IF (IPARM == 0) GO TO 8
 !  --- DO NOT CALCULATE SPECTRUM IF NOT NECESSARY.
-         NCOUNT = NBKFIT + NSHIFT + NZERO + NSOLAR + NEAPRT  + NEPHSRT +  NPHASE ! + NDIFF
+         NCOUNT = NBKFIT + NSHIFT + NZERO + NSOLAR + NEAPRT  + NEPHSRT +  NPHASE! + NDIFF
          IF( BUG1 )PRINT *, '    IPARM, NCOUNT : ', IPARM, NCOUNT
          IF (IPARM .LT. NCOUNT) GO TO 9
 
@@ -469,8 +496,8 @@
 
 !  --- WRITE SPECTRA BY GAS, BAND, SCAN & ITERATION
                IF( F_WRTGASSPC .AND. (ICOUNT .EQ. NVAR1) &
-                 .AND.( (GASOUTTYPE .EQ. 1) .AND. (ITER .EQ. -1) ) &
-                 .OR.   (GASOUTTYPE .EQ. 2) )THEN
+                 .AND.( (GASOUTTYPE .EQ. 1) .AND. (ITER .EQ. -1)  &
+                 .OR.   (GASOUTTYPE .EQ. 2) ))THEN
 !  --- SAVE TCALC
                   ALLOCATE (TCONVSAV(NMONSM), STAT=NAERR)
                   IF (NAERR /= 0) THEN
@@ -669,6 +696,8 @@
 
  !  --- PRINT OUT PARM ARRAY BY ITERATION
       IF( F_WRTPARM )WRITE(89,261) ITER, PARM(:NVAR)
+      IF (ALLOCATED(STORE_LINE)) DEALLOCATE(STORE_LINE)
+
 
       RETURN
 
@@ -676,9 +705,6 @@
       WRITE (16, 18) N1, N2, IBAND, NSTART(IBAND), MSHIFT, MONONE, NPRIM(IBAND), NSPAC(IBAND)
       WRITE (16,*) "WAVENUMBER SHIFT OUT OF SPECTRAL RANGE."
       WRITE ( 0,*) "WAVENUMBER SHIFT OUT OF SPECTRAL RANGE."
-      !FRACS = 0.0
-      !MSHIFT = 0
-      !GOTO 16
       TFLG=.TRUE.
       RETURN
 
@@ -699,7 +725,7 @@
  556  FORMAT(/,' COULD NOT CREATE INDIVIDUAL GAS FILE')
  610  FORMAT('spc.all.',I2.2,'.',I2.2,'.final')
  620  FORMAT('spc.all.',I2.2,'.',I2.2,'.',I2.2)
- !630  FORMAT('SFIT2 ALLGASES file')
+ !630  FORMAT('SFIT4 ALLGASES file')
  640  FORMAT(A80)
  690  FORMAT('spc.',a,'.',I2.2,'.',I2.2,'.final')
  700  FORMAT('spc.',a,'.',I2.2,'.',I2.2,'.',I2.2)

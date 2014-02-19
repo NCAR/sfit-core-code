@@ -1,3 +1,21 @@
+!-----------------------------------------------------------------------------
+!    Copyright (c) 2013-2014 NDACC/IRWG
+!    This file is part of sfit.
+!
+!    sfit is free software: you can redistribute it and/or modify
+!    it under the terms of the GNU General Public License as published by
+!    the Free Software Foundation, either version 3 of the License, or
+!    any later version.
+!
+!    sfit is distributed in the hope that it will be useful,
+!    but WITHOUT ANY WARRANTY; without even the implied warranty of
+!    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!    GNU General Public License for more details.
+!
+!    You should have received a copy of the GNU General Public License
+!    along with sfit.  If not, see <http://www.gnu.org/licenses/>
+!-----------------------------------------------------------------------------
+
       MODULE WRITEOUT
 
       USE PARAMS
@@ -94,7 +112,7 @@
         WRITE(16,*) 'WRITEOUT:INIT_WRITEOUT: OUTPUT LEVEL CAN ONLY BE 0, 1, 2 OR 3 : ', OUTPUTLEVL
         WRITE( 0,*) 'WRITEOUT:INIT_WRITEOUT: OUTPUT LEVEL CAN ONLY BE 0, 1, 2 OR 3 : ', OUTPUTLEVL
         CALL SHUTDOWN
-        STOP 2
+        STOP '2'
      END IF
 
      END SUBROUTINE INIT_WRITEOUT
@@ -244,8 +262,8 @@
       RETURN
 
   409 FORMAT('      Z   ZBAR  TEMPERATURE       PRESSURE        AIRMASS', 99(A15))
-  408 FORMAT(2(I7),I13,110(I15))
-  407 FORMAT(2(F7.2),F13.3,255(ES15.4))
+  408 FORMAT(2(I8),I13,110(I15))
+  407 FORMAT(2(F8.3),F13.3,255(ES15.4))
 
       END SUBROUTINE WRTAPRF
 
@@ -294,8 +312,8 @@
       RETURN
 
   409 FORMAT('      Z   ZBAR  TEMPERATURE       PRESSURE        AIRMASS', 99(A15))
-  408 FORMAT(2(I7),I13,110(I15))
-  407 FORMAT(2(F7.2),F13.3,255(ES15.4))
+  408 FORMAT(2(I8),I13,110(I15))
+  407 FORMAT(2(F8.3),F13.3,255(ES15.4))
 
       END SUBROUTINE WRTRPRF
 
