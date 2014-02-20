@@ -69,15 +69,9 @@
       REAL(DOUBLE), DIMENSION(NMONSM) :: Y_INFTY, DELTA_Y
       REAL(DOUBLE), DIMENSION(MAXSPE) :: ZSHIFTSAV
       REAL(DOUBLE), DIMENSION(NFIT)   :: WAVE_X
-<<<<<<< HEAD
-      REAL(DOUBLE), DIMENSION(MAXSPE)   :: YCAVE, YCMAX
-      REAL(DOUBLE) :: DEL, SUMSQ, WSCALE, DWAVE, DSHIFT, FRACS, PHI, SMM, YS, &
-         BKGND, FX, TEMPP
-=======
       REAL(DOUBLE), DIMENSION(MAXSPE)   :: YCAVE, YCMAX, WSCALE
       REAL(DOUBLE) :: DEL, SUMSQ, WA, WE, SP, DWAVE, DSHIFT, FRACS, PHI, SMM, YS, &
          BKGND, FX, TEMPP!, STDEV
->>>>>>> 3bb71c7... BugFix in single spectra calculation
       REAL(DOUBLE) , DIMENSION(:,:), allocatable    :: store_line
 
       COMPLEX(DBLE_COMPLEX) :: TCALL, TCALH, TCALI
@@ -605,37 +599,6 @@
                   ENDDO
                   CLOSE (80)
 
-<<<<<<< HEAD
-                     
-=======
-!  --- Continuum absorption if calculated
-                  if (f_contabs) then
-                     call GASNTRAN(NRET+2,IBAND,JSCAN,2,MONONE,MXONE)
-!                     CALL CONTNTRAN( IBAND,JSCAN,2,MONONE,MXONE )
-                     !  --- COMPUTE FFTS
-                     CALL FSPEC1 (IBAND, MONONE, MXONE)
-                     CALL FSPEC2 (IBAND, MONONE, PHI)
-                     IF( GASOUTTYPE .EQ. 1 .AND. ITER .EQ. -1 )THEN
-                        WRITE(GASFNAME,750)IBAND,JSCAN
-                     ELSEIF( GASOUTTYPE .EQ. 2 )THEN
-                        IF (ITER == -1 ) THEN
-                           WRITE(GASFNAME,750)IBAND,JSCAN
-                        ELSE
-                           WRITE(GASFNAME,760)IBAND,JSCAN,ITER
-                        ENDIF
-                     ENDIF
-                     WRITE(TITLE,710) 'CONT', IBAND, JSCAN, ITER
-
-                     OPEN(UNIT=80, FILE=GASFNAME, STATUS='REPLACE', ERR=555)
-                     WRITE (80, 640) TITLE
-                  WRITE (80, *) WA, WE, SP, N3
-                     DO J = 1, N3
-                        I = N1 + (J - 1)*NSPAC(IBAND)
-                        WRITE (80, *) DBLE(TCONV(I))
-                     ENDDO
-                     CLOSE (80)
-                  ENDIF
->>>>>>> 3bb71c7... BugFix in single spectra calculation
 
 !  --- FINALLY SOLAR SPECTRUM
                   IFCO = IFCOSAVE
