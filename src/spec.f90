@@ -342,7 +342,7 @@ real(8) function bc2( sp, wavelength, n, wmid, vflag, noise ) result (zero)
       blockout = .false.
       if( vflag .gt. 0 )verbose  = .true.
       if( vflag .gt. 1 )blockout = .true.
-
+print*,blockout
       dstncmax = 50.0d0
       zero = 0.0d0
 ! quick check that we are in the right region
@@ -512,6 +512,7 @@ real(8) function bc2( sp, wavelength, n, wmid, vflag, noise ) result (zero)
       if( verbose )write(vlun,304) ' ? sat bands above midpt : ', above
       if( verbose )write(vlun,310) ' Closest sat band to midpt : ', distnc
 
+!0test
       if( (above .eq. 0 .or. below .eq. 0) .and. distnc .gt. dstncmax )return
 
       allocate(allsatwave(count2))
@@ -683,13 +684,13 @@ real(8) function bc2( sp, wavelength, n, wmid, vflag, noise ) result (zero)
          enddo
       endif
 
-      if( allocated(wavewindow) ) deallocate( wavewindow )
-      if( allocated(specwindow) ) deallocate( specwindow )
-      if( allocated(zeroed) )     deallocate( zeroed )
-      if( allocated(newsp) )      deallocate( newsp )
-      if( allocated(ptwnd) )      deallocate( ptwnd )
-      if( allocated(allsatwave) ) deallocate( allsatwave )
-      if( allocated(allsatspec) ) deallocate( allsatspec )
+      if( allocated( wavewindow) ) deallocate( wavewindow )
+      if( allocated( specwindow) ) deallocate( specwindow )
+      if( allocated( zeroed) )     deallocate( zeroed )
+      if( allocated( newsp) )      deallocate( newsp )
+      if( allocated( ptwnd) )      deallocate( ptwnd )
+      if( allocated( allsatwave) ) deallocate( allsatwave )
+      if( allocated( allsatspec) ) deallocate( allsatspec )
 
       return
 
@@ -1129,6 +1130,7 @@ subroutine kpno( opdmax, wl1, wl2, roe, lat, lon, nterp, rflag, oflag, zflag, vf
 ! --- Step 3 : Calculate SNR
    ! calculate snr at nearest interval
    write(6,111) 'Calculate noise...'
+   !noise=0.0 !0test
    call calcsnr( wavs, amps, npfile, wlim1, wlim2, spac, opdmax, nterp, noise, vflag )
 
 
@@ -1282,14 +1284,10 @@ character (len=80), intent(out)   :: title
 character (len=1), intent(inout)  :: loc
 integer, intent(out)              :: yy, mm, dd, hh, nn, ss
 real, intent(out)                 :: sza, azm, dur, fov, res
-real(8)                           :: roe, hour
+real(8)                           :: roe
 real(4)                           :: opd
-character (len=3)                 :: apd, mstr
-integer                           :: i, j, m = 0
-
-character (len=3), dimension(12)  :: month_str = (/ &
-     'JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', &
-     'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC' /)
+character (len=3)                 :: apd
+integer                           :: m = 0
 
 ! from bnr.c
 !// 1char key for values in header
@@ -1367,23 +1365,7 @@ goto 10
 m = m + 1
 ! zephyr2
 !20090602 09:54:13  205s ZT=09:55:55 OPD=257.14 FOV= 2.75 APF=BX aS 60.531 999.99
-read(title,9,err=19)yy, mm, dd, dur, hh, nn, ss, fov, sza, azm
-goto 10
-
-19 continue
-m = m + 1
-! Jungfraujoch headers
-! JJB-S09A01JK.MOY 01 OCT 2009  4.400 mK 1.45 mm Ap.ZA=72.359 S/N= 3201 h= 8.299
-read(title,100,err=21) dd, mstr, yy, fov, sza, hour
-do i = 1,12
-   if (mstr.eq.month_str(i)) mm = i
-end do
-hour = hour -1 
-hh = floor(hour)
-nn = floor(mod(hour,1.0d0)*60.0d0) 
-ss = floor(mod(hour*60.0d0,1.0d0)*60.0d0) 
-
-
+read(title,9,err=21)yy, mm, dd, dur, hh, nn, ss, fov, sza, azm
 goto 10
 
 21 print*, 'spec:parsetitle: header read', m
@@ -1402,7 +1384,6 @@ return
 7 format(i4,2i2,1x,2(i2,1x),i2,5x,f7.0,3x,f6.0,3x,f6.0,3x,f6.0,8x,f7.0,3x,f4.0)
 8 format(i4,2(i2),11x,f3.0,5x,3(i2,1x),15x,f6.0,10x,f6.0)
 9 format(i4,i2,i2,11x,f3.0,5x,3(i2,1x),16x,f4.0,11x,f6.0,1x,f6.0)
-100 format(17x, i2, 1x, a3, 1x, i4, 10x, f5.2, 10x, f6.3, 13x, f5.3)
 
 end subroutine parsetitle
 
@@ -1505,6 +1486,7 @@ subroutine calcsnr( wavs, amps, npfile, wlim1, wlim2, spac, opdmax, nterp, noise
 
   if( vflag .gt. 1 )then
       open(66,file='noisefit.txt')
+      write(66,*)'Nearest exact noise region in raw spectrum'
       w1 = psnr(1,k)
       w2 = psnr(2,k)
       ilow = minloc(( wavs-w1 ), mask=((wavs-w1) > 0.0D0))
@@ -1517,7 +1499,7 @@ subroutine calcsnr( wavs, amps, npfile, wlim1, wlim2, spac, opdmax, nterp, noise
       enddo
    endif
 
-   ! get the spectra in this region +- 1 wavenumber more
+   ! get the spectra in this region +- wavenumber buffer
    w1 = psnr(1,k)-50.*nterp/opdmax
    w2 = psnr(2,k)+50.*nterp/opdmax
    ilow = minloc(( wavs-w1 ), mask=((wavs-w1) > 0.0D0))
@@ -1526,8 +1508,6 @@ subroutine calcsnr( wavs, amps, npfile, wlim1, wlim2, spac, opdmax, nterp, noise
    iih = ihi(1)
    np = iih-iil+1
 
-   print *, w1, w2, minval(wavs), maxval(wavs)
-   call flush()
    write(6,102) 'SNR region : ', psnr(1,k), psnr(2,k)
    write(6,102) 'Resample region : ', wavs(iil), wavs(iih)
    write(6,101) 'Points in resample : ', np
@@ -1538,6 +1518,7 @@ subroutine calcsnr( wavs, amps, npfile, wlim1, wlim2, spac, opdmax, nterp, noise
    end if
 
    if( vflag .gt. 1 )then
+      write(66,*)'Extended noise region in raw spectrum'
       write(66,*) 2, iih - iil + 1
       do i=iil, iih
          write(66,*) wavs(i), amps(i)
@@ -1563,6 +1544,7 @@ subroutine calcsnr( wavs, amps, npfile, wlim1, wlim2, spac, opdmax, nterp, noise
    endif
 
    if( vflag .gt. 1 )then
+      write(66,*)'Extended noise region in resampled spectrum'
       write(66,*) 3, np
       do i=1, np
          write(66,*) (i-1)*dnue + wstart, outspec(i)
@@ -1613,6 +1595,7 @@ subroutine calcsnr( wavs, amps, npfile, wlim1, wlim2, spac, opdmax, nterp, noise
    enddo
 
    if( vflag .gt. 1 )then
+      write(66,*)'Exact noise region in resampled spectrum, i, w#, spec, fit, diff'
       write(66,*) 4, np, iil*dnue + wstart, dnue
       do i=1, np
          write(66,*) x(i), z(iil+i-1), outspec(iil+i-1), (curve(1) + (curve(2) + curve(3)*x(i) ) * x(i)), y(i)
@@ -1634,7 +1617,7 @@ subroutine calcsnr( wavs, amps, npfile, wlim1, wlim2, spac, opdmax, nterp, noise
       write(6,102) 'Mean SNR in snr region : ', mean/noise
    end if
 
-   deallocate( x, y, z, curve, outspec )
+   deallocate( x, y, z, curve )
 
    return
 

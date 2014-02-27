@@ -349,7 +349,7 @@
 !  --- ANAYLITC K-MATICES MAY BE CHOSEN IN PARAM_M.F90 MP
     8    CONTINUE
 
-         IF ((.NOT.ANALYTIC_K).OR.(.NOT.XRET).OR.(TRET).OR.(ICOUNT.EQ.1).or.FLINE.or.FSZA.or.TALL_FLAG) THEN
+         IF ((.NOT.ANALYTIC_K).OR.(.NOT.XRET).OR.(TRET).OR.(ICOUNT.EQ.1).or.FLINE.or.FSZA) THEN
             CALL TALL
             IF( BUG1 )PRINT*, '    TALL', IPARM
             !print*, nmonsm, TCALC(1,:100)
