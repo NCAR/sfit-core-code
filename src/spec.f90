@@ -19,7 +19,7 @@
 module spec
 
 use fitting
-
+use retvparam, only: iemission
 implicit none
 
 integer       (4) :: nsnr
