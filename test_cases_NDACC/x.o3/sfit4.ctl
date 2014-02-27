@@ -4,7 +4,7 @@
  file.in.refprofile             = reference.prf
  file.in.spectrum               = spectrum
  file.in.isotope                = isotope.input
- file.in.solarlines             = /home/mathias/sfit-core-code/linelist/solar/120621/solar.dat
+ file.in.solarlines             = ../../linelist/solar/120621/solar.dat
  file.in.linelist               = 00778.501722-01008.558278.hbin
  
  # Definition for retrieval gases
