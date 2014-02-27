@@ -69,8 +69,9 @@
       REAL(DOUBLE), DIMENSION(NMONSM) :: Y_INFTY, DELTA_Y
       REAL(DOUBLE), DIMENSION(MAXSPE) :: ZSHIFTSAV
       REAL(DOUBLE), DIMENSION(NFIT)   :: WAVE_X
-      REAL(DOUBLE) :: DEL, SUMSQ, WSCALE, DWAVE, DSHIFT, FRACS, PHI, SMM, YS, &
-         BKGND, YCAVE, FX, TEMPP, YCMAX !, STDEV
+      REAL(DOUBLE), DIMENSION(MAXSPE)   :: YCAVE, YCMAX, WSCALE
+      REAL(DOUBLE) :: DEL, SUMSQ, WA, WE, SP, DWAVE, DSHIFT, FRACS, PHI, SMM, YS, &
+         BKGND, FX, TEMPP!, STDEV
       REAL(DOUBLE) , DIMENSION(:,:), allocatable    :: store_line
 
       COMPLEX(DBLE_COMPLEX) :: TCALL, TCALH, TCALI
@@ -556,13 +557,39 @@
 
                      OPEN(UNIT=80, FILE=GASFNAME, STATUS='REPLACE', ERR=555)
                      WRITE (80, 640) TITLE
-                     WRITE (80, *) WSTART(IBAND), WSTOP(IBAND), SPAC(IBAND), N3
+                  WRITE (80, *) WA, WE, SP, N3
                      DO J = 1, N3
                         I = N1 + (J - 1)*NSPAC(IBAND)
-                        WRITE (80, *) DBLE(TCONV(I))
+                        WRITE (80, *) DBLE(TCONV(I))!/YCAVE(IBAND)
                      ENDDO
                      CLOSE (80)
                   ENDDO
+
+!  --- Spectrum due to not retrieved gases
+                  call GASNTRAN(NRET+1,IBAND,JSCAN,2,MONONE,MXONE)
+                  !  --- COMPUTE FFTS
+                  CALL FSPEC1 (IBAND, MONONE, MXONE)
+                  CALL FSPEC2 (IBAND, MONONE, PHI)
+                  IF( GASOUTTYPE .EQ. 1 .AND. ITER .EQ. -1 )THEN
+                     WRITE(GASFNAME,770)IBAND,JSCAN
+                  ELSEIF( GASOUTTYPE .EQ. 2 )THEN
+                     IF (ITER == -1 ) THEN
+                        WRITE(GASFNAME,770)IBAND,JSCAN
+                     ELSE
+                        WRITE(GASFNAME,780)IBAND,JSCAN,ITER
+                     ENDIF
+                  ENDIF
+                  WRITE(TITLE,710) 'REST', IBAND, JSCAN, ITER
+                  
+                  OPEN(UNIT=80, FILE=GASFNAME, STATUS='REPLACE', ERR=555)
+                  WRITE (80, 640) TITLE
+                  WRITE (80, *) WA, WE, SP, N3
+                  DO J = 1, N3
+                     I = N1 + (J - 1)*NSPAC(IBAND)
+                     WRITE (80, *) DBLE(TCONV(I))
+                  ENDDO
+                  CLOSE (80)
+
 
 !  --- FINALLY SOLAR SPECTRUM
                   IFCO = IFCOSAVE
