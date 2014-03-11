@@ -27,7 +27,7 @@ F
 #  ids are dealt with differently
 #
 001_H2O/001_H2Oall.atm.20120409 
-002_CO2/02_hit12.par 
+002_CO2/02.lamaroux.dat
 003_O3/03_hit12.par
 004_N2O/04_hit08.par
 005_CO/05_hit08.par
@@ -136,7 +136,7 @@ F
 #
 # CO2 Line mixing parameters for Boone implementation
 1
-002_CO2/02_hase_lm.dat
+002_CO2/02.lamaroux.y_factors
 #
 #
 #
