@@ -360,10 +360,10 @@
       DENLIN = NLINES/(WAVHI - WAVLO)
       WRITE (16, 887) DENLIN
       IF (DENLIN>500 .AND. DENLIN<1000.) THEN
-         TAUMIN = 1.E-07
+         TAUMIN = 1.E-14
          WRITE (16, 888) TAUMIN
       ELSE IF (DENLIN >= 1000) THEN
-         TAUMIN = 1.E-08
+         TAUMIN = 1.E-16
          WRITE (16, 889) TAUMIN
       ELSE
          WRITE (16, 890) TAUMIN

@@ -181,7 +181,7 @@
                ELSEIF  ( LSM_SDV.and.LSHAPEMODEL.NE.3.and.HFLAG(N,SDV_FLAG) ) THEN
                   ACOFB = GAMMA0(N)*P(K)*(1.0D0 - XGAS(IMOL,K))
                   SCOFB = SSS(N)*P(K)*XGAS(IMOL,K)
-                  G2 = GAMMA0(N)*GAMMA2(N)*P(k) ! Note HITRAN gives data by Devi, the function 
+                  G2 = GAMMA0(n)*GAMMA2(N)*P(k) ! Note HITRAN gives data by Devi, the function 
                                                 ! implemented here (Tran) defines this parameter differently
                   IF ( FPS ) THEN
                      S0 = SHIFT0(N)*P(K)
@@ -299,6 +299,7 @@
 
 !  --- SKIP OVER LINE IF OPTICAL DEPTH AT LINE CENTER IS LESS
 !  --- THAN TAUMIN
+               
                IF (OPTCEN < TAUMIN) CYCLE
 !  --- CALCULATE DISTANCE FROM LINE CENTER CORRESPONDING TO OPTICAL
 !  --- DEPTH OF TAUMIN FOR A LORENTZ LINE
