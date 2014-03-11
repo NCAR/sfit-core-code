@@ -2,8 +2,8 @@
  # General
  
  file.in.stalayers              = station.layers
- file.in.refprofile             = 131216_46m4_RT_1000mb2_av.ref
- file.in.spectrum               = 131216_46m4_RT_1000mb2_av
+ file.in.refprofile             = 131213_46m4_RT_498mb2_av.ref
+ file.in.spectrum               = 131213_46m4_RT_498mb2_av.DPT
  file.in.solarlines             = /home/mathias/linelist/solar/120621/solar.dat
  file.in.linelist               = 02155.883444-02264.116556.hbin
  file.out.ak_matrix = ak.out
@@ -47,8 +47,8 @@
  fw.isotope_separation       =               F
  fw.lab = T
  fw.lab.length = 46.4
-# fw.lab.pressure =  498.2
- fw.lab.pressure =  1000.2
+ fw.lab.pressure =  498.2
+# fw.lab.pressure =  1000.2
  fw.lab.temperature = 293.922
 
  # Retrieval parameter
@@ -57,14 +57,14 @@
  rt                          =              T
  rt.max_iteration = 20
  rt.convergence = 0.1
- rt.wshift = F
+ rt.wshift = T
  rt.wshift.type = 3
  rt.wshift.apriori = 0.0
  rt.wshift.sigma = 0.1
- rt.slope = T
+ rt.slope = F
  rt.slope.apriori = 0.0
  rt.slope.sigma = 0.1
- rt.curvature = T
+ rt.curvature = F
  rt.curvature.apriori = 0.0
  rt.curvature.sigma = 0.1
   
