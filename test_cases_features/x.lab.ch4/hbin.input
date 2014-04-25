@@ -24,7 +24,7 @@
 ../../linelist/
 #
 # next non-comment entry is the number of path/files to look for
-1
+6
 #
 # Then the next lines are paths to each gas file that will be searched for lines in the
 #  desired wavenember region
@@ -35,7 +35,12 @@
 # 049_O2CIA/o2cia_20060420.101 - this file is a special case, molid & isotope
 #  ids are dealt with differently
 #
-006_CH4/06_hit08.par
+001_H2O/01.H2O
+002_CO2/02_hit08_f53.par
+006_CH4/06_hit08-darko+frank-prelim-121207.par
+007_O2/07_hit08.par 
+016_HBR/16_hit08.par
+041_N2/22_hit08.par
 #
 #
 # Galatry parameters
