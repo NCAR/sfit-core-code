@@ -43,7 +43,7 @@ FFLAGS = -g -Wall -fno-automatic -fcheck=all -ffpe-trap=invalid,zero,overflow,un
 #         -fbounds-check -fbacktrace
 
 # optomize
-FFLAGS = -Ofast -Wall -fno-automatic -frepack-arrays
+#FFLAGS = -Ofast -Wall -fno-automatic -frepack-arrays
 
 # supply compile date:
 # -cpp -DBDATE="\"`date +%Y%m%d`"\" -O2 -fno-automatic

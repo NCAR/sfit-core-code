@@ -2,16 +2,20 @@
  # General
  
  file.in.stalayers              = station.layers
- file.in.refprofile             = reference.prf
+ file.in.refprofile             = CH4_only.ref
  file.in.isotope                = isotope.input
- file.in.spectrum               = CH4-Mix-HBr-DLR-0300mbar-296K-040m-BL.dpt
+ file.in.spectrum               =  CH4-DLR-00p02mbar-296K-040m.dpt
+# file.in.spectrum               =  CH4-DLR-00p08mbar-296K-040m.dpt
+# file.in.spectrum               =  CH4-DLR-00p30mbar-296K-040m.dpt
+# file.in.spectrum               =  CH4-DLR-01p25mbar-296K-040m.dpt
+# file.in.spectrum               =  CH4-DLR-05p00mbar-296K-040m.dpt
  file.in.solarlines             = solar.dat
- file.in.linelist               = 02609.641672-02925.658328.hbin
+ file.in.linelist               = 02395.941672-02504.058328.hbin
  
  # Definition for retrieval gases
  
  gas.layers                  =              1
- gas.column.list                         = CH4
+ gas.column.list                         = CH4 HBR
  gas.profile.list                         = 
  gas.column.CH4.logstate = F
  gas.column.CH4.scale               = 1.0
@@ -37,13 +41,14 @@
  fw.phase_fcn                =               F
  fw.emission                 =               F
  fw.isotope_separation       =               T
+#  CH4-DLR-00p02mbar-296K-040m.dpt
  fw.lab = T
  fw.lab.length = 40.0
- fw.lab.pressure = 300.0
+ fw.lab.pressure = 0.02
  fw.lab.temperature = 296.0
  # Retrieval parameter
  
- rt                          =               T
+ rt                          =               F
  rt.lm                               = F
  rt.lm.gamma_start                   = 1.0e5
  rt.lm.gamma_inc                     = 10.0
@@ -78,9 +83,9 @@
 
  # Microwindows and their parameters
  
- band                        =   1 3 4
- band.1.nu_start             =        2613.700
- band.1.nu_stop              =        2615.400
+ band                        =   1
+ band.1.nu_start             =        2400.000
+ band.1.nu_stop              =        2500.000
  band.1.zshift               =              F
  band.1.beam                 =               0
  band.1.calc_point_space     =       0.500E-04
@@ -88,7 +93,7 @@
  band.1.max_opd		     =        180.0000
  band.1.omega	             =		2.409
  band.1.apodization_code     =               0
- band.1.gasb                 = CH4
+ band.1.gasb                 = CH4 HBR
  band.1.tempretb = T
  band.3.nu_start             =        2835.500
  band.3.nu_stop              =        2835.800
