@@ -989,6 +989,7 @@ subroutine kpno( opdmax, wl1, wl2, roe, lat, lon, nterp, rflag, oflag, zflag, vf
    write(6,102) 'Zero flag : ', zflag
 
    noise = 0.0d0
+   zero  = 0.0d0
 
    ! wl1   - wanted low wv #
    ! wl2   - wanted high wv #
@@ -1044,8 +1045,7 @@ subroutine kpno( opdmax, wl1, wl2, roe, lat, lon, nterp, rflag, oflag, zflag, vf
    ! return value zero is for the mid point of the wanted window
    ! zflag  :
    !     = 0 no zero offset,
-   !     = 1 try w/ baselincorrect,
-   !     0 < z < 1 use this value,
+   !     = 0 < zflag < 1, use this value for baselincorrect,
    !     = 2 use combo 2 + 4 for 10µ region
    ! noise is the rms noise from the zero (allsatspec) vector - by definition random around zoro
 
@@ -1076,7 +1076,8 @@ subroutine kpno( opdmax, wl1, wl2, roe, lat, lon, nterp, rflag, oflag, zflag, vf
          endif
       endif
    else
-      print *, "!! zflag out of range : ", zflag
+      print *, "!! zflag not a valid option : ", zflag
+      print *, "Valid zflag options: 0, 0 < zflag < 1, 2"
       call exit(2)
 
    endif
