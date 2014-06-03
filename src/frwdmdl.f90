@@ -296,22 +296,16 @@
             TRET = .FALSE.
             ! --- ONLY CONSIDERING PROFILE FIT
             K = IPARM - NCOUNT
-            ! KMAX + 1 passes to un-perturb final temperature
+            ! --- KMAX + 1 PASSES TO UN-PERTURB FINAL TEMPERATURE
             IF( K .GE. 1 .AND. K .LE. KMAX + 1 )THEN
-               !IF( NCOUNT+1 .GE. NTEMP1 .AND. NCOUNT+1 .LT. NTEMP1 + NTEMP )THEN
                TRET = .TRUE.
-               !if(ntemp1 .eq. ncount+1) print*, k, t(k), torg(k)
-               !print*, ncount+1, ntemp1, k
                T(:KMAX) = PARM(NCOUNT+1:NCOUNT+KMAX) * TORG(:KMAX)
-               !print*,PARM(NCOUNT+1:NCOUNT+KMAX)
-               !if(ntemp1 .eq. ncount+1) print*, k, t(k), torg(k), ITER, KMAX
                NCOUNT = NCOUNT + KMAX
                   !CALL LBLATM( ITER, KMAX )
                   IF (K .GT. KMAX) K = KMAX
                   CALL MASSPATH( K )
                   CALL SETUP3( XSC_DETAIL, K )
             ENDIF ! K
-            !write(0,'(2f14.5)') (t(kk),torg(kk), kk=1,kmax)
          ENDIF ! IFTEMP
 
 
