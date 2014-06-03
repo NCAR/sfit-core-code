@@ -342,7 +342,7 @@ real(8) function bc2( sp, wavelength, n, wmid, vflag, noise ) result (zero)
       blockout = .false.
       if( vflag .gt. 0 )verbose  = .true.
       if( vflag .gt. 1 )blockout = .true.
-print*,blockout
+      !print*,blockout
       dstncmax = 50.0d0
       zero = 0.0d0
 ! quick check that we are in the right region
