@@ -2,6 +2,10 @@ Version Documentation for sfit4
 
 
 -------------- Version 9.4.4 (June 2014) --------------
+MAJOR
 = Fixed bug for calculating temperature derivatives. This fixes calculation of temperature
   uncertainties. See bug report #92.
 
+MINOR
++ Added space between FITRMS and CHI_Y_2 in summary file so these values would not run 
+  together for bad fits
