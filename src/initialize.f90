@@ -417,7 +417,7 @@
       WRITE (*, *) ' READING ASCII SPECTRA FILE: ', TFILE(15)(1:LEN_TRIM(TFILE(15)))
       CALL FILEOPEN( 15, 3 )
 
-      WRITE (6, *) 'NFIT  BAND  SCAN/BAND  SCAN_ID  SCAN_CODE    SPACING                   RANGE         SNR'
+      WRITE (6, *) 'NFIT  BAND  SCAN/BAND  SCAN_ID  SCAN_CODE    SPACING     NSPAC                   RANGE         SNR'
 
       NFITS  = 0
       NATMOS = 0
@@ -540,11 +540,11 @@
 
          STITLE(NFITS) = TITLE
 
-         WRITE(6,108) NFITS, IBAND, NSCAN(IBAND), ISZA, ISPEC(ISZA), SPAC(IBAND), WAVE3(IBAND), &
-               WAVE4(IBAND), SCNSNR(IBAND,JSCAN)
+!         WRITE(6,108) NFITS, IBAND, NSCAN(IBAND), ISZA, ISPEC(ISZA), SPAC(IBAND), WAVE3(IBAND), &
+!               WAVE4(IBAND), SCNSNR(IBAND,JSCAN)
 
          !IF( IBAND .EQ. NBAND )WRITE (31, 10) TITLE
-         WRITE (6, '(4X,A76)') TITLE
+!         WRITE (6, '(4X,A76)') TITLE
 
          NPTSB = 0
          SMM   = 0.D0
@@ -585,6 +585,12 @@
             NPRIM(IBAND) = NPTSB
             WRITE(16,566) DN(IBAND), NSPAC(IBAND)
          ENDIF
+
+         WRITE(6,108) NFITS, IBAND, NSCAN(IBAND), ISZA, ISPEC(ISZA), SPAC(IBAND), NSPAC(IBAND), WAVE3(IBAND), &
+               WAVE4(IBAND), SCNSNR(IBAND,JSCAN)
+
+         !IF( IBAND .EQ. NBAND )WRITE (31, 10) TITLE
+         WRITE (6, '(4X,A76)') TITLE
 
          WRITE(16,*) ""
          WRITE(16,10) STITLE(NFITS)
@@ -658,7 +664,7 @@
   111 FORMAT(/,' NUMBER OF UNIQUE SPECTRA             : ',I12, /,' SZA CODES:',/, 40I10)
   566 FORMAT(  ' MONOCHROMATIC SPACE                  : ',F12.8, /, &
                ' NSPAC                                : ',I12)
-  108 FORMAT(I5,I6,I11,I9,I11,1X,F10.7, 2X, F10.3,' -',F10.3,F12.5)
+  108 FORMAT(I5,I6,I11,I9,I11,1X,F10.7, 2X, I8, 2X, F10.3,' -',F10.3,F12.5)
 
   101 FORMAT(' GETSPEC: ABORT-SPECTRAL DATA ARRAY SIZE LIMIT EXCEEDED-MAX =',I5)
   103 FORMAT(/,/,5X,'GETSPEC: ABORT...NO POINTS'/,/)
