@@ -863,13 +863,13 @@ subroutine sincinterp ( inspec, outspec, n, wlow, space, opdmax, nterp )
    ninterpol = nterp
 
    firstnue_in = wlow
-   print *, ' firstnue_in          : ', firstnue_in
+   !print *, ' firstnue_in          : ', firstnue_in
 
    deltanue_in = space
-   print *, ' deltanue_in          : ', deltanue_in
+   !print *, ' deltanue_in          : ', deltanue_in
 
    nofpts_in   = n
-   print *, ' nofpts_in            : ', nofpts_in
+   !print *, ' nofpts_in            : ', nofpts_in
 
    if( abs(deltanue_in) .ge. 1.00001d0 / (2.0d0 * opdmax) )then
       call warnout('Input spectrum undersampled!...return input spectrum ')
@@ -879,7 +879,7 @@ subroutine sincinterp ( inspec, outspec, n, wlow, space, opdmax, nterp )
    end if
 
    write(6,102) 'OPDMAX : ', opdmax
-   write(6,102) 'Effective Resolution : ', 1.0d0 / opdmax
+   write(6,102) 'Effective resolution : ', 1.0d0 / opdmax
    write(6,101) 'Interpolation factor : ', ninterpol
 
    deltanue_lu = 0.5d0 / opdmax
@@ -894,50 +894,45 @@ subroutine sincinterp ( inspec, outspec, n, wlow, space, opdmax, nterp )
    endif
    write(6,102)'Final spacing : ', deltanue_out
 
-   sincradius = nint(nmaxsinc * ninterpol * deltanue_lu / deltanue_in) + 1
    sincradius = nint(nmaxsinc * deltanue_lu / deltanue_in) + 1
 
    firstnue_out = real((int((firstnue_in + sincradius * deltanue_in) / deltanue_out) + 2), 8) * deltanue_out
-   dfirstnue = firstnue_out - firstnue_in
-   print *, ' sincradius           : ', sincradius, sincradius*deltanue_in, dfirstnue
+   dfirstnue = firstnue_out - firstnue_in - 2*deltanue_in
+   !print *, ' sincradius           : ', sincradius, dfirstnue
+   write(6,102)'Sinc function radius : ', sincradius*deltanue_in
+
+   faktor = deltanue_in / deltanue_lu
+   write(6,102)'Sinc function width : ', nint(1./faktor)*deltanue_in
+   !print*, ' faktor               : ', faktor, nint(1./faktor)
 
    nofpts_out = int(real(nofpts_in - 2 * sincradius,8) * deltanue_in / deltanue_out) - 4
    write(6,101)'Number of points : ', nofpts_out
 
-   write(6,102)'Final first wavenumber : ', firstnue_out, firstnue_out + nofpts_out*deltanue_out
+   !write(6,102)'Final first wavenumber : ', firstnue_out, firstnue_out + nofpts_out*deltanue_out
 
-   faktor = deltanue_in / deltanue_lu
-   print *, ' faktor               : ', faktor
-   faktor = ninterpol * deltanue_in / deltanue_lu
-   print *, ' faktor               : ', faktor
-
-   allocate ( outspec( nofpts_out ))
-   outspec = 0.0
-
-   allocate ( sinc( -sincradius : sincradius ))
-   sinc = 0.0d0
+   allocate ( outspec( nofpts_out ), sinc( -sincradius : sincradius ))
+   outspec = 0.0d0
+   sinc    = 0.0d0
 
    ! loop over new output spectrum
    do i = 1, nofpts_out
 
-      fnpos  = 1.0d0 + (dfirstnue + (i-1) * deltanue_out) / deltanue_in
+      fnpos  = 1.0d0 + (firstnue_out + (i-1) * deltanue_out - firstnue_in) / deltanue_in
       npos   = nint(fnpos)
       remain = fnpos - real(npos,8)
-
-      !print *, ' fnpos                        : ', fnpos
-      !print *, ' npos                         : ', npos
-      !print *, ' remain                       : ', remain
+      !print *, ' fnpos                        : ', i, fnpos, npos, remain
+      !print *, ' Initial spectra              : ', wlow + space*npos, inspec(npos)
+      !print *, ' final spectra nue            : ', firstnue_out + i*deltanue_out
 
       ! generate sinc function
+      !if(i.eq.10)write(44,*) sincradius
       normsinc = 0.0d0
       do j = -sincradius, sincradius
          xwert = faktor * abs(real(j,8) - remain) + eps
          sinc(j) = sin(pi * xwert) / xwert * cos (0.5d0 * pi * xwert / (faktor * sincradius))
          normsinc = normsinc + sinc(j)
-         !write(44,*)  j, xwert, sinc(j), normsinc
+         !if(i.eq.10)write(44,*)  j, xwert, j*deltanue_in, j*deltanue_out, sinc(j), normsinc
       end do
-      !stop
-
       !print *, ' normsinc  : ', i, normsinc
 
       ! interpolation
@@ -1090,7 +1085,7 @@ subroutine kpno( opdmax, wl1, wl2, roe, lat, lon, nterp, rflag, oflag, zflag, vf
 ! --- Step 2 : Extend micro window region for interpolation
    ! Choose a region around the desired band for ratio and interpolation
    ! take any interpolation into account
-   pspc = 40.*nterp/opdmax
+   pspc = 30./opdmax
    write(6,*)''
    if( vflag .gt. 0 )write(6,102) 'Interpolation extension : ', pspc
    wlim1 = real(wl1 - pspc,8)
@@ -1129,7 +1124,6 @@ subroutine kpno( opdmax, wl1, wl2, roe, lat, lon, nterp, rflag, oflag, zflag, vf
        goto 99
    end if
 
-goto 667
 
 ! --- Step 3 : Calculate SNR
    ! calculate snr at nearest interval
@@ -1137,7 +1131,6 @@ goto 667
    !noise=0.0 !0test
    call calcsnr( wavs, amps, npfile, wlim1, wlim2, spac, opdmax, nterp, noise, vflag )
 
-667 continue
 
 ! --- Step 4 : Interpolate if requested
    ! back to the fit microwindow
@@ -1441,7 +1434,7 @@ end function interp
 subroutine calcsnr( wavs, amps, npfile, wlim1, wlim2, spac, opdmax, nterp, noise, vflag )
 
    ! calculate the snr from a small region near the microwindow wanted
-   ! use peak signal inmicrowindow
+   ! use peak signal in microwindow
    ! degrade resolution and or interpolate points first so snr is appropriate
    ! to fitted window
 
@@ -1497,8 +1490,8 @@ subroutine calcsnr( wavs, amps, npfile, wlim1, wlim2, spac, opdmax, nterp, noise
    endif
 
    ! get the spectra in this region +- wavenumber buffer
-   w1 = psnr(1,k)-40.*nterp/opdmax
-   w2 = psnr(2,k)+40.*nterp/opdmax
+   w1 = psnr(1,k)-30./opdmax
+   w2 = psnr(2,k)+30./opdmax
    ilow = minloc(( wavs-w1 ), mask=((wavs-w1) > 0.0D0))
    ihi  = minloc(( wavs-w2 ), mask=((wavs-w2) > 0.0D0))
    iil = ilow(1) - 1
@@ -1605,7 +1598,7 @@ subroutine calcsnr( wavs, amps, npfile, wlim1, wlim2, spac, opdmax, nterp, noise
       noise = noise + y(i) * y(i)
    enddo
 
-   noise = sqrt( noise / real(np,8))
+   noise = sqrt( noise / real(np,8) )
 
    write(6,101) 'Points in snr region : ', np
    write(6,102) 'Mean signal : ', mean
