@@ -109,7 +109,7 @@
             LMIN = LINE1(IBAND)
             LMAX = LINE2(IBAND)
             DO N = LMIN, LMAX
-
+            !print*, iband, k, n, lmin, lmax
 
 !  --- SELECT DISTANCE FROM LINE CENTER FOR CALCULATIONS
                DIST = DELNU
