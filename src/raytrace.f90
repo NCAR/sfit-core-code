@@ -2238,9 +2238,12 @@ END SUBROUTINE READLAYRS
                ENDIF
                DO J=1, NISOSEP
                   IF( NEWID(J) .EQ. IM )THEN
-                     RIN = NEWVMR(:NLAYK,J)
-                     GLNG(1:NLAYK,IM) = RIN
-                     !GLNG(1:NLAYK,IM) = GLNG(1:NLAYK,oldid(j))
+                     IF( F_ISOVMR(J) .EQ. 0 )THEN
+                        RIN = NEWVMR(:NLAYK,J)
+                        GLNG(1:NLAYK,IM) = RIN
+                     ELSE
+                        GLNG(1:NLAYK,IM) = GLNG(1:NLAYK,OLDID(J))
+                     ENDIF
                      FLAG = .TRUE.
                      CYCLE
                   ENDIF ! NEWID
@@ -2285,9 +2288,12 @@ END SUBROUTINE READLAYRS
                ENDIF
                DO J=1, NISOSEP
                   IF( NEWID(J) .EQ. IM )THEN
-                     RIN = NEWVMR(:NLAYK,J)
-                     GLNG(1:NLAYK,IM) = DREV( RIN, NLAYK )
-                     !GLNG(1:NLAYK,IM) = GLNG(1:NLAYK,oldid(j))
+                     IF( F_ISOVMR(J) .EQ. 0 )THEN
+                        RIN = NEWVMR(:NLAYK,J)
+                        GLNG(1:NLAYK,IM) = DREV( RIN, NLAYK )
+                     ELSE
+                        GLNG(1:NLAYK,IM) = GLNG(1:NLAYK,OLDID(J))
+                     ENDIF
                      FLAG = .TRUE.
                      CYCLE
                   ENDIF ! NEWID

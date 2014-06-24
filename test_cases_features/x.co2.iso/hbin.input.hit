@@ -1,0 +1,138 @@
+# Input file for hbin
+# b3.999, v003.991 beta
+# July 2012 sfit4 version v003.92 jwh
+# these lines are comments and can be anywhere
+#
+# implemented in version 3.99:
+# the linelist directory structure is the key to the gas names and the molecule id numbers
+# those id's and names must be the same in the reference.prf file
+# eg a files containing hitran lines is read from one subdir in linelist then the molid will be changed
+# to the 2digit integer 0NN of the subdir name and assumed to be for gas 'abcdef' from subdir 0NN_abcdef
+#
+# first non-comment line is a path to the directory tree where the gas subdirectories are
+/Users/jamesw/FDP/sfit/400/sfit-core/linelist/
+#
+# next entry is the number of path/files to look for
+99
+#
+# Then the next lines are paths to each gas file that will be searched for lines in the
+#  desired wavenember region
+# the id numbers are in sfit order - not exactly HITRAN, BUT KEEP these directory names
+# the files are in HITRAN format
+# tip: put a blank after the '/' to skip that gas
+001_H2O/01_hit09.par
+002_CO2/02_hit08_f53.par
+003_O3/03_hit08.par
+004_N2O/04_hit08.par
+005_CO/05_hit08.par
+006_CH4/06_hit08.par
+007_O2/07_hit08.par
+008_NO/08_hit08.par
+009_SO2/09_hit08.par
+010_NO2/10_hit08.par
+011_NH3/11_hit08.par
+012_HNO3/12_hit08.par
+013_OH/13_hit08.par
+014_HF/14_hit08.par
+015_HCL/15_hit08.par
+016_HBR/16_hit08.par
+017_HI/17_hit08.par
+018_CLO/18_hit08.par
+019_OCS/19_hit08.par
+020_H2CO/20_hit08.par
+021_HOCL/21_hit08.par
+022_HO2/33_hit08.par
+023_H2O2/25_hit08.par
+024_HONO/
+025_HO2NO2/
+026_N2O5/2007.sudo.n2o5
+027_CLONO2/2007.sudo.clono2
+028_HCN/23_hit08.par
+029_CH3F/
+030_CH3CL/24_hit08_f53.par
+031_CF4/2007.sudo.cf4
+032_CCL2F2/2007.sudo.ccl2f2
+033_CCL3F/2007.sudo.ccl3f
+034_CH3CCL3/
+035_CCL4/2007.sudo.ccl4
+036_COF2/29_hit08.par
+037_COCLF/2007.sudo.coclf
+038_C2H6/c2h6_2720_3100.101.27
+039_C2H4/38_hit08.par
+040_C2H2/26_hit08.par
+041_N2/22_hit08.par
+042_CHF2CL/2007.sudo.chf2cl
+043_COCL2/2007.sudo.cocl2
+044_CH3BR/40_hit08.par
+045_CH3I/
+046_HCOOH/32_hit08.par
+047_H2S/31_hit08.par
+048_CHCL2F/
+049_O2CIA/o2cia_20060420.101
+050_SF6/2007.sudo.sf6
+051_NF3/
+052_OTHER/
+053_OTHER/
+054_OTHER/
+055_OTHER/
+056_OTHER/
+057_OTHER/
+058_OCLO/
+059_F134A/
+060_C3H8/2005ppn.sudo.c3h8
+061_F142B/2007.sudo.f142b
+062_CFC113/2007.sudo.f113
+063_F141B/
+064_CH3OH/39_hit08.par
+065_CH3CNPL/2007.sudo.ch3cn
+066_C2H6PL/2007.sudo.c2h6pl
+067_PAN/2007.sudo.pan
+068_CH3CHO/2007.sudo.ch3cho
+069_CH3CN/41_hit08.par
+070_OTHER/
+071_CH3COOH/
+072_C5H8/
+073_MVK/
+074_MACR/
+075_C3H6/
+076_C4H8/
+077_OTHER/
+078_OTHER/
+079_OTHER/
+080_OTHER/
+081_OTHER/
+082_OTHER/
+083_OTHER/
+084_OTHER/
+085_OTHER/
+086_OTHER/
+087_OTHER/
+088_OTHER/
+089_OTHER/
+090_OTHER/
+091_OTHER/
+092_OTHER/
+093_OTHER/
+094_OTHER/
+095_OTHER/
+096_OTHER/
+097_OTHER/
+098_OTHER/
+099_OTHER/
+#
+#
+# Galatry parameters
+# molecule id numbers in these files have to match the sfit molecule id
+2
+014_HF/hf_galatry.txt
+015_HCL/hcl_galatry.txt
+#
+#
+# CO2 Line mixing parameters for Boone implementation
+1
+002_CO2/co2_lm.dat
+#
+#
+# Speed Dependent Voigt parameter files
+0
+! end of file
