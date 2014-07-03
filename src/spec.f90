@@ -308,7 +308,7 @@ real(8) function bc2( sp, wavelength, n, wmid, vflag, noise ) result (zero)
 
 ! computes straight line thruough selected (possible) fully absorbed regions
 ! in the bandpass 750 - 1350 cm-1
-! returns the zero offset comupted at wavenumber wmid
+! returns the zero offset comuputed at wavenumber wmid
 ! returns sp the entire spectra with the baseline corrected
 
       implicit none
@@ -1275,8 +1275,8 @@ character (len=1), intent(inout)  :: loc
 integer, intent(out)              :: yy, mm, dd, hh, nn, ss
 real, intent(out)                 :: sza, azm, dur, fov, res
 real(8)                           :: roe
-real(4)                           :: opd
-character (len=3)                 :: apd
+!real(4)                           :: opd
+!character (len=3)                 :: apd
 integer                           :: m = 0
 
 ! from bnr.c
@@ -1444,7 +1444,7 @@ subroutine calcsnr( wavs, amps, npfile, wlim1, wlim2, spac, opdmax, nterp, noise
    real      (8), intent(inout) :: noise
    real      (8), dimension(:), allocatable :: x, y, z, curve
    real      (4), dimension(:), allocatable :: outspec
-   integer   (4)                :: i, k, iil, iih, np
+   integer   (4)                :: i, k, l, iil, iih, np
    integer   (4), dimension(1)  :: ilow, ihi
    real      (8)                :: mind, mean, wstart, dnue, opdm, w1, w2
 
@@ -1473,6 +1473,28 @@ subroutine calcsnr( wavs, amps, npfile, wlim1, wlim2, spac, opdmax, nterp, noise
          k = i
       endif
    enddo
+
+  !  loop through snr regions get first that we have spectra for
+   k = 0
+   l = 0
+200 continue
+   do i=k+1, nsnr
+      if( psnr(1,i) .gt. wavs(1) .and. psnr(2,i) .lt. wavs(npfile) )then
+         k = i
+         exit
+      endif
+   enddo
+   if( k .eq. 0 )then
+      write(6,*) 'No SNR region in this spectrum...set noise to -999'
+      noise = -999.
+      return
+   endif
+   if( l .ne. 0 .and. k .eq. l )then
+      write(6,*) 'No more SNR regions in this spectrum...set noise to -999'
+      noise = -999.
+      return
+   endif
+   l = k
 
   if( vflag .gt. 1 )then
       open(66,file='noisefit.txt')
@@ -1503,8 +1525,8 @@ subroutine calcsnr( wavs, amps, npfile, wlim1, wlim2, spac, opdmax, nterp, noise
    write(6,101) 'Points in resample : ', np
 
    if( np .le. 2 ) then
-       write(*,104) '*** calcsnr : Less than 3 points found(1)'
-       stop '1'
+       write(*,104) '*** calcsnr : Less than 3 points found(1)...cycle to next SNR region'
+       goto 200
    end if
 
    if( vflag .gt. 1 )then
