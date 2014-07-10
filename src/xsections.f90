@@ -93,7 +93,10 @@
          K_END = KMAX
       ELSE
          !PRINT*, 'LAYER : ', NR_LEVEL
+         ! RUN ON TWO LEVELS - THE CURRENT AND THE PREVIOUS TO UN-PRETURB IT
+         ! *** ASSUME PERTURBATION IN CONSECUTIVE LEVEL ORDER ****
          K_START = NR_LEVEL
+         IF (NR_LEVEL .GT. 1 ) K_START = K_START - 1
          K_END = NR_LEVEL
          CROSS(:N1,K_START:K_END,:NCROSS) = 0.D0
       END IF
@@ -106,7 +109,7 @@
             LMIN = LINE1(IBAND)
             LMAX = LINE2(IBAND)
             DO N = LMIN, LMAX
-
+            !print*, iband, k, n, lmin, lmax
 
 !  --- SELECT DISTANCE FROM LINE CENTER FOR CALCULATIONS
                DIST = DELNU

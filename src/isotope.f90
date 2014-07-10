@@ -27,7 +27,7 @@
       IMPLICIT NONE
 
       INTEGER                                :: NISOSEP = 0, NISOVMR
-      INTEGER, DIMENSION(ISOMAX)             :: OLDID, OLDISO, NEWID, NEWISO
+      INTEGER, DIMENSION(ISOMAX)             :: OLDID, OLDISO, NEWID, NEWISO, F_ISOVMR
       REAL(DOUBLE), DIMENSION(LAYMAX,ISOMAX) :: NEWVMR
       REAL(DOUBLE)                           :: ISOSCALE(ISOMAX)
       LOGICAL                                :: USEISO = .FALSE.
@@ -78,7 +78,7 @@
       IF( NISOSEP .GT. ISOMAX )STOP 'TOO MANY ISOTOPE SEPARATIONS REQUESTED'
       DO I=1, NISOSEP
           READ(9,'(A7)') OLDNAME(I)
-          READ(9,*) OLDID(I), OLDISO(I)
+          READ(9,*) OLDID(I), OLDISO(I), F_ISOVMR(I)
           READ(9,'(A7)') NEWNAME(I)
           READ(9,*) NEWID(I), NEWISO(I), NEWMASS(I), NEWMODE(I), NEWTDEP(I), ISOSCALE(I)
           !WRITE(0,*) NEWID(I), NEWISO(I), NEWMASS(I), NEWMODE(I), NEWTDEP(I), ISOSCALE(I)
@@ -90,7 +90,7 @@
           !write(0,*) i, newmode(i)
           IF( NEWMODE(I) .GT. 0 )THEN
              READ(9,*) NEWIVIB(:2,:NEWMODE(I),I)
-             READ(9,*) NEWVMR(:NISOVMR,I)
+             IF( F_ISOVMR(I) .LT. 2 ) READ(9,*) NEWVMR(:NISOVMR,I)
           ENDIF
           NHIISO(NEWID(I))  = 0
           XMASS(:,NEWID(I)) = 0
