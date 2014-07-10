@@ -1610,6 +1610,7 @@ subroutine calcsnr( wavs, amps, npfile, wlim1, wlim2, spac, opdmax, nterp, noise
    write(6,102) 'Mean SNR in snr region : ', mean/noise
 
    deallocate( x, y, z, curve )
+   if( allocated( outspec )) deallocate( outspec )
 
    return
 
