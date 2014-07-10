@@ -495,7 +495,7 @@
                   EXIT
                ENDIF
                CONVERGE = .TRUE.
-               GOTO 20 
+               GOTO 20
             END DO
          ELSE
             DO I = 1, M
@@ -531,14 +531,17 @@
 
       !PRINT*, D_CHI_2_OLD_SE, CHI_2_OLD, CHI_2_OLD_SE, ABS(D_CHI_2_OLD_SE), ABS(D_CHI_2)
 
-
       XHAT(:N) = XNP1(:N)
       CALL FM (XHAT, YHAT, KHAT, M, N, KFLG, -1, TFLG )
 
       IF( F_WRTK )THEN
          CALL FILEOPEN( 66, 2 )
          WRITE(66,*) TRIM(TAG), ' K MATRIX M SPECTRA ROWS X N PARAM COLUMNS'
-         WRITE(66,*) M, N, ISMIX, NLEV
+         IF( IFPRF(1) )THEN
+            WRITE(66,*) M, N, ISMIX, NLEV
+         ELSE
+            WRITE(66,*) M, N, ISMIX, 0
+         ENDIF
          WRITE(66,260) ADJUSTR(PNAME(:N))
          DO I = 1, M
             WRITE(66,261) (KHAT(I,J),J=1,N)
