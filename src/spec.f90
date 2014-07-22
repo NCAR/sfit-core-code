@@ -872,6 +872,7 @@ subroutine sincinterp ( inspec, outspec, n, wlow, space, opdmax, nterp )
    !print *, ' nofpts_in            : ', nofpts_in
 
    if( abs(deltanue_in) .ge. 1.00001d0 / (2.0d0 * opdmax) )then
+      print*, deltanue_in, 1.00001d0 / (2.0d0 * opdmax)
       call warnout('Input spectrum undersampled!...return input spectrum ')
       allocate ( outspec( nofpts_in ))
       outspec = inspec

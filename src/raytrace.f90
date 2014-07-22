@@ -2027,7 +2027,7 @@ END SUBROUTINE READLAYRS
 
       ENDIF ! jspec=1
 
-      !IF( .NOT. F_WRTRAYTC )RETURN
+      IF( .NOT. F_WRTRAYTC )RETURN
 
 ! --- MS & SA
       IF( IREAD .EQ. 0 )THEN
