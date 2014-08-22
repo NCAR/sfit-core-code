@@ -414,12 +414,13 @@
          ENDIF
 
          WRITE (16, 101) I
-         WRITE (16, 102) WAVE3(I), WAVE4(I), ZSHIFT(I,1), IZERO(I), NRETB(I)
+         WRITE (16, 102) WAVE3(I), WAVE4(I), F_ZSHIFT(I), IZERO(I), ZSHIFT(I,1), NRETB(I)
          WRITE (16, 113) OMEGA(I), FOVDIA(I)
 
 ! --- CHECK F_ZSHIFT SWITCH AND DEFEAT IZERO IF NECESSARY
          !IF( .NOT. F_ZSHIFT(I) ) IZERO(I) = 0
-         IF( F_ZSHIFT(I) .AND. IZERO(I) .EQ. 1 ) NKZERO = I
+         ! F_ZERO IS TRUE IF ANY BAND IS FITTING ZERO SHIFT
+         !IF( F_ZSHIFT(I) .AND. IZERO(I) .EQ. 1 ) F_ZERO = .TRUE.
 
 ! --- CHECK GASES TO RETRIEVE IN BAND
          K = NRETB(I)
@@ -516,7 +517,7 @@
 
  101  FORMAT(/,' BANDPASS           : ',I5)
  102  FORMAT(  ' WAVENUMBER RANGE                     : ', F12.6, ' - ', F12.6, /, &
-               ' ZERO LEVEL SHIFT AND SWITCH          : ', F12.6, ', ', I5, /, &
+               ' ZERO LEVEL FIT, TYPE, APRIORI        : ', L4, I5, F12.6, /, &
                ' NUMBER OF RETRIEVAL GASES            : ', I5)
 
 

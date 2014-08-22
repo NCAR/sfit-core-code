@@ -328,7 +328,7 @@
          !.AND. ((CHI_2_OLD.GT.CHI_2_OLD_SE) .OR. (ABS(D_CHI_2_OLD_SE).LT.1.0E-5) .OR. (ABS(D_CHI_2).LT. 1.0E-5))) THEN
          .AND. ((D_CHI_2_OLD_SE .GT. 0.0D0) .OR. (ABS(D_CHI_2_OLD_SE) .LT. 1.0D-5) .OR. (ABS(D_CHI_2) .LT. 1.0D-5))) THEN
          ! CONVERGED
-         PRINT*, "CONVERGE = .TRUE.", CONVERGENCE, D_CHI_2_OLD_SE, D_CHI_2
+         !PRINT*, "CONVERGE = .TRUE.", CONVERGENCE, D_CHI_2_OLD_SE, D_CHI_2
          CONVERGE = .TRUE.
          GOTO 20
       END IF
