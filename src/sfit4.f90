@@ -586,6 +586,7 @@
       INTEGER             :: I, J, K, L1, L2, L3, ORIG_NVAR, POS, NL = 1
 
       WRITE(16,254)
+      WRITE( 6,254)
 
 ! ---  SET DETAILED OUTPUT FILES TO FALSE
       HFLG         = .FALSE.
