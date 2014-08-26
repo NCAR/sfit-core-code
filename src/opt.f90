@@ -247,7 +247,7 @@
       WRITE(16,26) SNR, N, M
       WRITE(6,26) SNR, N, M
 
-      WRITE(6,313) 'ITER', 'RMS', 'GAMMA','CHI_2_X','CHI_2_Y','CHI_2','CHI_2_OLD','D_CHI_2'
+      WRITE(6,313) 'ITER', 'FIT_RMS', 'GAMMA','CHI_2_X','CHI_2_Y','CHI_2','CHI_2_OLD','  D_CHI_2','   D_C_2_O_SE'
 
    10 CONTINUE
       ITER = ITER + 1
@@ -294,26 +294,29 @@
       CHI_2_Y_OLD_SE = DOT_PRODUCT( DY(:M), SEINVDY_OLD_SE(:M) )
       CHI_2_Y_OLD_SE = CHI_2_Y_OLD_SE / M
 
-      CHI_2 = CHI_2_X + CHI_2_Y
+      CHI_2        = CHI_2_X + CHI_2_Y
       CHI_2_OLD_SE = CHI_2_X + CHI_2_Y_OLD_SE
 
       IF (ITER.GT.1)THEN
-         D_CHI_2 = CHI_2_OLD - CHI_2
+         D_CHI_2        = CHI_2_OLD - CHI_2
          D_CHI_2_OLD_SE = CHI_2_OLD - CHI_2_OLD_SE
          DO IBAND=1,NBAND
             IF( IFCALCSE ) THEN
-               WRITE(*,314) ITER, RMS, GAMMA, CHI_2_X, CHI_2_Y,        CHI_2,        CHI_2_OLD, D_CHI_2
-               WRITE(*,315)                 CHI_2_Y_OLD_SE, CHI_2_OLD_SE,            D_CHI_2_OLD_SE
+               WRITE(*,314) ITER, RMS, GAMMA, CHI_2_X,        CHI_2_Y,      CHI_2,        CHI_2_OLD, D_CHI_2
+               WRITE(*,315)                   CHI_2_Y_OLD_SE, CHI_2_OLD_SE, D_CHI_2_OLD_SE
                PRTFLG = .TRUE.
                EXIT
             ENDIF
          ENDDO
          IF (.NOT.PRTFLG) THEN
-            WRITE(*,314) ITER, RMS, GAMMA, CHI_2_X, CHI_2_Y, CHI_2, CHI_2_OLD, D_CHI_2
+            WRITE(*,314) ITER, RMS, GAMMA, CHI_2_X, CHI_2_Y, CHI_2, CHI_2_OLD, D_CHI_2, D_CHI_2_OLD_SE
          ENDIF
       ELSE
          WRITE(*,314) ITER, RMS, GAMMA, CHI_2_X, CHI_2_Y
       ENDIF
+
+ 314  FORMAT(I4,1X,F9.4,1X,ES9.2,1X,4(F9.3,1X),2(F12.6,1X))
+ 313  FORMAT(A4,1X,6(A9,1X),7(A12,1X))
 
       WRITE(16, '(A)') 'COST FUNCTION'
       WRITE(16, '(4(A,1X))') 'CHI_2_X', 'CHI_2_Y', 'CHI_2', 'CHI_2_OLD-CHI_2'
@@ -322,9 +325,10 @@
       IF( ITER.GT.1 &
          .AND. (CONVERGENCE .GT. 0.0) &
          .AND. (D_CHI_2_OLD_SE .LT. CONVERGENCE) &
-         .AND. ((CHI_2_OLD.GT.CHI_2_OLD_SE) .OR. (ABS(D_CHI_2_OLD_SE).LT.1.0E-5) .OR. (ABS(D_CHI_2).LT. 1.0E-5))) THEN
+         !.AND. ((CHI_2_OLD.GT.CHI_2_OLD_SE) .OR. (ABS(D_CHI_2_OLD_SE).LT.1.0E-5) .OR. (ABS(D_CHI_2).LT. 1.0E-5))) THEN
+         .AND. ((D_CHI_2_OLD_SE .GT. 0.0D0) .OR. (ABS(D_CHI_2_OLD_SE) .LT. 1.0D-5) .OR. (ABS(D_CHI_2) .LT. 1.0D-5))) THEN
          ! CONVERGED
-         !PRINT*, "CONVERGE = .TRUE."
+         !PRINT*, "CONVERGE = .TRUE.", CONVERGENCE, D_CHI_2_OLD_SE, D_CHI_2
          CONVERGE = .TRUE.
          GOTO 20
       END IF
@@ -342,6 +346,7 @@
             YN(:M)    = YN_OLD(:M)
             KN(:M*N)  = KN_OLD(:M*N)
             CHI_2     = CHI_2_OLD
+            !print*,'Changing SEINV:', SEINV(1), seinv_old(1)
             SEINV(:M) = SEINV_OLD(:M)
             ! CHI_2_LIN = CHI_2_LIN_OLD;
 ! --- THOSE HAVE TO BE RECALULATED, CAN SURELY BE SHORTCUT A LITTLE BIT.
@@ -359,6 +364,7 @@
 ! --- END CALCULATION COST FUNCTION
 ! --- KEEP OLD STATE INFORMATION -- MP
       XN_OLD(:N)   = XN(:N)
+! --- WE UNDO THIS NEXT LINE IN THE CASE OF NO CONVERGENCE
       YN_OLD(:M)   = YN(:M)
       KN_OLD(:M*N) = KN(:M*N)
       CHI_2_OLD    = CHI_2;
@@ -401,7 +407,7 @@
                VQRMS = SQRT(1.D0/SQRMS)
                SEINV(IYDX1:IYDX2) = SQRMS
                DELY(IYDX1:IYDX2)  = VQRMS
-               WRITE(*,305) IBAND, JSCAN, SQRT(SQRMS)
+               WRITE(*,305) IBAND, JSCAN, 1.0D0/SQRT(SQRMS)
             ENDDO SPC
          ENDDO BND
       ENDIF
@@ -494,6 +500,8 @@
                   EXIT
                ENDIF
                CONVERGE = .TRUE.
+               ! GET LAST ITERATION
+               YN(:M) = YN_OLD(:M)
                GOTO 20
             END DO
          ELSE
@@ -505,6 +513,8 @@
                   EXIT
                ENDIF
                CONVERGE = .TRUE.
+               ! GET LAST ITERATION
+               YN(:M) = YN_OLD(:M)
                GOTO 20
             END DO
          ENDIF
@@ -518,6 +528,8 @@
          WRITE(6,307) ITER
          SNR = SQRT(SUM(SEINV(:M))/M)
          CONVERGE = .FALSE.
+         ! GET LAST ITERATION
+         YN(:M) = YN_OLD(:M)
          GO TO 20
       ELSE
          XN(:N) = XNP1(:N)
@@ -636,19 +648,17 @@
 
       RETURN
 
- 26   FORMAT(/,' AVGSNR=',F12.4,' NVAR=',I3,' NFIT=',I6,/)
+ 26   FORMAT(/,' MEAN_SNR= ', F0.4,'  NVAR= ', I0,'  NFIT= ', I0, /)
 
  260 FORMAT( 2000( 12X, A14 ))
  261 FORMAT( 2000ES26.18 )
  300  FORMAT( 3(A16, ES11.4 ))
- 303 FORMAT(/,'   BAND   SCAN   CALCULATED RMSSNR')
+ 303 FORMAT(/,'   BAND   SCAN       FIT_SNR')
 ! 304  FORMAT( "    BAND    SCAN      SEINV         DELY         SNR" )
- 305  FORMAT( 2I7,F20.2 )
+ 305  FORMAT( 2I7,F14.2 )
 ! 306  FORMAT( A20, 2ES12.4 )
  307  FORMAT(/, ' NO CONVERGENCE AFTER', I4, ' ITERATIONS')
 ! 308  FORMAT( A20, ES12.4 )
- 313  FORMAT(A4,1X,14(A9,1X))
- 314  FORMAT(I4,1X,F9.4,1X,ES9.2,1X,12(F9.3,1X))
  315  FORMAT(2(F12.6,1X)13x,9F12.6)
 
       END SUBROUTINE OPT_3
