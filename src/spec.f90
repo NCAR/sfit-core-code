@@ -872,6 +872,7 @@ subroutine sincinterp ( inspec, outspec, n, wlow, space, opdmax, nterp )
    !print *, ' nofpts_in            : ', nofpts_in
 
    if( abs(deltanue_in) .ge. 1.00001d0 / (2.0d0 * opdmax) )then
+      print*, deltanue_in, 1.00001d0 / (2.0d0 * opdmax)
       call warnout('Input spectrum undersampled!...return input spectrum ')
       allocate ( outspec( nofpts_in ))
       outspec = inspec
@@ -1444,7 +1445,7 @@ subroutine calcsnr( wavs, amps, npfile, wlim1, wlim2, spac, opdmax, nterp, noise
    real      (8), intent(inout) :: noise
    real      (8), dimension(:), allocatable :: x, y, z, curve
    real      (4), dimension(:), allocatable :: outspec
-   integer   (4)                :: i, k, l, iil, iih, np
+   integer   (4)                :: i, k, l, iil, iih, np, order
    integer   (4), dimension(1)  :: ilow, ihi
    real      (8)                :: mind, mean, wstart, dnue, opdm, w1, w2
 
@@ -1595,22 +1596,24 @@ subroutine calcsnr( wavs, amps, npfile, wlim1, wlim2, spac, opdmax, nterp, noise
    !noise = sqrt(dot_product(outspec(iil:iih)-mean, outspec(iil:iih)-mean) / real( np, 8 ) )
 
    ! fit a parabola
-   allocate( x(np), y(np), curve(3) )
+   allocate( x(np), y(np), curve(5) )
    do i=1, np
       x(i) = real(i,8)
    enddo
    !print*, size(x), size( outspec(iil:iih))
-
-   curve(1:3) = polyfit( x, real( outspec(iil:iih), 8 ), np, 2 )
+   curve(:) = 0.0d0
+   order = 4
+   curve(1:order+1) = polyfit( x, real( outspec(iil:iih), 8 ), np, order )
+   !print*, curve(:)
    do i=1, np
-      y(i) = outspec(iil+i-1) - (curve(1) + (curve(2) + curve(3)*x(i) ) * x(i))
+      y(i) = outspec(iil+i-1) - (curve(1) + (curve(2) + (curve(3) + (curve(4) + curve(5)*x(i)) * x(i)) * x(i)) * x(i))
    enddo
 
    if( vflag .gt. 1 )then
       write(66,*)'Exact noise region in resampled spectrum, i, w#, spec, fit, diff'
       write(66,*) 4, np, iil*dnue + wstart, dnue
       do i=1, np
-         write(66,*) x(i), z(iil+i-1), outspec(iil+i-1), (curve(1) + (curve(2) + curve(3)*x(i) ) * x(i)), y(i)
+         write(66,*) x(i), z(iil+i-1), outspec(iil+i-1), (curve(1) + (curve(2) + (curve(3) + (curve(4) + curve(5)*x(i)) * x(i)) * x(i)) * x(i)), y(i)
       enddo
       close(66)
    endif

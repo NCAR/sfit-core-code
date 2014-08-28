@@ -422,10 +422,11 @@
                   KZERO = KZERO + 1
                   ZSHIFT(IBAND,JSCAN) = PARM(NBKFIT+NSHIFT+KZERO)
                   ZSHIFTSAV(JSCAN) = ZSHIFT(IBAND,JSCAN)
-               ELSE IF (IZERO(IBAND) == 2 ) THEN
+               ELSE IF (IZERO(IBAND) == 2 .AND. NZERO .GT. 0) THEN
                   ! if we're not calculating it then use shift from band from this spec that we are fitting
                   ZSHIFT(IBAND,JSCAN) = ZSHIFTSAV(JSCAN)
                ENDIF
+               !print* , IBAND, JSCAN, IZERO(IBAND), ZSHIFT(IBAND,JSCAN)
 
 !  --- DETERMINE PHASE ERROR TO APPLY
                PHI = 0.D0
@@ -751,8 +752,8 @@
  18   FORMAT(/,' !!! ABORT !!! TCALC ARRAY OVERFLOW : ',/,' N1    =',I10, &
          ' N2    =',I10,' IBAND =',I6,/,' NSTART=',I6,' MSHIFT=',I10, &
          ' MONONE=',I6,/,' NPRIM =',I6,' NSPAC =',I6)
- 26   FORMAT(/,' ITER=',I2,' AVGSNR=',F12.4,' RMS(%)=',F10.7,' NVAR=',I3,' NFIT=',I6)
- 27   FORMAT(/,' FINAL:   AVGSNR=',F12.4,' RMS(%)=',F10.7,' NVAR=',I3,' NFIT=',I6)
+ 26   FORMAT(/,' ITER=',I0,'  MEAN_SNR= ',F0.4, '  MEAN_FIT_RMS(%)= ',F0.5,'  NVAR= ',I0,'  NFIT= ',I0)
+ 27   FORMAT(/,' FINAL:    MEAN_SNR= ', F0.4,'  MEAN_FIT_RMS(%)= ', F0.5,'  NVAR= ',I0,'  NFIT= ',I0)
 ! 28   FORMAT(/,/,' ITER=',I2,' RMS(%)=',F10.7)
 
  !162  FORMAT(/,' EFFECTIVE APODIZATION PARAMETER =',F8.3)
