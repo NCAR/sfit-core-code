@@ -303,7 +303,7 @@
          DO IBAND=1,NBAND
             IF( IFCALCSE ) THEN
                WRITE(*,314) ITER, RMS, GAMMA, CHI_2_X,        CHI_2_Y,      CHI_2,        CHI_2_OLD, D_CHI_2
-               WRITE(*,315)                   CHI_2_Y_OLD_SE, CHI_2_OLD_SE, D_CHI_2_OLD_SE
+               !WRITE(*,315)                   CHI_2_Y_OLD_SE, CHI_2_OLD_SE, D_CHI_2_OLD_SE
                PRTFLG = .TRUE.
                EXIT
             ENDIF
@@ -407,7 +407,7 @@
                VQRMS = SQRT(1.D0/SQRMS)
                SEINV(IYDX1:IYDX2) = SQRMS
                DELY(IYDX1:IYDX2)  = VQRMS
-               WRITE(*,305) IBAND, JSCAN, 1.0D0/SQRT(SQRMS)
+               !WRITE(*,305) IBAND, JSCAN, 1.0D0/SQRT(SQRMS)
             ENDDO SPC
          ENDDO BND
       ENDIF
@@ -603,7 +603,7 @@
             IYDX2 = ISCNDX(2,IBAND,JSCAN)
             SQRMS = (IYDX2-IYDX1)/DOT_PRODUCT(DY(IYDX1:IYDX2),DY(IYDX1:IYDX2))
             SNR_CLC(IBAND,JSCAN) = SQRT(SQRMS)
-            WRITE(*,305) IBAND, JSCAN, SNR_CLC(IBAND,JSCAN)
+            WRITE(*,305) IBAND, JSCAN, SCNSNR(IBAND,JSCAN), SNR_CLC(IBAND,JSCAN)
          ENDDO
       ENDDO
 
@@ -653,9 +653,9 @@
  260 FORMAT( 2000( 12X, A14 ))
  261 FORMAT( 2000ES26.18 )
  300  FORMAT( 3(A16, ES11.4 ))
- 303 FORMAT(/,'   BAND   SCAN       FIT_SNR')
+ 303 FORMAT(/,'   BAND   SCAN      INIT_SNR       FIT_SNR')
 ! 304  FORMAT( "    BAND    SCAN      SEINV         DELY         SNR" )
- 305  FORMAT( 2I7,F14.2 )
+ 305  FORMAT( 2I7,2F14.2 )
 ! 306  FORMAT( A20, 2ES12.4 )
  307  FORMAT(/, ' NO CONVERGENCE AFTER', I4, ' ITERATIONS')
 ! 308  FORMAT( A20, ES12.4 )
