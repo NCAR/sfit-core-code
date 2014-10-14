@@ -79,7 +79,7 @@ contains
              CALL SHUTDOWN
              STOP 1
           end select
-          
+
        elseif( trim(adjustl(keyword(2))) .eq. 'out' )then
 
        select case(trim(adjustl(keyword(3))))
@@ -137,7 +137,7 @@ contains
        CALL SHUTDOWN
        STOP 1
     endif
- 
+
 end subroutine read_file_section
 
 
@@ -523,7 +523,7 @@ end subroutine read_file_section
        else
           select case (trim(adjustl(keyword(3))))
           case ('sigma')
-             read(value,*) tsigma(1:nlayers)
+             read(value,*) tsigma(1:nlayers+ncell)
           end select
        end if
     case ('lm')
@@ -672,6 +672,73 @@ end subroutine read_file_section
 
   end subroutine read_rt_section
 
+
+ subroutine read_cell_section(keyword, value)
+
+    implicit none
+    character (len=*), dimension(*),intent(in) :: keyword
+    character (len=*), intent(in) :: value
+
+    integer :: pos, nr, nr_cell, nr_cell_2
+    character (len=1023)  :: val
+    logical :: flag
+
+    if (len_trim(keyword(2)).eq.0) then
+       val = adjustl(trim(value))
+       nr_cell = 0
+       pos = index(adjustl(val),' ')
+       do
+          if (len_trim(val).eq.0) exit
+          ncell = ncell + 1
+          if (pos.gt.0) then
+             read(val(1:pos),*) ncells(ncell)
+          else
+             read(val(1:len_trim(adjustl(val))),*) ncells(ncell)
+             exit
+          end if
+          val = adjustl(val(pos+1:len(val)))
+          pos = index(trim(adjustl(val)),' ')
+       end do
+       return
+    else
+       read(keyword(2),*) nr_cell_2
+    end if
+
+    flag = .false.
+
+    do nr = 1, ncell
+       if (nr_cell_2.eq.ncells(nr)) then
+          flag = .true.
+          nr_cell = nr
+       end if
+    end do
+
+    if (.not.flag) return
+
+    select case (trim(adjustl(keyword(3))))
+    case ('temperature')
+       read(value,*) ctemp(nr_cell)
+    case ('pressure')
+       read(value,*) cpres(nr_cell)
+    case ('gas')
+       read(value,*) cgas(nr_cell)
+    case ('vmr')
+       read(value,*) cvmr(nr_cell)
+    case ('path')
+       read(value,*) cpath(nr_cell)
+
+   case default
+       WRITE(16,*) 'BINPUT_PARSE_4_0:READ_CELL_SECTION: Key ', trim(keyword(3)), ' not contained in section : cell'
+       WRITE( 0,*) 'BINPUT_PARSE_4_0:READ_CELL_SECTION: Key ', trim(keyword(3)), ' not contained in section : cell'
+       CALL SHUTDOWN
+       STOP 1
+   end select
+ end subroutine read_cell_section
+
+
+
+
+
   subroutine read_band_section(keyword, value)
 
     implicit none
@@ -737,8 +804,8 @@ end subroutine read_file_section
     case ('nu_stop')
        read(value, *) wave4(nr_band)
     case ('snr')
-       read(value,*) scnsnr(nr_band,1)
-       scnsnr(nr_band,2:maxspe) = scnsnr(nr_band,1)
+       read(value,*) scnsnr(1,nr_band,1)
+       scnsnr(1,nr_band,2:maxspe) = scnsnr(1,nr_band,1)
     case ('gasb')
        val = value
        pos = index(adjustl(trim(val)),' ')

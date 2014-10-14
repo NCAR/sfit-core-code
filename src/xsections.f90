@@ -83,14 +83,14 @@
       GI = 0
       QT = 0.0D0
       QTSTDTEMP = 0.0D0
-
+!print*,'kro'
 !  --- INITIALIZE X-SECTION ARRAYS
       N1 = NRET + 1
 
       IF (NR_LEVEL.LT.0) THEN
          CROSS(:N1,:KMAX,:NCROSS) = 0.D0
          K_START = 1
-         K_END = KMAX
+         K_END = KMAX + NCELL !NPATH
       ELSE
          !PRINT*, 'LAYER : ', NR_LEVEL
          ! RUN ON TWO LEVELS - THE CURRENT AND THE PREVIOUS TO UN-PRETURB IT
@@ -104,12 +104,17 @@
 !                    ------------ LOOP OVER BANDPASSES
       DO IBAND = 1, NBAND
 !                    ------------ LOOP OVER LAYERS
+
+!print*, 'kro 1 ', k_start, k_end
          DO K = K_START, K_END
 !                    ------------ LOOP OVER SPECTRAL LINES
+
+!print*, 'kro 2 ', k, T(K), P(K)
+
             LMIN = LINE1(IBAND)
             LMAX = LINE2(IBAND)
             DO N = LMIN, LMAX
-            !print*, iband, k, n, lmin, lmax
+!print*, 'kro 3 ',iband, k, n, lmin, lmax
 
 !  --- SELECT DISTANCE FROM LINE CENTER FOR CALCULATIONS
                DIST = DELNU
@@ -119,7 +124,7 @@
 !              ... DEFAULT MOL AND ISO ID
                MO  = ICODE(IMOL)
                ISO = ISCODE(IMOL)
-
+!print*, 'kro 4 ', mo
 !  --- CHECK FOR ISOTOPE SEPARATION
                DO I=1, NISOSEP
                    IF((MO .EQ. NEWID(I)) .AND. (ISO .EQ. NEWISO(I)))THEN
@@ -196,8 +201,8 @@
                SDVLM_PARAM(1:4) = 0.0D0
                IF (HFLAG(N,SDV_FLAG)) THEN
                   SDVLM_PARAM(1) = GAMMA2(N)*P(K) ! ASYMMETRY FOR SDV (MIXING COEFFICIENT)
-                  SDVLM_PARAM(2) = GAMMA0(N) ! PRESSURE BROADENING FOR SDV
-                  SDVLM_PARAM(3) = 0.0!ETA2(N)   ! PRESSURE SHIFT FOR SPEED DEPENDENT VOIGT
+                  SDVLM_PARAM(2) = GAMMA0(N)      ! PRESSURE BROADENING FOR SDV
+                  SDVLM_PARAM(3) = 0.0!ETA2(N)    ! PRESSURE SHIFT FOR SPEED DEPENDENT VOIGT
                END IF
                ! LINE MIXING PARAMETRIZATION ACCORDING TO HASE.  FOR CO2 ONLY?
                IF (HFLAG(N,LM_FLAG)) THEN
@@ -218,10 +223,11 @@
                IF ( HFLAG(N,SDV_FLAG) .OR. HFLAG(N,LM_FLAG) )THEN
                   CALL SDV_MISC(ALOGSQ/ADOP, STDTEMP/T(K), P(K), TDLIN(N), SDVLM_PARAM)
                ENDIF
-               DO I = 1, NRET
+               DO I = 1, NRET + NCELL
                   IF (LGAS(N) /= IRET(I)) CYCLE
                   NPOINT = I
                   OPTMAX = PMASMX(K)*XORG(I,K)
+                  !print*, 'kro xorg(ik) ',i,k, XORG(I,K), PMASMX(K), optmax
                   GO TO 349
                END DO
                NPOINT = NRET + 1
@@ -248,19 +254,24 @@
 !  --- SKIP OVER LINE IF OPTICAL DEPTH AT LINE CENTER IS LESS
 !  --- THAN TAUMIN
                IF (OPTCEN < TAUMIN) CYCLE
+               !print*, 'kro 6 here'
+
 !  --- CALCULATE DISTANCE FROM LINE CENTER CORRESPONDING TO OPTICAL
 !  --- DEPTH OF TAUMIN FOR A LORENTZ LINE
                DELLOR = SQRT(SSL*ALOR*OPTMAX/(TAUMIN*PI))
+!print*, 'kro 7 ',dist, DELLOR, SSL, ALOR, OPTMAX, TAUMIN
 !  --- EXTEND CALCULATIONS FURTHER INTO THE WINGS IF NECESSARY
                IF (DELLOR > DELNU) DIST = DELLOR
 !  --- CORRECT POSITION FOR PRESSURE SHIFT
                WLIN = AZERO(N) + P(K)*PSLIN(N)
+!print*, 'kro 8 azero ', AZERO(N), P(K), PSLIN(N)
 !  --- IF NO PRESSURE SHIFT
                IF( .NOT. FPS ) WLIN = AZERO(N)
                START = WLIN - DIST
                SSTOP = WLIN + DIST
                JSTART = FLOOR((START - WMON(IBAND))/DN(IBAND) + 1.00000001D0)
                JSTOP = FLOOR((SSTOP - WMON(IBAND))/DN(IBAND) + 1.00000001D0)
+!print*, 'kro 9 ',WLIN, dist, START, sstop, jstart, jstop, WMON(IBAND)
                IF (JSTOP < 1) CYCLE
                IF (JSTART > NM(IBAND)) CYCLE
                JSTART = MAX0(1,JSTART)
@@ -282,10 +293,10 @@
                      AKV  = AKZERO*VOIGT(XDUM,YDUM)
                   ENDIF
                   CROSS(NPOINT,K,J+INDXX) = CROSS(NPOINT,K,J+INDXX) + AKV*OPTMAX
-                  !print*, j, k, CROSS(NPOINT,K,J+INDXX)
+                  !print*, npoint, indxx, j, k, CROSS(NPOINT,K,J+INDXX), AKV, OPTMAX, xdum, ydum
                ENDDO ! J
             ENDDO ! LINES
-            !print*, j-1, CROSS(NPOINT,K,J-1+INDXX)
+            !print*, 'kro 10 ',j-1, NPOINT, K, J, INDXX !, CROSS(NPOINT,K,J-1+INDXX)
          ENDDO ! LAYERS
          INDXX = INDXX + NM(IBAND)
       ENDDO !BANDS

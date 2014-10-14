@@ -194,7 +194,7 @@
       REAL(DOUBLE), DIMENSION(MAXBND), INTENT(IN)        :: FOVDIA
       REAL(DOUBLE), DIMENSION(MOLMAX,LAYMAX), INTENT(IN) :: VERSUM, VOSUM
       INTEGER, INTENT(IN)                                :: ITER, NLEV
-      INTEGER I, J
+      INTEGER                                            :: I, J, ICELL
 
       CALL FILEOPEN( 20, 1 )
 
@@ -206,17 +206,23 @@
       ENDDO
 
       WRITE(20,101) NRET
-      WRITE(20,'(A)') ' IRET   GAS_NAME  IFPRF       APR_COLUMN    RET_COLUMN'
-      DO I=1,NRET
-         WRITE(20,102) I, ADJUSTR(NAME(IGAS(I))), IFPRF(I), VOSUM(I,NLEV), VERSUM(I,NLEV)
+      WRITE(20,'(A)') ' IRET   GAS_NAME  IFPRF IFCELL APR_COLUMN    RET_COLUMN'
+      ICELL = 0
+      DO I=1, NRET
+         ICELL = ICELL + 1
+         IF( IFCELL(I) )THEN
+            WRITE(20,102) I, ADJUSTR(NAME(IGAS(I))), IFPRF(I), IFCELL(I), VOSUM(I,NLEV+ICELL), VERSUM(I,NLEV+ICELL)
+         ELSE
+            WRITE(20,102) I, ADJUSTR(NAME(IGAS(I))), IFPRF(I), IFCELL(I), VOSUM(I,NLEV+ICELL), VERSUM(I,NLEV+ICELL)
+         ENDIF
       END DO
 
       WRITE(20,101) NBAND
-      WRITE(20,'(A,A)') 'IBAND       NUSTART        NUSTOP         SPACE     NPTSB     PMAX    FOVDIA   MEAN_FIT_SNR  NSCAN  JSCAN     INIT_SNR      FIT_SNR'
-      DO I=1,NBAND
+      WRITE(20,'(A,A)') 'IBAND       NUSTART        NUSTOP         SPACE     NPTSB     PMAX    FOVDIA   MEAN_FIT_SNR  NSCAN  JSCAN     INIT_SNR     EFF_SNR      FIT_SNR'
+      DO I=1, NBAND
          WRITE(20,103) I, WAVE3(I), WAVE4(I), SPAC(I), NPRIM(I), PMAX(I), FOVDIA(I), SUM(SNR_CLC(I,1:NSCAN(I)))/DBLE(NSCAN(I)), NSCAN(I)
          DO J=1,NSCAN(I)
-            WRITE(20,104) J, SCNSNR(I,J), SNR_CLC(I,J)
+            WRITE(20,104) J, SCNSNR(:2,I,J), SNR_CLC(I,J)
          ENDDO
       ENDDO
 
@@ -229,7 +235,7 @@
 
  100 FORMAT( /, A )
  101 FORMAT( /, I10 )
- 102 FORMAT( I5, 4X, A7, L7, 3X, 2ES14.5 )
+ 102 FORMAT( I5, 4X, A7, 2L7, 3X, 2ES14.5 )
  103 FORMAT( I5, 2F14.5, 2X,F12.9, I10, F9.2, F10.6, F15.6, I7, 3F13.6 )
  104 FORMAT( I105, 3F13.3 )
  105 FORMAT( F13.6, 1x, F13.6, 3(F12.3,1X), 2(I9,1X), 2L10 )
@@ -337,8 +343,7 @@
             K = K + 1
             JSCAN = ISCAN(IBAND,J)
             WRITE(8,'(A80)') STITLE(K)
-            WRITE(8, 37905) ISPEC(JSCAN), SPAC(IBAND), NPRIM(IBAND), WSTART(IBAND), WSTOP(IBAND), &
-                            Z(KZTAN(JSCAN)), IBAND, J, NRETB(IBAND)
+            WRITE(8, 37905) ISPEC(JSCAN), SPAC(IBAND), NPRIM(IBAND), WSTART(IBAND), WSTOP(IBAND), 0.0, IBAND, J, NRETB(IBAND)
             IB = 0
             INDXX = ISCNDX(1,IBAND,J) -1
  3790       CONTINUE
@@ -391,7 +396,7 @@
       ENDIF
       WRITE (18, *)
       WRITE (18, *) NRET
-      DO I = 1, NRET
+      DO I = 1, NRET - NCELL
          WRITE (18, 507) 'A Priori', NAME(IGAS(I))
          WRITE (18, 506) VOSUM(I,NLEV)
          WRITE (18, 506) (XORG(I,J),J=1,NLEV)

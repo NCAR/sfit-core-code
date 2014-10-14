@@ -52,7 +52,7 @@
       REAL(DOUBLE), INTENT(OUT) :: YN(NFIT)
       REAL(DOUBLE), INTENT(OUT) :: KN(NFIT,NVAR)
 
-      LOGICAL :: BUG1 = .FALSE., IFCOSAVE=.FALSE.
+      LOGICAL :: BUG1 = .TRUE., IFCOSAVE=.FALSE.
 
       CHARACTER :: GASFNAME*(IFLNMSZ)
       CHARACTER :: TITLE*(80)
@@ -93,7 +93,7 @@
 !                    do fft                              ismix
 
       TFLG = .FALSE.
-      BUG1 = .FALSE. !.TRUE.
+      BUG1 = .FALSE.
       ! if line parameters are disturbed, get some space to store original ones
       if (nrlgas /= 0 .and. .not. allocated(store_line)) then
          allocate(store_line(4,LNMAX))
@@ -286,7 +286,9 @@
 
 ! --- SCALING VERTICAL DISTRIBUTION
                NCOUNT = NCOUNT + 1
-               X(KK,:KMAX) = PARM(NCOUNT)*XORG(KK,:KMAX)
+               X(KK,:NPATH) = PARM(NCOUNT)*XORG(KK,:NPATH)
+
+               !print*, 'fwdmdl ', ncount, kmax, npath, kk, X(KK,:NPATH), PARM(NCOUNT), XORG(KK,:NPATH)
             ENDIF
          END DO
 
@@ -297,12 +299,16 @@
             ! --- ONLY CONSIDERING PROFILE FIT
             K = IPARM - NCOUNT
             ! --- KMAX + 1 PASSES TO UN-PERTURB FINAL TEMPERATURE
-            IF( K .GE. 1 .AND. K .LE. KMAX + 1 )THEN
+            !IF( K .GE. 1 .AND. K .LE. KMAX + 1 )THEN
+            IF( K .GE. 1 .AND. K .LE. NPATH + 1 )THEN
                TRET = .TRUE.
-               T(:KMAX) = PARM(NCOUNT+1:NCOUNT+KMAX) * TORG(:KMAX)
-               NCOUNT = NCOUNT + KMAX
+               !T(:KMAX) = PARM(NCOUNT+1:NCOUNT+KMAX) * TORG(:KMAX)
+               !NCOUNT = NCOUNT + KMAX
+               T(:NPATH) = PARM(NCOUNT+1:NCOUNT+NPATH) * TORG(:NPATH)
+               NCOUNT = NCOUNT + NPATH
                   !CALL LBLATM( ITER, KMAX )
-                  IF (K .GT. KMAX) K = KMAX
+                  !IF (K .GT. KMAX) K = KMAX
+                  IF (K .GT. NPATH) K = NPATH
                   CALL MASSPATH( K )
                   CALL SETUP3( XSC_DETAIL, K )
             ENDIF ! K
@@ -333,7 +339,13 @@
 
          IF ((.NOT.ANALYTIC_K).OR.(.NOT.XRET).OR.(TRET).OR.(ICOUNT.EQ.1).or.FLINE.or.FSZA) THEN
             CALL TALL
-            IF( BUG1 )PRINT*, '    TALL', IPARM
+            IF( BUG1 )THEN
+               IF(ICOUNT.GT.1) THEN
+                  PRINT*, '    TALL', IPARM, PNAME(IPARM)
+               ELSE
+                  PRINT*, '    TALL', IPARM, NCOUNT
+               ENDIF
+            ENDIF
             !print*, nmonsm, TCALC(1,:100)
             !stop
          ELSE
@@ -700,6 +712,7 @@
 
    17 CONTINUE
       WRITE (16, 18) N1, N2, IBAND, NSTART(IBAND), MSHIFT, MONONE, NPRIM(IBAND), NSPAC(IBAND)
+      WRITE ( 0, 18) N1, N2, IBAND, NSTART(IBAND), MSHIFT, MONONE, NPRIM(IBAND), NSPAC(IBAND)
       WRITE (16,*) "WAVENUMBER SHIFT OUT OF SPECTRAL RANGE."
       WRITE ( 0,*) "WAVENUMBER SHIFT OUT OF SPECTRAL RANGE."
       TFLG=.TRUE.

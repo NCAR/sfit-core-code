@@ -87,8 +87,8 @@
          REAL(4) :: UW               ! UPPER STAT WT
          REAL(4) :: LW               ! LOWER STAT WT
          REAL(4) :: BT               ! GALATRY BETA0
-         REAL(4) :: GAMMA0           ! GAMMA 0 
-         REAL(4) :: GAMMA2           ! GAMMA 2 
+         REAL(4) :: GAMMA0           ! GAMMA 0
+         REAL(4) :: GAMMA2           ! GAMMA 2
          REAL(4) :: SHIFT0           ! PRESSURE SHIFT FOR GEN LINESHAPE
          REAL(4) :: SHIFT2           ! TEMPERATURE DEPENDENCY OF PRESSURE SHIFT FOR GEN LINESHAPE
          REAL(4) :: LMTK1            ! LMTK1 for Line Mixing
@@ -139,6 +139,7 @@
          DO I=1, TNBAND
             READ(14) K, TW5, TW6
             IF(( (TW5-WAVE5(K)) .GT. 0.0) .OR. ((TW6-WAVE6(K)) .LT. 0.0 )) THEN
+               !print*, TW5, WAVE5(K), TW6, WAVE6(K)
                WRITE(16,151) K, TW5-WAVE5(K), TW6-WAVE6(K),'  HITRAN LIST WINDOW AND RETRIEVAL WINDOW MISMATCH'
                WRITE( 6,151) K, TW5-WAVE5(K), TW6-WAVE6(K),'  HITRAN LIST WINDOW AND RETRIEVAL WINDOW MISMATCH'
                !STOP ': LINEPARAM HITRAN LIST & RETRIEVAL WINDOW MISMATCH'
@@ -209,21 +210,23 @@
          ENDIF
       END DO
 
-!  --- NEW GAS-ADD TO LIST
-      NGAS          = NGAS + 1
+!  --- NEW GAS - ADD TO LIST SORTED BY GAS
+      NGAS          = NGAS + 1         ! TOTAL # OF GASES
       IF( NGAS > MAXGAS )GOTO 670
-      ICODE(NGAS)   = MO
-      ISCODE(NGAS)  = ISO
-      NMOLINE(NGAS) = 1
+      ICODE(NGAS)   = MO               ! HITRAN ID OF THIS LINE
+      ISCODE(NGAS)  = ISO              ! HITRAN ISOTOPE ID OF THIS GAS
+      NMOLINE(NGAS) = 1                ! # OF LINES FOR THIS GAS
 
 2268  CONTINUE
 
 !  --- LOOP THROUGH MIXING RATIO LIST FOR PROFILE FOR THIS LINE
       DO I=1, NMOL
+!print*, 'linep ',TRIM(HMOLS(I)) , '  ',  TRIM(NAME(ICODE(NGAS)))
          IF( TRIM(HMOLS(I)) .EQ. TRIM(NAME(ICODE(NGAS))))THEN
-            XGAS(NGAS,:KMAX) = FXGAS(I,:KMAX)
+            XGAS(NGAS,:NPATH) = FXGAS(icode(ngas),:NPATH)
             IFMIX(NGAS) = 1
-            IF( SUM(FXGAS(I,:KMAX)) .LE. 0.0D0 ) IFMIX(NGAS) = 0
+            IF( SUM(FXGAS(icode(ngas),:NPATH)) .LE. 0.0D0 ) IFMIX(NGAS) = 0
+!print*, 'linep ',I, TRIM(NAME(ICODE(NGAS))), ngas, npath, ICODE(NGAS), ifmix(ngas), FXGAS(icode(ngas),:NPATH), XGAS(NGAS,:NPATH)
 !  --- ADD LINE TO LIST
             NLINES = NLINES + 1
             LGAS(NLINES) = NGAS
@@ -270,8 +273,8 @@
       BETA(NLINES)   = B0
       GAMMA0(NLINES) = G0
       GAMMA2(NLINES) = G2
-      SHIFT0(NLINES)   = S0
-      SHIFT2(NLINES)   = S2
+      SHIFT0(NLINES) = S0
+      SHIFT2(NLINES) = S2
       LMTK1(NLINES)  = L1
       LMTK2(NLINES)  = L2
       YLM(NLINES)    = L3
@@ -374,6 +377,7 @@
             IF (NLINES == 1) LINE1(IBAND) = I
             LINE2(IBAND) = I
          END DO
+         I = IBAND
          IF (NLINES == 0) GO TO 667
          WRITE (16, 302) IBAND, WAVE5(IBAND), LINE1(IBAND), WAVE6(IBAND), LINE2(IBAND)
       END DO
@@ -419,8 +423,8 @@
       CALL SHUTDOWN
       STOP '2'
   667 CONTINUE
-      WRITE (16, 101) IBAND
-      WRITE ( 0, 101) IBAND
+      WRITE (16, 101) I
+      WRITE ( 0, 101) I
       CALL SHUTDOWN
       STOP '2'
   668 CONTINUE

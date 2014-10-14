@@ -37,13 +37,13 @@ FFLAGS = -Warray-bounds -Wcharacter-truncation -Wunused-parameter \
          -ffpe-trap=invalid,zero,overflow,underflow -g -fbacktrace -fsanitize=address
 
 # -Warray-temporaries too many...
-
+# -ffpe-trap=invalid,zero,overflow,underflow
 #error check a lot
-FFLAGS = -Wall -fno-automatic -fcheck=all -ffpe-trap=invalid,zero,overflow,underflow -Warray-bounds \
+FFLAGS = -ffree-line-length-none -Wall -fno-automatic -fcheck=all -Warray-bounds \
          -fbounds-check -fbacktrace -g
 
 # optimize -Ofast v4.8
-FFLAGS = -Wall -fno-automatic -frepack-arrays  -ffree-line-length-none
+#FFLAGS = -Wall -fno-automatic -frepack-arrays  -ffree-line-length-none
 
 # supply compile date:
 # -cpp -DBDATE="\"`date +%Y%m%d`"\" -O2 -fno-automatic
