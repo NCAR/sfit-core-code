@@ -304,7 +304,7 @@
          DO IBAND=1,NBAND
             IF( IFCALCSE ) THEN
                WRITE(*,314) ITER, RMS, GAMMA, CHI_2_X,        CHI_2_Y,      CHI_2,        CHI_2_OLD, D_CHI_2
-               WRITE(*,315)                   CHI_2_Y_OLD_SE, CHI_2_OLD_SE, D_CHI_2_OLD_SE
+               !WRITE(*,315)                   CHI_2_Y_OLD_SE, CHI_2_OLD_SE, D_CHI_2_OLD_SE
                PRTFLG = .TRUE.
                EXIT
             ENDIF
@@ -408,7 +408,7 @@
                VQRMS = SQRT(1.D0/SQRMS)
                SEINV(IYDX1:IYDX2) = SQRMS
                DELY(IYDX1:IYDX2)  = VQRMS
-               WRITE(*,305) IBAND, JSCAN, 1.0D0/SQRT(SQRMS)
+               !WRITE(*,305) IBAND, JSCAN, 1.0D0/SQRT(SQRMS)
             ENDDO SPC
          ENDDO BND
       ENDIF
