@@ -994,12 +994,12 @@
 
 
       ! --- TEMPERATURE RETRIEVAL
+      NTEMP1 = NVAR
       IF( IFTEMP )THEN
          NTEMP = NLAYERS
          PNAME(NVAR+1:NVAR+NTEMP) = 'TEMPERAT'
          PARM(NVAR+1:NVAR+NTEMP)  = 1.D0
          SPARM(NVAR+1:NVAR+NTEMP) = TSIGMA(1:NTEMP)
-         NTEMP1 = NVAR + 1
          NVAR = NVAR + NTEMP
       ENDIF
 

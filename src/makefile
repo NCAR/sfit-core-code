@@ -40,10 +40,10 @@ FFLAGS = -Warray-bounds -Wcharacter-truncation -Wunused-parameter \
 
 #error check a lot
 FFLAGS = -Wall -fno-automatic -fcheck=all -ffpe-trap=invalid,zero,overflow,underflow -Warray-bounds \
-         -fbounds-check -fbacktrace -g
+         -fbounds-check -fbacktrace -g -ffree-line-length-none
 
 # optimize -Ofast v4.8
-FFLAGS = -Wall -fno-automatic -frepack-arrays  -ffree-line-length-none
+#FFLAGS = -Wall -fno-automatic -frepack-arrays  -ffree-line-length-none
 
 # supply compile date:
 # -cpp -DBDATE="\"`date +%Y%m%d`"\" -O2 -fno-automatic
