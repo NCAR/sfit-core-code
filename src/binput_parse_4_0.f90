@@ -460,8 +460,9 @@ end subroutine read_file_section
        read(value,*) f_kb_solstrnth
     case ('phase')
        read(value,*) f_kb_phase
-    case ('dwshift')
-       read(value,*) f_kb_ifdiff
+       ! dwshift error calculation not sensible!!!
+!    case ('dwshift')
+!       read(value,*) f_kb_ifdiff
     case ('wshift')
        read(value,*) f_kb_wshift
     case ('apod_fcn')
