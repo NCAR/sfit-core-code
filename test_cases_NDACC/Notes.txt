@@ -1,5 +1,6 @@
 testcase	tested with version 
-		NOV 14 2014
+		v0.9.4.5
+		14-11-2014
 x.co		x
 x.co2.f2	x
 x.hcl		x
@@ -8,4 +9,4 @@ x.hf		x
 x.no		x
 x.o3		x
 x.ccl4		x
-x.co2.f4        fails with a segmentation fault
+x.co2.f4        x
