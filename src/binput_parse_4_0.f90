@@ -225,9 +225,9 @@ end subroutine read_file_section
              case ('maxalt')
                 read(value,*) zgmax(nr)
              case default
-                WRITE(16,*) 'BINPUT_PARSE_4_0:READ_GAS_SECTION: Key ', trim(keyword(4)), &
+                WRITE(16,*) 'BINPUT_PARSE_4_0:READ_GAS_SECTION: Key ', trim(keyword(5)), &
                             ' not contained in section gas...correlation'
-                WRITE( 0,*) 'BINPUT_PARSE_4_0:READ_GAS_SECTION: Key ', trim(keyword(4)), &
+                WRITE( 0,*) 'BINPUT_PARSE_4_0:READ_GAS_SECTION: Key ', trim(keyword(5)), &
                             ' not contained in section gas...correlation'
                 CALL SHUTDOWN
                 STOP 1
@@ -526,9 +526,9 @@ end subroutine read_file_section
           case ('order')
              read(value,*) abscont_order
           case ('apriori')
-             read(value,'(f3.1)') (abscont_param(nr), nr=1,CONT_POLY_MAX)
+             read(value,'(f3.1)') abscont_param(1)
           case ('sigma')
-             read(value,'(f3.1)') (abscont_sparam(nr), nr=1,CONT_POLY_MAX)
+             read(value,'(f3.1)') abscont_sparam(1)
           end select
        endif
     case ('temperature')
@@ -677,8 +677,8 @@ end subroutine read_file_section
     case ('dwshift')
        read(value, *) ifdiff
     case default
-       WRITE(16,*) 'BINPUT_PARSE_4_0:READ_RT_SECTION: Key ', trim(keyword(2)), ' not contained in section : rt'
-       WRITE( 0,*) 'BINPUT_PARSE_4_0:READ_RT_SECTION: Key ', trim(keyword(2)), ' not contained in section : rt'
+       WRITE(16,*) 'BINPUT_PARSE_4_0:READ_RT_SECTION: Key ', trim(keyword(3)), ' not contained in section : rt'
+       WRITE( 0,*) 'BINPUT_PARSE_4_0:READ_RT_SECTION: Key ', trim(keyword(3)), ' not contained in section : rt'
        CALL SHUTDOWN
        STOP 1
     end select
@@ -894,8 +894,8 @@ end subroutine read_file_section
           read(value, *) gstnr(nr_snr)
        end select
        case default
-          print*, 'Key ', trim(keyword(2)), ' not contained in section : sp'
-          write(16,*) 'Key ', trim(keyword(2)), ' not contained in section : sp'
+       WRITE(16,*) 'BINPUT_PARSE_4_0:READ_BAND_SECTION: Key ', trim(keyword(4)), ' not contained in section : sp'
+       WRITE( 0,*) 'BINPUT_PARSE_4_0:READ_BAND_SECTION: Key ', trim(keyword(4)), ' not contained in section : sp'
        end select
 
      end subroutine read_spectrum_section
