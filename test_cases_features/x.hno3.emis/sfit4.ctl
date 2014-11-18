@@ -62,10 +62,10 @@
  rt.slope                    =               F
  rt.slope.apriori            =           0.000
  rt.slope.sigma              =           0.100
- rt.continuum                = F
- rt.continuum.type = 1
- rt.continuum.strength       = 0.0
- rt.continuum.tilt       = 0.0
+ rt.continuum                =T 
+ rt.continuum.order = 0
+ rt.continuum.apriori = 0.0
+ rt.continuum.sigma       = 1.0
  rt.temperature = F
  rt.temperature.sigma =
  0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1
@@ -81,7 +81,7 @@
  band                        =  1   
  band.1.nu_start             =          860.0
  band.1.nu_stop              =          900.0
- band.1.zshift               =              T
+ band.1.zshift               =              F
  band.1.zshift.apriori       = 0.0
  band.1.zshift.sigma         = 1.0
  band.1.zshift.type = 1 
