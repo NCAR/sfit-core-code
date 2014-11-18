@@ -49,7 +49,7 @@
  # Retrieval parameter
 
  rt                          =               T
- rt.lm                       =               F
+ rt.lm                       =               T
  rt.lm.gamma_start           =           1.0e5
  rt.lm.gamma_inc             =           1.0e1
  rt.lm.gamma_dec             =           1.0e1
@@ -63,7 +63,7 @@
  rt.slope.apriori            =           0.000
  rt.slope.sigma              =           0.100
  rt.continuum                =T 
- rt.continuum.order = 0
+ rt.continuum.order = 3
  rt.continuum.apriori = 0.0
  rt.continuum.sigma       = 1.0
  rt.temperature = F
@@ -99,5 +99,4 @@
 
  out.level = 2
  out.gas_spectra = T
- out.gas_spectra.type = 2
- out.pbpfile = T
+ out.parm_vectors = T
