@@ -143,14 +143,17 @@
       NCROSS = SUM(NM(:NBAND))
       NMONSM = DOT_PRODUCT(NM(:NBAND),NSCAN(:NBAND))
 
-      ALLOCATE (CROSS(NRET+1,KMAX,NCROSS), STAT=NAERR)
+      ncont = 0
+      if (f_contabs) ncont = 1
+
+      ALLOCATE (CROSS(NRET+1+NCONT,KMAX,NCROSS), STAT=NAERR)
       IF (NAERR /= 0) THEN
          WRITE (16, *) 'INITIALIZE: COULD NOT ALLOCATE CROSS ARRAY ERROR NUMBER = ', NAERR
          WRITE ( 0, *) 'INITIALIZE: COULD NOT ALLOCATE CROSS ARRAY ERROR NUMBER = ', NAERR
          CALL SHUTDOWN
          STOP 2
       ENDIF
-      ALLOCATE (CROSS_FACMAS(NRET+1,KMAX,NMONSM), STAT=NAERR)
+      ALLOCATE (CROSS_FACMAS(NRET+1+NCONT,KMAX,NMONSM), STAT=NAERR)
       IF (NAERR /= 0) THEN
          WRITE (16, *) 'INITIALIZE: COULD NOT ALLOCATE CROSS_FACMAS ARRAY ERROR NUMBER = ', NAERR
          WRITE ( 0, *) 'INITIALIZE: COULD NOT ALLOCATE CROSS_FACMAS ARRAY ERROR NUMBER = ', NAERR
@@ -965,17 +968,20 @@
          end if
       end do
 
-
       ! continuum absorption
       if (f_contabs) then
-         n_contabs = abscont_order
+         n_contabs = abscont_order + 1 ! 0-th order already needs one param.
          if (allocated(cont_param)) deallocate(cont_param)
          allocate(cont_param(n_contabs))
-         PNAME(NVAR+1:NVAR+n_contabs) = 'CONTINUUM'
-         PARM(NVAR+1:NVAR+n_contabs)  = abscont_param(:n_contabs)
-         SPARM(NVAR+1:NVAR+n_contabs) = abscont_sparam(:n_contabs)
+         do i = 1,n_contabs
+            write(PNAME(NVAR+I:NVAR+1+I), '(a10,i1)'), 'CONTINUUM_', i-1
+         end do
+         PARM(NVAR+1:NVAR+n_contabs)  = abscont_param(1)
+         SPARM(NVAR+1:NVAR+n_contabs) = abscont_sparam(1)
          NVAR = NVAR + n_contabs
       end if
+
+
       !  ---  RETRIEVAL GAS MIXING RATIOS
       !  ---  MIXING RATIO AT ISMIX +1
       ISMIX = NVAR

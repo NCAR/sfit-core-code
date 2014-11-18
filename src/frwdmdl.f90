@@ -52,7 +52,7 @@
       REAL(DOUBLE), INTENT(OUT) :: YN(NFIT)
       REAL(DOUBLE), INTENT(OUT) :: KN(NFIT,NVAR)
 
-      LOGICAL :: BUG1 = .FALSE., IFCOSAVE=.FALSE.
+      LOGICAL :: BUG1 = .FALSE., IFCOSAVE=.FALSE., TALL_FLAG=.FALSE.
 
       CHARACTER :: GASFNAME*(IFLNMSZ)
       CHARACTER :: TITLE*(80)
@@ -132,8 +132,8 @@
 ! --- RESET PARM TO PERTURB EACH INDIVIDUALLY
          PARM(:NVAR) = XN
          IF (ICOUNT .GT. 1) THEN
-            PARM(IPARM) = PARM(IPARM) + DEL
             IF( BUG1 )WRITE(0,203) '     PARM: ', IPARM, PNAME(IPARM), PARM(IPARM)+del, PARM(IPARM)
+            PARM(IPARM) = PARM(IPARM) + DEL
          ENDIF
 
 !  --- ADJUST THESE PARAMETERS IN BAND/SPEC LOOPS BELOW
@@ -248,6 +248,20 @@
             end if
          end do
 
+! continuum absorption
+         tall_flag = .false.
+         !         print *,'u1',pname(ncount+1),'u2',pname(iparm),' ',iparm, ' ',icount,' ',ncount
+         if (f_contabs) then
+            if (iparm.eq.0.or.(iparm.ge.ncount+1.and.iparm.le.ncount+n_contabs+1)) then
+               do k = 1,n_contabs
+                  cont_param(k) = parm(ncount+k)
+               end do
+               call calc_continuum(cont_param)
+               tall_flag = .true.
+            end if
+            ncount = ncount + n_contabs
+         end if
+
 
 !  ---  UPDATE VMRS OF RETRIEVAL GASES
          DELTA_Y(:NFIT) = 0.0D0
@@ -332,7 +346,7 @@
 !  --- ANAYLITC K-MATICES MAY BE CHOSEN IN PARAM_M.F90 MP
     8    CONTINUE
 
-         IF ((.NOT.ANALYTIC_K).OR.(.NOT.XRET).OR.(TRET).OR.(ICOUNT.EQ.1).or.FLINE.or.FSZA) THEN
+         IF ((.NOT.ANALYTIC_K).OR.(.NOT.XRET).OR.(TRET).OR.(ICOUNT.EQ.1).or.FLINE.or.FSZA.or.TALL_FLAG) THEN
             CALL TALL
             IF( BUG1 )PRINT*, '    TALL', IPARM
             !print*, nmonsm, TCALC(1,:100)
@@ -596,6 +610,33 @@
                   ENDDO
                   CLOSE (80)
 
+!  --- Continuum absorption if calculated
+                  if (f_contabs) then
+                     call GASNTRAN(NRET+2,IBAND,JSCAN,2,MONONE,MXONE)
+!                     CALL CONTNTRAN( IBAND,JSCAN,2,MONONE,MXONE )
+                     !  --- COMPUTE FFTS
+                     CALL FSPEC1 (IBAND, MONONE, MXONE)
+                     CALL FSPEC2 (IBAND, MONONE, PHI)
+                     IF( GASOUTTYPE .EQ. 1 .AND. ITER .EQ. -1 )THEN
+                        WRITE(GASFNAME,750)IBAND,JSCAN
+                     ELSEIF( GASOUTTYPE .EQ. 2 )THEN
+                        IF (ITER == -1 ) THEN
+                           WRITE(GASFNAME,750)IBAND,JSCAN
+                        ELSE
+                           WRITE(GASFNAME,760)IBAND,JSCAN,ITER
+                        ENDIF
+                     ENDIF
+                     WRITE(TITLE,710) 'CONT', IBAND, JSCAN, ITER
+
+                     OPEN(UNIT=80, FILE=GASFNAME, STATUS='REPLACE', ERR=555)
+                     WRITE (80, 640) TITLE
+                  WRITE (80, *) WA, WE, SP, N3
+                     DO J = 1, N3
+                        I = N1 + (J - 1)*NSPAC(IBAND)
+                        WRITE (80, *) DBLE(TCONV(I))
+                     ENDDO
+                     CLOSE (80)
+                  ENDIF
 
 !  --- FINALLY SOLAR SPECTRUM
                   IFCO = IFCOSAVE
@@ -773,6 +814,8 @@
  710  FORMAT('GAS ',a7,' BAND ', I2, ' SCAN ', I2, ' ITER ', I3)
  730  FORMAT('spc.sol.',I2.2,'.',I2.2,'.final')
  740  FORMAT('spc.sol.',I2.2,'.',I2.2,'.',I2.2)
+ 750  FORMAT('spc.CON.',I2.2,'.',I2.2,'.final')
+ 760  FORMAT('spc.CON.',I2.2,'.',I2.2,'.',I2.2)
  770  FORMAT('spc.REST.',I2.2,'.',I2.2,'.final')
  780  FORMAT('spc.REST.',I2.2,'.',I2.2,'.',I2.2)
 ! 750  FORMAT('GAS SOLAR',' BAND ', I2, ' SCAN ', I2, ' ITER ', I3)

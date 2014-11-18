@@ -29,6 +29,8 @@ module continuum
     real(double) :: wone, wxne, wmid
     real(double) :: polynom
 
+
+    abscont_type = 2
     select case (abscont_type) 
     case (0)
        ! Offset only
@@ -57,6 +59,7 @@ module continuum
     case (2)
        ! n-th order polynomial
        mone = 1
+       CROSS(nret+2,:KMAX,:ncross) = 0.0d0
        DO IBAND = 1, NBAND
           mxne = mone + nm(iband) - 1
           wone = wstart(iband)
@@ -64,13 +67,13 @@ module continuum
           wmid = (wone + wxne)/2.0d0
 !          print *, mone, mxne, wone, wxne, wmid, dn(iband)
 !          print *, param(1), param(2), abscont_strength, abscont_tilt
-          polynom = 0.0d0
           DO K = 1, KMAX     
              do j = mone,mxne
-                do l = 0,n_contabs
+                polynom = 0.0d0
+                do l = 0,n_contabs-1
                    polynom = polynom + param(l+1)*(((wone+dble(j)*dn(iband))-wmid)/(wxne-wone))**l
                 end do
-                CROSS(nret+2,K,j) = CROSS(nret+2,K,j) * ( 1.0d0 + polynom)*(P(k)/P(kmax))
+                CROSS(nret+2,K,j) = CROSS(nret+2,K,j) + polynom*(P(k)/P(kmax))
              end do
           end DO
           mone = mone + nm(iband)
