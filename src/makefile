@@ -170,7 +170,7 @@ diagnostic.o \
 : opt.o retvparam.o
 
 frwdmdl.o \
-: params.o transmis.o datafiles.o molcparam.o solar.o synspec.o channel.o bandparam.o retvparam.o writeout.o initialize.o
+: params.o transmis.o datafiles.o molcparam.o solar.o synspec.o channel.o bandparam.o retvparam.o writeout.o initialize.o continuum.o
 
 galatry.o \
 : params.o
@@ -231,7 +231,8 @@ tips.o \
 : params.o
 
 transmis.o \
-: params.o bandparam.o retvparam.o vibfcn.o xsections.o molcparam.o lineparam.o
+: params.o bandparam.o retvparam.o vibfcn.o xsections.o molcparam.o lineparam.o\
+continuum.o
 
 vibfcn.o \
 : params.o retvparam.o molcparam.o #writeout.o
