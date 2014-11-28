@@ -117,6 +117,7 @@
       ALLOCATE( SNR_THE(NBAND, MAXVAL(NSCAN(:NBAND))) )
       ALLOCATE( C2Y(NBAND, MAXVAL(NSCAN(:NBAND))) )
 
+      SNR_CLC = 0.0
       YN = 0.0D0
       DY = 0.0D0
       XN = 0.0D0
