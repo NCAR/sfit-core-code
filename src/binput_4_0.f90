@@ -42,10 +42,10 @@ contains
   subroutine read_hbin(filename)
     character (len=*), intent(in) :: filename
     character (len=255), dimension(10) :: keyword
-    character (len=1023) :: value
+    character (len=2048) :: value
     integer :: file_stat, nr_keys, nr
     logical :: bp_exist
-    
+
     nret = 0
     
     INQUIRE (FILE=FILENAME, EXIST = BP_EXIST)
@@ -60,7 +60,7 @@ contains
     
     do
        call read_line_binput(keyword, nr_keys, value, file_stat)
-       
+
        if ((file_stat.lt.0).and.(nr_keys.eq.0)) exit
        
        if (nr_keys.eq.0)then
@@ -71,6 +71,7 @@ contains
        case ('aux')
           call read_hbin_aux_section(keyword, value)
        case ('hitran')
+          call flush()
           call read_hbin_hitran_section(keyword, value)
        case ('file')
           call read_hbin_file_section(keyword, value)
@@ -160,8 +161,8 @@ subroutine read_line_binput(keyword, nr_keyword, value, file_stat)
     integer, intent(out) :: file_stat
     integer, intent(out) :: nr_keyword
 
-    character (len=1023) ::  line
-    character (len=1023) :: line_complete
+    character (len=2048) ::  line
+    character (len=2048) :: line_complete
     character (len=255) :: kw
     integer pos,nr,error
     logical flag

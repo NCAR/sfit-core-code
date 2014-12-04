@@ -34,7 +34,7 @@ program hbin
    character (len=200)  :: nam
    character (len=1)    :: pos
    character (len=255)  :: buf
-   logical              :: oped, hasc=.TRUE.
+   logical              :: oped, hasc
    integer              :: iost, dum, ind
    character (len=7), dimension(6) :: sdv_params
    logical :: qu_equal
@@ -528,8 +528,11 @@ subroutine read_input( hasc, wstr, wstp, HFL, GLP, LFL, SDV )
    character (len=10)      :: ifilename = 'hbin.input'
    integer                 :: j, i, n, istat, ilun=9
    logical                 :: fexist
-   character (len=160)     :: buffer, linebuffer, path, filename
+   character (len=160)     :: buffer, linebuffer, filename
 
+   integer :: ctl_version = 2 ! 1 - original hbin.input version (till v0.9.4.4)
+                              ! 2 - tagged hbin.input version
+   
    TYPE (GALATRYDATA), intent(inout)   :: GLP(ngal)
    TYPE (HITRANFILE),  intent(inout)   :: HFL(nhit+ncia)
    TYPE (GALATRYDATA), intent(inout)   :: LFL(nlmx)
@@ -541,21 +544,31 @@ subroutine read_input( hasc, wstr, wstp, HFL, GLP, LFL, SDV )
       write(*,*) 'File "', trim(ifilename), '" does not exist.'
       stop
    endif
-   open( ilun, file=ifilename, status='old', iostat=istat )
 
    ! --- read in ascii output flag
-   call nextbuf( ilun, buffer )
-   read(buffer,'(l10)') hasc
+   if (ctl_version.eq.1) then
+      open( ilun, file=ifilename, status='old', iostat=istat )
+      call nextbuf( ilun, buffer )
+      read(buffer,'(l10)') out_ascii
+   else
+      call read_hbin(ifilename)
+   end if
    !print*, hasc
-
+   hasc = out_ascii
+   
    ! --- read path to hitran files
-   call nextbuf( ilun, buffer )
-   path = trim( buffer )
-   write(6,112) 'Linelist path : ', path
+   if (ctl_version.eq.1) then
+      call nextbuf( ilun, buffer )
+      linelist_path = trim( buffer )
+   end if
+   linelist_path = trim( adjustl(linelist_path) )
+   write(6,112) 'Linelist : ', trim(linelist_path)
 
    ! --- read number of expected hitran files (max=99)
-   call nextbuf( ilun, buffer )
-   read(buffer,*) nhit_files
+   if (ctl_version.eq.1) then
+      call nextbuf( ilun, buffer )
+      read(buffer,*) nhit_files
+   end if
    write(6,111) 'Number of HITRAN files to search : ', nhit_files
    if( nhit_files .gt. nhit )stop 'too many hitran files'
 
@@ -563,19 +576,23 @@ subroutine read_input( hasc, wstr, wstp, HFL, GLP, LFL, SDV )
    !     position file pointer at starting wavenumber
    !     save its lun in hlp(;)%un 1 to hnml
 
-   ! --- read paths to (up to) 99 hitran formatted files
+   ! --- readlinelist_paths to (up to) 99 hitran formatted files
    ! --- accommodates partial hitran files like the cia pseudo lines since know mol id
    hnml = 0
    do i = 1, nhit_files
 
       ! --- find filename
-      call nextbuf( ilun, linebuffer )
-      filename = trim(path) // trim(linebuffer)
+      if (ctl_version.eq.1) then
+         call nextbuf( ilun, linebuffer )
+         filename = trim(linelist_path) // trim(linebuffer)
+      else
+         filename = adjustl(trim(linelist_path) // trim(hitran_files(i)))
+      end if
       n = len_trim(filename)
       ! catch eg 065_CH3CNPL/ 2007.sudo.ch3cn
       do j=1, n
         if( filename(j:j) .eq. ' ' )then
-         !print*, i, j, filename(j-1:j-1)
+         print*, i, j, filename(j-1:j-1)
          n = j-1
          exit
         endif
@@ -629,12 +646,15 @@ subroutine read_input( hasc, wstr, wstp, HFL, GLP, LFL, SDV )
    ! --- Galatry data files - block 2 in hbin.input
    ! --- read number of expected Galatry files (max=2)
    ! --- Galatry files are unique format from hitran
-   call nextbuf( ilun, buffer )
-   read(buffer,*) ngal_files
+   
+   if (ctl_version.eq.1) then
+      call nextbuf( ilun, buffer )
+      read(buffer,*) ngal_files
+   end if
    write(6,114) 'Number of Galatry files to search : ', ngal_files
    if( ngal_files .gt. ngal )stop 'too many hitran files'
 
-   ! --- read paths to (up to) 99 hitran files
+   ! --- readlinelist_paths to (up to) 99 hitran files
    stlun = hfl(hnml)%lun
    lun   = stlun
    gnml  = 0
@@ -642,8 +662,12 @@ subroutine read_input( hasc, wstr, wstp, HFL, GLP, LFL, SDV )
    do i = 1, ngal_files
 
       ! --- find the name of the next galatry input file
-      call nextbuf( ilun, linebuffer )
-      filename = trim(path) // trim(linebuffer)
+      if (ctl_version.eq.1) then
+         call nextbuf( ilun, linebuffer )
+         filename = trim(linelist_path) // trim(linebuffer)
+      else
+         filename = trim(linelist_path) // trim(gal_files(i))
+      end if
       n = len_trim(filename)
       if( filename(n:n) .eq. '/' )cycle
 
@@ -693,20 +717,26 @@ subroutine read_input( hasc, wstr, wstp, HFL, GLP, LFL, SDV )
    ! --- LM files are unique format from hitran, Galatry...
    ! --- save position in file and read as they are written (like hitran base files)
    ! only accounting for CO2 so far
-   call nextbuf( ilun, buffer )
-   read(buffer,*) nlm_files
+   if (ctl_version.eq.1) then
+      call nextbuf( ilun, buffer )
+      read(buffer,*) nlm_files
+   end if
    write(6,114) 'Number of LM files to search : ', nlm_files
    if( nlm_files .gt. nlmx )stop 'too many LM files'
 
-   ! --- read paths to (up to) 99 hitran files
+   ! --- readlinelist_paths to (up to) 99 hitran files
    lnml = 0
    lun = stlun
    do i = 1, nlm_files
 
       ! --- find the name of the next galatry input file
-      call nextbuf( ilun, linebuffer )
-      filename = trim(path) // trim(linebuffer)
-      n = len_trim(filename)
+      if (ctl_version.eq.1) then
+         call nextbuf( ilun, linebuffer )
+         filename = trim(linelist_path) // trim(linebuffer)
+      else
+         filename = trim(linelist_path) // trim(lm_files(i))
+         n = len_trim(filename)
+      end if
       if( filename(n:n) .eq. '/' )cycle
 
       lnml = lnml + 1
@@ -750,8 +780,10 @@ subroutine read_input( hasc, wstr, wstp, HFL, GLP, LFL, SDV )
    ! --- !!! SDV files are unique format from hitran, Galatry, but same as Line Mixing lists...
    ! --- save position in file and read as they are written (like hitran base files)
    ! only accounting for CO2 so far
-   call nextbuf( ilun, buffer )
-   read(buffer,*) nsdv_files
+   if (ctl_version.eq.1) then
+      call nextbuf( ilun, buffer )
+      read(buffer,*) nsdv_files
+   end if
    write(6,114) 'Number of SDV files to search : ', nsdv_files
    if( nsdv_files .gt. nsdv )stop 'too many SDV files'
 
@@ -761,8 +793,12 @@ subroutine read_input( hasc, wstr, wstp, HFL, GLP, LFL, SDV )
    do i = 1, nsdv_files
 
       ! --- find the name of the next galatry input file
-      call nextbuf( ilun, linebuffer )
-      filename = trim(path) // trim(linebuffer)
+      if (ctl_version.eq.1) then
+         call nextbuf( ilun, linebuffer )
+         filename = trim(linelist_path) // trim(linebuffer)
+      else
+         filename = adjustl(trim(linelist_path) // trim(sdv_files(i)))
+      end if
       n = len_trim(filename)
       if( filename(n:n) .eq. '/' )cycle
 

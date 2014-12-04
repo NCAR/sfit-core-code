@@ -36,7 +36,7 @@ module binput_parse_4_0
   save
 
   character (len=255), dimension(5) :: keyword
-  character (len=1023) :: value
+  character (len=2048) :: value
   character (len=7), dimension(10) :: gas_prf, gas_col
   logical, dimension(10) :: gas_detail=.false.
   logical :: f_gasprf=.false., f_gascol=.false.
@@ -990,12 +990,17 @@ end subroutine read_file_section
        implicit none
        character (len=*), dimension(*),intent(in) :: keyword
        character (len=*), intent(in) :: value
-
+       integer :: nr_files
+       
        select case (trim(adjustl(keyword(2))))
        case ('nr')
           read(value, *) nhit_files
        case ('files')
-          read(value,*) hitran_files(1:nhit_files) 
+          call read_string_list(value, hitran_files, nr_files)
+          if (nr_files.ne.nhit_files) then
+             print *, 'Wrong number of hitran files entries'
+             print *, nr_files, nhit_files
+          end if
        case default
           WRITE( 0,*) 'BINPUT_PARSE_4_0:READ_HBIN_HITRAN_SECTION: Key ', trim(keyword(2)), ' not contained in section : HITRAN'
        end select
@@ -1007,11 +1012,12 @@ end subroutine read_file_section
        character (len=*), dimension(*),intent(in) :: keyword
        character (len=*), intent(in) :: value
 
-       integer :: nr_aux
+       integer :: nr_aux, nr_files
        character (len=10), dimension(4) :: aux_param
        
        if (len_trim(keyword(2)).eq.0) then       
           call read_string_list(value, aux_param, nr_aux)
+          return
        end if
        select case (trim(adjustl(keyword(2))))
        case ('gal')
@@ -1019,7 +1025,11 @@ end subroutine read_file_section
           case ('nr')
              read(value,*) ngal_files
           case ('files')
-             read(value,*) gal_files(1:ngal_files) 
+             call read_string_list(value, gal_files, nr_files)
+          if (nr_files.ne.nhit_files) then
+             print *, 'Wrong number of galatry files entries'
+             print *, nr_files, ngal_files
+          end if
           case default
              WRITE( 0,*) 'BINPUT_PARSE_4_0:READ_AUX_HITRAN_SECTION: Key ', trim(keyword(3)), ' not contained in section : AUX.GAL'
           end select
@@ -1028,7 +1038,11 @@ end subroutine read_file_section
           case ('nr')
              read(value,*) nlm_files
           case ('files')
-             read(value,*) lm_files(1:nlm_files) 
+             call read_string_list(value, lm_files, nr_files)
+             if (nr_files.ne.nhit_files) then
+                print *, 'Wrong number of line mixing files entries'
+                print *, nr_files, nlm_files
+             end if
           case default
              WRITE( 0,*) 'BINPUT_PARSE_4_0:READ_AUX_HITRAN_SECTION: Key ', trim(keyword(3)), ' not contained in section : AUX.LM'
           end select
@@ -1037,7 +1051,11 @@ end subroutine read_file_section
           case ('nr')
              read(value,*) nsdv_files
           case ('files')
-             read(value,*) sdv_files(1:nsdv_files) 
+             call read_string_list(value, sdv_files, nr_files)
+             if (nr_files.ne.nhit_files) then
+                print *, 'Wrong number of line mixing files entries'
+                print *, nr_files, nsdv_files
+             end if
           case default
              WRITE( 0,*) 'BINPUT_PARSE_4_0:READ_AUX_HITRAN_SECTION: Key ', trim(keyword(3)), ' not contained in section : AUX.SDV'
           end select
@@ -1050,6 +1068,25 @@ end subroutine read_file_section
      subroutine read_hbin_file_section(keyword, value)     
        character (len=*), dimension(*),intent(in) :: keyword
        character (len=*), intent(in) :: value
+
+       select case (trim(adjustl(keyword(2))))
+       case ('out')
+          select case (trim(adjustl(keyword(3))))
+          case ('ascii')
+             read(value,*) out_ascii
+          case default
+             WRITE( 0,*) 'BINPUT_PARSE_4_0:READ_HBIN_FILE_SECTION: Key ', trim(keyword(3)), ' not contained in section : OUT'
+          end select
+       case ('in')
+          select case (trim(adjustl(keyword(3))))
+          case ('linelist')
+             read(value,'(a)') linelist_path
+          case default
+             WRITE( 0,*) 'BINPUT_PARSE_4_0:READ_HBIN_FILE_SECTION: Key ', trim(keyword(3)), ' not contained in section : OUT'
+          end select
+       case default
+          WRITE( 0,*) 'BINPUT_PARSE_4_0:READ_HBIN_FILE_SECTION: Key ', trim(keyword(3)), ' not contained in section : FILE'
+       end select
      end subroutine read_hbin_file_section
 
      subroutine read_string_list(value, vallist, nr_val)
@@ -1059,7 +1096,7 @@ end subroutine read_file_section
 
        integer :: pos
 
-       character (len=255) :: val
+       character (len=2048) :: val
 
        val = value
        

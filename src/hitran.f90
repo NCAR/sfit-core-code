@@ -14,10 +14,12 @@ module hitran
    integer                :: hnml, gnml, lnml, snml
    integer                :: stlun, map(nhit)
    integer :: nhit_files, nlm_files, ngal_files, nsdv_files
+   logical :: out_ascii=.TRUE.
    character (len=255), dimension(nhit) :: hitran_files
    character (len=255), dimension(ngal) :: gal_files
    character (len=255), dimension(nsdv) :: sdv_files
    character (len=255), dimension(nlmx) :: lm_files
+   character (len=1024) :: linelist_path
    
    type, public :: hitranfile
       integer             :: mo        ! molecule id from subdir name for this file --- replaces map()
