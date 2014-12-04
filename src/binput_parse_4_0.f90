@@ -30,6 +30,7 @@ module binput_parse_4_0
   use datafiles
   use isotope
   use writeout
+  use hitran
 
   implicit none;
   save
@@ -983,5 +984,105 @@ end subroutine read_file_section
        end select
 
      end subroutine read_output_section
+
+     subroutine read_hbin_hitran_section(keyword, value)
+
+       implicit none
+       character (len=*), dimension(*),intent(in) :: keyword
+       character (len=*), intent(in) :: value
+
+       select case (trim(adjustl(keyword(2))))
+       case ('nr')
+          read(value, *) nhit_files
+       case ('files')
+          read(value,*) hitran_files(1:nhit_files) 
+       case default
+          WRITE( 0,*) 'BINPUT_PARSE_4_0:READ_HBIN_HITRAN_SECTION: Key ', trim(keyword(2)), ' not contained in section : HITRAN'
+       end select
+
+     end subroutine read_hbin_hitran_section
+
+     subroutine read_hbin_aux_section(keyword, value)     
+       implicit none
+       character (len=*), dimension(*),intent(in) :: keyword
+       character (len=*), intent(in) :: value
+
+       integer :: nr_aux
+       character (len=10), dimension(4) :: aux_param
+       
+       if (len_trim(keyword(2)).eq.0) then       
+          call read_string_list(value, aux_param, nr_aux)
+       end if
+       select case (trim(adjustl(keyword(2))))
+       case ('gal')
+          select case (trim(adjustl(keyword(3))))
+          case ('nr')
+             read(value,*) ngal_files
+          case ('files')
+             read(value,*) gal_files(1:ngal_files) 
+          case default
+             WRITE( 0,*) 'BINPUT_PARSE_4_0:READ_AUX_HITRAN_SECTION: Key ', trim(keyword(3)), ' not contained in section : AUX.GAL'
+          end select
+       case ('lm')
+          select case (trim(adjustl(keyword(3))))
+          case ('nr')
+             read(value,*) nlm_files
+          case ('files')
+             read(value,*) lm_files(1:nlm_files) 
+          case default
+             WRITE( 0,*) 'BINPUT_PARSE_4_0:READ_AUX_HITRAN_SECTION: Key ', trim(keyword(3)), ' not contained in section : AUX.LM'
+          end select
+       case ('sdv')
+          select case (trim(adjustl(keyword(3))))
+          case ('nr')
+             read(value,*) nsdv_files
+          case ('files')
+             read(value,*) sdv_files(1:nsdv_files) 
+          case default
+             WRITE( 0,*) 'BINPUT_PARSE_4_0:READ_AUX_HITRAN_SECTION: Key ', trim(keyword(3)), ' not contained in section : AUX.SDV'
+          end select
+       case default
+          WRITE( 0,*) 'BINPUT_PARSE_4_0:READ_AUX_HITRAN_SECTION: Key ', trim(keyword(3)), ' not contained in section : AUX'
+       end select
+
+     end subroutine read_hbin_aux_section
+
+     subroutine read_hbin_file_section(keyword, value)     
+       character (len=*), dimension(*),intent(in) :: keyword
+       character (len=*), intent(in) :: value
+     end subroutine read_hbin_file_section
+
+     subroutine read_string_list(value, vallist, nr_val)
+       character (len=*), intent(in) :: value
+       character (len=*), dimension(*), intent(out) :: vallist
+       integer, intent(out) :: nr_val
+
+       integer :: pos
+
+       character (len=255) :: val
+
+       val = value
+       
+       nr_val = 0
+       pos = index(adjustl(val),' ')
+       !       write(*,*) val, pos
+       if (pos.eq.0) return
+       do
+          if (len_trim(val).eq.0) exit
+          nr_val = nr_val + 1
+          if (pos.gt.0) then
+             vallist(nr_val) = trim(adjustl(val(1:pos)))
+          else
+             vallist(nr_val) = trim(adjustl(val(1:len_trim(val))))
+             exit
+          end if
+          val = adjustl(val(pos+1:len(val)))
+          pos = index(trim(adjustl(val)),' ')
+       end do
+
+       return
+       
+     end subroutine read_string_list
+
    end module binput_parse_4_0
 

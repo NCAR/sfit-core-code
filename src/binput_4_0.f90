@@ -30,7 +30,8 @@ module binput_4_0
   use initialize
   use opt
   use writeout
-
+  use hitran
+  
   implicit none
   save
   integer, parameter :: bp_nr = 10
@@ -38,7 +39,53 @@ module binput_4_0
 
 contains
 
-subroutine read_binput(filename)
+  subroutine read_hbin(filename)
+    character (len=*), intent(in) :: filename
+    character (len=255), dimension(10) :: keyword
+    character (len=1023) :: value
+    integer :: file_stat, nr_keys, nr
+    logical :: bp_exist
+    
+    nret = 0
+    
+    INQUIRE (FILE=FILENAME, EXIST = BP_EXIST)
+    IF (.NOT.BP_EXIST) THEN
+       WRITE(16,*) 'BINPUT_4_0:READ_HBIN: FILE ', TRIM(FILENAME), ' DOES NOT EXIST'
+       WRITE( 0,*) 'BINPUT_4_0:READ_HBIN: FILE ', TRIM(FILENAME), ' DOES NOT EXIST'
+       CALL SHUTDOWN
+       STOP 1
+    END IF
+    
+    open(bp_nr, file=filename, status='old', iostat = file_stat)
+    
+    do
+       call read_line_binput(keyword, nr_keys, value, file_stat)
+       
+       if ((file_stat.lt.0).and.(nr_keys.eq.0)) exit
+       
+       if (nr_keys.eq.0)then
+          cycle
+       end if
+       
+       select case (trim(adjustl(keyword(1))))
+       case ('aux')
+          call read_hbin_aux_section(keyword, value)
+       case ('hitran')
+          call read_hbin_hitran_section(keyword, value)
+       case ('file')
+          call read_hbin_file_section(keyword, value)
+       case default
+          print *, 'Section ', trim(keyword(1)), ' not defined'
+          write(16, *) 'Section ', trim(keyword(1)), ' not defined'
+       end select
+       
+    end do
+    
+    close(bp_nr)
+
+  end subroutine read_hbin
+
+  subroutine read_binput(filename)
 
   character (len=*), intent(in) :: filename
   character (len=255), dimension(10) :: keyword

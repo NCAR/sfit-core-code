@@ -85,6 +85,7 @@ datafiles.o \
 diagnostic.o \
 frwdmdl.o \
 galatry.o \
+hitran.o \
 initialize.o \
 isotope.o \
 lineparam.o \
@@ -118,7 +119,7 @@ sfit4: $(OBJS) rdrv40.o
 #convert_rdrv_394 : convert_rdrv_394.o $(OBJS) convert_old_data_files.o read_binput_394.o
 #	$(FC) -o $@ $^ $(FFLAGS) $(LIBS) $(VLIB)
 
-hbin: hbin.o $(OBJS)
+hbin: hbin.o hitran.o $(OBJS)
 	$(FC) -o $@ $^ $(FFLAGS) $(LIBS) $(VLIB)
 
 pspec: pspec.o spec.o fitting.o  $(OBJS)
@@ -149,10 +150,10 @@ bandparam.o \
 : params.o
 
 binput_4_0 \
-: params.o binput_parse_4_0.o retvparam.o bandparam.o lineparam.o solar.o channel.o initialize.o opt.o writeout.o
+: params.o binput_parse_4_0.o retvparam.o bandparam.o lineparam.o solar.o channel.o initialize.o opt.o writeout.o binput_parse_4_0.o hitran.o
 
 binput_parse_4_0.o \
-: params.o retvparam.o frwdmdl.o bandparam.o lineparam.o solar.o channel.o initialize.o opt.o datafiles.o isotope.o writeout.o continuum.o
+: params.o retvparam.o frwdmdl.o bandparam.o lineparam.o solar.o channel.o initialize.o opt.o datafiles.o isotope.o writeout.o continuum.o hitran.o
 
 channel.o \
 : params.o writeout.o synspec.o datafiles.o
@@ -209,7 +210,7 @@ rdrv.o \
 : params.o datafiles.o binput_4_0.o
 
 read_binput_394.o \
-: params.o binput_parse_4_0.o retvparam.o bandparam.o lineparam.o solar.o channel.o initialize.o opt.o writeout.o
+: params.o binput_parse_4_0.o retvparam.o bandparam.o lineparam.o solar.o channel.o initialize.o opt.o writeout.o hbin.o
 
 readin.o \
 : params.o retvparam.o transmis.o molcparam.o xsections.o datafiles.o synspec.o lineparam.o solar.o bandparam.o initialize.o opt.o channel.o

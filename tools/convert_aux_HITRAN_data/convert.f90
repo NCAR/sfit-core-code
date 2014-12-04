@@ -1,5 +1,7 @@
 program convert
 
+  ! convert linelists in proffit format to sfit4 format
+  
   implicit none
 
 
