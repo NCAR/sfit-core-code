@@ -1026,7 +1026,7 @@ end subroutine read_file_section
              read(value,*) ngal_files
           case ('files')
              call read_string_list(value, gal_files, nr_files)
-          if (nr_files.ne.nhit_files) then
+          if (nr_files.ne.ngal_files) then
              print *, 'Wrong number of galatry files entries'
              print *, nr_files, ngal_files
           end if
@@ -1039,7 +1039,7 @@ end subroutine read_file_section
              read(value,*) nlm_files
           case ('files')
              call read_string_list(value, lm_files, nr_files)
-             if (nr_files.ne.nhit_files) then
+             if (nr_files.ne.nlm_files) then
                 print *, 'Wrong number of line mixing files entries'
                 print *, nr_files, nlm_files
              end if
@@ -1052,7 +1052,7 @@ end subroutine read_file_section
              read(value,*) nsdv_files
           case ('files')
              call read_string_list(value, sdv_files, nr_files)
-             if (nr_files.ne.nhit_files) then
+             if (nr_files.ne.nsdv_files) then
                 print *, 'Wrong number of line mixing files entries'
                 print *, nr_files, nsdv_files
              end if

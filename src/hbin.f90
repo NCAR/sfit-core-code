@@ -587,6 +587,7 @@ subroutine read_input( hasc, wstr, wstp, HFL, GLP, LFL, SDV )
          filename = trim(linelist_path) // trim(linebuffer)
       else
          filename = adjustl(trim(linelist_path) // trim(hitran_files(i)))
+         linebuffer = trim(hitran_files(i))
       end if
       n = len_trim(filename)
       ! catch eg 065_CH3CNPL/ 2007.sudo.ch3cn
