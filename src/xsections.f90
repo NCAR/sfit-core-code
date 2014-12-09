@@ -49,10 +49,11 @@
       INTEGER      :: NR_LEVEL, K_START, K_END, NRESET=0
       INTEGER      :: JSTART, JSTOP, N1, K, I, J, INDXX, IBAND, LMIN, LMAX
       INTEGER      :: N, IMOL, NPOINT, MO, ISO
+      !INTEGER      :: II, IJ
       REAL(DOUBLE) :: DIST, TXE, VIBFAC, STIMFC, SSL, ACOFB, SCOFB, ALOR, ADOP, &
                       AKZERO, YDUM, OPTMAX, XDUM, AKV, OPTCEN, DELLOR, WLIN, START, &
                       SSTOP, ANUZ, QT, QTSTDTEMP, GI, SSLOLD, BETAP, GZ, LMTVAL
-      REAL(DOUBLE) :: AKV_R, AKV_I, G2, LM, S0, S2, ANUVC
+      !REAL(DOUBLE) :: AKV_R, AKV_I, G2, LM, S0, S2, ANUVC
 
       REAL (DOUBLE), DIMENSION(4) :: SDVLM_PARAM ! PARAMETERS FOR SDV AND/OR LINEMIXING
                                                  ! CALCULATION ACCORDING TO BOONE
@@ -139,8 +140,8 @@
 !                  ISO = 1
 !               ENDIF
 
-               CALL BD_TIPS_2008_SFIT2(MO, STDTEMP, ISO, GI, QTSTDTEMP)
-               CALL BD_TIPS_2008_SFIT2(MO, T(K), ISO, GI, QT)
+               CALL BD_TIPS_2011(MO, STDTEMP, ISO, GI, QTSTDTEMP)
+               CALL BD_TIPS_2011(MO, T(K), ISO, GI, QT)
                STIMFC = (1.D0 - EXP((-RCONST2*AZERO(N)/T(K))))/(1.D0 - EXP((-RCONST2*AZERO(N)/STDTEMP)))
 !               VIBFAC = QV(IMOL,KMAX+1)/QV(IMOL,K)
 !               SSLOLD = ST296(N)*(STDTEMP/T(K))*(STDTEMP/T(K))**TDEP(ICODE(IMOL))*VIBFAC*STIMFC*EXP((-TXE))

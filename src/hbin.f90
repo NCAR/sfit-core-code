@@ -675,6 +675,23 @@ subroutine filh( hd, hf )
       if(hd%is .eq. 1) hd%flag(fcia_flag) = .TRUE.      ! fcia o2
       if(hd%is .eq. 2) hd%flag(scia_flag) = .TRUE.      ! scia o2
 
+   case (2)        ! N2CIA, id 52/0,1 -> 1,2
+
+      ! --- read parameters
+      read( hf%buf, 107) hd%mo, hd%is, hd%nu, hd%sl, hd%ea, hd%ah, hd%sh, hd%el, hd%tx, hd%ps
+
+      ! --- map cia molecule id to sfit id
+      ! --- in cia files ids for F & C are both 410
+      ! --- make first file iso 1 and second file iso 2 - these are the flag ids
+      ! --- files in alphabetical order in hbin.input file
+      hd%mo = 52
+
+      ! --- map cia molecule iso to sfit iso file iso's are 0,1 (f,s) change to 1,2
+      hd%is = hd%is + 1
+
+      if(hd%is .eq. 1) hd%flag(fcia_flag) = .TRUE.      ! fcia n2
+      if(hd%is .eq. 2) hd%flag(scia_flag) = .TRUE.      ! scia n2
+
    case default
    print*, hf%flag
    print*, hf%buf
@@ -687,7 +704,7 @@ subroutine filh( hd, hf )
    write( hf%buf(flagoff+1:flagoff+8), '(8l1)' ) hd%flag(1:8)
 
    return
-! 1-160 hitan
+! 1-160 hitran
 ! 161 - 172 galatry beta
 ! 173 - 184 sdv gam0
 ! 185 - 196 sdv gam2
@@ -808,7 +825,8 @@ subroutine read_input( hasc, wstr, wstp, HFL, GLP, LFL, SDV )
       hfl(hnml)%lun  = lun
       read( linebuffer(1:3), '(i3)' ) hfl(hnml)%mo
       hfl(hnml)%flag = 0
-      if( (hfl(hnml)%mo .eq. 49) .and. (mo .eq. 7) ) hfl(hnml)%flag = 1 ! o2cia
+      if( (hfl(hnml)%mo .eq. 49) .and. (mo .eq.  7) ) hfl(hnml)%flag = 1 ! o2cia
+      if( (hfl(hnml)%mo .eq. 52) .and. (mo .eq. 41) ) hfl(hnml)%flag = 2 ! n2cia
       write(6,*)''
       write(6,110) ' File : ', trim(filename)
       write(6,113) wstr, wstp, hnml, hfl(hnml)%lun, hfl(hnml)%mo, mo, wavnum
@@ -1064,6 +1082,7 @@ subroutine read_ctrl
    do iband = 1, nband
       ! --- 10 res units to account for shifts - from initialize.f90:setup
       dwave  = resunits/pmax(iband)
+      !dwave  = 10./pmax(iband)
       nextra = nint( dwave/dn(iband))
       !  --- interval for input of line data, dlines accounts for out of band absorption
       wave5(iband) = wave3(iband) - nextra*dn(iband) - dlines - 0.5/pmax(iband)
