@@ -1,21 +1,17 @@
-#root directory for linelist
-file.in.linelist = ../../linelist/
 
-# is the resulting spectral file also in ASCII? If yes then T
 file.out.ascii = T
+#
+file.in.linelist = ../../linelist/
 #
 # next non-comment entry is the number of path/files to look for
 hitran.nr = 99
-
-#hitran files, number of entries (separated by white characters)
-# has to correspond to hitran.nr
-
-hitran.files =
+#
+hitran.files = 
 001_H2O/01_hit09.par
 002_CO2/02_hit08_f53.par
 003_O3/03_hit08.par
 004_N2O/04_hit08.par
-005_CO/05_hit08.par
+005_CO/05_hit12.par
 006_CH4/06_hit08.par
 007_O2/07_hit08.par
 008_NO/08_hit08.par
@@ -117,15 +113,18 @@ hitran.files =
 aux = gal sdv lm
 aux.gal.nr = 2
 aux.gal.files = 
-	      014_HF/14_hit12_Galatry.txt
-	      015_HCL/15_hit12_Galatry.txt
-
+014_HF/14_hit12_Galatry.txt
+015_HCL/15_hit12_Galatry.txt
+#
+#
+# CO2 Line mixing parameters for Boone implementation
+aux.lm.nr = 1
+aux.lm.files = 
+002_CO2/02_hase_lm.dat
+#
+#
+# Speed Dependent Voigt parameter files --- not yet!
 aux.sdv.nr = 1
 aux.sdv.files = 
 005_CO/05_hit12_SDV.txt
-
-aux.lm.nr = 1
-aux.lm.files = 
-002_CO2/02_hase_lm.dat 
-
-# end of file
+#
