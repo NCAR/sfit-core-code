@@ -74,7 +74,7 @@
 !                              TFIL93, &      ! GAIN MATRIX
 !                              LINDIR, &
 
-      INTEGER :: NCHAR
+      !INTEGER :: NCHAR
 
       CONTAINS
 

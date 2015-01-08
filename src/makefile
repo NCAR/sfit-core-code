@@ -40,10 +40,10 @@ FFLAGS = -Warray-bounds -Wcharacter-truncation -Wunused-parameter \
 
 #error check a lot
 FFLAGS = -Wall -fno-automatic -fcheck=all -ffpe-trap=invalid,zero,overflow,underflow -Warray-bounds \
-         -fbounds-check -fbacktrace -g
+         -fbounds-check -fbacktrace -g -ffree-line-length-none
 
 # optimize -Ofast v4.8
-FFLAGS = -Wall -fno-automatic -frepack-arrays  -ffree-line-length-none
+#FFLAGS = -Wall -fno-automatic -frepack-arrays  -ffree-line-length-none
 
 # supply compile date:
 # -cpp -DBDATE="\"`date +%Y%m%d`"\" -O2 -fno-automatic
@@ -120,7 +120,7 @@ sfit4: $(OBJS) rdrv40.o
 hbin: hbin.o $(OBJS)
 	$(FC) -o $@ $^ $(FFLAGS) $(LIBS) $(VLIB)
 
-pspec: pspec.o spec.o fitting.o  $(OBJS)
+pspec: pspec.o spec.o fitting.o stringmod.o pspecmod.o $(OBJS)
 	$(FC) -o $@ $^ $(FFLAGS) $(LIBS) $(VLIB)
 
 #params.o binput_4_0.o binput_parse_4_0.o datafiles.o bandparam.o
@@ -196,7 +196,10 @@ opt.o \
 : params.o datafiles.o frwdmdl.o synspec.o matrix.o writeout.o bandparam.o
 
 pspec.o \
-: spec.o params.o datafiles.o bandparam.o lineparam.o isotope.o binput_4_0.o binput_parse_4_0.o fitting.o
+: spec.o params.o datafiles.o bandparam.o lineparam.o isotope.o binput_4_0.o binput_parse_4_0.o fitting.o  pspecmod.o
+
+pspecmod.o \
+: params.o datafiles.o bandparam.o lineparam.o isotope.o binput_4_0.o binput_parse_4_0.o stringmod.o
 
 spec.o \
 : fitting.o

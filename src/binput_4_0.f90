@@ -59,7 +59,7 @@ subroutine read_binput(filename)
   open(bp_nr, file=filename, status='old', iostat = file_stat)
 
   do
-     call read_line_binput(keyword, nr_keys, value, file_stat)
+     call read_line_binput(bp_nr, keyword, nr_keys, value, file_stat)
 
      if ((file_stat.lt.0).and.(nr_keys.eq.0)) exit
 
@@ -104,9 +104,11 @@ subroutine read_binput(filename)
 
 end subroutine read_binput
 
-subroutine read_line_binput(keyword, nr_keyword, value, file_stat)
+subroutine read_line_binput(file_id, keyword, nr_keyword, value, file_stat)
 
     implicit none
+
+    integer,intent(in)   :: file_id
 
     character (len=*), dimension(:), intent(out) :: keyword
     character (len=*), intent(out) :: value
@@ -127,13 +129,14 @@ subroutine read_line_binput(keyword, nr_keyword, value, file_stat)
 
     value = ''
 
-
     do
-       read (bp_nr, fmt='(a)', iostat=error) line
+       read(file_id, fmt='(a)', iostat=error) line
+
        if (error.lt.0) then
           file_stat = -1
           goto 1001
        end if
+
        ! replace tab  characters with blanks
        do nr=1,len_trim(line)
           if (line(nr:nr).eq.achar(9)) then
@@ -158,7 +161,7 @@ subroutine read_line_binput(keyword, nr_keyword, value, file_stat)
        end if
        pos=index(line,'=')
        if(flag.and.index(line,'=').gt.0) then
-          backspace(bp_nr)
+          backspace(file_id)
           goto 1001
        end if
        flag = .true.

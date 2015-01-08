@@ -33,26 +33,32 @@ program pspec
    use spec
    use params
    use bandparam
+   use pspec_read_mods
 
    implicit none
 
-   interface
-      subroutine gonext(ifile, buffer)
-         integer,intent(in)         :: ifile
-         character(80),intent(out)  :: buffer
-      end subroutine gonext
-      subroutine read_ctrl
-      end subroutine read_ctrl
-   end interface
+   !------------------
+   ! Type declerations
+   !------------------
+   real(double)                    :: obs_lat, obs_lon, obs_alt, newhi, newlo
+   real(double),allocatable        :: roe(:)
+   real(8), allocatable            :: zflag(:)
+   integer,allocatable             :: nterp(:), rflag(:), fflag(:)
+   integer                         :: oflag, vflag, arg_cnt, file_rtncode, nchar
+   integer                         :: m, n, j, bflag, n_spec, iband
+   character (len=200)             :: infile
+   character(len=1)                :: loc
+   character (len=10)              :: ztime='          ', zone='          '
+   character (len=8)               :: cdate='        '
+   logical                         :: fexist
 
-   character(len=80) :: bnrfile, ratfile, buffer
-   character(len=1)  :: loc
-   real          (8) :: obs_lat, obs_lon, obs_alt, roe, newlo, newhi, zflag
-   integer       (4) :: nspec, j, n, m
-   integer       (4) :: nterp, rflag, iband, bflag, fflag, oflag, vflag
-   character (len=10)   :: ztime='          ', zone='          '
-   character (len=8)    :: cdate='        '
-
+   !-----------------------------------------------------------------------
+   ! Deferred length character components only supported in gfortran v >4.9
+   ! For now set character len = 200
+   !-----------------------------------------------------------------------
+   type (char_mat), dimension (:), allocatable :: bnr_fname_mat
+   type (char_mat), dimension (:), allocatable :: ratio_fname_mat
+   
    ! blun 7  - input bnr file
    ! clun 8  - cinput
    ! ilun 9  - input file pspec.inp
@@ -95,83 +101,94 @@ program pspec
      ! = 1 ratio
      ! = 0 not
 
-   call date_and_time (cdate, ztime, zone)
-   write (tag,*) trim(version), ' runtime:', cdate(1:8), '-', ztime(1:2), ':', ztime(3:4), ':', ztime(5:6)
-   write (6,  *) trim(tag)
+   !-----------------------------
+   ! Check command line arguments
+   !-----------------------------
+   arg_cnt = command_argument_count()
 
-   open (unit=ilun, file='pspec.input', status='old', err=668)
-   call gonext(ilun, buffer)
-   read (buffer,*) obs_lat
+   if ( arg_cnt /= 1 ) then
+       print*,'Usage: pspec [input file]'
+       stop
+   endif
 
-   call gonext(ilun, buffer)
-   read (buffer,*) obs_lon
+   !-------------------------
+   ! Grab input file and open
+   !-------------------------
+   call get_command_argument(1,infile)
 
-   call gonext(ilun, buffer)
-   read (buffer,*) obs_alt
+   open (unit=ilun, file=adjustl(trim(infile)), status='old', err=668,iostat=file_rtncode)
+   if ( file_rtncode /= 0 ) then
+       print*,'Unable to open file: '// trim(infile)
+       stop
+   endif 
 
-   call gonext(ilun, buffer)
-   read (buffer,*) oflag, vflag
+   !---------------------------------------
+   ! Determine file type based on extension
+   !---------------------------------------
+   call to_lower(infile)
+   nchar = len(trim(infile))
 
-   call gonext(ilun, buffer)
-   read (buffer,*) nsnr
+   !---------------------------------------
+   ! Read input file depending of file type
+   !---------------------------------------
+   if ( infile(nchar-4:nchar) == 'input' ) then             ! Old input style
+       call pspec_read_old(ilun,obs_lat,obs_lon,obs_alt,oflag,vflag,nsnr,psnr,roe,nterp,rflag,fflag,zflag,&
+                           bnr_fname_mat,ratio_fname_mat)
 
-   do j=1, nsnr
-      call gonext(ilun, buffer)
-      !print*, buffer
-      read (buffer,*) snrid(j), psnr(1,j), psnr(2,j)
-   enddo
+    else if ( infile(nchar-2:nchar) == 'ctl' ) then       ! .ctl input style
+        call read_pspec_ctl(ilun,obs_lat,obs_lon,obs_alt,oflag,vflag,nsnr,psnr,roe,nterp,rflag,fflag,zflag,&
+                           bnr_fname_mat,ratio_fname_mat)
 
-   call gonext(ilun, buffer)
-   read (buffer,*) nspec
+    else
+        print*,'Unrecognized pspec input file type. File extension should be .ctl or .input!!' 
+        stop
+    end if
 
-   write(6,103) 'Observation Lat, Lon, Alt : ', obs_lat, obs_lon, obs_alt
-   write(6,102) 'Output flag : ', oflag
-   write(6,102) 'Verbose flag : ', vflag
-
-   ! get band data from sfi4.ctl file
-   call read_ctrl()
-
-   ! open output file
+   !--------------------------------
+   ! Open output file and write each
+   ! ascii block
+   !--------------------------------
    open(unit=tlun, file='t15asc.4', status='unknown', err=555)
 
    if( vflag .gt. 0 )open(unit=vlun,file='pspec_zero.dtl')
 
    ! loop over (# of spectra) x (# of windows)
-   m = 0
-   n = 0
-   bflag = 0
+   m      = 0
+   n      = 0
+   bflag  = 0
+   n_spec = size(bnr_fname_mat)
 
    ! loop over bnr files
-   do j=1, nspec
-
-      call gonext(ilun, buffer)
-      read(buffer,'(a80)') bnrfile
-      call gonext(ilun, buffer)
-      read(buffer,*) roe, nterp, rflag, fflag, zflag
+   do j=1, n_spec
 
       ! each t15asc block requires radius of earth, solar zenith angle, lat, lon,
       ! date and time
       ! ckopus.c puts most of this in the bnr header except lat, lon and roe
       ! hence these are given here in pspec.inp
 
-      write(6,101) "Opening bnr for input : ", bnrfile(1:len_trim(bnrfile))
-      if( fflag .eq. 0 )then
-         open(unit=blun, file=bnrfile(1:len_trim(bnrfile)), form='unformatted', status='old', err=666)
-      elseif( fflag .eq. 1 )then
-         open(unit=blun, file=bnrfile(1:len_trim(bnrfile)), form='unformatted', access='stream', status='old', err=666)
+      write(6,101) "Opening bnr for input : ", adjustl(trim(bnr_fname_mat(j)%fname))
+      inquire( file=adjustl(trim(bnr_fname_mat(j)%fname)), exist = fexist )
+      if( .not. fexist ) then
+          write(*,*) 'file ', adjustl(trim(bnr_fname_mat(j)%fname)), ' does not exist'
+          stop
+      endif
+
+      if( fflag(j) .eq. 0 )then
+         open(unit=blun, file=adjustl(trim(bnr_fname_mat(j)%fname)), form='unformatted', status='old', err=666)
+      elseif( fflag(j) .eq. 1 )then
+         open(unit=blun, file=adjustl(trim(bnr_fname_mat(j)%fname)), form='unformatted', access='stream', status='old', err=666)
       else
          print*, ' file flag out of range 0 - fortran type or 1 c-type.'
          stop '1'
       endif
 
-      if( rflag .eq. 1) then
-         call gonext(ilun, buffer)
-         read(buffer,'(a80)') ratfile
-         write(6,105) 'Opening ratio file : ', ratfile(1:len_trim(ratfile))
-         if( fflag .eq. 0 )then
-            open(unit=rlun, file=ratfile(1:len_trim(ratfile)), form='unformatted', status='old', err=666)
-         elseif( fflag .eq. 1 )then
-            open(unit=rlun, file=ratfile(1:len_trim(bnrfile)), form='unformatted', access='stream', status='old', err=666)
+      if( rflag(j) .eq. 1) then
+         write(6,105) 'Opening ratio file : ', ratio_fname_mat(j)%fname
+
+         if( fflag(j) .eq. 0 )then
+            open(unit=rlun, file=adjustl(trim(ratio_fname_mat(j)%fname)), form='unformatted', status='old', err=666)
+         elseif( fflag(j) .eq. 1 )then
+            open(unit=rlun, file=adjustl(trim(ratio_fname_mat(j)%fname)), form='unformatted', access='stream', status='old', err=666)
          else
             print*, ' file flag out of range 0 - fortran type or 1 c-type.'
             stop '2'
@@ -185,7 +202,8 @@ program pspec
          newlo = wave3(iband)-.1
          newhi = wave4(iband)+.1
 
-         call kpno( pmax(iband), newlo, newhi, roe, obs_lat, obs_lon, nterp, rflag, oflag, zflag, vflag, bflag, loc )
+         call kpno( pmax(iband), newlo, newhi, roe(j), obs_lat, obs_lon, nterp(j), &
+                    rflag(j), oflag, zflag(j), vflag, bflag, loc )
 
          if( bflag .eq. 0 ) m = m +1
          rewind(blun)
@@ -197,27 +215,33 @@ program pspec
 
    enddo
 
-   close(tlun)   ! t15asc file
-   close(blun)   ! data bnr file
-   close(ilun)   ! input ascii file
-   close(rlun)   ! ratio bnr file
-   if( vflag .gt. 0 )close( vlun ) ! zero correction verbose output
+   !--------------------------
+   ! Screen output information
+   !--------------------------
+   call date_and_time (cdate, ztime, zone)
+   write (tag,*) trim(version), ' runtime:', cdate(1:8), '-', ztime(1:2), ':', ztime(3:4), ':', ztime(5:6)
+   write (6,  *) trim(tag)
+   
+   write(6,103) 'Observation Lat, Lon, Alt : ', obs_lat, obs_lon, obs_alt
+   write(6,102) 'Output flag : ', oflag
+   write(6,102) 'Verbose flag : ', vflag
+   write(6,102) 'Blocks written to t15asc : ', m
+   write(6,102) 'Number of bands from .ctl : ', nband
 
-   write(6,102)'Blocks written to t15asc : ', m
-
+   !--------------
+   ! File clean up
+   !--------------
+   call cleanup(tlun,blun,ilun,rlun,vflag,vlun)
    stop 'pspec .done.'
 
-! 1001 format( a )
-  101 format(/,a32,a)
-!1002 format( * )
-  102 format(a32,4i20)
-  103 format(a32,5f20.6)
+!--------------
+! Write Formats
+!--------------
+  101 format( ' ', a100 )
+  102 format( a40, i20 )
+  103 format( a40, 3f20.6)
   104 format(/,a32,4i20)
   105 format(a32,a)
-!  208 format(2f10.5)
-!  209 format(f5.0)
-!  212 format(2i5)
-!  500 format(a6)
   555 write ( *, 556)
   556 format(' t15asc error from pspec')
       stop 'pspec'
@@ -228,88 +252,5 @@ program pspec
   669 format(' abort-input file open error called from pspec')
       stop 'pspec'
 
-! 1002 format(8f10.3)
-
-! 1008 format(f10.3,7i5)
-      stop 'pspec'
-      end program pspec
-
-! --- read in bands from sfit.ctl file
-subroutine read_ctrl
-
-   use params
-   use datafiles
-   use bandparam
-   use lineparam
-   use isotope
-   use binput_4_0
-   use binput_parse_4_0
-
-
-   implicit none
-   character (len=9) :: filename = 'sfit4.ctl'
-   integer           :: istat, nr_keys, iband, nextra
-   logical           :: fexist
-   real(double)      :: dwave
-
-   ! --- open sfit4.ctl file if its here
-   inquire( file=filename, exist = fexist )
-   if( .not. fexist ) then
-      write(*,*) 'file ', trim(filename), ' does not exist'
-      stop
-   endif
-   open( bp_nr, file=filename, status='old', iostat=istat)
-
-   ! --- read in band parameters
-   do
-      call read_line_binput( keyword, nr_keys, value, istat )
-      if(( istat .lt. 0 ) .and. ( nr_keys .eq. 0 ))exit
-      if( nr_keys .eq. 0 )then
-         cycle
-      endif
-      select case ( trim( adjustl( keyword( 1 ))))
-         case ( 'band' )
-            call read_band_section( keyword, value )
-         case ('file')
-            call read_file_section(keyword, value)
-         case ('fw')
-            call read_fw_section(keyword, value)
-      end select
-   end do
-   write(6,101) 'Number of bands from .ctl : ', nband
-
-   ! --- Loop over bands
-   do iband = 1, nband
-      ! --- 10 res units to account for shifts - from initialize.f90:setup
-      dwave  = 10.d0/pmax(iband)
-      nextra = nint( dwave/dn(iband))
-      !  --- interval for input of line data, dlines accounts for out of band absorption
-      wave5(iband) = wave3(iband) - nextra*dn(iband) - dlines
-      wave6(iband) = wave4(iband) + nextra*dn(iband) + dlines
-      write(6,100) iband, wave3(iband), wave4(iband), pmax(iband)
-   enddo
-
-   close( bp_nr )
-
-return
-
-100 format( 32x,i5,4f14.5,f12.3,f12.6 )
-101 format( /, a32, i20 )
-
-end subroutine read_ctrl
-
-!--------------------------------------------------------------------------------------------
-subroutine gonext(ifile, buffer)
-
-   implicit none
-   integer,intent(in)         :: ifile
-   character(80),intent(out)  :: buffer
-
-   buffer(1:1) = '#'
-   do while (buffer(1:1) .eq. '#')
-       read(ifile,'(a80)') buffer
-       !print *, buffer
-   end do
-
-end subroutine gonext
+end program pspec
 

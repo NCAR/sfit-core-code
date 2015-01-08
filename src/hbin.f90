@@ -1044,7 +1044,7 @@ subroutine read_ctrl
 
    ! --- read in band parameters
    do
-      call read_line_binput( keyword, nr_keys, value, istat )
+      call read_line_binput( bp_nr, keyword, nr_keys, value, istat )
       if(( istat .lt. 0 ) .and. ( nr_keys .eq. 0 ))exit
       if( nr_keys .eq. 0 )then
          cycle
