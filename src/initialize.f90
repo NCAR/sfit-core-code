@@ -874,8 +874,10 @@
          NEAPRT = NEAP
          IF (NEAPRT > 0) THEN
             EAPF0(:NEAPRT) = EAPF(:NEAPRT)
-            PNAME(NVAR+1:NEAPRT+NVAR) = 'EmpApdFcn'
-            PARM(NVAR+1:NEAPRT+NVAR) = EAPPAR
+            do kk = 1, NEAPRT
+               write(PNAME(kk+NVAR),'(a8,i1)') 'EmpApdFcn_',i
+            end do
+            PARM(NVAR+1:NEAPRT+NVAR) = EAPPAR + 1.0D0
             SPARM(NVAR+1:NEAPRT+NVAR) = SEAPPAR
             NVAR = NEAPRT + NVAR
          ENDIF
@@ -886,8 +888,10 @@
          NEPHSRT = NEPHS
          IF (NEPHSRT > 0) THEN
             EPHSF0(:NEPHSRT) = EPHSF(:NEPHSRT)
-            PNAME(NVAR+1:NEPHSRT+NVAR) = 'EmpPhsFnc'
-            PARM(NVAR+1:NEPHSRT+NVAR) = EPHSPAR
+            do kk = 1, NEAPRT
+               write(PNAME(kk+NVAR),'(a8,i1)') 'EmpPhsFnc_',i
+            end do
+            PARM(NVAR+1:NEPHSRT+NVAR) = EPHSPAR + 1.0D0
             SPARM(NVAR+1:NEPHSRT+NVAR) = SEPHSPAR
             NVAR = NEPHSRT + NVAR
          ENDIF
