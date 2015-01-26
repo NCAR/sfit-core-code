@@ -843,7 +843,7 @@
             N = NSCAN(I)
             IF (N > 0) THEN
                do kk = 1, n
-                  write(PNAME(kk+NVAR),'(a8,i1)') 'ZeroLev_',i
+                  write(PNAME(kk+NVAR),'(a8,i1)') 'ZeroLev_',kk
                end do
                PARM(NVAR+1:N+NVAR) = ZSHIFT(I,1)
                SPARM(NVAR+1:N+NVAR) = SZERO(I)
@@ -875,7 +875,7 @@
          IF (NEAPRT > 0) THEN
             EAPF0(:NEAPRT) = EAPF(:NEAPRT)
             do kk = 1, NEAPRT
-               write(PNAME(kk+NVAR),'(a8,i1)') 'EmpApdFcn_',i
+               write(PNAME(kk+NVAR),'(a10,i1)') 'EmpApdFcn_',kk
             end do
             PARM(NVAR+1:NEAPRT+NVAR) = EAPPAR + 1.0D0
             SPARM(NVAR+1:NEAPRT+NVAR) = SEAPPAR
@@ -888,8 +888,8 @@
          NEPHSRT = NEPHS
          IF (NEPHSRT > 0) THEN
             EPHSF0(:NEPHSRT) = EPHSF(:NEPHSRT)
-            do kk = 1, NEAPRT
-               write(PNAME(kk+NVAR),'(a8,i1)') 'EmpPhsFnc_',i
+            do kk = 1, NEPHSRT
+               write(PNAME(kk+NVAR),'(a10,i1)') trim('EmpPhsFnc_'),kk
             end do
             PARM(NVAR+1:NEPHSRT+NVAR) = EPHSPAR + 1.0D0
             SPARM(NVAR+1:NEPHSRT+NVAR) = SEPHSPAR
