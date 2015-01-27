@@ -600,6 +600,7 @@
 
       ifprf_1_orig = ifprf(1)
 
+      
       ! Define new statevector for calculating KB-matrix
       if (f_kb_profile) then
          ! is the first retrieval gas already retrieved by column?
@@ -652,21 +653,22 @@
       IF( F_KB_PHASE .AND..NOT. F_KB_EPHS)   IFPHASE = .TRUE.
       IF( F_KB_TEMP )                        IFTEMP = .TRUE.
       IF( F_KB_IFDIFF )                      IFDIFF = .TRUE.
-      IF( F_KB_EAP.AND..NOT.F_EAPOD ) then
+      IF( F_KB_EAP.AND..NOT.F_RTAPOD ) then
          F_RTAPOD = .TRUE.
          F_EAPOD  = .TRUE.
          IEAP = 2
          NEAP = 3
          EAPF(:NEAP) = 1.0D0
-         EAPPAR = 1.0D0
+         EAPPAR = 0.0D0
+         print *, 'KB apod function'
       end IF
-      IF( F_KB_EPHS.AND..NOT.F_EPHASE ) then
+      IF( F_KB_EPHS.AND..NOT.F_RTPHASE ) then
          F_RTPHASE = .TRUE.
          F_EPHASE = .TRUE.
          IEPHS = 2
          NEPHS = 3
          EPHSF(:NEPHS) = 1.0D0
-         EPHSPAR = 1.0D0
+         EPHSPAR = 0.0D0
       end IF
       IF( F_KB_ZSHIFT )  THEN
          IZERO(:NBAND) = 1
