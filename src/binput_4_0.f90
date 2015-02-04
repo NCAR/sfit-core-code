@@ -39,29 +39,38 @@ module binput_4_0
 
 contains
 
-  subroutine read_hbin(filename)
+  subroutine read_hbin(filename, istat)
     character (len=*), intent(in) :: filename
     character (len=255), dimension(10) :: keyword
     character (len=2048) :: value
-    integer :: file_stat, nr_keys, nr
+    integer :: file_stat, nr_keys, nr, istat
     logical :: bp_exist
 
     nret = 0
     
-    INQUIRE (FILE=FILENAME, EXIST = BP_EXIST)
-    IF (.NOT.BP_EXIST) THEN
-       WRITE(16,*) 'BINPUT_4_0:READ_HBIN: FILE ', TRIM(FILENAME), ' DOES NOT EXIST'
-       WRITE( 0,*) 'BINPUT_4_0:READ_HBIN: FILE ', TRIM(FILENAME), ' DOES NOT EXIST'
-       CALL SHUTDOWN
-       STOP 1
-    END IF
+    inquire (file=filename, exist = bp_exist)
+    if (.not.bp_exist) then
+       write(16,*) 'BINPUT_4_0:READ_HBIN: FILE ', trim(filename), ' DOES NOT EXIST'
+       write( 0,*) 'BINPUT_4_0:READ_HBIN: FILE ', trim(filename), ' DOES NOT EXIST'
+       call shutdown
+       stop 1
+    end if
     
     open(bp_nr, file=filename, status='old', iostat = file_stat)
     
     do
        call read_line_binput(keyword, nr_keys, value, file_stat)
 
-       if ((file_stat.lt.0).and.(nr_keys.eq.0)) exit
+       if ((file_stat.lt.0).and.(nr_keys.eq.0))then
+          close(bp_nr)
+          return
+       end if
+
+       if (len_trim(keyword(1)).eq.0) then
+          istat = -1
+          close(bp_nr)
+          return
+       end if
        
        if (nr_keys.eq.0)then
           cycle

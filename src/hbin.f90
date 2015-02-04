@@ -531,6 +531,7 @@ subroutine read_input( hasc, wstr, wstp, HFL, GLP, LFL, SDV )
    character (len=160)     :: buffer, linebuffer, filename
 
    integer :: ctl_version = 2 ! 1 - original hbin.input version (till v0.9.4.4)
+                              !     test for existence of ASC flag in the first valid line
                               ! 2 - tagged hbin.input version
    
    TYPE (GALATRYDATA), intent(inout)   :: GLP(ngal)
@@ -545,14 +546,31 @@ subroutine read_input( hasc, wstr, wstp, HFL, GLP, LFL, SDV )
       stop
    endif
 
+
+   if(ctl_version.eq.2) then
+      call read_hbin(ifilename, istat)
+      print *, 'ISTAT', istat
+      if (istat.lt.0) goto 5
+      goto 6
+   end if
+
+5  continue
+   print *, 'Not a valid tagged hbin input, assume old input file version'
+   ctl_version = 1
+   
+6  continue
+
    ! --- read in ascii output flag
    if (ctl_version.eq.1) then
       open( ilun, file=ifilename, status='old', iostat=istat )
       call nextbuf( ilun, buffer )
+      ! if first line fails, assume it is tagged input
       read(buffer,'(l10)') out_ascii
-   else
-      call read_hbin(ifilename)
    end if
+
+   
+
+
    !print*, hasc
    hasc = out_ascii
    
