@@ -746,27 +746,27 @@
       CALL INIT_PARM()
 
       IS_IN_KB(:NVAR) = .TRUE.
-      do k=1, NVAR
-         do i=1, ORIG_NVAR
+      DO K=1, NVAR
+         DO I=1, ORIG_NVAR
             ! --- DWNUMSHIFT IS SET TO RETRIEVED PARAMETER OF IWNUMSHIFT
-            if( ORIG_PNAME(i)(:9) .eq. 'IWNumShft' .and. PNAME(k)(:9) .eq. 'DWNumShft' )then
-               print *, PNAME(k)
-               parm(k) = xhat(i)
-               IS_IN_KB(k) = .false.
-               !               exit
-            end if
+            if( ORIG_PNAME(I)(:9) .EQ. 'IWNumShft' .AND. PNAME(k)(:9) .EQ. 'DWNumShft' )THEN
+!               PRINT *, PNAME(k)
+               PARM(K) = XHAT(I)
+               IS_IN_KB(K) = .FALSE.
+               !               EXIT
+            END IF
             ! --- IWNUMSHIFT GETS SET TO RETRIEVED VALUE OF SWNUMSHIFT
-            if( ORIG_PNAME(i)(:9) .eq. 'SWNumShft' .and. PNAME(k)(:9) .eq. 'IWNumShft' )then
-               ORIG_PNAME(i) = ''
-               parm(k) = xhat(i)
-               IS_IN_KB(k) = .false.
-               exit
-            end if
+            if( ORIG_PNAME(I)(:9) .EQ. 'SWNumShft' .AND. PNAME(K)(:9) .EQ. 'IWNumShft' )THEN
+               ORIG_PNAME(I) = ''
+               PARM(K) = XHAT(I)
+               IS_IN_KB(K) = .FALSE.
+               EXIT
+            END IF
 ! --- DON'T COMPUTE K FOR RETRIEVED B
-            if (ORIG_PNAME(i).eq.PNAME(k)) then
-               ORIG_PNAME(i) = ''
-               parm(k) = xhat(i)
-               IS_IN_KB(k) = .false.
+            IF (ORIG_PNAME(I).EQ.PNAME(K)) THEN
+               ORIG_PNAME(I) = ''
+               PARM(K) = XHAT(I)
+               IS_IN_KB(K) = .FALSE.
                ! CHECK IF THE ORIGINALLY RETRIEVED GAS IS A COLUMN
                DO J = 1,NRET
                   ! IF SO, CALCULATE A KB ENTRY FOR THIS GAS AS A PROFILE
@@ -775,16 +775,16 @@
                      PARM(K:K+NLEV) = XHAT(I)
                   END IF
                END DO
-               exit
-            end if
-         end do
-      end do
+               EXIT
+            END IF
+         END DO
+      END DO
 
 
 !         PRINT *, PNAME
-!         print *, XHAT(:ORIG_NVAR)
-!         print *, PARM(:NVAR)
-!         print *, IS_IN_KMATRIX(:NVAR)
+!         PRINT *, XHAT(:ORIG_NVAR)
+!         PRINT *, PARM(:NVAR)
+!         PRINT *, IS_IN_KMATRIX(:NVAR)
 
 
       WRITE(16,250)
@@ -796,10 +796,7 @@
       ALLOCATE(KHAT(NFIT,NVAR))
       TOBS(:NFIT) = TOBS_ORIG(:NFIT)
 
-      !write(100,*) YHAT(:NFIT)
       CALL FM(PARM, YHAT, KHAT, NFIT, NVAR, .TRUE., -1, HFLG )
-      !write(100,*) YHAT(:NFIT)
-      !close(100)
 
       ! APPEND NAMES ILINE ENTRIES IN KB MATRIX WITH GASNAMES
       ! MIGTH BE BETTER IN THE SUBFUNCTION INIT_PARM, BUT ALL IMPLICATIONS HAVE TO BE CHECKED!!!
@@ -810,13 +807,13 @@
       DO I = 1,NVAR
          SELECT CASE (PNAME(i))
          CASE ('LineInt')
-            PNAME(I) = 'LineInt'//'_'//trim(s_kb_line_gas(L1))
+            PNAME(I) = 'LineInt'//'_'//TRIM(s_kb_line_gas(L1))
             L1 = L1 + 1
          CASE ('LinePAir')
-            PNAME(I) = 'LinePAir'//'_'//trim(s_kb_line_gas(L2))
+            PNAME(I) = 'LinePAir'//'_'//TRIM(s_kb_line_gas(L2))
             L2 = L2 + 1
          CASE ('LineTAir')
-            PNAME(I) = 'LineTAir'//'_'//trim(s_kb_line_gas(L3))
+            PNAME(I) = 'LineTAir'//'_'//TRIM(s_kb_line_gas(L3))
             L3 = L3 + 1
          END SELECT
       END DO

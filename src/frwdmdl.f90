@@ -73,7 +73,7 @@
       REAL(DOUBLE), DIMENSION(MAXSPE)   :: YCAVE, YCMAX, WSCALE
       REAL(DOUBLE) :: DEL, SUMSQ, WA, WE, SP, DWAVE, DSHIFT, FRACS, PHI, SMM, YS, &
          BKGND, FX, TEMPP!, STDEV
-      REAL(DOUBLE) , DIMENSION(:,:), allocatable    :: store_line
+      REAL(DOUBLE) , DIMENSION(:,:), ALLOCATABLE    :: STORE_LINE
 
       COMPLEX(DBLE_COMPLEX) :: TCALL, TCALH, TCALI
 
@@ -96,11 +96,11 @@
 
       TFLG = .FALSE.
       BUG1 = .FALSE. !.TRUE.
-      ! if line parameters are disturbed, get some space to store original ones
-      if (nrlgas /= 0 .and. .not. allocated(store_line)) then
-         allocate(store_line(4,LNMAX))
-         store_line(:,:) = 0.0d0
-      end if
+      ! IF LINE PARAMETERS ARE DISTURBED, GET SOME SPACE TO STORE ORIGINAL ONES
+      IF (NRLGAS /= 0 .AND. .NOT. ALLOCATED(STORE_LINE)) THEN
+         ALLOCATE(STORE_LINE(4,LNMAX))
+         STORE_LINE(:,:) = 0.0D0
+      END IF
       IF (KFLG) THEN
          NVAR1 = NVAR + 1
       ELSE
@@ -184,84 +184,83 @@
             K = ICOUNT - NCOUNT -1
             KK = NILINE + NPLINE + NTLINE + 2
             FLINE = .FALSE.
-            ! setup3 one time more than perturbation, the last time with the original line parameters again.
-            if ((K.gt.0).and.(k.lt.kk)) then
-                  do k = 1, nrlgas
+            ! SETUP3 ONE TIME MORE THAN PERTURBATION, THE LAST TIME WITH THE ORIGINAL LINE PARAMETERS AGAIN.
+            IF ((K.GT.0).AND.(K.LT.KK)) THEN
+                  DO K = 1, NRLGAS
                      DO I=LINE1(1), LINE2(NBAND)
-                        IF( TRIM(s_kb_line_gas(k)) .EQ.  TRIM(NAME(ICODE(LGAS(I)))))THEN
-                           !                        print *, i, k, AZERO(i), ST296(i), ICODE(LGAS(I)), trim(NAME(ICODE(LGAS(I)))), ' ', trim(s_kb_line_gas(k))
-                           store_line(2,i) = ST296(i)
-                           store_line(3,i) = AAA(i)
-                           store_line(4,i) = TDLIN(i)
-                           if (niline /= 0) ST296(i) = ST296(i)* (1.0d0 + parm(ncount+k))
-                           if (npline /= 0) AAA(i) = AAA(i)* (1.0d0 + parm(ncount+niline+k))
-                           if (ntline /= 0) TDLIN(i) = TDLIN(i)* (1.0d0 + parm(ncount+niline+npline+k))
-                        end IF
-                     end do
-                  end DO
+                        IF( TRIM(S_KB_LINE_GAS(K)) .EQ.  TRIM(NAME(ICODE(LGAS(I)))))THEN
+                           STORE_LINE(2,I) = ST296(I)
+                           STORE_LINE(3,I) = AAA(I)
+                           STORE_LINE(4,I) = TDLIN(I)
+                           IF (NILINE /= 0) ST296(I) = ST296(I)* (1.0D0 + PARM(NCOUNT+K))
+                           IF (NPLINE /= 0) AAA(I) = AAA(I)* (1.0D0 + PARM(NCOUNT+NILINE+K))
+                           IF (NTLINE /= 0) TDLIN(I) = TDLIN(I)* (1.0D0 + PARM(NCOUNT+NILINE+NPLINE+K))
+                        END IF
+                     END DO
+                  END DO
                   CALL SETUP3( XSC_DETAIL, -1 )
-                  ! set back line parameters
-                  do k = 1, nrlgas
+                  ! SET BACK LINE PARAMETERS
+                  DO K = 1, nrlgas
                      DO I=LINE1(1), LINE2(NBAND)
-                        IF( TRIM(s_kb_line_gas(k)) .EQ.  TRIM(NAME(ICODE(LGAS(I)))))THEN
+                        IF( TRIM(S_KB_LINE_GAS(K)) .EQ.  TRIM(NAME(ICODE(LGAS(I)))))THEN
                            !                        print *, i, k, AZERO(i), ST296(i), ICODE(LGAS(I)), trim(NAME(ICODE(LGAS(I)))), ' ', trim(s_kb_line_gas(k))
-                           ST296(i) = store_line(2,i)
-                           AAA(i)   = store_line(3,i)
-                           TDLIN(i) = store_line(4,i)
-                        end IF
-                     end do
-                  end DO
-                  FLINE = .true.
-               end if
+                           ST296(I) = STORE_LINE(2,I)
+                           AAA(I)   = STORE_LINE(3,I)
+                           TDLIN(I) = STORE_LINE(4,i)
+                        END IF
+                     END DO
+                  END DO
+                  FLINE = .TRUE.
+               END IF
                NCOUNT = NCOUNT + NILINE + NPLINE + NTLINE
             end if
 
-         FSZA = .false.
-         if (ifsza /= 0) then
-            ! setup2 and setup3 must run one time more than perturbation sza in order to get the old state again
-            k = ICOUNT - NCOUNT -1
-            do kk = 1,nspec
-               astang(kk) = astang0(kk)*(1.0d0+parm(ncount+kk))
-            end do
-            if (k.gt. 0 .and. k.lt.nspec+2) THEN
+         FSZA = .FALSE.
+         IF (IFSZA /= 0) THEN
+            ! SETUP2 AND SETUP3 MUST RUN ONE TIME MORE THAN PERTURBATION SZA IN ORDER TO GET THE OLD STATE AGAIN
+            K = ICOUNT - NCOUNT -1
+            DO KK = 1,NSPEC
+               ASTANG(KK) = ASTANG0(KK)*(1.0D0+PARM(NCOUNT+KK))
+            END DO
+            IF (K.GT. 0 .AND. K.LT.NSPEC+2) THEN
                CALL LBLATM( 0, KMAX )
                CALL SETUP3( XSC_DETAIL, -1 )
-               FSZA = .true.
-            end if
+               FSZA = .TRUE.
+            END IF
             NCOUNT = NCOUNT + NSPEC
-         end if
+         END IF
 
-         do k = 1,nband
-            ! Error in Field of View
-            if (iffov /= 0) then
-               ncount = ncount + 1
-               OMEGA(k) = OMEGA0(k)*(1.0d0 + parm(ncount))
-            end if
-            ! Error in Field of MaxOPD
-            if (ifopd /= 0) then
-               ncount = ncount + 1
-               if (ICOUNT == NCOUNT+1) then
-                  ! usual DEL = 0.1D-5 is to small to cause any KB.
-                  parm(ncount) = parm(ncount) - DEL + 0.1
+         DO K = 1,NBAND
+            ! ERROR IN FIELD OF VIEW
+            IF (IFFOV /= 0) THEN
+               NCOUNT = NCOUNT + 1
+               OMEGA(K) = OMEGA0(K)*(1.0D0 + PARM(NCOUNT))
+            END IF
+            ! ERROR IN FIELD OF MAXOPD
+            IF (IFOPD /= 0) THEN
+               NCOUNT = NCOUNT + 1
+               IF (ICOUNT == NCOUNT+1) THEN
+                  ! USUAL DEL = 0.1D-5 IS TO SMALL TO CAUSE ANY KB.
+                  PARM(NCOUNT) = PARM(NCOUNT) - DEL + 0.1
                   DEL = 0.1
-               end if
-               PMAX(k) = PMAX0(k) * (1.0d0 + parm(ncount))
-            end if
-         end do
+               END IF
+               PMAX(K) = PMAX0(K) * (1.0D0 + PARM(NCOUNT))
+            END IF
+         END DO
 
-! continuum absorption
-         tall_flag = .false.
-         !         print *,'u1',pname(ncount+1),'u2',pname(iparm),' ',iparm, ' ',icount,' ',ncount
-         if (f_contabs) then
-            if (iparm.eq.0.or.(iparm.ge.ncount+1.and.iparm.le.ncount+n_contabs+1)) then
-               do k = 1,n_contabs
-                  cont_param(k) = parm(ncount+k)
-               end do
-               call calc_continuum(cont_param)
-               tall_flag = .true.
-            end if
-            ncount = ncount + n_contabs
-         end if
+! CONTINUUM ABSORPTION
+         TALL_FLAG = .FALSE.
+         !         PRINT *,'U1',PNAME(NCOUNT+1),'U2',PNAME(IPARM),' ',IPARM, ' ',ICOUNT,' ',NCOUNT
+         IF (F_CONTABS) THEN
+            IF (IPARM.EQ.0.OR.(IPARM.GE.NCOUNT+1.AND.IPARM.LE.NCOUNT+N_CONTABS+1)) THEN
+               DO K = 1,N_CONTABS
+                  CONT_PARAM(K) = PARM(NCOUNT+K)
+               END DO
+               CALL CALC_CONTINUUM(CONT_PARAM)
+               TALL_FLAG = .TRUE.
+            END IF
+            NCOUNT = NCOUNT + N_CONTABS
+         END IF
 
 
 !  ---  UPDATE VMRS OF RETRIEVAL GASES
@@ -497,9 +496,9 @@
                   SMM = SMM + YC(JATMOS)
                END DO
 
-               ! -- normalization of spectra only when absorption
-               ! spectra only or normalization is explicitely
-               ! required for emission spectra. mp
+               ! -- NORMALIZATION OF SPECTRA ONLY WHEN ABSORPTION
+               ! SPECTRA ONLY OR NORMALIZATION IS EXPLICITELY
+               ! REQUIRED FOR EMISSION SPECTRA. MP
                IF (IEMISSION.EQ.0 .OR. IENORM(IBAND).NE.0) THEN
                   YCAVE(IBAND) = SMM/N3
                   YC(JATMOS-N3+1:JATMOS) = YC(JATMOS-N3+1:JATMOS)/YCAVE(IBAND)

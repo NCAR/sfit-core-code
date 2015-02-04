@@ -606,9 +606,9 @@
          IF( IEMISSION .EQ. 0 .OR. IENORM(IBAND) .eq. 1) THEN
             TAVE              = SMM/REAL(NPTSB,8)
             TOBS(NREF:NATMOS) = TOBS(NREF:NATMOS)/TAVE
-            !print *, 'tave ', tave, NREF, NATMOS
-            !print *, maxval(TOBS(NREF:NATMOS))
-            !TOBS(NREF:NATMOS) = TOBS(NREF:NATMOS)/ maxval(TOBS(NREF:NATMOS))
+            !PRINT *, 'TAVE ', TAVE, NREF, NATMOS
+            !PRINT *, MAXVAL(TOBS(NREF:NATMOS))
+            !TOBS(NREF:NATMOS) = TOBS(NREF:NATMOS)/ MAXVAL(TOBS(NREF:NATMOS))
          END IF
 
 ! --- IF WE GET HERE WE NEED TO READ ANOTHER BLOCK IN T15ASC
@@ -775,9 +775,9 @@
          IF (NBACK == 2) THEN
             IF (NFITS > 0) THEN
                !  --- BACKGROUND SLOPE - NBACK=2
-               do i = 1,nfits
-                  WRITE(PNAME(NVAR+I), '(a10,i1)') 'BckGrdSlp_', i
-               end do
+               DO I = 1,NFITS
+                  WRITE(PNAME(NVAR+I), '(A10,I1)') 'BCKGRDSLP_', I
+               END DO
                PARM(NVAR+1:NFITS) = BCKSL
                SPARM(NVAR+1:NFITS) = SBCKSL
                !  --- BACKGROUND CURVATURE - NBACK=3
@@ -787,15 +787,15 @@
             IF (NBACK == 3) THEN
                IF (NFITS > 0) THEN
                   !  --- BACKGROUND SLOPE - NBACK=2
-                  do i = 1,nfits
-                     write(PNAME(I*2-1+NVAR), '(a10,i1)') 'BckGrdSlp_', i
-                  end do
+                  DO I = 1,NFITS
+                     WRITE(PNAME(I*2-1+NVAR), '(A10,I1)') 'BCKGRDSLP_', I
+                  END DO
                   PARM(NVAR+1:NFITS*2-1+NVAR:2) = BCKSL
                   SPARM(NVAR+1:NFITS*2-1+NVAR:2) = SBCKSL
                   !  --- BACKGROUND CURVATURE - NBACK=3
-                  do i = 1,nfits
-                     write(PNAME(I*2+NVAR), '(a10,i1)') 'BckGrdCur_', i
-                  end do
+                  DO I = 1,NFITS
+                     WRITE(PNAME(I*2+NVAR), '(A10,I1)') 'BCKGRDCUR_', I
+                  END DO
                   PARM(NVAR+2:NFITS*2+NVAR:2) = BCKCRV
                   SPARM(NVAR+2:NFITS*2+NVAR:2) = SBCKCRV
                   NVAR = NFITS*2 + NVAR
@@ -821,9 +821,9 @@
             IF (ISPARM == 2) N = NBAND
             IF (ISPARM == 3) N = NFITS
             IF (N > 0) THEN
-               do i = 1,N
-                  WRITE(PNAME(NVAR+I), '(a10,i1)') 'IWNumShft_', i
-               end do
+               DO I = 1,N
+                  WRITE(PNAME(NVAR+I), '(A10,I1)') 'IWNUMSHFT_', I
+               END DO
                PARM(NVAR+1:N+NVAR) = WSHFT
                SPARM(NVAR+1:N+NVAR) = SWSHFT
                NVAR = N + NVAR
@@ -842,9 +842,9 @@
             IF (IZERO(I) .NE. 1 ) CYCLE
             N = NSCAN(I)
             IF (N > 0) THEN
-               do kk = 1, n
-                  write(PNAME(kk+NVAR),'(a8,i1)') 'ZeroLev_',kk
-               end do
+               DO KK = 1, N
+                  WRITE(PNAME(KK+NVAR),'(A8,I1)') 'ZEROLEV_',KK
+               END DO
                PARM(NVAR+1:N+NVAR) = ZSHIFT(I,1)
                SPARM(NVAR+1:N+NVAR) = SZERO(I)
                NVAR = N + NVAR
@@ -888,9 +888,9 @@
          NEPHSRT = NEPHS
          IF (NEPHSRT > 0) THEN
             EPHSF0(:NEPHSRT) = EPHSF(:NEPHSRT)
-            do kk = 1, NEPHSRT
-               write(PNAME(kk+NVAR),'(a10,i1)') trim('EmpPhsFnc_'),kk
-            end do
+            DO KK = 1, NEPHSRT
+               WRITE(PNAME(KK+NVAR),'(A10,I1)') TRIM('EMPPHSFNC_'),KK
+            END DO
             PARM(NVAR+1:NEPHSRT+NVAR) = EPHSPAR + 1.0D0
             SPARM(NVAR+1:NEPHSRT+NVAR) = SEPHSPAR
             NVAR = NEPHSRT + NVAR
@@ -900,9 +900,9 @@
       !  --- DIFFERENTIAL WAVENUMBER SHIFT FOR RETRIEVAL GASES
       NDIFF = 0
       IF (IFDIFF .AND. NRET.GT.1) THEN
-         do kk = 2, nret
-            PNAME(kk+NVAR-1) = 'DWNumShft_'//trim(GAS(kk))
-         end do
+         DO KK = 2, NRET
+            PNAME(KK+NVAR-1) = 'DWNUMSHFT_'//TRIM(GAS(KK))
+         END DO
          PARM(NVAR+1:NRET-1+NVAR)  = WSHFT
          SPARM(NVAR+1:NRET-1+NVAR) = SWSHFT
          NDIFF = NRET - 1
@@ -916,9 +916,9 @@
          DO I = 1, NBAND
             N = NSCAN(I)
             IF (N > 0) THEN
-               do kk = 1, n
-                  write(PNAME(kk+NVAR),'(a8,i1)') 'SPhsErr_',i
-               end do
+               DO KK = 1, N
+                  WRITE(PNAME(KK+NVAR),'(A8,I1)') 'SPHSERR_',I
+               END DO
                PARM(NVAR+1:N+NVAR) = PHS
                SPARM(NVAR+1:N+NVAR) = SPHS
                NVAR = N + NVAR
@@ -950,40 +950,40 @@
          end IF
       end if
 
-      if (ifsza /= 0) then
+      IF (IFSZA /= 0) THEN
          PNAME(NVAR+1:NVAR+NSPEC) = 'SZA'
          PARM(NVAR+1:NVAR+NSPEC)  = 0.0D0
          SPARM(NVAR+1:NVAR+NSPEC) = 1.0D0
          NVAR = NVAR + NSPEC
-      end IF
+      END IF
 
-      do i = 1,nband
-         if (iffov /= 0) then
-            write(PNAME(NVAR+1:NVAR+2), '(a4,i1)'), 'FOV_', i
+      DO I = 1,NBAND
+         IF (IFFOV /= 0) THEN
+            WRITE(PNAME(NVAR+1:NVAR+2), '(A4,I1)'), 'FOV_', I
             PARM(NVAR+1:NVAR+2)  = 0.0D0
             SPARM(NVAR+1:NVAR+2) = 1.0D0
             NVAR = NVAR + 1
-         end if
-         if (ifopd /= 0) then
-            write(PNAME(NVAR+1:NVAR+2), '(a4,i1)'), 'OPD_', i
+         END IF
+         IF (IFOPD /= 0) THEN
+            WRITE(PNAME(NVAR+1:NVAR+2), '(A4,I1)'), 'OPD_', I
             PARM(NVAR+1:NVAR+2)  = 0.0D0
             SPARM(NVAR+1:NVAR+2) = 1.0D0
             NVAR = NVAR + 1
-         end if
-      end do
+         END IF
+      END DO
 
-      ! continuum absorption
-      if (f_contabs) then
-         n_contabs = abscont_order + 1 ! 0-th order already needs one param.
-         if (allocated(cont_param)) deallocate(cont_param)
-         allocate(cont_param(n_contabs))
-         do i = 1,n_contabs
-            write(PNAME(NVAR+I:NVAR+1+I), '(a10,i1)'), 'CONTINUUM_', i-1
-         end do
-         PARM(NVAR+1:NVAR+n_contabs)  = abscont_param(1)
-         SPARM(NVAR+1:NVAR+n_contabs) = abscont_sparam(1)
-         NVAR = NVAR + n_contabs
-      end if
+      ! CONTINUUM ABSORPTION
+      IF (F_CONTABS) THEN
+         N_CONTABS = ABSCONT_ORDER + 1 ! 0-TH ORDER ALREADY NEEDS ONE PARAM.
+         IF (ALLOCATED(CONT_PARAM)) DEALLOCATE(CONT_PARAM)
+         ALLOCATE(CONT_PARAM(N_CONTABS))
+         DO I = 1,N_CONTABS
+            WRITE(PNAME(NVAR+I:NVAR+1+I), '(A10,I1)'), 'CONTINUUM_', I-1
+         END DO
+         PARM(NVAR+1:NVAR+N_CONTABS)  = ABSCONT_PARAM(1)
+         SPARM(NVAR+1:NVAR+N_CONTABS) = ABSCONT_SPARAM(1)
+         NVAR = NVAR + N_CONTABS
+      END IF
 
 
       !  ---  RETRIEVAL GAS MIXING RATIOS
