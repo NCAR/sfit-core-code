@@ -95,6 +95,12 @@ contains
 
   end subroutine read_hbin
 
+  subroutine init_vars()
+    emission_t_back = -1.0d0
+    emission_object = 'N/A'
+    ienorm = -1
+  end subroutine init_vars
+  
   subroutine read_binput(filename)
 
   character (len=*), intent(in) :: filename
@@ -105,6 +111,8 @@ contains
 
   nret = 0
 
+  call init_vars()
+  
   INQUIRE (FILE=FILENAME, EXIST = BP_EXIST)
   IF (.NOT.BP_EXIST) THEN
      WRITE(16,*) 'BINPUT_4_0:READ_BINPUT: FILE ', TRIM(FILENAME), ' DOES NOT EXIST'

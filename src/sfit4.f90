@@ -598,39 +598,39 @@
       F_WRTRAYTC   = .FALSE.
       XSC_DETAIL   = .FALSE.
 
-      ifprf_1_orig = ifprf(1)
+      IFPRF_1_ORIG = IFPRF(1)
 
       
-      ! Define new statevector for calculating KB-matrix
-      if (f_kb_profile) then
-         ! is the first retrieval gas already retrieved by column?
-         val = adjustl(trim(s_kb_profile_gases))
-         nrlgas = 0
-         pos = index(adjustl(val),' ')
-         do
-            !                 print *,val
-            if (len_trim(val).eq.0) exit
-            nrprfgas = nrprfgas + 1
-            if (pos.gt.0) then
-               read(val(1:pos),*) s_kb_prf_gas(nrprfgas)
-            else
-               read(val(1:len_trim(adjustl(val))),*) s_kb_prf_gas(nrprfgas)
-               exit
-            end if
-            val = adjustl(val(pos+1:len(val)))
-            pos = index(trim(adjustl(val)),' ')
-         end do
-         do k = 1,nrprfgas
-            do j = 1,nret
-               if (trim(adjustl(s_kb_prf_gas(k))).eq.trim(adjustl(gas(j)))) then
-                  ! only calculated if originally it was not a profile
-                  if(.not.ifprf(j)) ifprf_kb(j) = .true.
-                  ! but now it needs to be set to profile in order to setup correctly
-                  ifprf(j) = .true.
-               end if
-            end do
-         end do
-      end if
+      ! DEFINE NEW STATEVECTOR FOR CALCULATING KB-MATRIX
+      IF (F_KB_PROFILE) THEN
+         ! IS THE FIRST RETRIEVAL GAS ALREADY RETRIEVED BY COLUMN?
+         VAL = ADJUSTL(TRIM(S_KB_PROFILE_GASES))
+         NRLGAS = 0
+         POS = INDEX(ADJUSTL(VAL),' ')
+         DO
+            !                 PRINT *,VAL
+            IF (LEN_TRIM(VAL).EQ.0) EXIT
+            NRPRFGAS = NRPRFGAS + 1
+            IF (POS.GT.0) THEN
+               READ(VAL(1:POS),*) S_KB_PRF_GAS(NRPRFGAS)
+            ELSE
+               READ(VAL(1:LEN_TRIM(ADJUSTL(VAL))),*) S_KB_PRF_GAS(NRPRFGAS)
+               EXIT
+            END IF
+            VAL = ADJUSTL(VAL(POS+1:LEN(VAL)))
+            POS = INDEX(TRIM(ADJUSTL(VAL)),' ')
+         END DO
+         DO K = 1,NRPRFGAS
+            DO J = 1,NRET
+               IF (TRIM(ADJUSTL(S_KB_PRF_GAS(K))).EQ.TRIM(ADJUSTL(GAS(J)))) THEN
+                  ! ONLY CALCULATED IF ORIGINALLY IT WAS NOT A PROFILE
+                  IF(.NOT.IFPRF(J)) IFPRF_KB(J) = .TRUE.
+                  ! BUT NOW IT NEEDS TO BE SET TO PROFILE IN ORDER TO SETUP CORRECTLY
+                  IFPRF(J) = .TRUE.
+               END IF
+            END DO
+         END DO
+      END IF
 
 ! ---  DEFINE NEW STATEVECTOR FOR CALCULATING KB-MATRIX
       IF( F_KB_SLOPE .AND. NBACK.LT.2 ) then
@@ -695,46 +695,46 @@
          ENDIF
       ENDDO
 
-      if( f_kb_line )then
-         ifline = 1
-         ! --- find for which gases are Kb for line parameters are calculated
-         select case (trim(adjustl(s_kb_line_gases)))
-         case ('target')
-            s_kb_line_gas(1) = trim(adjustl(gas(1)))
-            niline = 1
-            npline = 1
-            ntline = 1
-            nrlgas = 1
-         case ('retrieval')
-            do k = 1,nret
-               s_kb_line_gas(k) = trim(adjustl(gas(k)))
-            end do
-            niline = nret
-            npline = nret
-            ntline = nret
-            nrlgas = nret
-         case default
-            val = adjustl(trim(s_kb_line_gases))
-            nrlgas = 0
-            pos = index(adjustl(val),' ')
-            do
-!                 print *,val
-               if (len_trim(val).eq.0) exit
-               nrlgas = nrlgas + 1
-               if (pos.gt.0) then
-                  read(val(1:pos),*) s_kb_line_gas(nrlgas)
-               else
-                  read(val(1:len_trim(adjustl(val))),*) s_kb_line_gas(nrlgas)
-                  exit
-               end if
-               val = adjustl(val(pos+1:len(val)))
-               pos = index(trim(adjustl(val)),' ')
-            end do
-            niline = nrlgas
-            npline = nrlgas
-            ntline = nrlgas
-         end select
-      end if
+      IF( F_KB_LINE )THEN
+         IFLINE = 1
+         ! --- FIND FOR WHICH GASES ARE KB FOR LINE PARAMETERS ARE CALCULATED
+         SELECT CASE (TRIM(ADJUSTL(S_KB_LINE_GASES)))
+         CASE ('TARGET')
+            S_KB_LINE_GAS(1) = TRIM(ADJUSTL(GAS(1)))
+            NILINE = 1
+            NPLINE = 1
+            NTLINE = 1
+            NRLGAS = 1
+         CASE ('RETRIEVAL')
+            DO K = 1,NRET
+               S_KB_LINE_GAS(K) = TRIM(ADJUSTL(GAS(K)))
+            END DO
+            NILINE = NRET
+            NPLINE = NRET
+            NTLINE = NRET
+            NRLGAS = NRET
+         CASE DEFAULT
+            VAL = ADJUSTL(TRIM(S_KB_LINE_GASES))
+            NRLGAS = 0
+            POS = INDEX(ADJUSTL(VAL),' ')
+            DO
+!                 PRINT *,VAL
+               IF (LEN_TRIM(VAL).EQ.0) EXIT
+               NRLGAS = NRLGAS + 1
+               IF (POS.GT.0) THEN
+                  READ(VAL(1:POS),*) S_KB_LINE_GAS(NRLGAS)
+               ELSE
+                  READ(VAL(1:LEN_TRIM(ADJUSTL(VAL))),*) S_KB_LINE_GAS(NRLGAS)
+                  EXIT
+               END IF
+               VAL = ADJUSTL(VAL(POS+1:LEN(VAL)))
+               POS = INDEX(TRIM(ADJUSTL(VAL)),' ')
+            END DO
+            NILINE = NRLGAS
+            NPLINE = NRLGAS
+            NTLINE = NRLGAS
+         END SELECT
+      END IF
 
 ! --- SET THE ENTRIES OF THE STATEVECTOR AS A PRIORI IN THE NEW PARM VECTOR TO MAKE
 !     SURE THE KB MATRICES ARE CALCULATED AS DEVIATIONS FROM THE RETRIEVED STATE
