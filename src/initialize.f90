@@ -250,6 +250,11 @@
       IF( F_EAPOD )THEN
          WRITE (*, *) ' READING EMPIRICAL MODULATION PARAMETER FILE...'
          CALL FILEOPEN( 23, 3 )
+         IF (IEAP == 3) THEN
+            write(*,*) 'FW: DONT USE FW.APODISATION_FCN = 3 (FOURIER SERIES), NOT TESTED.'
+            write(16,*) 'FW: DONT USE FW.APODISATION_FCN = 3 (FOURIER SERIES), NOT TESTED.'
+            STOP 1
+         END IF
          IF (IEAP == 4) THEN
             ! READS LINEFIT FORMAT ASSUMES 20 VALUES)
             JEAP = 20
