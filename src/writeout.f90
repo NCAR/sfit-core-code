@@ -245,7 +245,19 @@
       IMPLICIT NONE
 
       INTEGER, INTENT(IN) :: NRET, NLEV, KVERT
-      INTEGER             :: K, KK
+      INTEGER             :: J, K, KK
+      REAL(8)             :: INITSCALE(NMOL)
+
+      INITSCALE(:) = 1.0D0
+
+print*, 'nmol, molt ',nmol, moltotal
+      DO J = 1, NRET
+         !print *,J, GAS(J)
+         DO K = 1, MOLTOTAL
+!           write(*,*) gas(j), name(i)
+            IF (GAS(J) == NAME(K)) INITSCALE(K) = COLSF(J)
+         ENDDO
+      ENDDO
 
       CALL FILEOPEN( 87, 2 )
 
@@ -254,7 +266,7 @@
       WRITE(87,408)0,0,0,0,0,(K,K=1,NMOL)
       WRITE(87,409) (ADJUSTR(TRIM(TRIM(NAME(K)))), K=1,NMOL)
       DO KK = 1, NLEV
-         WRITE(87,407) Z(KK), ZBAR(KK), TORG(KK), PMBORG(KK), CORG(KVERT, KK), (FXORG(K,KK), K=1,NMOL)
+         WRITE(87,407) Z(KK), ZBAR(KK), TORG(KK), PMBORG(KK), CORG(KVERT, KK), (FXORG(K,KK)*INITSCALE(K), K=1,NMOL)
       END DO
 
       CALL FILECLOSE( 88, 1 )
