@@ -39,11 +39,11 @@ FFLAGS = -Warray-bounds -Wcharacter-truncation -Wunused-parameter \
 # -Warray-temporaries too many...
 
 #error check a lot
-#FFLAGS = -Wall -fno-automatic -fcheck=all -ffpe-trap=invalid,zero,overflow,underflow -Warray-bounds \
-#         -fbounds-check -fbacktrace
+FFLAGS = -Wall -fno-automatic -fcheck=all -ffpe-trap=invalid,zero,overflow,underflow -Warray-bounds \
+         -fbounds-check -fbacktrace -g
 
-# optomize
-FFLAGS = -Ofast -Wall -fno-automatic -frepack-arrays
+# optimize -Ofast v4.8
+FFLAGS = -Wall -fno-automatic -frepack-arrays  -ffree-line-length-none
 
 # supply compile date:
 # -cpp -DBDATE="\"`date +%Y%m%d`"\" -O2 -fno-automatic

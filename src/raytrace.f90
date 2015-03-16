@@ -470,7 +470,7 @@ END SUBROUTINE READLAYRS
 
       CALL CPU_TIME(TSTP)
 
-      WRITE(0,905)  "  RAYTRACE PROCESS TIME : ", TSTP-TSRT
+      !WRITE(0,905)  "  RAYTRACE PROCESS TIME : ", TSTP-TSRT
       IF( NOPRNT .GE. 2 )WRITE(IPR,905) "  RAYTRACE PROCESS TIME : ", TSTP-TSRT
 
       CALL FILECLOSE( IPU, 1 )
@@ -1298,7 +1298,7 @@ END SUBROUTINE READLAYRS
 ! --- END IF IBMAX_B < 0 - PRESSURE BOUDRARIES - INTERPOLATING ONTO Z BOUNDS
 
          ENDIF
-
+         !print*, ZBND(1), ZMDL(1)
          IF (IBMAX.GE.1) THEN
             IF (ZBND(1).LT.ZMDL(1)) THEN
                IF (NOPRNT.GE.0) WRITE (IPR,944)
@@ -1931,7 +1931,8 @@ END SUBROUTINE READLAYRS
 ! --- UPSIDE DOWN!
 ! --- MASS PATHS ARE TOTAL MASS PATHS IN CM*ATM
       DO IL = 1, LMAX
-         CCC(JSPEC,IL)  = TBAR(LMAX-IL+1)*WETAIR(LMAX-IL+1)/CONST
+         !CCC(JSPEC,IL)  = TBAR(LMAX-IL+1)*WETAIR(LMAX-IL+1)/CONST
+         CCC(JSPEC,IL)  = TBAR(LMAX-IL+1)*DRAIRL(LMAX-IL+1)/CONST
          CORG(JSPEC,IL) = CCC(JSPEC,IL)
       END DO
 
@@ -1939,16 +1940,14 @@ END SUBROUTINE READLAYRS
       IF( IREAD .EQ. 999 )THEN
          APPANG(JSPEC) = 0.0
          DO IL = 1, LMAX
-            CCC(JSPEC,IL) = WETAIR(LMAX-IL+1)*1.0D0
+            !CCC(JSPEC,IL) = WETAIR(LMAX-IL+1)*1.0D0
+            CCC(JSPEC,IL) = DRAIRL(LMAX-IL+1)*1.0D0
             CORG(JSPEC,IL) = CCC(JSPEC,IL)
          END DO
       ENDIF
 !      write(0,'(a,4i5,2f10.2)') 'refout ',iter, jspec, nspec, lmax, app, astang(jspec)
 
       IF( ITER .NE. 0 .AND. JSPEC .NE. 1 )RETURN
-
-
-
 
 ! --- FOR NOW JSPEC = 1 IS SPECIAL SHOULD HAVE MOST LAYERS - LARGEST SZA (WHEN > 90)
       !IF( JSPEC .EQ. 1 )THEN
@@ -1971,9 +1970,10 @@ END SUBROUTINE READLAYRS
 ! --- MIXING RATIOS
          DO IM=1, NMOL
             DO IL=1, LMAX
-               FXGAS(IM,IL) =  AMOUNT(IM,LMAX-IL+1)/WETAIR(LMAX-IL+1)
-               !FXGAS(IM,IL) =  AMOUNT(IM,LMAX-IL+1)/DRAIRL(LMAX-IL+1)
+               !FXGAS(IM,IL) =  AMOUNT(IM,LMAX-IL+1)/WETAIR(LMAX-IL+1)
+               FXGAS(IM,IL) =  AMOUNT(IM,LMAX-IL+1)/DRAIRL(LMAX-IL+1)
                !WRITE(90,206) (AMOUNT(IM,IL)/WETAIR(IL),IL=LMAX,1,-1)
+               !WRITE(90,206) (AMOUNT(IM,IL)/DRAIRL(IL),IL=LMAX,1,-1)
             ENDDO
          ENDDO
 
@@ -2027,9 +2027,6 @@ END SUBROUTINE READLAYRS
 
       ENDIF ! jspec=1
 
-
-
-
       IF( .NOT. F_WRTRAYTC )RETURN
 
 ! --- MS & SA
@@ -2042,8 +2039,8 @@ END SUBROUTINE READLAYRS
       IF( IREAD .NE. 999 )THEN
          WRITE(75,103) ISPEC, LMAX, 1, AST, BENDNG, APP
 ! --- CONVERT FOR AIR FROM MOLCM-2 TO CM*ATM UNITS
-         !WRITE(90,206) (TBAR(IL)*DRAIRL(IL)/CONST,IL=LMAX,1,-1)
-         WRITE(75,206) (TBAR(IL)*WETAIR(IL)/CONST,IL=LMAX,1,-1)
+         WRITE(75,206) (TBAR(IL)*DRAIRL(IL)/CONST,IL=LMAX,1,-1)
+         !WRITE(75,206) (TBAR(IL)*WETAIR(IL)/CONST,IL=LMAX,1,-1)
       ENDIF
 
       WRITE(77,103) ISPEC, LMAX, 1, AST, BENDNG, APP
@@ -2051,11 +2048,11 @@ END SUBROUTINE READLAYRS
       IF( IREAD .EQ. 999 )THEN
 
          WRITE(75,103) 0, LMAX, 1, AST, BENDNG, APP
-         !WRITE(90,206) (TBAR(IL)*DRAIRL(IL)/CONST,IL=LMAX,1,-1)
-         WRITE(75,206) (TBAR(IL)*WETAIR(IL)/CONST,IL=LMAX,1,-1)
+         WRITE(75,206) (TBAR(IL)*DRAIRL(IL)/CONST,IL=LMAX,1,-1)
+         !WRITE(75,206) (TBAR(IL)*WETAIR(IL)/CONST,IL=LMAX,1,-1)
 
          WRITE(75,103) 999, LMAX, 1, AST, BENDNG, APP
-         WRITE(75,206) (WETAIR(IL)*1.0D0,IL=LMAX,1,-1)
+         WRITE(75,206) (DRAIRL(IL)*1.0D0,IL=LMAX,1,-1)
 
          CALL FILECLOSE( 75, 1 )
 
@@ -2238,9 +2235,12 @@ END SUBROUTINE READLAYRS
                ENDIF
                DO J=1, NISOSEP
                   IF( NEWID(J) .EQ. IM )THEN
-                     RIN = NEWVMR(:NLAYK,J)
-                     GLNG(1:NLAYK,IM) = RIN
-                     !GLNG(1:NLAYK,IM) = GLNG(1:NLAYK,oldid(j))
+                     IF( F_ISOVMR(J) .EQ. 0 )THEN
+                        RIN = NEWVMR(:NLAYK,J)
+                        GLNG(1:NLAYK,IM) = RIN
+                     ELSE
+                        GLNG(1:NLAYK,IM) = GLNG(1:NLAYK,OLDID(J))
+                     ENDIF
                      FLAG = .TRUE.
                      CYCLE
                   ENDIF ! NEWID
@@ -2285,9 +2285,12 @@ END SUBROUTINE READLAYRS
                ENDIF
                DO J=1, NISOSEP
                   IF( NEWID(J) .EQ. IM )THEN
-                     RIN = NEWVMR(:NLAYK,J)
-                     GLNG(1:NLAYK,IM) = DREV( RIN, NLAYK )
-                     !GLNG(1:NLAYK,IM) = GLNG(1:NLAYK,oldid(j))
+                     IF( F_ISOVMR(J) .EQ. 0 )THEN
+                        RIN = NEWVMR(:NLAYK,J)
+                        GLNG(1:NLAYK,IM) = DREV( RIN, NLAYK )
+                     ELSE
+                        GLNG(1:NLAYK,IM) = GLNG(1:NLAYK,OLDID(J))
+                     ENDIF
                      FLAG = .TRUE.
                      CYCLE
                   ENDIF ! NEWID
