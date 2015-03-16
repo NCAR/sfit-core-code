@@ -248,7 +248,9 @@
 
       INITSCALE(:) = 1.0D0
 
-print*, 'nmol, molt ',nmol, moltotal
+      ! NMOL and MOLTOTAL are the same here (99)
+      !print*, 'nmol, molt ',nmol, moltotal
+
       DO J = 1, NRET
          !print *,J, GAS(J)
          DO K = 1, MOLTOTAL
