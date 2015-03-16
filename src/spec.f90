@@ -840,11 +840,11 @@ end subroutine ratio
 
 
 !---------------------------------------------------------------------------------
-subroutine sincinterp ( inspec, outspec, n, wlow, space, opdmax, nterp )
+subroutine sincinterp ( inspec, outspec, n, wlow, space, opdmax, nterp, vflag )
 
    ! From F. Hase 2002
 
-   integer (4), intent(in)                 :: nterp
+   integer (4), intent(in)                 :: nterp, vflag
    integer (4), intent(inout)              :: n
    real    (8), intent(inout)              :: wlow, space, opdmax
    real    (4), dimension(n),  intent(in)  :: inspec
@@ -859,33 +859,41 @@ subroutine sincinterp ( inspec, outspec, n, wlow, space, opdmax, nterp )
    real    (8), parameter                 :: eps = 1.0d-5
    real    (8), dimension(:), allocatable :: sinc
 
-   nmaxsinc  = 50
-   ninterpol = nterp
-
+   nmaxsinc    = 50
+   ninterpol   = nterp
    firstnue_in = wlow
-   !print *, ' firstnue_in          : ', firstnue_in
-
    deltanue_in = space
-   !print *, ' deltanue_in          : ', deltanue_in
-
    nofpts_in   = n
-   !print *, ' nofpts_in            : ', nofpts_in
 
-   if( abs(deltanue_in) .ge. 1.00001d0 / (2.0d0 * opdmax) )then
-      print*, deltanue_in, 1.00001d0 / (2.0d0 * opdmax)
-      call warnout('Input spectrum undersampled!...return input spectrum ')
-      allocate ( outspec( nofpts_in ))
-      outspec = inspec
-      return
-   end if
+   if(vflag .ge. 1 )write(6,102)'Low wavenumber in : ', firstnue_in
+   write(6,102)'Point spacing in : ', deltanue_in
+   if(vflag .ge. 1 )write(6,101)'Number of points in : ', nofpts_in
+   write(6,102)'Desired OPD : ', opdmax
+   write(6,102)'Effective resolution (B) : ', 0.9d0 / opdmax
+   if(vflag .ge. 2 )write(6,101)'Interpolation factor : ', ninterpol
 
-   write(6,102) 'OPDMAX : ', opdmax
-   write(6,102) 'Effective resolution : ', 1.0d0 / opdmax
-   write(6,101) 'Interpolation factor : ', ninterpol
-
+   ! Check minimal spacing at this OPD -  Bruker definition 0.9
+   ! boxcar minimal spacing is 0.603/L
+!   deltanue_lu = 0.603d0 / opdmax
    deltanue_lu = 0.5d0 / opdmax
-   write(6,102)'Minimal spacing : ', deltanue_lu
+!   deltanue_lu = 0.9d0 / opdmax
+!   deltanue_lu = 1.0d0 / opdmax
 
+   if(vflag .ge. 1 )write(6,102)'Required minimal spacing : ', deltanue_lu
+
+   if( abs(deltanue_in) .ge. deltanue_lu )then
+      print*, 'Input spectrum undersampled***************************************************'
+      write(6,102) 'Effective opdmax (B) : ', 0.90001d0 / deltanue_in
+      write(6,102) '0.9/opdmax (B) : ', 0.90001d0 / opdmax
+      write(6,102) '0.5/opdmax : ', deltanue_lu
+      write(6,102) '0.5/min space : ', 0.5/deltanue_in
+      write(6,102) 'Change desired OPD to : ', 0.5/deltanue_in
+      !write(*,*) 'Resetting minimum sample to input spacing**********************************'
+      !write(6,102) 'Effective opdmax : ', 0.5d0 / deltanue_lu
+      stop
+   endif
+
+!stop
    if( ninterpol .gt. 0 )then
       deltanue_out = deltanue_lu / real(ninterpol,8)
    else
@@ -893,23 +901,28 @@ subroutine sincinterp ( inspec, outspec, n, wlow, space, opdmax, nterp )
       deltanue_lu = deltanue_in
       ninterpol = 1
    endif
-   write(6,102)'Final spacing : ', deltanue_out
+
+   if(vflag .ge. 1 )write(6,102)'Final spacing : ', deltanue_out
 
    sincradius = nint(nmaxsinc * deltanue_lu / deltanue_in) + 1
+   if(vflag .ge. 1 )write(6,101)'Sinc radius [Nu_in pts] : ', sincradius
 
    firstnue_out = real((int((firstnue_in + sincradius * deltanue_in) / deltanue_out) + 2), 8) * deltanue_out
    dfirstnue = firstnue_out - firstnue_in - 2*deltanue_in
-   !print *, ' sincradius           : ', sincradius, dfirstnue
-   write(6,102)'Sinc function radius : ', sincradius*deltanue_in
+   !write(6,102)'dfirstnue : ', dfirstnue
+
+   if(vflag .ge. 1 )write(6,102)'Sinc radius [cm-1] : ', sincradius*deltanue_in
 
    faktor = deltanue_in / deltanue_lu
-   write(6,102)'Sinc function width : ', nint(1./faktor)*deltanue_in
-   !print*, ' faktor               : ', faktor, nint(1./faktor)
+   if(vflag .ge. 1 )write(6,102)'Sinc width [cm-1] : ', deltanue_in / faktor
+   if(vflag .ge. 2 )write(6,102)'Faktor : ', faktor !, nint(1./faktor)
+
+   !if(vflag .ge. 1 )write(6,102)'First wavenumber out : ', firstnue_out
 
    nofpts_out = int(real(nofpts_in - 2 * sincradius,8) * deltanue_in / deltanue_out) - 4
-   write(6,101)'Number of points : ', nofpts_out
+   if(vflag .ge. 1 )write(6,101)'Number of points out : ', nofpts_out
 
-   !write(6,102)'Final first wavenumber : ', firstnue_out, firstnue_out + nofpts_out*deltanue_out
+   if(vflag .ge. 2 )write(6,102)'Final wavenumber region : ', firstnue_out, firstnue_out + nofpts_out*deltanue_out
 
    allocate ( outspec( nofpts_out ), sinc( -sincradius : sincradius ))
    outspec = 0.0d0
@@ -970,7 +983,7 @@ subroutine kpno( opdmax, wl1, wl2, roe, lat, lon, nterp, rflag, oflag, zflag, vf
    character (len=80)  :: title, bfile
    character (len=1)   :: loc
    real      (4), dimension(:), allocatable :: amps, outspec
-   real      (8), dimension(:), allocatable :: wavs
+   real      (8), dimension(:), allocatable :: wavs, awavs
    integer   (4), dimension(1)              :: ilow, ihi
    real      (8) :: opdmax, wlow, whi, spac, wlim1, wlim2, wl1, wl2, wstart, dnue, roe, noise, peak
    logical       :: writezero
@@ -1010,7 +1023,7 @@ subroutine kpno( opdmax, wl1, wl2, roe, lat, lon, nterp, rflag, oflag, zflag, vf
 
    ! bnr has been rewound - get title
    read(blun) title
-   write(6,111) 'BNR header:'
+   write(6,111) 'BNR input file:'
    write(6,112) trim(title)
 
    res = 0.0
@@ -1026,15 +1039,16 @@ subroutine kpno( opdmax, wl1, wl2, roe, lat, lon, nterp, rflag, oflag, zflag, vf
 
    ! get amplitude data from bnr
    if( allocated( amps ) )deallocate( amps )
-   if( allocated( wavs ) )deallocate( wavs )
-   allocate( amps( npfile ), wavs( npfile ))
+   if( allocated( wavs ) )deallocate( wavs, awavs )
+   allocate( amps( npfile ), wavs( npfile ), awavs( npfile ))
    read (blun, err = 200) amps
 
    ! calculate wavenumbers
    do i=1, npfile
        wavs(i)= real( i-1, 8 )
    end do
-   wavs = wavs*spac + wlow
+   wavs  = wavs*spac + wlow
+   awavs = wavs
 
 
 
@@ -1086,14 +1100,20 @@ subroutine kpno( opdmax, wl1, wl2, roe, lat, lon, nterp, rflag, oflag, zflag, vf
 ! --- Step 2 : Extend micro window region for interpolation
    ! Choose a region around the desired band for ratio and interpolation
    ! take any interpolation into account
-   pspc = 30./opdmax
-   write(6,*)''
-   if( vflag .gt. 0 )write(6,102) 'Interpolation extension : ', pspc
+   if( nterp .ne. 0 )then
+      pspc = 60./opdmax
+      write(6,*)''
+      if( vflag .gt. 0 )write(6,102) 'Interpolation extension : ', pspc
+   else
+      pspc = 0.0d0
+   endif
+
    wlim1 = real(wl1 - pspc,8)
    wlim2 = real(wl2 + pspc,8)
 
-   write(6,102) "Extended limits : ", wlim1, wlim2
-   write(6,102) "File limits : ", wlow, whi
+   write(6,102) "Desired microwindow region : ", wl1, wl2
+   if(vflag .ge. 1 )write(6,102) "Extended limits : ", wlim1, wlim2
+   if(vflag .ge. 1 )write(6,102) "File limits : ", wlow, whi
 
    if( wlim1 .gt. whi .or. wlim2 .lt. wlow )then
        write ( *, 801) wlim1, wlim2
@@ -1126,12 +1146,6 @@ subroutine kpno( opdmax, wl1, wl2, roe, lat, lon, nterp, rflag, oflag, zflag, vf
    end if
 
 
-! --- Step 3 : Calculate SNR
-   ! calculate snr at nearest interval
-   write(6,111) 'Calculate noise...'
-   !noise=0.0 !0test
-   call calcsnr( wavs, amps, npfile, wlim1, wlim2, spac, opdmax, nterp, noise, vflag )
-
 
 ! --- Step 4 : Interpolate if requested
    ! back to the fit microwindow
@@ -1140,7 +1154,6 @@ subroutine kpno( opdmax, wl1, wl2, roe, lat, lon, nterp, rflag, oflag, zflag, vf
    ihi  = minloc(( wavs-wlim2 ), mask=((wavs-wlim2) > 0.0D0))
    iil = ilow(1) - 1
    iih = ihi(1)
-   if( vflag .gt. 0 )write(6,109) 'Spectra segment before ratio : ',iil, wavs(iil), iih, wavs(iih), iih-iil
 
    if( (iih-iil) .le. 2 ) then
        write(*,104) '***Less than 3 points found(1)'
@@ -1160,16 +1173,18 @@ subroutine kpno( opdmax, wl1, wl2, roe, lat, lon, nterp, rflag, oflag, zflag, vf
       outspec = amps(iil:iih)
    else
       write(6,111) 'Resample fit microwindow...'
-      if( vflag .gt. 0 )write(6,*)"to interp : ", iil, iih, np, wstart, dnue
-      call sincinterp( amps(iil:iih), outspec, np, wstart, dnue, opdmax, nterp )
-      if( vflag .gt. 0 )write(6,*)'from interp : ',np, dnue, wstart
+      !if( vflag .gt. 1 )write(6,*)"to interp (index range, npt, wstrt, dnu) : ", iil, iih, np, wstart, dnue
+      call sincinterp( amps(iil:iih), outspec, np, wstart, dnue, opdmax, nterp, vflag )
+      !if( vflag .gt. 1 )write(6,*)'from interp (npt, wstrt, dnu) : ',np, wstart, dnue
    endif
 
    peak = real( maxval( outspec(:) ), 8 )
 
-! --- Step 5: Ratio if requested
-   if( rflag .eq. 1 ) call ratio( outspec, wstart, dnue, np )
 
+
+! --- Step 5: Ratio if requested
+   !if( vflag .gt. 0 )write(6,109) 'Spectra segment before ratio : ',iil, wavs(iil), iih, wavs(iih), iih-iil
+   if( rflag .eq. 1 ) call ratio( outspec, wstart, dnue, np )
 
    ! test that we still have a valid band
    allocate( wavs( np ))
@@ -1180,7 +1195,7 @@ subroutine kpno( opdmax, wl1, wl2, roe, lat, lon, nterp, rflag, oflag, zflag, vf
 
    ilow = minloc(( wavs-wl1 ), mask=((wavs-wl1) > 0.0D0 ))
    ihi  = minloc(( wavs-wl2 ), mask=((wavs-wl2) > 0.0D0 ))
-
+   !print*, wl1, wl2, wstart, wavs(np)
    iil = ilow(1)
    if(iil .ne. 1 )iil = ilow(1) - 1
    iih = ihi(1)
@@ -1192,6 +1207,13 @@ subroutine kpno( opdmax, wl1, wl2, roe, lat, lon, nterp, rflag, oflag, zflag, vf
 
    !print*, iil, iih
    !print*,wstart, wavs(iil), wavs(iih), wl1
+
+
+! --- Step 3 : Calculate SNR
+   ! calculate snr at nearest interval
+   if( vflag .gt. 0 )write(6,111) 'Calculate noise...'
+   !noise=0.0 !0test
+   call calcsnr( awavs, amps, npfile, wlim1, wlim2, spac, opdmax, nterp, noise, vflag )
 
    wlow = wavs(iil)
    whi  = wavs(iih)
@@ -1238,7 +1260,7 @@ subroutine kpno( opdmax, wl1, wl2, roe, lat, lon, nterp, rflag, oflag, zflag, vf
 
    endif
 
-   deallocate( amps, wavs, outspec )
+   deallocate( amps, wavs, outspec, awavs )
    !flag = 0
 
    return
@@ -1257,7 +1279,7 @@ subroutine kpno( opdmax, wl1, wl2, roe, lat, lon, nterp, rflag, oflag, zflag, vf
  106  format( 10f12.5 )
  107  format( i10, 10i5 )
  108  format( 3f22.12, i15 )
- 109  format( /, a32, 3(i20,f20.12))
+! 109  format( /, a32, 3(i20,f20.12))
  110  format( a7 )
  111  format( /, a )
  112  format( 4x, a )
@@ -1449,6 +1471,9 @@ subroutine calcsnr( wavs, amps, npfile, wlim1, wlim2, spac, opdmax, nterp, noise
    integer   (4), dimension(1)  :: ilow, ihi
    real      (8)                :: mind, mean, wstart, dnue, opdm, w1, w2
 
+     ! noise = -999.
+     ! return
+
 !print*, wavs
 
    ! if we already calculated noise in the 10µ region adjust for reduced resolution if needed
@@ -1464,6 +1489,7 @@ subroutine calcsnr( wavs, amps, npfile, wlim1, wlim2, spac, opdmax, nterp, noise
    endif
 
    ! get snr nearest to our mw
+   ! this is over ridden by the next loop
    k    = 0
    mind = 10000.d0
    do i=1, nsnr
@@ -1474,12 +1500,14 @@ subroutine calcsnr( wavs, amps, npfile, wlim1, wlim2, spac, opdmax, nterp, noise
          k = i
       endif
    enddo
+   !print*, k, psnr(:,k), wlim1, wlim2
 
   !  loop through snr regions get first that we have spectra for
    k = 0
    l = 0
 200 continue
    do i=k+1, nsnr
+      !print*, psnr(1,i), wavs(1), psnr(2,i), wavs(npfile)
       if( psnr(1,i) .gt. wavs(1) .and. psnr(2,i) .lt. wavs(npfile) )then
          k = i
          exit
@@ -1513,8 +1541,13 @@ subroutine calcsnr( wavs, amps, npfile, wlim1, wlim2, spac, opdmax, nterp, noise
    endif
 
    ! get the spectra in this region +- wavenumber buffer
-   w1 = psnr(1,k)-30./opdmax
-   w2 = psnr(2,k)+30./opdmax
+   if( nterp .eq. 0 )then
+      w1 = psnr(1,k)
+      w2 = psnr(2,k)
+   else
+      w1 = psnr(1,k)-60./opdmax
+      w2 = psnr(2,k)+60./opdmax
+   endif
    ilow = minloc(( wavs-w1 ), mask=((wavs-w1) > 0.0D0))
    ihi  = minloc(( wavs-w2 ), mask=((wavs-w2) > 0.0D0))
    iil = ilow(1) - 1
@@ -1522,8 +1555,8 @@ subroutine calcsnr( wavs, amps, npfile, wlim1, wlim2, spac, opdmax, nterp, noise
    np = iih-iil+1
 
    write(6,102) 'SNR region : ', psnr(1,k), psnr(2,k)
-   write(6,102) 'Resample region : ', wavs(iil), wavs(iih)
-   write(6,101) 'Points in resample : ', np
+   if(vflag .ge. 1 )write(6,102) 'Resample region : ', wavs(iil), wavs(iih)
+   if(vflag .ge. 1 )write(6,101) 'Points in resample : ', np
 
    if( np .le. 2 ) then
        write(*,104) '*** calcsnr : Less than 3 points found(1)...cycle to next SNR region'
@@ -1553,7 +1586,13 @@ subroutine calcsnr( wavs, amps, npfile, wlim1, wlim2, spac, opdmax, nterp, noise
       opdm    = opdmax
       dnue    = spac
       wstart  = wavs(iil)
-      call sincinterp( amps(iil:iih), outspec, np, wstart, dnue, opdm, nterp )
+      call sincinterp( amps(iil:iih), outspec, np, wstart, dnue, opdm, nterp, vflag )
+   endif
+
+   if( np .lt. 3 )then
+      write(*,*)'Resampled SNR region too small.'
+      noise = -999.
+      return
    endif
 
    if( vflag .gt. 1 )then
@@ -1572,7 +1611,7 @@ subroutine calcsnr( wavs, amps, npfile, wlim1, wlim2, spac, opdmax, nterp, noise
 
    iil = 0
    do i=1, np
-      !print*, dnue, wstart, psnr(1,k)
+      !print*, np, dnue, wstart, psnr(1,k)
       z(i) = (i-1)*dnue + wstart
       if(  z(i) .gt. psnr(1,k) )then
          iil = i -1
@@ -1601,10 +1640,11 @@ subroutine calcsnr( wavs, amps, npfile, wlim1, wlim2, spac, opdmax, nterp, noise
       x(i) = real(i,8)
    enddo
    !print*, size(x), size( outspec(iil:iih))
+
    curve(:) = 0.0d0
    order = 4
    curve(1:order+1) = polyfit( x, real( outspec(iil:iih), 8 ), np, order )
-   !print*, curve(:)
+   if(vflag .ge. 2 ) write(6,102) 'Noise fit parameters : ', curve(:)
    do i=1, np
       y(i) = outspec(iil+i-1) - (curve(1) + (curve(2) + (curve(3) + (curve(4) + curve(5)*x(i)) * x(i)) * x(i)) * x(i))
    enddo
@@ -1625,9 +1665,9 @@ subroutine calcsnr( wavs, amps, npfile, wlim1, wlim2, spac, opdmax, nterp, noise
 
    noise = sqrt( noise / real(np,8) )
 
-   write(6,101) 'Points in snr region : ', np
-   write(6,102) 'Mean signal : ', mean
-   write(6,102) 'RMS noise : ', noise
+   if(vflag .ge. 1 )write(6,101) 'Points in snr region : ', np
+   if(vflag .ge. 1 )write(6,102) 'Mean signal : ', mean
+   if(vflag .ge. 0 )write(6,102) 'RMS noise : ', noise
    write(6,102) 'Mean SNR in snr region : ', mean/noise
 
    deallocate( x, y, z, curve )
@@ -1636,7 +1676,7 @@ subroutine calcsnr( wavs, amps, npfile, wlim1, wlim2, spac, opdmax, nterp, noise
    return
 
  101  format( a32, i20 )
- 102  format( a32, 2f20.12)
+ 102  format( a32, 10f20.12)
  !103  format(/, a32, 2e20.12 )
  104  format( a48 )
  105  format( /, a )
