@@ -1220,6 +1220,9 @@ subroutine kpno( opdmax, wl1, wl2, roe, lat, lon, nterp, rflag, oflag, zflag, vf
    !noise=0.0 !0test
    !noise = -999
    call calcsnr( awavs, amps, npfile, wlim1, wlim2, spac, opdmax, nterp, noise, vflag, zflag )
+=======
+   call calcsnr( awavs, amps, npfile, wlim1, wlim2, spac, opdmax, nterp, noise, vflag )
+>>>>>>> e2b6868232786e55819f1dcb8c1f1d6c903779d7
 
    wlow = wavs(iil)
    whi  = wavs(iih)
