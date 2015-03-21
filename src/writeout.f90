@@ -244,6 +244,7 @@
 
       INTEGER, INTENT(IN) :: NRET, NLEV, KVERT
       INTEGER             :: K, KK
+      REAL(DOUBLE)        :: PRF_SCALE
 
       CALL FILEOPEN( 87, 2 )
 
