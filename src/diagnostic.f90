@@ -34,6 +34,7 @@
       INTEGER                            :: I, J
       REAL(DOUBLE), DIMENSION(N,M)       :: NM
       REAL(DOUBLE), DIMENSION(N,N)       :: IDEN
+      CHARACTER (len=31)                 :: cformat
 
       !INTEGER                            :: INFO
       !REAL(DOUBLE), DIMENSION(4*NLEV)    :: WORK
@@ -55,12 +56,14 @@
       END IF
 
       if (F_WRTG) then
+         ! ADAPT FORMAST STRING SO THAT A ROW IS IN ONE LINE OF THE TEXTFILE
+         WRITE(CFORMAT, '(A,I5,A)') '(', M, 'ES26.18)' 
          CALL FILEOPEN( 93, 2 )
          WRITE(93,'(A,A)' )TRIM(TAG), ' GAIN MATRIX FOR FULL STATEVECTOR: '
          WRITE(93,*) N, M, ISMIX, NLEV
          WRITE(93,10) ADJUSTR(PNAME(:N))
          DO I=1,N
-            WRITE(93,'(10000ES26.18)') ( G(I,J), J=1, M )
+            WRITE(93,TRIM(CFORMAT)) ( G(I,J), J=1, M )
          ENDDO
          CALL FILECLOSE( 93, 1 )
       end if

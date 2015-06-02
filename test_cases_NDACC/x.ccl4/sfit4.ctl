@@ -130,3 +130,4 @@
  kb.profile.gas = CO2 
 
  out.level = 1
+ out.g_matrix = T
