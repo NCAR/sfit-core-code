@@ -40,10 +40,10 @@ FFLAGS = -Warray-bounds -Wcharacter-truncation -Wunused-parameter \
 
 #error check a lot
 FFLAGS = -Wall -fno-automatic -fcheck=all -ffpe-trap=invalid,zero,overflow,underflow -Warray-bounds \
-         -fbounds-check -fbacktrace -g
+         -fbounds-check -fbacktrace -g -ffree-line-length-none
 
 # optimize -Ofast v4.8
-FFLAGS = -Wall -fno-automatic -frepack-arrays  -ffree-line-length-none
+#FFLAGS = -Wall -fno-automatic -frepack-arrays  -ffree-line-length-none
 
 # supply compile date:
 # -cpp -DBDATE="\"`date +%Y%m%d`"\" -O2 -fno-automatic
@@ -85,6 +85,7 @@ datafiles.o \
 diagnostic.o \
 frwdmdl.o \
 galatry.o \
+hitran.o \
 initialize.o \
 isotope.o \
 lineparam.o \
@@ -105,7 +106,8 @@ voigt.o \
 voigt_sdv_lm.o \
 writeout.o \
 andex.o \
-xsections.o
+xsections.o \
+continuum.o
 
 #convert_old_data_files.o
 
@@ -117,7 +119,7 @@ sfit4: $(OBJS) rdrv40.o
 #convert_rdrv_394 : convert_rdrv_394.o $(OBJS) convert_old_data_files.o read_binput_394.o
 #	$(FC) -o $@ $^ $(FFLAGS) $(LIBS) $(VLIB)
 
-hbin: hbin.o $(OBJS)
+hbin: hbin.o hitran.o $(OBJS)
 	$(FC) -o $@ $^ $(FFLAGS) $(LIBS) $(VLIB)
 
 pspec: pspec.o spec.o fitting.o  $(OBJS)
@@ -148,10 +150,10 @@ bandparam.o \
 : params.o
 
 binput_4_0 \
-: params.o binput_parse_4_0.o retvparam.o bandparam.o lineparam.o solar.o channel.o initialize.o opt.o writeout.o
+: params.o binput_parse_4_0.o retvparam.o bandparam.o lineparam.o solar.o channel.o initialize.o opt.o writeout.o binput_parse_4_0.o hitran.o
 
 binput_parse_4_0.o \
-: params.o retvparam.o frwdmdl.o bandparam.o lineparam.o solar.o channel.o initialize.o opt.o datafiles.o isotope.o writeout.o
+: params.o retvparam.o frwdmdl.o bandparam.o lineparam.o solar.o channel.o initialize.o opt.o datafiles.o isotope.o writeout.o continuum.o hitran.o
 
 channel.o \
 : params.o writeout.o synspec.o datafiles.o
@@ -169,7 +171,7 @@ diagnostic.o \
 : opt.o retvparam.o
 
 frwdmdl.o \
-: params.o transmis.o datafiles.o molcparam.o solar.o synspec.o channel.o bandparam.o retvparam.o writeout.o initialize.o
+: params.o transmis.o datafiles.o molcparam.o solar.o synspec.o channel.o bandparam.o retvparam.o writeout.o initialize.o continuum.o
 
 galatry.o \
 : params.o
@@ -178,7 +180,7 @@ hbin.o \
 : params.o datafiles.o bandparam.o lineparam.o isotope.o binput_4_0.o binput_parse_4_0.o
 
 initialize.o \
-: params.o retvparam.o transmis.o molcparam.o xsections.o datafiles.o synspec.o lineparam.o bandparam.o raytrace.o solar.o writeout.o channel.o
+: params.o retvparam.o transmis.o molcparam.o xsections.o datafiles.o synspec.o lineparam.o bandparam.o raytrace.o solar.o writeout.o channel.o continuum.o
 
 isotope.o \
 : params.o molcparam.o retvparam.o vibfcn.o datafiles.o
@@ -208,7 +210,7 @@ rdrv.o \
 : params.o datafiles.o binput_4_0.o
 
 read_binput_394.o \
-: params.o binput_parse_4_0.o retvparam.o bandparam.o lineparam.o solar.o channel.o initialize.o opt.o writeout.o
+: params.o binput_parse_4_0.o retvparam.o bandparam.o lineparam.o solar.o channel.o initialize.o opt.o writeout.o hbin.o
 
 readin.o \
 : params.o retvparam.o transmis.o molcparam.o xsections.o datafiles.o synspec.o lineparam.o solar.o bandparam.o initialize.o opt.o channel.o
@@ -230,7 +232,8 @@ tips.o \
 : params.o
 
 transmis.o \
-: params.o bandparam.o retvparam.o vibfcn.o xsections.o molcparam.o lineparam.o
+: params.o bandparam.o retvparam.o vibfcn.o xsections.o molcparam.o lineparam.o\
+continuum.o
 
 vibfcn.o \
 : params.o retvparam.o molcparam.o #writeout.o

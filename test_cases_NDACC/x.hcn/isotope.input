@@ -1,0 +1,27 @@
+5    48             ! number of isotope seperation species (blocks), # of VMR values
+H2O                 ! old name
+1 2 2               ! old molec id and isotope id
+H218O               ! new name
+80 1 20.0 3 1.5 1.  ! new molec id, isotope id, mass, mode, tdep, intensity scale
+3650,1, 1588,1, 3742,1
+H2O                ! old name
+1 3 2              ! old molec id and isotope id
+H217O              ! new name
+81 1 19.0 3 1.5 1. ! new molec id, isotope id, mass, mode, tdep, intensity scale
+3657,1, 1595,1, 3756,1
+H2O                 ! old name
+1 4 2               ! old molec id and isotope id
+HDO                 ! new name
+77 1 19.0 3 1.5 1.  ! new molec id, isotope id, mass, mode, tdep, intensity scale
+2724,1, 1403,1, 3707,1
+O3                      ! old name
+3 2 2                   ! old molec id and isotope id
+O3668                   ! new name
+85 1 50.0 3 1.5 1.0     ! new molec id, isotope id, mass, mode, tdep, intensity scale
+1090,1,  685,1, 1028,1  ! band center, degen
+O3                      ! old name
+3 3 2                   ! old molec id and isotope id
+O3686                   ! new name
+86 1 50.0 3 1.5 1.0     ! new molec id, isotope id, mass, mode, tdep, intensity scale
+1074,1,  693,1, 1008,1  ! band center, degen
+

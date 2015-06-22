@@ -1,36 +1,17 @@
-# Input file for hbin
-# latest tested version: b3.999 beta p1.5 20130304 v0.9 1may13
+
+file.out.ascii = T
 #
-# these lines are comments and can be anywhere
-#
-# implemented in version b3.99:
-# the linelist directory structure is the key to the gas names and the molecule id numbers
-# those id's and names must be the same in the reference.prf file
-# eg a files containing hitran lines is read from one subdir in linelist then the molid will be changed
-# to the 2digit integer 0NN of the subdir name and assumed to be for gas 'abcdef' from subdir 0NN_abcdef
-#
-# first non-comment line is a path to the directory tree where the gas subdirectories are
-#
-F
-../../linelist/
+file.in.linelist = ../../linelist/
 #
 # next non-comment entry is the number of path/files to look for
-99
+hitran.nr = 99
 #
-# Then the next lines are paths to each gas file that will be searched for lines in the
-#  desired wavenember region
-# the id numbers are in sfit order - not exactly HITRAN, BUT KEEP these directory names
-# the files are in HITRAN format
-#
-# tip: put a blank after the '/' to skip that gas or just remove it
-# 049_O2CIA/o2cia_20060420.101 - this file is a special case, molid & isotope
-#  ids are dealt with differently
-#
+hitran.files = 
 001_H2O/01_hit09.par
 002_CO2/02_hit08_f53.par
 003_O3/03_hit08.par
 004_N2O/04_hit08.par
-005_CO/05_hit08.par
+005_CO/05_hit12.par
 006_CH4/06_hit08.par
 007_O2/07_hit08.par
 008_NO/08_hit08.par
@@ -44,7 +25,7 @@ F
 016_HBR/16_hit08.par
 017_HI/17_hit08.par
 018_CLO/18_hit08.par
-019_OCS/19_hit08.par
+019_OCS/19_hit12.par
 020_H2CO/20_hit08.par
 021_HOCL/21_hit08.par
 022_HO2/33_hit08.par
@@ -129,17 +110,21 @@ F
 #
 # Galatry parameters
 # molecule id numbers in these files have to match the sfit molecule id
-2
+aux = gal sdv lm
+aux.gal.nr = 2
+aux.gal.files = 
 014_HF/14_hit12_Galatry.txt
 015_HCL/15_hit12_Galatry.txt
 #
 #
 # CO2 Line mixing parameters for Boone implementation
-1
-002_CO2/02_hase_lm.dat 
+aux.lm.nr = 1
+aux.lm.files = 
+002_CO2/02_hase_lm.dat
 #
 #
 # Speed Dependent Voigt parameter files --- not yet!
-1
+aux.sdv.nr = 1
+aux.sdv.files = 
 005_CO/05_hit12_SDV.txt
-! end of file
+#

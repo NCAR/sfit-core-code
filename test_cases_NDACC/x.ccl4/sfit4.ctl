@@ -116,7 +116,6 @@
  kb.solshft = T
  kb.solstrnth = T 
  kb.phase = T
- kb.dwshift = T 
  kb.wshift = T
  kb.apod_fcn = T
  kb.phase_fcn = T 
@@ -131,3 +130,4 @@
  kb.profile.gas = CO2 
 
  out.level = 1
+ out.g_matrix = T
