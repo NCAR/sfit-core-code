@@ -236,16 +236,6 @@
                NCOUNT = NCOUNT + 1
                OMEGA(K) = OMEGA0(K)*(1.0D0 + PARM(NCOUNT))
             END IF
-            ! ERROR IN FIELD OF MAXOPD
-            IF (IFOPD /= 0) THEN
-               NCOUNT = NCOUNT + 1
-               IF (ICOUNT == NCOUNT+1) THEN
-                  ! USUAL DEL = 0.1D-5 IS TO SMALL TO CAUSE ANY KB.
-                  PARM(NCOUNT) = PARM(NCOUNT) - DEL + 0.1
-                  DEL = 0.1
-               END IF
-               PMAX(K) = PMAX0(K) * (1.0D0 + PARM(NCOUNT))
-            END IF
          END DO
 
 ! CONTINUUM ABSORPTION

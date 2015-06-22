@@ -476,8 +476,6 @@ end subroutine read_file_section
        read(value,*) f_kb_sza
     case ('omega')
        read(value,*) f_kb_fov
-    case ('max_opd')
-       read(value,*) f_kb_opd
     case ('line')
        if (len_trim(keyword(3)).eq.0) then
           read(value,*) f_kb_line

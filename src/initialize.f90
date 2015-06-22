@@ -74,7 +74,6 @@
       INTEGER :: I_KB_LINE_TYPE = 0
       LOGICAL :: F_KB_SZA       = .FALSE.
       LOGICAL :: F_KB_FOV       = .FALSE.
-      LOGICAL :: F_KB_OPD       = .FALSE.
 
       CHARACTER(LEN=1024)                  :: S_KB_LINE_GASES
       CHARACTER(LEN=14), DIMENSION(MOLMAX) :: S_KB_LINE_GAS
@@ -965,12 +964,6 @@
       DO I = 1,NBAND
          IF (IFFOV /= 0) THEN
             WRITE(PNAME(NVAR+1:NVAR+2), '(A4,I1)'), 'FOV_', I
-            PARM(NVAR+1:NVAR+2)  = 0.0D0
-            SPARM(NVAR+1:NVAR+2) = 1.0D0
-            NVAR = NVAR + 1
-         END IF
-         IF (IFOPD /= 0) THEN
-            WRITE(PNAME(NVAR+1:NVAR+2), '(A4,I1)'), 'OPD_', I
             PARM(NVAR+1:NVAR+2)  = 0.0D0
             SPARM(NVAR+1:NVAR+2) = 1.0D0
             NVAR = NVAR + 1

@@ -689,10 +689,6 @@
             IFFOV = 1
             OMEGA0(I) = OMEGA(I)
          ENDIF
-         IF( F_KB_OPD )THEN
-            IFOPD = 1
-            PMAX0(I) = PMAX(I)
-         ENDIF
       ENDDO
 
       IF( F_KB_LINE )THEN
