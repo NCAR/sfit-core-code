@@ -35,6 +35,7 @@
                                 GASCON = 8.314472D+07,          &
                                 PZERO  = BAR,                   &
                                 TZERO  = ZEROC,                 &
+                                CONVCONST = 7.341D+21,          &
                                 CLIGHT = 2.99792458D+10
 
       INTEGER (4), PARAMETER :: MXFSC  = 200,                   & ! NOT USED
@@ -250,6 +251,22 @@
       INTEGER               :: I, NAERR, IDUM, NBND, NLAY
       REAL                  :: RDUM
 
+! --- IN THE CASE OF A FITTING A CELL ONLY - NLAYERS COMES FROM GAS.LAYERS IN .CTL FILE
+! --- NCELL = INTEGER NUMBER OF CELLS
+      IF( NLAYERS .EQ. 0 )THEN
+         ALLOCATE (ZSL(NBND), ZBAR(NCELL), Z(NCELL), P(NCELL), T(NCELL), PMB(NCELL), TORG(NCELL), &
+                   PORG(NCELL), PMBORG(NCELL), FXORG(MOLTOTAL,NCELL), STAT=NAERR)
+         IF (NAERR /= 0) THEN
+            WRITE(16, *) 'RAYTRACE: READLAYERS: COULD NOT ALLOCATE Z AND ZBAR ARRAYS ERROR NUMBER = ', NAERR
+            WRITE( 0, *) 'RAYTRACE: READLAYERS: COULD NOT ALLOCATE Z AND ZBAR ARRAYS ERROR NUMBER = ', NAERR
+            STOP '3'
+         ENDIF
+         NLAY  = 0
+         NPATH = NCELL
+         NMOL  = NCELL
+         RETURN
+      ENDIF
+
       CALL FILEOPEN( 71, 3 )
 
       READ(71,'(A80)') BUF
@@ -257,14 +274,15 @@
   201 FORMAT(/,' STATION.LAYERS FILE : ', A)
       READ(71,*) NBND
 
-
 ! --- THERE IS 1 LESS LAYER THAN LEVELS - THIS IS NLAY !!!
 ! --- THIS NEEDS TO MATCH EG SIGMA IN BINPUT
 ! --- THESE ATM ARRAYS ALL GO HIGH ALT TO LOW
 ! --- ZBAR IS MIDPOINTS
 ! --- Z IS THE LOWER BOUNDARIES OF EACH LAYER
       NLAY = NBND -1
-      ALLOCATE (ZSL(NBND), ZBAR(NLAY), Z(NLAY), P(NLAY), T(NLAY), PMB(NLAY), STAT=NAERR)
+      NPATH = NLAY + NCELL
+      ALLOCATE (ZSL(NBND), ZBAR(NPATH), Z(NPATH), P(NPATH), T(NPATH), PMB(NPATH), TORG(NPATH), &
+                PORG(NPATH), PMBORG(NPATH), FXORG(MOLTOTAL,NPATH), STAT=NAERR)
       IF (NAERR /= 0) THEN
          WRITE(16, *) 'RAYTRACE: READLAYERS: COULD NOT ALLOCATE Z AND ZBAR ARRAYS ERROR NUMBER = ', NAERR
          WRITE( 0, *) 'RAYTRACE: READLAYERS: COULD NOT ALLOCATE Z AND ZBAR ARRAYS ERROR NUMBER = ', NAERR
@@ -1906,13 +1924,48 @@ END SUBROUTINE READLAYRS
 
       END SUBROUTINE ATMPTH
 
+
+
+!     ----------------------------------------------------------------
+
+      SUBROUTINE FILLCELL( NLEV )
+
+      INTEGER (4) :: I, NLEV
+
+      !print*, 'fillcell ',nlev, nmol, ncell, npath
+
+      DO I=1, NCELL
+         HMOLS(NLEV+I)           = CGAS(I)
+         T(NLEV+I)               = CTEMP(I)
+         PMB(NLEV+I)             = CPRES(I)
+         P(NLEV+I)               = PMB(NLEV+I) / BAR
+         FXGAS(:NMOL,NLEV+I)     = 0.0D0
+         FXGAS(CGASID(I),NLEV+I) = CVMR(I)
+         CCC(:NSPEC,NLEV+I)      = ALOSMT * (PMB(NLEV+I) / PZERO) * (TZERO / T(NLEV+I)) * CPATH(I) * T(NLEV+I) / CONVCONST! MASS IN ATM-CM
+         CCC(NSPEC+1,NLEV+I)     = ALOSMT * (PMB(NLEV+I) / PZERO) * (TZERO / T(NLEV+I)) * CPATH(I) ! MASS IN MOLEC/CM2
+         write(06,100), I, CCC(:NSPEC,NLEV+I), CCC(NSPEC+1,NLEV+I)
+         !print*, pzero, bar, tzero, cpath(i)
+         print*, I,  HMOLS(NLEV+I), CGASID(I), FXGAS(CGASID(I),NLEV+I)
+      ENDDO
+
+      TORG(NLEV+1:NLEV+NCELL )       = T(NLEV+1:NLEV+NCELL)
+      PORG(NLEV+1:NLEV+NCELL)        = P(NLEV+1:NLEV+NCELL)
+      PMBORG(NLEV+1:NLEV+NCELL)      = PMB(NLEV+1:NLEV+NCELL)
+      FXORG(:NMOL,NLEV+1:NLEV+NCELL) = FXGAS(:NMOL,NLEV+1:NLEV+NCELL)
+      CORG(:NSPEC+1,NLEV+1:NLEV+NCELL) = CCC(:NSPEC+1,NLEV+1:NLEV+NCELL)
+
+      RETURN
+
+  100 FORMAT('  FILLCELL : CELL PATH ', I3, ' COLUMN : ', 1PD15.4, ' [ATM*CM], ', 1PD15.4, ' [MOLEC*CM-2]')
+
+      END
+
 !     ----------------------------------------------------------------
 
       SUBROUTINE REFOUT( ITER, JSPEC, IREAD, LMAX, AST, APP, BENDNG )
 
-      INTEGER (4)         :: IM, IL, LMAX, ISPEC, IREAD, ITER, JSPEC, NAERR, I, J
+      INTEGER (4)         :: IM, IL, LMAX, ISPEC, IREAD, ITER, JSPEC, I, J
       REAL (8)            :: AST, APP, BENDNG, XKONST
-      REAL (8), PARAMETER :: CONST = 7.341D+21
       REAL (8)            :: WETAIR(LMAX)
       REAL (8)            :: SCALES(30), XK(100)
 
@@ -1931,8 +1984,8 @@ END SUBROUTINE READLAYRS
 ! --- UPSIDE DOWN!
 ! --- MASS PATHS ARE TOTAL MASS PATHS IN CM*ATM
       DO IL = 1, LMAX
-         !CCC(JSPEC,IL)  = TBAR(LMAX-IL+1)*WETAIR(LMAX-IL+1)/CONST
-         CCC(JSPEC,IL)  = TBAR(LMAX-IL+1)*DRAIRL(LMAX-IL+1)/CONST
+         !CCC(JSPEC,IL)  = TBAR(LMAX-IL+1)*WETAIR(LMAX-IL+1)/CONVCONST
+         CCC(JSPEC,IL)  = TBAR(LMAX-IL+1)*DRAIRL(LMAX-IL+1)/CONVCONST
          CORG(JSPEC,IL) = CCC(JSPEC,IL)
       END DO
 
@@ -1978,17 +2031,6 @@ END SUBROUTINE READLAYRS
          ENDDO
 
          IF( ITER .NE. 0 )RETURN
-
-! --- SAVE INITIAL WEIGHTED VMR, TEMPERATURE & PRESSURE ARRAYS
-         IF( .NOT. ALLOCATED( TORG ))THEN
-            ALLOCATE( TORG(LMAX), PORG(LMAX), PMBORG(LMAX), FXORG(NMOL,LMAX), STAT=NAERR )
-            IF( NAERR .NE. 0 )THEN
-               WRITE(16, *) 'COULD NOT ALLOCATE TORG ARRAY ERROR NUMBER = ', NAERR
-               WRITE( 0, *) 'COULD NOT ALLOCATE TORG ARRAY ERROR NUMBER = ', NAERR
-               CALL SHUTDOWN
-               STOP '3'
-            ENDIF
-         ENDIF
 
 !print *, 'setting Torg etc in rayt'
          TORG(:LMAX)   = T(:LMAX)
@@ -2039,8 +2081,8 @@ END SUBROUTINE READLAYRS
       IF( IREAD .NE. 999 )THEN
          WRITE(75,103) ISPEC, LMAX, 1, AST, BENDNG, APP
 ! --- CONVERT FOR AIR FROM MOLCM-2 TO CM*ATM UNITS
-         WRITE(75,206) (TBAR(IL)*DRAIRL(IL)/CONST,IL=LMAX,1,-1)
-         !WRITE(75,206) (TBAR(IL)*WETAIR(IL)/CONST,IL=LMAX,1,-1)
+         WRITE(75,206) (TBAR(IL)*DRAIRL(IL)/CONVCONST,IL=LMAX,1,-1)
+         !WRITE(75,206) (TBAR(IL)*WETAIR(IL)/CONVCONST,IL=LMAX,1,-1)
       ENDIF
 
       WRITE(77,103) ISPEC, LMAX, 1, AST, BENDNG, APP
@@ -2048,8 +2090,8 @@ END SUBROUTINE READLAYRS
       IF( IREAD .EQ. 999 )THEN
 
          WRITE(75,103) 0, LMAX, 1, AST, BENDNG, APP
-         WRITE(75,206) (TBAR(IL)*DRAIRL(IL)/CONST,IL=LMAX,1,-1)
-         !WRITE(75,206) (TBAR(IL)*WETAIR(IL)/CONST,IL=LMAX,1,-1)
+         WRITE(75,206) (TBAR(IL)*DRAIRL(IL)/CONVCONST,IL=LMAX,1,-1)
+         !WRITE(75,206) (TBAR(IL)*WETAIR(IL)/CONVCONST,IL=LMAX,1,-1)
 
          WRITE(75,103) 999, LMAX, 1, AST, BENDNG, APP
          WRITE(75,206) (DRAIRL(IL)*1.0D0,IL=LMAX,1,-1)

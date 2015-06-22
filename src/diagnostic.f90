@@ -86,7 +86,7 @@
 
 !  --- CALCULATE TRACE OF AK KERNEL FOR TEMPERATURE IF RETRIEVED
       IF( IFTEMP )THEN
-         DO I = NTEMP1, NTEMP1+NLEV
+         DO I = NTEMP1, NTEMP1 + NLEV - 1
             DOF(3) = DOF(3) + A(I,I)
          END DO
       ENDIF

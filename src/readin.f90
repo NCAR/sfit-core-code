@@ -47,10 +47,31 @@
       INTEGER, INTENT(OUT)  :: NLEV
       INTEGER, INTENT(OUT)  :: NEGFLAG
 
-      INTEGER   :: I, NRMAX, NPGAS, J, N
+      INTEGER   :: I, NRMAX, NPGAS, J, N, II
 
       NRMAX = MOLMAX
       NPGAS = 0
+
+! --- CHECK IF WE HAVE A CELL OPTICAL PATH
+      IF( NCELL .NE. 0 )THEN
+         WRITE(06, 420) NCELL
+         WRITE(06, 421)
+         DO I=1, NCELL
+            CGASID(I) = -999
+            DO J=1, MOLTOTAL
+               IF( TRIM(NAME(J)) .EQ. TRIM(CGAS(I)) )THEN
+                  CGASID(I) = J
+                  EXIT
+               ENDIF
+            ENDDO
+            WRITE(06, 422) I, ADJUSTR(CGAS(I)), CGASID(I), CTEMP(I), CPRES(I), CVMR(I)
+            IF( CGASID(I) .EQ. -999 )THEN
+               WRITE(00, 423) CGAS(I), I
+               CALL SHUTDOWN
+               STOP '3'
+            ENDIF
+         ENDDO
+      ENDIF
 
 ! -- CHECK THAT EVERY GAS IS ONLY ONCE IN THE RETRIEVAL LIST
       !print *, gas(:nret)
@@ -63,7 +84,7 @@
             end if
          end DO
       end DO
-! --- DOUBLE CHECK CHECK THAT PROFILE REIEVALS ARE AHEAD OF COLUMNS IN LIST
+! --- DOUBLE CHECK THAT PROFILE REIEVALS ARE AHEAD OF COLUMNS IN LIST
       I=0
       DO J=1, NRET
         IF( IFPRF(J) ) I=I+1
@@ -99,6 +120,7 @@
             WRITE (16, 600) J, GAS(J)
             !print *,J, GAS(J)
             DO I = 1, MOLTOTAL
+               II = I
                !write(*,*) i, j, '  ', gas(j), name(i)
                IF (GAS(J) == NAME(I)) GO TO 176
             END DO
@@ -108,7 +130,11 @@
             STOP '2'
 
   176       CONTINUE
-            IGAS(J) = I
+            IGAS(J) = II
+            DO I=1, NCELL
+               IF( TRIM(NAME(IGAS(J))) .EQ. TRIM(CGAS(I)) )IFCELL(J) = .TRUE.
+            ENDDO
+            WRITE (16, 602) IFCELL(J)
             WRITE (16, 601) IFPRF(J)
             IF( .NOT. IFPRF(J) )THEN
 ! --- FOR COLUMN RETRIEVAL THE LOG FUNCTION IS SHUT OFF AUTOMATICALLY
@@ -234,8 +260,14 @@
   401 FORMAT(  ' COLUMN RETRIEVAL SCALE AND VARIANCE        : ',2F10.5)
   403 FORMAT(/,' OFF DIAGNOAL COEFFICIENTS SET TO ZERO')
 
+  420 FORMAT(/,'NUMBER OF CELL OPTICAL PATHS TO INCLUDE : ',I5)
+  421 FORMAT(' PATHID      GAS  GASID  TEMPERATURE    PRESSURE           VMR')
+  422 FORMAT( I7, 2X, A7, I6, 5X, F8.3, 4X, F8.5, 2X, E12.4 )
+  423 FORMAT(' GAS NAME ', A7, ' OR ID FOR CELL ', I3, ' IS OUT OF RANGE.')
+
   600 FORMAT(/,' RETRIEVAL GAS #      ',I2, '                    : ', A7)
   601 FORMAT(  ' PROFILE RETRIEVAL CODE                     : ',L5 )
+  602 FORMAT(  ' CELL RETRIEVAL CODE                     : ',L5 )
 
   605 FORMAT(/' ABORT -- NUMBER OF RETRIEVAL GASES EXCEEDS ',I2)
   606 FORMAT(' ABORT -- NUMBER OF PROFILE RETRIEVALS (NPGAS=',I2,&
@@ -298,7 +330,7 @@
 ! --- INITIAL SCALES AND VARIANCES FOR FITTED PARAMETERS
       WRITE (16, 109)
       WRITE (16, 110) WSHFT, SWSHFT, BCKSL, SBCKSL, BCKCRV, SBCKCRV, CIPARM(4), &
-                        SCPARM(4), PHS, SPHS, SZERO(1), EAPPAR, SEAPPAR, EPHSPAR, SEPHSPAR
+                      SCPARM(4), PHS, SPHS, SZERO(1), EAPPAR, SEAPPAR, EPHSPAR, SEPHSPAR
 
       IF( F_LM )THEN
          WRITE(16,107)

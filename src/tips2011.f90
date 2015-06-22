@@ -27,7 +27,24 @@
    INTEGER, PARAMETER                    :: NT = 119, NMOL = 51, MAX_ISO = 20
    CHARACTER (LEN=7), DIMENSION(0:NMOL)  :: MOLID
    INTEGER, DIMENSION( NMOL, MAX_ISO)    :: ISO82
-   INTEGER, PARAMETER, DIMENSION( NMOL ) :: ISONM = (/ &
+   INTEGER, DIMENSION( NMOL )            :: ISONM
+   REAL(DOUBLE), DIMENSION( NT )         :: TDAT
+
+   INTEGER                               :: I, J
+
+   DATA (MOLID(I),I=0,NMOL)/ '   ALL', &
+     '   H2O','   CO2','    O3','   N2O','    CO','   CH4','    O2', &
+     '    NO','   SO2','   NO2','   NH3','  HNO3','    OH','    HF', &
+     '   HCL','   HBR','    HI','   CLO','   OCS','  H2CO','  HOCL', &
+     '    N2','   HCN',' CH3CL','  H2O2','  C2H2','  C2H6','   PH3', &
+     '  COF2','   SF6','   H2S',' HCOOH','   HO2','     O','CLONO2', &
+     '   NO+','  HOBR','  C2H4',' CH3OH',' CH3BR',' CH3CN','   CF4', &
+     '  C4H2','  HC3N','  C2N2','    CS','    H2','    SO','  C3H4', &
+     '   CH3','   CS2'/
+
+
+!    THE NUMBER OF ISOTOPES FOR A PARTICULAR MOLECULE:
+      DATA (ISONM(I),I=1,NMOL)/ &
 
 !  #    1    2   3    4   5    6   7
 !     H2O, CO2, O3, N2O, CO, CH4, O2,
@@ -51,49 +68,7 @@
 
 !  #     48     49     50     51
 !        SO,  C3H4    CH3,   CS2
-         3,      1,     1,     4/)
-
-   REAL(DOUBLE), DIMENSION( NT )         :: TDAT
-
-   INTEGER, private                               :: I, J
-
-   DATA (MOLID(I),I=0,NMOL)/ '   ALL', &
-     '   H2O','   CO2','    O3','   N2O','    CO','   CH4','    O2', &
-     '    NO','   SO2','   NO2','   NH3','  HNO3','    OH','    HF', &
-     '   HCL','   HBR','    HI','   CLO','   OCS','  H2CO','  HOCL', &
-     '    N2','   HCN',' CH3CL','  H2O2','  C2H2','  C2H6','   PH3', &
-     '  COF2','   SF6','   H2S',' HCOOH','   HO2','     O','CLONO2', &
-     '   NO+','  HOBR','  C2H4',' CH3OH',' CH3BR',' CH3CN','   CF4', &
-     '  C4H2','  HC3N','  C2N2','    CS','    H2','    SO','  C3H4', &
-     '   CH3','   CS2'/
-
-
-!    THE NUMBER OF ISOTOPES FOR A PARTICULAR MOLECULE:
-!      DATA (ISONM(I),I=1,NMOL)/ &
-
-!  #    1    2   3    4   5    6   7
-!     H2O, CO2, O3, N2O, CO, CH4, O2,
-!        6,  11, 18,   5,  6,  4,  3, &
-
-!  #    8    9   10   11    12  13  14   15   16  17
-!      NO, SO2, NO2, NH3, HNO3, OH, HF, HCL, HBR, HI,
-!        3,   2,   1,   2,    1,  3,  1,   2,   2,  1, &
-
-!  #   18   19    20    21  22   23     24    25    26    27   28
-!     CLO, OCS, H2CO, HOCL, N2, HCN, CH3CL, H2O2, C2H2, C2H6, PH3
-!        2,   5,    3,    2,  1,   3,     2,    1,    3,    2,   1, &
-
-!  #    29,  30   31     32   33 34      35    36    37    38
-!     COF2, SF6, H2S, HCOOH, HO2, O, CLONO2,  NO+, HOBR, C2H4
-!         1,   1,   3,     1,   1, 1,      2,    1,    2,    2, &
-
-!  #     39     40     41   42    43    44    45    46   47
-!     CH3OH, CH3BR, CH3CN, CF4, C4H2, HC3N, C2N2,   CS,  H2','
-!         1,      2,     4,   1,    1,    6,    2,    4,   2,  &
-
-!  #     48     49     50     51
-!        SO,  C3H4    CH3,   CS2
-!         3,      1,     1,     4/
+         3,      1,     1,     4/
 
 
 ! 1     H2O
@@ -4895,29 +4870,29 @@ END
       end
 !
 !     *****************
-!      Subroutine QT_CH3OH ( T, ISO, GSI, QT )
-!
-!      IMPLICIT NONE
-!
-!      INTEGER , INTENT(IN)       :: ISO ! isotope code (HITRAN INDEX)
-!      REAL(DOUBLE)               :: T   ! temperature in K
-!      REAL(DOUBLE) , INTENT(OUT) :: GSI ! state independent nuclear degeneracyfactor
-!      REAL(DOUBLE)               :: QT  ! Total Internal Partition Function
-!
-!      INTEGER                    :: I, J
-!
-!      REAL(DOUBLE), DIMENSION( ISONM(39) )     :: XGJ
-!      REAL(DOUBLE), DIMENSION( ISONM(39), NT ) :: QOFT
-!      REAL(DOUBLE), DIMENSION( NT )            :: Q
-!
-!      !REAL(DOUBLE) :: EPS = 0.01
-!
-!      DATA XGJ/ 1./
-!
-!!...    CH3OH
-!!..no data for these species yet
-!   99 return
-!      end
+      Subroutine QT_CH3OH ( T, ISO, GSI, QT )
+
+      IMPLICIT NONE
+
+      INTEGER , INTENT(IN)       :: ISO ! isotope code (HITRAN INDEX)
+      REAL(DOUBLE)               :: T   ! temperature in K
+      REAL(DOUBLE) , INTENT(OUT) :: GSI ! state independent nuclear degeneracyfactor
+      REAL(DOUBLE)               :: QT  ! Total Internal Partition Function
+
+      INTEGER                    :: I, J
+
+      REAL(DOUBLE), DIMENSION( ISONM(39) )     :: XGJ
+      REAL(DOUBLE), DIMENSION( ISONM(39), NT ) :: QOFT
+      REAL(DOUBLE), DIMENSION( NT )            :: Q
+
+      !REAL(DOUBLE) :: EPS = 0.01
+
+      DATA XGJ/ 1./
+
+!...    CH3OH
+!..no data for these species yet
+   99 return
+      end
 !
 !     *****************
       Subroutine QT_CH3Br ( T, ISO, GSI, QT )
