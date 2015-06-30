@@ -720,7 +720,8 @@ END SUBROUTINE READLAYRS
 
       DATA AVRATS / 1.5D0 /,TDIF1S / 5.0D0 /,TDIF2S / 8.0D0 /
 
-      DATA COTHER / 'OTHER   '/
+      !DATA COTHER / 'OTHER   '/
+      DATA COTHER / 'WN2L    '/
       DATA HT1HRZ / ' AT '/,HT2HRZ / ' KM '/,HT1SLT / ' TO '/,HT2SLT / ' KM '/
       DATA PZFORM / 'F8.6','F8.5','F8.4','F8.3','F8.2'/
       DATA PAFORM / '1PE15.7','  G15.7'/
@@ -1005,11 +1006,11 @@ END SUBROUTINE READLAYRS
 
         ENDIF
 
-      ELSE
+      ELSE ! END HORIZONTAL PATH
 
 
 ! --- SLANT PATH SELECTED-------------------------------------------------------
-! --- ITYPE = 2 OR 3: SLANT PATH THROUGH THE ATMOSPHERE
+! --- ITYPE = 2 OR 3: SLANT PATH THROUGH THE ATMOSPHERE (SFIT4)
 
          IF( NOPRNT.GE.0 )WRITE (IPR,930) ITYPE
 
@@ -1121,6 +1122,9 @@ END SUBROUTINE READLAYRS
 ! --- THAT WAS END OF TAPE5 READ
 
 ! --- SET UP ATMOSPHERIC PROFILE
+
+         ! MDLATM CALLS IN TURN
+         !   NSMDL : LNGMDL : CONVRT : WATVAP : CMPALT
 
          IF( IREAD .EQ. 0 .OR. IREAD .EQ. 1)CALL MDLATM (ITYPE,M,IREAD,HSPACE)
 
@@ -1506,12 +1510,13 @@ END SUBROUTINE READLAYRS
          ANGLEF  = ANGLE
          LENF    = LEN
 
-! --- CONDENSE THE AMOUNTS INTO THE LBLRTM OUTPUT LAYERS ZOUT,
+! ---  CONDENSE THE AMOUNTS INTO THE LBLRTM OUTPUT LAYERS ZOUT,
 ! ---  WHICH ARE DEFINED BY THE BOUNDARIES ZBND FROM HMIN TO
 ! ---  HMAX ALSO, ZERO OUT THE AMOUNT FOR A MOLECULE IF THE
 ! ---  CUMULATIVE AMOUNT FOR THAT LAYER AND ABOVE IN LESS THAN
 ! ---  0.1 PERCENT OF THE TOTAL
 
+         WRITE(IPR,*)'CALL FPACK'
          CALL FPACK (H1,H2,HMID,LEN,IEMIT,NOZERO)
 
 ! --- OUTPUT THE FINAL PROFILE IN COLUMN DENSITY AND MIXING RATIO FROM DRY AIR IN ZFIN GRID
@@ -1654,7 +1659,7 @@ END SUBROUTINE READLAYRS
                      ENDIF
   277             CONTINUE
 
-                  IF( noprnt .ge.0 )WRITE (IPU,978) (AMOUNT(K,L),K=1,7),WN2L(L), (AMOUNT(K,L),K=8,NMOL)
+                  IF( noprnt .ge.0 )WRITE (IPU,978) (AMOUNT(K,L),K=1,7), WN2L(L), (AMOUNT(K,L),K=8,NMOL)
 
                ENDIF
 
@@ -1704,7 +1709,7 @@ END SUBROUTINE READLAYRS
          TWTD = TWTD/WTOT
          L = LMAX
          IF (NOPRNT .GE. 0) THEN
-               WRITE (IPR,980) !(HMOLS(K),K=1,7), COTHER, (HMOLS(K),K=8,NMOL)
+               WRITE (IPR,980)
                WRITE (IPR,984) L,ZFIN(1),ZFIN(L+1),PWTD,TWTD,SUMRS,     &
                                (WMT(K),K=1,7),SUMN2,(WMT(K),K=8,NMOL)
          ENDIF
@@ -2454,10 +2459,10 @@ END SUBROUTINE READLAYRS
       INTEGER (4)                :: IREAD, MDL, IMTYPE, IM, NOPRNT !, LMAX
       REAL(8), DIMENSION(KMAX+1) :: x, y, y0, b, c, d
       REAL(8), DIMENSION(MXZMD)  :: tm0
-!print*, 'lmax rayt :',lmax
+         !print*, 'lmax rayt :',lmax
       !LMAX = 0
       IF( NOPRNT.GT.0 )WRITE(IPR,900) MDL
-!print*, 'nsmdl',IREAD, MDL, NOPRNT, LMAX
+         !print*, 'nsmdl',IREAD, MDL, NOPRNT, LMAX
       IF( MDL .EQ. 0 )THEN
 
          IF( NOPRNT .GE. 0 )WRITE (IPR,901)"READING IN LBLRTM FORMAT USER ATMOSPHERE MODEL"
@@ -2470,10 +2475,10 @@ END SUBROUTINE READLAYRS
 
          DO IM = 1, IMMAX
 
-!     READ IN GENERIC UNITS FOR USER MODEL
+! --- READ IN GENERIC UNITS FOR USER MODEL
             CALL RDUNIT (IM,ZMDL(IM),PM(IM),TM(IM),NMOL)
 
-!     CONVERSION OF GENERIC UNITS TO DENSITIES FOR LBLRTM RUNS
+! --- CONVERSION OF GENERIC UNITS TO DENSITIES FOR LBLRTM RUNS
             CALL CONVRT( ZMDL(IM), PM(IM), TM(IM), IM, NMOL, NOPRNT )
             DENW(IM) = DENM(1,IM)
 
@@ -2481,53 +2486,53 @@ END SUBROUTINE READLAYRS
 
       ELSE
 
-! MODEL = 7 REFMOD
+! --- MODEL = 7 REFMOD - THIS IS WHAT SFIT USES
         IF( IREAD .EQ. 0 )THEN
            IF( NOPRNT .GE. 0 )WRITE (IPR,901)"READING IN LANGLEY FORMAT USER ATMOSPHERE MODEL"
+           HMOD(1) = "LANGLEY "
+           HMOD(2) = "FORMAT A"
+           HMOD(3) = "TMOSPHER"
            CALL LNGMDL ( NMOL, IMMAX )
-           tm0(:immax) = tm(:immax)
+           TM0(:IMMAX) = TM(:IMMAX)
 
-!PRINT *, IREAD, LMAX, KMAX, IMMAX
-!PRINT *, ZMDL(:IMMAX)
-!PRINT *,''
-!PRINT *, TM(:IMMAX)
-!PRINT *,''
-!PRINT *, PM(:IMMAX)
+            !PRINT *, IREAD, LMAX, KMAX, IMMAX
+            !PRINT *, ZMDL(:IMMAX)
+            !PRINT *,''
+            !PRINT *, TM(:IMMAX)
+            !PRINT *,''
+            !PRINT *, PM(:IMMAX)
 
-
+        ! TESTING FOR LONG VERSION OF TEMOPERATURE RETRIEVAL NOT USED -JWH
         ELSE IF( IREAD .EQ. 1 )THEN
 
-!PRINT *, IREAD, LMAX, KMAX, IMMAX
-!PRINT *, ZMDL(:IMMAX)
-!PRINT *, ''
-!PRINT *, TM(:IMMAX)
-!PRINT *,''
-!PRINT *, PM(:IMMAX)
+            !PRINT *, IREAD, LMAX, KMAX, IMMAX
+            !PRINT *, ZMDL(:IMMAX)
+            !PRINT *, ''
+            !PRINT *, TM(:IMMAX)
+            !PRINT *,''
+            !PRINT *, PM(:IMMAX)
 
- x(1:kmax) = DREV(Zbar,KMAX)
- x(kmax+1) = zmdl(immax)
+          X(1:KMAX) = DREV(ZBAR,KMAX)
+          X(KMAX+1) = ZMDL(IMMAX)
 
- y(1:kmax) = DREV(T,KMAX)
- y(kmax+1) = tm0(immax)
+          Y(1:KMAX) = DREV(T,KMAX)
+          Y(KMAX+1) = TM0(IMMAX)
 
- y0(1:kmax) = DREV(TORG,KMAX)
- y0(kmax+1) = tm0(immax)
+          Y0(1:KMAX) = DREV(TORG,KMAX)
+          Y0(KMAX+1) = TM0(IMMAX)
 
-!PRINT *,''
-!write(*, '(3f10.3)') (x(im), y(im), y0(im), im=1, kmax+1)
+            !PRINT *,''
+            !write(*, '(3f10.3)') (x(im), y(im), y0(im), im=1, kmax+1)
 
-            ! change model T to perturbed T
-            CALL spline (KMAX, x, y, b, c, d)
+            ! CHANGE MODEL T TO PERTURBED T
+            CALL SPLINE (KMAX, X, Y, B, C, D)
 
             DO IM = 1, IMMAX
-
-               TM(IM) = seval (KMAX, ZMDL(IM), x, y, b, c, d)
-
+               TM(IM) = SEVAL (KMAX, ZMDL(IM), X, Y, B, C, D)
             ENDDO
 
-!PRINT *,''
-!write(*, '(3f10.3)') (Zmdl(im), Tm(im), tm0(im), im=1, immax)
-
+            !PRINT *,''
+            !write(*, '(3f10.3)') (Zmdl(im), Tm(im), tm0(im), im=1, immax)
 
         ELSE
            WRITE(16,*) 'NSMDL IREAD OOR'
@@ -2544,15 +2549,21 @@ END SUBROUTINE READLAYRS
 ! --- LOOP OVER LEVELS IN INPUT MODEL
         DO IM = 1, IMMAX
 
+           ! JUNIT = 18 -> INPUT IS MIXING RATIO
            JUNIT(1:NMOL) = 18
            WMOL(1:NMOL)  = USRMIX(IM,1:NMOL)
+
+           ! CONVERT TO DENSITIES FROM OUR INPUT
+           ! THIS CALLS WATVAP THAT CHECKS FOR RH > 100%
            CALL CONVRT( ZMDL(IM), PM(IM), TM(IM), IM, NMOL, NOPRNT )
+
+           ! PULL OUT WATER DENSITY
            DENW(IM)      = DENM(1,IM)
 
         ENDDO
 
       ENDIF
-!print*,'immaxb ',immax_B
+         !print*,'immaxb ',immax_B
       IF (IMMAX_B .LT. 0) THEN
          CALL CMPALT (IMMAX,PM,TM,DENW,ZMDL(1),ZMDL)
       ENDIF
@@ -3033,6 +3044,7 @@ END SUBROUTINE READLAYRS
       DENSAT(ATEMP) = ATEMP*B*EXP(C1+C2*ATEMP+C3*ATEMP**2)*1.0D-6
 
       RHOAIR = ALOSMT*(P/PZERO)*(TZERO/T)
+
       A = TZERO/T
       B = AVOGAD/AMWT(1)
       R = AIRMWT/AMWT(1)
@@ -3119,7 +3131,9 @@ END SUBROUTINE READLAYRS
       RELHUM(IM) = RHP
       IF (NOPRNT .GE. 0) WRITE (IPR,905) Z, P, T, RHP, DENNUM, DENST
       IF (RHP.LE.100.0) GO TO 100
-      IF (NOPRNT .GE. 0) WRITE (IPR,910) RHP
+      IF (NOPRNT .GE. 0) WRITE (IPR,910) IM, WMOL1, RHP
+      ! ADD RH > 100% NOTICE TO STDERR
+       WRITE (0,910) IM, WMOL1, RHP
   100 CONTINUE
 
       RETURN
@@ -3127,8 +3141,7 @@ END SUBROUTINE READLAYRS
   900 FORMAT (/,'  **** ERROR IN WATVAP ****, JUNIT = ',I5)
 ! 904  FORMAT( /, "ALTITUDE   PRESSURE  TEMPERATE       RH ")
   905 FORMAT (3G12.4,1X,F6.2,3G12.4)
-  910 FORMAT (/,' ****** WARNING (FROM WATVAP) # RELATIVE HUMIDTY = ',  &
-     &        G10.3,' IS GREATER THAN 100 PERCENT')
+  910 FORMAT (' *** WARNING IN LAYER : ', I3,' H2O VMR IS : ', G10.3,' & YIELDS RH : ',  F10.3,' GREATER THAN 100%.')
 !
       END SUBROUTINE WATVAP
 !
@@ -4813,11 +4826,11 @@ END SUBROUTINE READLAYRS
       PZ(0) = PP(1)
       TZ(0) = TP(1)
 
-!     IF ENTRY IN TAPE5 FOR TBOUND < 0, USE TZ(O) AS BOUNDARY
-!     TEMPERATURE
+!     IF ENTRY IN TAPE5 FOR TBOUND < 0, USE TZ(O) AS BOUNDARY TEMPERATURE
 
 !      IF (TBOUND.LT.0.) TBOUND = TZ(0)
-!
+
+! --- ACCUMULATE COURSE OUTPUT GRID FROM FINE WORKING INTERNAL GRID
       DO 20 IP = 1, I2
 
          PBAR(IOUT) = PBAR(IOUT)+PPSUM(IP)
@@ -4848,8 +4861,11 @@ END SUBROUTINE READLAYRS
          ISKIP(K) = 0
          IF (AMTTOT(K).EQ.0.0) ISKIP(K) = 1
    30 END DO
+
       L2 = IFINMX-1
       LMAX = L2
+        !print *, L2, AMOUNT(1,1), RHOSUM(1)
+! --- LOOP OVER LAYERS OF OUTPUT GRID
       DO 90 L = 1, L2
          PBAR(L) = PBAR(L)/RHOSUM(L)
          TBAR(L) = TBAR(L)/RHOSUM(L)
@@ -4860,6 +4876,7 @@ END SUBROUTINE READLAYRS
 !
          SUMAMT = 0.0D0
          DO 40 K = 1, NMOL
+            !write(0,'(2i3,e12.3)'), k, l, amount(k,l)
             SUMAMT = SUMAMT + AMOUNT(K,L)
    40    CONTINUE
          WN2L(L) = RHOSUM(L)-SUMAMT

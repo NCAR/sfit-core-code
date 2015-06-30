@@ -78,7 +78,7 @@
       IF( NISOSEP .GT. ISOMAX )STOP 'TOO MANY ISOTOPE SEPARATIONS REQUESTED'
       DO I=1, NISOSEP
           READ(9,'(A7)') OLDNAME(I)
-          print *, OLDNAME(I)
+          !print *, OLDNAME(I)
           call flush()
           READ(9,*) OLDID(I), OLDISO(I), F_ISOVMR(I)
           READ(9,'(A7)') NEWNAME(I)
