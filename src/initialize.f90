@@ -802,7 +802,7 @@
             IF (NFITS > 0) THEN
                !  --- BACKGROUND SLOPE - NBACK=2
                DO I = 1,NFITS
-                  WRITE(PNAME(NVAR+I), '(A10,I1)') 'BCKGRDSLP_', I
+                  WRITE(PNAME(NVAR+I), '(A10,I1)') 'BckGrdSlp_', I
                END DO
                PARM(NVAR+1:NFITS) = BCKSL
                SPARM(NVAR+1:NFITS) = SBCKSL
@@ -814,13 +814,13 @@
                IF (NFITS > 0) THEN
                   !  --- BACKGROUND SLOPE - NBACK=2
                   DO I = 1,NFITS
-                     WRITE(PNAME(I*2-1+NVAR), '(A10,I1)') 'BCKGRDSLP_', I
+                     WRITE(PNAME(I*2-1+NVAR), '(A10,I1)') 'BckGrdSlp_', I
                   END DO
                   PARM(NVAR+1:NFITS*2-1+NVAR:2) = BCKSL
                   SPARM(NVAR+1:NFITS*2-1+NVAR:2) = SBCKSL
                   !  --- BACKGROUND CURVATURE - NBACK=3
                   DO I = 1,NFITS
-                     WRITE(PNAME(I*2+NVAR), '(A10,I1)') 'BCKGRDCUR_', I
+                     WRITE(PNAME(I*2+NVAR), '(A10,I1)') 'BckGrdCur_', I
                   END DO
                   PARM(NVAR+2:NFITS*2+NVAR:2) = BCKCRV
                   SPARM(NVAR+2:NFITS*2+NVAR:2) = SBCKCRV
@@ -848,7 +848,7 @@
             IF (ISPARM == 3) N = NFITS
             IF (N > 0) THEN
                DO I = 1,N
-                  WRITE(PNAME(NVAR+I), '(A10,I1)') 'IWNUMSHFT_', I
+                  WRITE(PNAME(NVAR+I), '(A10,I1)') 'IWNumShft_', I
                END DO
                PARM(NVAR+1:N+NVAR) = WSHFT
                SPARM(NVAR+1:N+NVAR) = SWSHFT
@@ -869,7 +869,7 @@
             N = NSCAN(I)
             IF (N > 0) THEN
                DO KK = 1, N
-                  WRITE(PNAME(KK+NVAR),'(A8,I1)') 'ZEROLEV_',KK
+                  WRITE(PNAME(KK+NVAR),'(A8,I1)') 'ZeroLev_',KK
                END DO
                PARM(NVAR+1:N+NVAR) = ZSHIFT(I,1)
                SPARM(NVAR+1:N+NVAR) = SZERO(I)
@@ -915,7 +915,7 @@
          IF (NEPHSRT > 0) THEN
             EPHSF0(:NEPHSRT) = EPHSF(:NEPHSRT)
             DO KK = 1, NEPHSRT
-               WRITE(PNAME(KK+NVAR),'(A10,I1)') TRIM('EMPPHSFNC_'),KK
+               WRITE(PNAME(KK+NVAR),'(A10,I1)') TRIM('EmpPhsFcn_'),KK
             END DO
             PARM(NVAR+1:NEPHSRT+NVAR) = EPHSPAR + 1.0D0
             SPARM(NVAR+1:NEPHSRT+NVAR) = SEPHSPAR
@@ -927,7 +927,7 @@
       NDIFF = 0
       IF (IFDIFF .AND. NRET.GT.1) THEN
          DO KK = 2, NRET
-            PNAME(KK+NVAR-1) = 'DWNUMSHFT_'//TRIM(GAS(KK))
+            PNAME(KK+NVAR-1) = 'DWNumShft_'//TRIM(GAS(KK))
          END DO
          PARM(NVAR+1:NRET-1+NVAR)  = WSHFT
          SPARM(NVAR+1:NRET-1+NVAR) = SWSHFT
@@ -943,7 +943,7 @@
             N = NSCAN(I)
             IF (N > 0) THEN
                DO KK = 1, N
-                  WRITE(PNAME(KK+NVAR),'(A8,I1)') 'SPHSERR_',I
+                  WRITE(PNAME(KK+NVAR),'(A8,I1)') 'SPhsErr_',I
                END DO
                PARM(NVAR+1:N+NVAR) = PHS
                SPARM(NVAR+1:N+NVAR) = SPHS
@@ -1026,6 +1026,8 @@
          NVAR = NVAR + N_CONTABS
       END IF
 
+      ! --- INSERT  CHANNEL PARAMETERS INTO STATE VECTOR PARM()
+      CALL INSERT_CHANNEL_PARMS (NVAR, PARM, PNAME, SPARM)
 
       !  ---  RETRIEVAL GAS MIXING RATIOS
       !  ---  MIXING RATIO AT ISMIX +1
@@ -1064,10 +1066,6 @@
          SPARM(NVAR+1:NVAR+NTEMP) = TSIGMA(1:NTEMP)
          NVAR = NVAR + NTEMP
       ENDIF
-
-
-      ! --- INSERT  CHANNEL PARAMETERS INTO STATE VECTOR PARM()
-      CALL INSERT_CHANNEL_PARMS (NVAR, PARM, PNAME, SPARM)
 
       ! --- TEST FOR OVERFLOWS
       IF (NVAR > NMAX) GO TO 556
