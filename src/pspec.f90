@@ -281,7 +281,8 @@ subroutine read_ctrl
    ! --- Loop over bands
    do iband = 1, nband
       ! --- 10 res units to account for shifts - from initialize.f90:setup
-      dwave  = 10.d0/pmax(iband)
+      ! now set in bandparam to ~1000
+      dwave  = resunits/pmax(iband)
       nextra = nint( dwave/dn(iband))
       !  --- interval for input of line data, dlines accounts for out of band absorption
       wave5(iband) = wave3(iband) - nextra*dn(iband) - dlines

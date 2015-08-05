@@ -236,16 +236,6 @@
                NCOUNT = NCOUNT + 1
                OMEGA(K) = OMEGA0(K)*(1.0D0 + PARM(NCOUNT))
             END IF
-            ! ERROR IN FIELD OF MAXOPD
-            IF (IFOPD /= 0) THEN
-               NCOUNT = NCOUNT + 1
-               IF (ICOUNT == NCOUNT+1) THEN
-                  ! USUAL DEL = 0.1D-5 IS TO SMALL TO CAUSE ANY KB.
-                  PARM(NCOUNT) = PARM(NCOUNT) - DEL + 0.1
-                  DEL = 0.1
-               END IF
-               PMAX(K) = PMAX0(K) * (1.0D0 + PARM(NCOUNT))
-            END IF
          END DO
 
 ! CONTINUUM ABSORPTION
@@ -301,7 +291,9 @@
 
 ! --- SCALING VERTICAL DISTRIBUTION
                NCOUNT = NCOUNT + 1
-               X(KK,:KMAX) = PARM(NCOUNT)*XORG(KK,:KMAX)
+               X(KK,:NPATH) = PARM(NCOUNT)*XORG(KK,:NPATH)
+
+               !print*, 'fwdmdl ', ncount, kmax, npath, kk, X(KK,:NPATH), PARM(NCOUNT), XORG(KK,:NPATH)
             ENDIF
          END DO
 
@@ -312,12 +304,16 @@
             ! --- ONLY CONSIDERING PROFILE FIT
             K = IPARM - NCOUNT
             ! --- KMAX + 1 PASSES TO UN-PERTURB FINAL TEMPERATURE
-            IF( K .GE. 1 .AND. K .LE. KMAX + 1 )THEN
+            !IF( K .GE. 1 .AND. K .LE. KMAX + 1 )THEN
+            IF( K .GE. 1 .AND. K .LE. NPATH + 1 )THEN
                TRET = .TRUE.
-               T(:KMAX) = PARM(NCOUNT+1:NCOUNT+KMAX) * TORG(:KMAX)
-               NCOUNT = NCOUNT + KMAX
+               !T(:KMAX) = PARM(NCOUNT+1:NCOUNT+KMAX) * TORG(:KMAX)
+               !NCOUNT = NCOUNT + KMAX
+               T(:NPATH) = PARM(NCOUNT+1:NCOUNT+NPATH) * TORG(:NPATH)
+               NCOUNT = NCOUNT + NPATH
                   !CALL LBLATM( ITER, KMAX )
-                  IF (K .GT. KMAX) K = KMAX
+                  !IF (K .GT. KMAX) K = KMAX
+                  IF (K .GT. NPATH) K = NPATH
                   CALL MASSPATH( K )
                   CALL SETUP3( XSC_DETAIL, K )
             ENDIF ! K
@@ -348,7 +344,13 @@
 
          IF ((.NOT.ANALYTIC_K).OR.(.NOT.XRET).OR.(TRET).OR.(ICOUNT.EQ.1).or.FLINE.or.FSZA.or.TALL_FLAG) THEN
             CALL TALL
-            IF( BUG1 )PRINT*, '    TALL', IPARM
+            IF( BUG1 )THEN
+               IF(ICOUNT.GT.1) THEN
+                  PRINT*, '    TALL', IPARM, PNAME(IPARM)
+               ELSE
+                  PRINT*, '    TALL', IPARM, NCOUNT
+               ENDIF
+            ENDIF
             !print*, nmonsm, TCALC(1,:100)
             !stop
          ELSE

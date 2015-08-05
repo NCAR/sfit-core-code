@@ -72,7 +72,7 @@
         1,  9,  6,  6,  6,  9,  3,  9,  1, 15,                       & !41-50
         6,  0,  0,  0,  0,  0,  0,  3,  1,  1,                       & !51-60
        12, 12,  1, 12,  8, 11, 27, 15,  8,  0,                       & !61-70
-       18, 33, 27, 27, 21, 30,  0,  0,  0,  0,                       & !71-80
+       18, 10, 10,  4, 21,  2,  0,  0,  0,  0,                       & !71-80
         0,  0,  0,  0,  0,  0,  0,  0,  0,  0,                       & !81-90
         0,  0,  0,  0,  0,  0,  0,  0,  0/                             !91-99
 
@@ -233,7 +233,7 @@
       CONTAINS
 
 !----------------------------------------------------------------------
-      SUBROUTINE QVIB( XCS_DETAIL )
+      SUBROUTINE QVIB( XSC_DETAIL )
 
 !  COMPUTE VIBRATIONAL PARTITION FUNCTION FOR RETRIEVAL AND BACKGROUND
 !  GASES FOR EACH LAYER TEMPERATURE AND AT THE REFERENCE TEMPERATURE
@@ -243,7 +243,7 @@
 !           TORSIONAL MODES NOT INCLUDED -- C2H6(#38), CLONO2 (#27)
 !     IVIB=ARRAY CONTAINING FUNDAMENTAL FREQUENCIES AND DEGENERACIES
 
-      LOGICAL, INTENT(IN) :: XCS_DETAIL
+      LOGICAL, INTENT(IN) :: XSC_DETAIL
       INTEGER             :: KLEVEL, I, K, N, IMODE, ISUBS(MAXSPE)
       REAL(DOUBLE)        :: TEMP, FREQ
 
@@ -272,15 +272,15 @@
          ISUBS(N) = I
       END DO
 
-      IF( XCS_DETAIL )THEN
+      IF( XSC_DETAIL )THEN
 !  --- WRITE OUT VIBRATIONAL PARTITION FUNCTIONS
-         WRITE (16, 100)
-         WRITE (16, 5, ADVANCE='NO')
+         WRITE(16, 100)
+         WRITE(16, 5, ADVANCE='NO')
          WRITE(16, 6) NAME(ICODE(ISUBS(:N)))
          DO K = 1, KLEVEL
             IF (K <= KMAX) TEMP = T(K)
             IF (K == KLEVEL) TEMP = 296.D0
-            WRITE (16, 7, ADVANCE='NO') TEMP
+            WRITE(16, 7, ADVANCE='NO') TEMP
             WRITE(16, 9) QV(ISUBS(:N),K)
          END DO
       ENDIF

@@ -133,6 +133,8 @@ contains
      end if
 
      select case (trim(adjustl(keyword(1))))
+     case ('cell')
+        call read_cell_section(keyword, value)
      case ('file')
         call read_file_section(keyword, value)
      case ('gas')
