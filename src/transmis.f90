@@ -63,7 +63,7 @@
 
             do kk = 1, npath  !kmax
                CCC(:nspec,kk) = CORG(:nspec,kk) * (TORG(kk) / T(kk) )
-               print*, "masspath ",k, kk, T(kk), CCC(:nspec,kk)
+!               print*, "masspath ",k, kk, T(kk), CCC(:nspec,kk)
             enddo
 
 !print*, k, nspec, ccc(:nspec,k), T(K), TORG(k), CORG(:nspec,k)
@@ -81,9 +81,11 @@
       IF( KMAX .EQ. 0 )THEN
          DO KK = 1, NCELL
             PMASMX(KK) = 0.D0
-            PMASMX(KK) = DMAX1(MAXVAL(CCC(:NSPEC,KK)),PMASMX(KK))
+            PMASMX(KK) = DMAX1(MAXVAL(CCC(:NSPEC,KK)),PMASMX(KK))            
             !PRINT *,  PMASMX(KK)
          END DO
+!         IF (NCELL .GT. 0) THEN
+!            PMASMX(NCELL) = DMAX1(MAXVAL(CCC(:NSPEC,KK)),PMASMX(KK))
       ENDIF
 
       END SUBROUTINE MASSPATH
