@@ -40,7 +40,7 @@ FFLAGS = -Warray-bounds -Wcharacter-truncation -Wunused-parameter \
 
 #error check a lot
 FFLAGS = -Wall -fno-automatic -fcheck=all -ffpe-trap=invalid,zero,overflow,underflow -Warray-bounds \
-         -fbounds-check -fbacktrace -g -ffree-line-length-none
+         -fbounds-check -fbacktrace -g -ffree-line-length-none -mcmodel=medium
 
 # optimize -Ofast v4.8
 #FFLAGS = -Wall -fno-automatic -frepack-arrays  -ffree-line-length-none

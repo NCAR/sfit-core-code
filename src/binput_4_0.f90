@@ -97,7 +97,7 @@ contains
 
   subroutine init_vars()
     emission_t_back = -1.0d0
-    emission_object = 'N/A'
+    emission_object = 'N'
     ienorm = -1
   end subroutine init_vars
   
