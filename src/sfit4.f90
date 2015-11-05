@@ -816,6 +816,11 @@
             PNAME(I) = 'LineTAir'//'_'//TRIM(s_kb_line_gas(L3))
             L3 = L3 + 1
          END SELECT
+         DO J = 1,NRET
+            IF ((PNAME(I).EQ.GAS(J)).AND.(IFPRF_KB(J))) THEN
+               PNAME(I) = 'PROFILE_'//TRIM(GAS(J))
+            END IF
+         END DO
       END DO
 
 

@@ -120,3 +120,6 @@
  out.level = 1
  out.gas_spectra = F
 
+ kb = T
+ kb.profile = T
+ kb.profile.gas = CH4
