@@ -61,8 +61,9 @@
 !            CCC(:nspec,K) = CORG(:nspec,K) * (TORG(K) / T(K) )
             ! reset to last iteration and update k
 
-            do kk = 1, kmax
+            do kk = 1, npath  !kmax
                CCC(:nspec,kk) = CORG(:nspec,kk) * (TORG(kk) / T(kk) )
+!               print*, "masspath ",k, kk, T(kk), CCC(:nspec,kk)
             enddo
 
 !print*, k, nspec, ccc(:nspec,k), T(K), TORG(k), CORG(:nspec,k)
@@ -76,6 +77,16 @@
          PMASMX(KK) = DMAX1(MAXVAL(CCC(:NSPEC,KK)),PMASMX(KK))
          !print *,  PMASMX(KK)
       END DO
+
+      IF( KMAX .EQ. 0 )THEN
+         DO KK = 1, NCELL
+            PMASMX(KK) = 0.D0
+            PMASMX(KK) = DMAX1(MAXVAL(CCC(:NSPEC,KK)),PMASMX(KK))            
+            !PRINT *,  PMASMX(KK)
+         END DO
+!         IF (NCELL .GT. 0) THEN
+!            PMASMX(NCELL) = DMAX1(MAXVAL(CCC(:NSPEC,KK)),PMASMX(KK))
+      ENDIF
 
       END SUBROUTINE MASSPATH
 
@@ -153,6 +164,8 @@
 
       KSMAX2 = KZTAN(ISCAN(IBAND,NSCANS))
 
+!print*, 'ntran ', iband, nscans, ISCAN(IBAND,NSCANS), KSMAX2
+
 !                   ------------LOOP OVER LAYERS
       DO K = 1, KSMAX2
          MADD = MONONE
@@ -166,7 +179,7 @@
                IF (K <= KZTAN(JSCAN)) THEN
 
                   FACMAS = CCC(JSCAN,K)/PMASMX(K)
-
+!print*, 'ntran ',jscan, k, CCC(JSCAN,K), PMASMX(K), facmas
                   ! ------------LOOP OVER FREQUENCIES
                   MXMAX = MXONE + NMON - 1
                   DO J = 1, NMON
@@ -178,7 +191,7 @@
                      CROSS_FACMAS(1,K,MSTOR) = CROSS(1,K,ICINDX) * FACMAS
 
                      TCALC(IPOINT,MSTOR) = TCALC(IPOINT,MSTOR) + (X(1,K)/XORG(1,K)) * CROSS_FACMAS(1,K,MSTOR)
-
+!print*, IPOINT, MSTOR, TCALC(IPOINT,MSTOR), X(1,K), XORG(1,K), CROSS_FACMAS(1,K,MSTOR)
                      IF (IEMISSION/=0) THEN
                         ! Transmission calculated below the layer ALT, needed
                         ! for calculation of contribution to emission from
@@ -366,6 +379,7 @@
                     TCALC(IPOINT,MADD+I-1) = 664.0D0
                  ENDIF
                  TCALC(IPOINT,MADD+I-1) = EXP((-TCALC(IPOINT,MADD+I-1)))
+!print*, ipoint, madd+i-1,TCALC(IPOINT,MADD+I-1)
               END DO
            ENDIF
            MADD = MADD + NM(IBAND)

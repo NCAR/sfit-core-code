@@ -74,7 +74,6 @@
       INTEGER :: I_KB_LINE_TYPE = 0
       LOGICAL :: F_KB_SZA       = .FALSE.
       LOGICAL :: F_KB_FOV       = .FALSE.
-      LOGICAL :: F_KB_OPD       = .FALSE.
 
       CHARACTER(LEN=1024)                  :: S_KB_LINE_GASES
       CHARACTER(LEN=14), DIMENSION(MOLMAX) :: S_KB_LINE_GAS
@@ -111,7 +110,7 @@
 
          IF (NSCAN(IBAND) == 0) CYCLE
 
-         DWAVE  = 10.D0/PMAX(IBAND)
+         DWAVE  = RESUNITS/PMAX(IBAND)
          NEXTRA = NINT( DWAVE/DN(IBAND))
          WAVE1  = WSTART(IBAND) - NEXTRA*DN(IBAND)
          WAVE2  = WSTOP(IBAND)  + NEXTRA*DN(IBAND)
@@ -146,14 +145,14 @@
       ncont = 0
       if (f_contabs) ncont = 1
 
-      ALLOCATE (CROSS(NRET+1+NCONT,KMAX,NCROSS), STAT=NAERR)
+      ALLOCATE (CROSS(NRET+1+NCONT,KMAX+NCELL,NCROSS), STAT=NAERR)
       IF (NAERR /= 0) THEN
          WRITE (16, *) 'INITIALIZE: COULD NOT ALLOCATE CROSS ARRAY ERROR NUMBER = ', NAERR
          WRITE ( 0, *) 'INITIALIZE: COULD NOT ALLOCATE CROSS ARRAY ERROR NUMBER = ', NAERR
          CALL SHUTDOWN
          STOP 2
       ENDIF
-      ALLOCATE (CROSS_FACMAS(NRET+1+NCONT,KMAX,NMONSM), STAT=NAERR)
+      ALLOCATE (CROSS_FACMAS(NRET+1+NCONT,KMAX+NCELL,NMONSM), STAT=NAERR)
       IF (NAERR /= 0) THEN
          WRITE (16, *) 'INITIALIZE: COULD NOT ALLOCATE CROSS_FACMAS ARRAY ERROR NUMBER = ', NAERR
          WRITE ( 0, *) 'INITIALIZE: COULD NOT ALLOCATE CROSS_FACMAS ARRAY ERROR NUMBER = ', NAERR
@@ -195,14 +194,14 @@
          CALL SHUTDOWN
          STOP 2
       ENDIF
-      ALLOCATE (TCALC_E(2,NMONSM, KMAX+1), STAT=NAERR)
+      ALLOCATE (TCALC_E(2,NMONSM, KMAX+1+NCELL), STAT=NAERR)
       IF (NAERR /= 0) THEN
          WRITE (16, *) 'INITIALIZE: COULD NOT ALLOCATE TCALC_E ARRAY ERROR NUMBER = ', NAERR
          WRITE ( 0, *) 'INITIALIZE: COULD NOT ALLOCATE TCALC_E ARRAY ERROR NUMBER = ', NAERR
          CALL SHUTDOWN
          STOP 2
       ENDIF
-      ALLOCATE (TCALC_S(2,NMONSM, KMAX), STAT=NAERR)
+      ALLOCATE (TCALC_S(2,NMONSM, KMAX+NCELL), STAT=NAERR)
       IF (NAERR /= 0) THEN
          WRITE (16, *) 'INITIALIZE: COULD NOT ALLOCATE TCALC_S ARRAY ERROR NUMBER = ', NAERR
          WRITE ( 0, *) 'INITIALIZE: COULD NOT ALLOCATE TCALC_S ARRAY ERROR NUMBER = ', NAERR
@@ -298,11 +297,12 @@
          ENDIF
          CALL FILECLOSE(24,2)
       ENDIF
+
       IF (IEAP==4 .OR. IEPHS==4) THEN
          ! IF USING BOTH IEAP=4 OR IEPHS=4 PRINT AS FOUND IN ONE FILE
          !  WHICH ASSUMES EAPX IS THE SAME AS EPHSX
          WRITE (16, 202) JEAP
-         WRITE (16, 203) (EPHSX(I),EAPF(I),EPHSF(I),I=1,JEAP)
+         WRITE (16, 203) (EAPX(I),EAPF(I),EPHSX(I),EPHSF(I),I=1,JEAP)
       ENDIF
 
 !  --- INPUT ATMOSPHERIC LINE DATA FROM TAPE14
@@ -324,14 +324,23 @@
          CALL SHUTDOWN
          STOP 2
   232    CONTINUE
-         IRET(J) = I
+         IRET(J) = I  ! index of gas in list of gases
 
 ! --- CHECK FOR A 0.0 IN AN INITIAL PROFILE TO BE RETRIEVED
+! --- STORE INITIAL GASES PROFILES
          DO K = 1, KMAX
-            IF (XGAS(I,K) <= 0.0D0) GO TO 107
-            X(J,K)    = XGAS(I,K)
-            XORG(J,K) = XGAS(I,K)
+            !print*, 'set2 ', j, k, nret, KMAX, NCELL, IRET(J), igas(J), xgas(IRET(J),k)
+            IF (XGAS(IRET(J),K) <= 0.0D0) GO TO 107
+            X(J,K)    = XGAS(IRET(J),K)
+            XORG(J,K) = XGAS(IRET(J),K)
          END DO
+! --- STORE INITIAL GASES AMOUNTS FOR CELLS
+         DO K = KMAX+1, NCELL
+            !print*, 'set2 ', j, k, nret, KMAX, NCELL, IRET(J), igas(J), xgas(IRET(J),k)
+            X(J,K)    = XGAS(IRET(J),K)
+            XORG(J,K) = XGAS(IRET(J),K)
+         END DO
+
       END DO
 
       IF( NRET .EQ. 0 )THEN
@@ -368,8 +377,8 @@
          /,' FILENAME: "',A,'"')
 
   202 FORMAT(/,' TABULAR FORM OF ILS PARAMETERS, ASSUMING N= ',I3,/,&
-         '  OPD    MODULATION       PHASE')
-  203 FORMAT(F7.3,2ES12.4)
+         '  OPD    MODULATION    OPD    PHASE')
+  203 FORMAT(2(F7.3,2x,ES12.4))
   668 FORMAT(/,' ABORT -SETUP2- ZERO VMR VALUE FOUND IN RETRIEVAL GAS PROFILE: ',A7)
 ! 3661 FORMAT(/,/,' TEMPERATURE DEPENDENCE OF HALFWIDTHS',/,' GAS        TDEP'/)
 ! 3662 FORMAT(1X,A7,F6.2)
@@ -425,7 +434,7 @@
       WRITE (*, *) ' READING ASCII SPECTRA FILE: ', TFILE(15)(1:LEN_TRIM(TFILE(15)))
       CALL FILEOPEN( 15, 3 )
 
-      WRITE (6, *) 'NFIT  BAND  SCAN/BAND  SCAN_ID  SCAN_CODE    SPACING     NSPAC                   RANGE         SNR'
+      WRITE (6, *) 'NFIT  BAND  SCAN/BAND  SCAN_ID  SCAN_CODE    SPACING     NSPAC                   RANGE     INIT_SNR'
 
       NFITS  = 0
       NATMOS = 0
@@ -516,8 +525,8 @@
 ! --- SCAN INDEX FOR THIS BAND / SPECTRUM
          ISCAN(IBAND,JSCAN)    = ISZA
 
-! --- SNR BY SCAN
-         SCNSNR(IBAND,JSCAN)   = BSNR
+! --- SNR BY SCAN (OVERRIDE VALUE IN BAND.X.SNR IN SFIT4.CTL FILE)
+         SCNSNR(1,IBAND,JSCAN) = BSNR
 
 ! --- RUNNING NUMBER OF FITS
          NFITS                 = NFITS + 1
@@ -549,7 +558,7 @@
          STITLE(NFITS) = TITLE
 
 !         WRITE(6,108) NFITS, IBAND, NSCAN(IBAND), ISZA, ISPEC(ISZA), SPAC(IBAND), WAVE3(IBAND), &
-!               WAVE4(IBAND), SCNSNR(IBAND,JSCAN)
+!               WAVE4(IBAND), SCNSNR(1,IBAND,JSCAN)
 
          !IF( IBAND .EQ. NBAND )WRITE (31, 10) TITLE
 !         WRITE (6, '(4X,A76)') TITLE
@@ -587,7 +596,7 @@
          IF( NSCAN(IBAND) .EQ. 1 )THEN
             WRITE(16,109) IBAND
             WRITE(16,110) WAVFAC(IBAND), PMAX(IBAND), FOVDIA(IBAND), DN(IBAND), IAP(IBAND), &
-                  (SCNSNR(IBAND,JSCAN),JSCAN=1,NSCAN(IBAND))
+                  (SCNSNR(1,IBAND,JSCAN),JSCAN=1,NSCAN(IBAND))
             NSPAC(IBAND) = FLOOR(SPAC(IBAND)/DN(IBAND) + 1.0000001D0)
             DN(IBAND)    = SPAC(IBAND)/NSPAC(IBAND)
             NPRIM(IBAND) = NPTSB
@@ -595,7 +604,7 @@
          ENDIF
 
          WRITE(6,108) NFITS, IBAND, NSCAN(IBAND), ISZA, ISPEC(ISZA), SPAC(IBAND), NSPAC(IBAND), WAVE3(IBAND), &
-               WAVE4(IBAND), (SCNSNR(IBAND,JSCAN),JSCAN=1,NSCAN(IBAND))
+               WAVE4(IBAND), (SCNSNR(1,IBAND,JSCAN),JSCAN=1,NSCAN(IBAND))
 
          !IF( IBAND .EQ. NBAND )WRITE (31, 10) TITLE
          WRITE (6, '(4X,A76)') TITLE
@@ -689,26 +698,23 @@
 
       SUBROUTINE FILSE( SED, NFIT )
 
-! SFIT 4
-! NO DEFAULT - INPUT ONE SNR FOR EACH BAND
-! DON'T LIKE IT  - SHOULD BE IN T15 ASCII FILE AS A SNR PER BAND/SPECTRUM
-! IS NOW MAR 2013 vP1.7
 
 ! --- FILLS SED VECTOR (VARIANCES OF MEASUREMENTS)
-! --- USES DEFAULT S/N UNLESS A DIFFERENT VALUE IS SPECIFIED
-! --- FOR A GIVEN WAVENUMBER INTERVAL
-! --- MAXSNR=MAXIMUM NUMBER OF ALTERNATE S/N VALUES
-! --- MMAX=MAXIMUM NUMBER OF SPECTRAL DATA POINTS
+! --- USES DEFAULT S/N UNLESS A DIFFERENT VALUE IS SPECIFIED FOR A GIVEN WAVENUMBER INTERVAL
+! --- MAXSNR = MAXIMUM NUMBER OF ALTERNATE S/N VALUES
+! --- MMAX   = MAXIMUM NUMBER OF SPECTRAL DATA POINTS
 
       INTEGER, INTENT(IN)       :: NFIT
       !REAL(DOUBLE), INTENT(IN)  :: SNR
       REAL(DOUBLE), INTENT(OUT) :: SED(NFIT)
 
-      INTEGER :: I, K, IBAND, JSCAN, IW
+      INTEGER :: I, K, IBAND, JSCAN, IW, N
       REAL(DOUBLE), ALLOCATABLE, DIMENSION(:) :: STNR
 
       ALLOCATE(STNR(NFIT))
+      STNR(:) = 0.0D0
 
+! --- WRITE CHECK OF OVERRIDING SNR VALUES READ IN FROM .CTL FILE
       IF( NSTNR .NE. 0 )THEN
          WRITE(16,11) NSTNR
          DO I = 1, NSTNR
@@ -716,31 +722,46 @@
          END DO
       ENDIF
 
+! --- LOOP OVER ALL SPECTRAL POINTS AND DETERMINE THE SNR FOR THAT POINT
       DO IW = 1, NFIT
          DO IBAND = 1, NBAND
+         ! --- CYCLE OUT IF WAVENUMBER IS NOT IN THIS BAND
             IF ((WWV(IW) .LT. WAVE3(IBAND)) .OR. (WWV(IW) .GT. WAVE4(IBAND))) CYCLE
             DO JSCAN=1, NSCAN(IBAND)
+            ! --- CONTINUE IF THIS POINT IS IN THIS BAND AND SCAN
                IF(( IW.GE.ISCNDX(1,IBAND,JSCAN)) .AND. (IW.LE.ISCNDX(2,IBAND,JSCAN)) )THEN
+               ! --- INSERT SNR FORM T15 FILE (DEFAULT VALUE)
                   IF ((IEMISSION .eq. 0) .OR. (IENORM(IBAND) .eq. 1)) THEN
-                     STNR(IW) = 1.0D0 / SCNSNR(IBAND,JSCAN)
+                     STNR(IW) = 1.0D0 / SCNSNR(1,IBAND,JSCAN)
                   ELSE
-                     STNR(IW) = SCNSNR(IBAND,JSCAN)
+                     STNR(IW) = SCNSNR(1,IBAND,JSCAN)
                   ENDIF
+                  ! --- OVERRIDE IF WE CHOSE A NEW SNR FROM THE SPECTRUM SECTION IN THE SFIT4.CTL FILE
                   DO K = 1, NSTNR
                      IF ((WWV(IW) .LT. WWV0(K)) .OR. (WWV(IW) .GT. WWV1(K))) CYCLE
                      IF ((IEMISSION .EQ. 0) .OR.( IENORM(IBAND) .eq. 1)) THEN
                         STNR(IW) = 1.0D0 / GSTNR(K)
                      ELSE
-                        STNR(IW) = GSTNR(IBAND)
+                        STNR(IW) = GSTNR(K)
                      ENDIF
                   ENDDO ! NSTNR
                ENDIF ! ISCNDX
             ENDDO ! NSCAN
          ENDDO ! NBAND
+         IF( STNR(IW) .EQ. 0. )STOP ' ZERO VALUE FOUND IN THE STNR ARRAY!'
       ENDDO ! NFIT
+
       !DO I=1, NFIT
       !PRINT*, I, WWV(I), 1.0/STNR(I)
       !ENDDO
+
+! --- ALL STNR(:NFIT) ARE DEFINED, CALCULATE SNR FOR EACH BAND AND SCAN
+      DO IBAND = 1, NBAND
+         DO JSCAN=1, NSCAN(IBAND)
+            N = ISCNDX(2,IBAND,JSCAN) - ISCNDX(1,IBAND,JSCAN) + 1
+            SCNSNR(2,IBAND,JSCAN) = SUM(1.0D0/STNR(ISCNDX(1,IBAND,JSCAN):ISCNDX(2,IBAND,JSCAN)))/REAL(N,8)
+         ENDDO ! NSCAN
+      ENDDO ! NBAND
 
 ! --- MEAN SNR
       SNR = SUM( 1.0D0/STNR(:NFIT) )/REAL(NFIT,8)
@@ -781,7 +802,7 @@
             IF (NFITS > 0) THEN
                !  --- BACKGROUND SLOPE - NBACK=2
                DO I = 1,NFITS
-                  WRITE(PNAME(NVAR+I), '(A10,I1)') 'BCKGRDSLP_', I
+                  WRITE(PNAME(NVAR+I), '(A10,I1)') 'BckGrdSlp_', I
                END DO
                PARM(NVAR+1:NFITS) = BCKSL
                SPARM(NVAR+1:NFITS) = SBCKSL
@@ -793,13 +814,13 @@
                IF (NFITS > 0) THEN
                   !  --- BACKGROUND SLOPE - NBACK=2
                   DO I = 1,NFITS
-                     WRITE(PNAME(I*2-1+NVAR), '(A10,I1)') 'BCKGRDSLP_', I
+                     WRITE(PNAME(I*2-1+NVAR), '(A10,I1)') 'BckGrdSlp_', I
                   END DO
                   PARM(NVAR+1:NFITS*2-1+NVAR:2) = BCKSL
                   SPARM(NVAR+1:NFITS*2-1+NVAR:2) = SBCKSL
                   !  --- BACKGROUND CURVATURE - NBACK=3
                   DO I = 1,NFITS
-                     WRITE(PNAME(I*2+NVAR), '(A10,I1)') 'BCKGRDCUR_', I
+                     WRITE(PNAME(I*2+NVAR), '(A10,I1)') 'BckGrdCur_', I
                   END DO
                   PARM(NVAR+2:NFITS*2+NVAR:2) = BCKCRV
                   SPARM(NVAR+2:NFITS*2+NVAR:2) = SBCKCRV
@@ -827,7 +848,7 @@
             IF (ISPARM == 3) N = NFITS
             IF (N > 0) THEN
                DO I = 1,N
-                  WRITE(PNAME(NVAR+I), '(A10,I1)') 'IWNUMSHFT_', I
+                  WRITE(PNAME(NVAR+I), '(A10,I1)') 'IWNumShft_', I
                END DO
                PARM(NVAR+1:N+NVAR) = WSHFT
                SPARM(NVAR+1:N+NVAR) = SWSHFT
@@ -848,7 +869,7 @@
             N = NSCAN(I)
             IF (N > 0) THEN
                DO KK = 1, N
-                  WRITE(PNAME(KK+NVAR),'(A8,I1)') 'ZEROLEV_',KK
+                  WRITE(PNAME(KK+NVAR),'(A8,I1)') 'ZeroLev_',KK
                END DO
                PARM(NVAR+1:N+NVAR) = ZSHIFT(I,1)
                SPARM(NVAR+1:N+NVAR) = SZERO(I)
@@ -894,7 +915,7 @@
          IF (NEPHSRT > 0) THEN
             EPHSF0(:NEPHSRT) = EPHSF(:NEPHSRT)
             DO KK = 1, NEPHSRT
-               WRITE(PNAME(KK+NVAR),'(A10,I1)') TRIM('EMPPHSFNC_'),KK
+               WRITE(PNAME(KK+NVAR),'(A10,I1)') TRIM('EmpPhsFcn_'),KK
             END DO
             PARM(NVAR+1:NEPHSRT+NVAR) = EPHSPAR + 1.0D0
             SPARM(NVAR+1:NEPHSRT+NVAR) = SEPHSPAR
@@ -906,7 +927,7 @@
       NDIFF = 0
       IF (IFDIFF .AND. NRET.GT.1) THEN
          DO KK = 2, NRET
-            PNAME(KK+NVAR-1) = 'DWNUMSHFT_'//TRIM(GAS(KK))
+            PNAME(KK+NVAR-1) = 'DWNumShft_'//TRIM(GAS(KK))
          END DO
          PARM(NVAR+1:NRET-1+NVAR)  = WSHFT
          SPARM(NVAR+1:NRET-1+NVAR) = SWSHFT
@@ -922,7 +943,7 @@
             N = NSCAN(I)
             IF (N > 0) THEN
                DO KK = 1, N
-                  WRITE(PNAME(KK+NVAR),'(A8,I1)') 'SPHSERR_',I
+                  WRITE(PNAME(KK+NVAR),'(A8,I1)') 'SPhsErr_',I
                END DO
                PARM(NVAR+1:N+NVAR) = PHS
                SPARM(NVAR+1:N+NVAR) = SPHS
@@ -969,12 +990,6 @@
             SPARM(NVAR+1:NVAR+2) = 1.0D0
             NVAR = NVAR + 1
          END IF
-         IF (IFOPD /= 0) THEN
-            WRITE(PNAME(NVAR+1:NVAR+2), '(A4,I1)'), 'OPD_', I
-            PARM(NVAR+1:NVAR+2)  = 0.0D0
-            SPARM(NVAR+1:NVAR+2) = 1.0D0
-            NVAR = NVAR + 1
-         END IF
       END DO
 
       ! EMISSION SETUP COMPLETE AND SENSIBLE?
@@ -1011,6 +1026,8 @@
          NVAR = NVAR + N_CONTABS
       END IF
 
+      ! --- INSERT  CHANNEL PARAMETERS INTO STATE VECTOR PARM()
+      CALL INSERT_CHANNEL_PARMS (NVAR, PARM, PNAME, SPARM)
 
       !  ---  RETRIEVAL GAS MIXING RATIOS
       !  ---  MIXING RATIO AT ISMIX +1
@@ -1043,21 +1060,18 @@
       ! --- TEMPERATURE RETRIEVAL
       NTEMP1 = NVAR
       IF( IFTEMP )THEN
-         NTEMP = NLAYERS
+         NTEMP = NLAYERS + NCELL
          PNAME(NVAR+1:NVAR+NTEMP) = 'TEMPERAT'
          PARM(NVAR+1:NVAR+NTEMP)  = 1.D0
          SPARM(NVAR+1:NVAR+NTEMP) = TSIGMA(1:NTEMP)
          NVAR = NVAR + NTEMP
       ENDIF
 
-
-      ! --- INSERT  CHANNEL PARAMETERS INTO STATE VECTOR PARM()
-      CALL INSERT_CHANNEL_PARMS (NVAR, PARM, PNAME, SPARM)
-
       ! --- TEST FOR OVERFLOWS
       IF (NVAR > NMAX) GO TO 556
       NFIT = NATMOS
       IF (NFIT > MMAX) GO TO 557
+
 
       ! CHECK FOR THE FINITE VALUES OF SPARM IF THE SETUP IS FOR RETRIEVAL
       IF( RETFLG .AND. .NOT.(ALL(SPARM(:NVAR).GT.TINY(SPARM(1)))) )THEN

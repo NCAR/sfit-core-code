@@ -97,7 +97,7 @@ contains
 
   subroutine init_vars()
     emission_t_back = -1.0d0
-    emission_object = 'N/A'
+    emission_object = 'N'
     ienorm = -1
   end subroutine init_vars
   
@@ -133,6 +133,8 @@ contains
      end if
 
      select case (trim(adjustl(keyword(1))))
+     case ('cell')
+        call read_cell_section(keyword, value)
      case ('file')
         call read_file_section(keyword, value)
      case ('gas')
