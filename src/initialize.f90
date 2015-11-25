@@ -1138,7 +1138,7 @@
 
 !  --- FILL OFF DIAGONAL ELEMENTS OF SA of T
       IF( IFTEMP )THEN
-         INDXX = NTEMP1
+         INDXX = NTEMP1 - 1
             DO I = 1, NLAYERS
               DO J = 1, NLAYERS
                 IF (I == J) CYCLE
