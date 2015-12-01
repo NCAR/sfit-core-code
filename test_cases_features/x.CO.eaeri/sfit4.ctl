@@ -81,7 +81,7 @@
  rt.continuum.order = 2 
  rt.continuum.apriori       = 0.0 
  rt.continuum.sigma       = 0.1 
- rt.temperature              =               F
+ rt.temperature              =               T
  rt.temperature.sigma =
  0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001
  0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001
@@ -104,7 +104,7 @@
  band.1.omega                =              45.0
  band.1.apodization_code        =               0
  band.1.gasb                 = CO N2O H2O O3 OCS CO2 
- band.1.tempretb = F
+ band.1.tempretb = T
 
 
 
