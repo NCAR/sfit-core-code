@@ -339,6 +339,7 @@
             !print*, 'set2 ', j, k, nret, KMAX, NCELL, IRET(J), igas(J), xgas(IRET(J),k)
             X(J,K)    = XGAS(IRET(J),K)
             XORG(J,K) = XGAS(IRET(J),K)
+            call flush()
          END DO
 
       END DO
