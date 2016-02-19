@@ -6,7 +6,20 @@
  file.in.isotope                = isotope.input
  file.in.solarlines             = ../../linelist/solar/120621/solar.dat
  file.in.linelist               = 00778.501722-01008.558278.hbin
- 
+
+ file.out.ak_matrix= ak.out
+ file.out.k_matrix= k.out
+ file.out.g_matrix= g.out
+ file.out.kb_matrix= kb.out
+ file.out.sa_matrix= sa.out
+ file.out.retprofiles= rprfs.table
+ file.out.aprprofiles= aprfs.table
+ file.out.summary= summary
+ file.out.seinv_vector          = seinv.vector
+ file.out.pbpfile          = pbpfile
+ file.out.retprofiles      = rprfs.table
+ file.out.aprprofiles      = aprfs.table
+
  # Definition for retrieval gases
  
  gas.layers                  =              41
@@ -154,28 +167,22 @@
  sp.snr.1.nu_stop  = 1001.45
  sp.snr.1.snr  = 1.0
  sp.snr.2.nu_start = 1003.16
- sp.snr.2.nu_stop  = 1004.5
+ sp.snr.2.nu_stop  = 1005.0
  sp.snr.2.snr  = 1.0
 
 
  out.level= 1
  out.smeas_matrix = T
- 
- out.gas_spectra= T
+  out.gas_spectra= T
  out.k_matrix= T
  out.ak_matrix= T
  out.g_matrix= T
  out.sa_matrix= T
  out.retprofiles= T
  out.aprprofiles= T
- file.out.ak_matrix= ak.out
- file.out.k_matrix= k.out
- file.out.g_matrix= g.out
- file.out.kb_matrix= kb.out
- file.out.sa_matrix= sa.out
- file.out.retprofiles= rprfs.table
- file.out.aprprofiles= aprfs.table
- file.out.summary= summary
+ out.seinv_vector = T
+
+
  kb= T
  kb.slope= T
  kb.curvature= T
@@ -184,6 +191,8 @@
  kb.temperature= T
  kb.phase= T
  kb.omega= T
- kb.max_opd= T
  kb.zshift= T
  kb.sza= T
+ kb.line = T
+ kb.line.type = 1
+ kb.line.gas = retrieval
