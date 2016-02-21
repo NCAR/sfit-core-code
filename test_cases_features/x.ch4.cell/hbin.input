@@ -18,13 +18,13 @@
 # to the 2digit integer 0NN of the subdir name and assumed to be for gas 'abcdef' from subdir 0NN_abcdef
 #
 # first input: flag to print out ascii file ( FORTRAN logical T or .TRUE. or F or .FALSE. )
-.FALSE.
+.TRUE.
 #
 # next non-comment line is a path to the directory tree where the gas subdirectories are
 /data/linelist/
 #
 # next non-comment entry is the number of path/files to look for
-6
+2
 #
 # Then the next lines are paths to each gas file that will be searched for lines in the
 #  desired wavenember region
@@ -35,34 +35,20 @@
 # 049_O2CIA/o2cia_20060420.101 - this file is a special case, molid & isotope
 #  ids are dealt with differently
 #
-001_H2O/01.H2O
-002_CO2/02_hit08_f53.par
-#006_CH4/06_hit08-darko+frank-prelim-121207.par
-006_CH4/06_hit12_kit_2014-12-01.dat
-#006_CH4/06_hit08.par
-007_O2/07_hit08.par 
-016_HBR/16_hit08.par
-041_N2/22_hit08.par
+006_CH4/06_kit15_2015-12-08.par
+012_HNO3/12_hit08.par
 #
 #
 # Galatry (Galatry function) or Dicke narrowing (pCqSDHC) parameters
 # molecule id numbers in these files have to match the sfit molecule id
 0
 #
-# Speed dependence parameters S0 and S2 (qCqSDHC)
-0
-#006_CH4/06_hit12_kit_2014-12-01_SDV.dat
-#005_CO/05_hit12_SDV.txt
-#
-# Correlation parameter eta parameters (qCqSDHC)
-0
-#
 # Line mixing parameters for 1st order expansion of line mixing
+1
+006_CH4/06_kit15_2015-12-08_LM1ST.par 
+#
 0
-#006_CH4/06_hit12_kit_2014-12-01_LM.dat 
-#
-# Line mixing parameters for full line mixing model
-#
+0
 0
 ! end of file
 
