@@ -410,8 +410,8 @@
       DO I = 1, NRET
          IF( IFCELL(I) )THEN
             ICELL = ICELL + 1
-            VERSUM(I,KMAX+1) = X(I,1)*CCC(KVERT,KMAX+ICELL)
-            VOSUM(I,KMAX+1)  = XORG(I,1)*CCC(KVERT,KMAX+ICELL)
+            VERSUM(I,KMAX+1) = X(I,ICELL)*CCC(KVERT,KMAX+ICELL)
+            VOSUM(I,KMAX+1)  = XORG(I,ICELL)*CCC(KVERT,KMAX+ICELL)
          ELSE
             VERSUM(I,1) = X(I,1)*CCC(KVERT,1)
             VOSUM(I,1)  = XORG(I,1)*CCC(KVERT,1)

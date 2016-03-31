@@ -339,6 +339,7 @@
             !print*, 'set2 ', j, k, nret, KMAX, NCELL, IRET(J), igas(J), xgas(IRET(J),k)
             X(J,K)    = XGAS(IRET(J),K)
             XORG(J,K) = XGAS(IRET(J),K)
+            call flush()
          END DO
 
       END DO
@@ -1001,8 +1002,8 @@
             STOP 1
          END IF
          IF (ANY(IENORM(1:NBAND).LT.0)) then
-            WRITE(*,*) 'EMISSION: SPECTRA NORMALISED? SET FW.EMISSION.NORM TO TRUE OR FALSE.'
-            WRITE(16,*) 'EMISSION: SPECTRA NORMALISED? SET FW.EMISSION.NORM TO TRUE OR FALSE.'
+            WRITE(*,*) 'EMISSION: SPECTRA NORMALISED? SET FW.EMISSION.NORMALIZED TO TRUE OR FALSE.'
+            WRITE(16,*) 'EMISSION: SPECTRA NORMALISED? SET FW.EMISSION.NORMALIZED TO TRUE OR FALSE.'
             CALL SHUTDOWN()
             STOP 1
          END IF

@@ -262,10 +262,12 @@ real(8) function bc4( sp, wv, n, wmid, n10m, old10m, vflag ) result(zero)
       curve(1:2) = polyfit(ptwnd(:), specw(:), cn2, 1)
 
       write(6,302) '10µ Best fit = a + bx :', curve(1), curve(2)
+      if( verbose )write(vlun,302) '10µ Best fit = a + bx :', curve(1), curve(2)
 
 ! actual zero offset for this band
       zero = curve(1) + curve(2) * (wmid-wavew(1))
       write(6,303) 'Zero at midpt : ', zero, wmid
+      if( verbose )write(vlun,303) 'Zero at midpt : ', zero, wmid
 
  ! generate this line
       old10m(1,1) = wv(1) - (wv(n)-wv(1))/(n10m-1)
@@ -680,6 +682,7 @@ real(8) function bc2( sp, wavelength, n, wmid, vflag, noise ) result (zero)
          sp(:) = real(initmax,4) * sp(:)
          print *, 'No zero offset applied...return now.'
       else
+         print *, ''
          print *, 'Zero correcting this spectrum.'
 ! --- send back the entire spectrum zero level adjusted
 !     and scaled back to original peak value
@@ -1080,9 +1083,9 @@ subroutine kpno( opdmax, wl1, wl2, roe, lat, lon, nterp, rflag, oflag, zflag, vf
       zero = bc2( amps, wavs, npfile, wmid, vflag, noise )
 
       if( zero .ne. -999.d0 )then
-         write(6, 102) 'Zero offset determined : ', zero
-         write(6, 102) ' at wavenumber : ', wmid
-         write(6, 102) 'RMS Noise from zero : ', noise
+         write(6,102) 'Zero offset determined : ', zero
+         write(6,102) ' at wavenumber : ', wmid
+         write(6,102) 'RMS Noise from zero : ', noise
 
          if( writezero )then
             open( unit=33, file='zeroed.bnr',status='unknown', form='unformatted' )
@@ -1090,6 +1093,10 @@ subroutine kpno( opdmax, wl1, wl2, roe, lat, lon, nterp, rflag, oflag, zflag, vf
             write(33) wlow, whi, spac, npfile
             write(33) amps  !/maxval(amps)
             close(33)
+            write(vlun,102) 'Zero offset determined : ', zero
+            write(vlun,102) ' at wavenumber : ', wmid
+            write(vlun,102) 'RMS Noise from zero : ', noise
+
          endif
 
       endif

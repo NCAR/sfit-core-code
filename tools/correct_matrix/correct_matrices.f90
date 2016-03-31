@@ -1,7 +1,7 @@
 program convert
 
   ! corrects matrices to have one row in the matrix in one row of the file
-  ! 
+
   implicit none
   character (len=10000) :: tmp, read_format, write_format
   integer :: ind, nr_row, nr_column, itmp, ind2, itmp2
