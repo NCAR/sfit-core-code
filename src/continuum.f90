@@ -29,6 +29,7 @@ module continuum
     real(double) :: wone, wxne, wmid
     real(double) :: polynom
 
+
     abscont_type = 2
     select case (abscont_type) 
     case (0)
@@ -68,8 +69,8 @@ module continuum
 !          print *, param(1), param(2), abscont_strength, abscont_tilt
           DO K = 1, KMAX     
              do j = mone,mxne
-                polynom = 0.0d0
-                do l = 0,n_contabs-1
+                polynom = param(1)
+                do l = 1,n_contabs-1
                    polynom = polynom + param(l+1)*(((wone+dble(j)*dn(iband))-wmid)/(wxne-wone))**l
                 end do
                 CROSS(nret+2,K,j) = CROSS(nret+2,K,j) + polynom*(P(k)/P(kmax))

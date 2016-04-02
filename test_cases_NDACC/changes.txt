@@ -7,3 +7,8 @@ x.ccl4 CCL4
       - line mixing in CO2 Q-branch at 800 1/cm
 x.hcl
       - uses GALATRY parameters and line shape
+
+20.11.2015
+
+x.o3
+	- added sb.ctl

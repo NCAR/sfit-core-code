@@ -1,0 +1,18 @@
+testcase	tested with version 
+		v0.9.4.5      v0.9.7.0 
+		14-11-2014    30-3-2016
+x.co		x
+x.co2.f2	x
+x.hcl		x
+x.hcn		x
+x.hf		x
+x.no		x
+x.o3		x              
+x.ccl4		x
+x.co2.f4        x
+
+
+If sfit-processing-environment is installed, the test cases can be run
+with error calculation
+
+python <sfit-processing-environment/Layer0/sfit4Layer0.py -f se -b <sfit-core-code-2/src/

@@ -97,8 +97,8 @@
       DO I = 1, NZ1
          !X = I/(MPT(IBAND)*DN(IBAND))
          X = REAL(I,KIND=8)*DX
-         !print*, i, nz1, x
          IF (IEPHS > 0) PHI = PHI0 + EPHS(X,DX,PMAX(IBAND))
+!print*, i, x, phi
          IMGG(I+1) = IMGG(I+1)*EXP(CMPLX(0.D0,(-PHI),KIND = 8))
          IMGG(MPT(IBAND)+1-I) = CONJG(IMGG(I+1))
       END DO

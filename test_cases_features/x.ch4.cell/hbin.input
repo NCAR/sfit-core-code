@@ -1,0 +1,54 @@
+# Input file for hbin
+#
+# this reads lines delivered with the ggg version 20120409
+#
+# December 2013 sfit4 version 0.9.5.1
+# v003.95 reserve O2 CIA at #49 - read separately
+# July 2012 sfit4 version v003.92 jwh / tested p1.6
+# latest tested version: d0.9.4.1 20130701
+# latest tested version: d0.9.2 20130502
+# first tested version: b3.999 beta
+#
+# these lines are comments and can be anywhere
+#
+# implemented in version b3.99:
+# the linelist directory structure is the key to the gas names and the molecule id numbers
+# those id's and names must be the same in the reference.prf file
+# eg a files containing hitran lines is read from one subdir in linelist then the molid will be changed
+# to the 2digit integer 0NN of the subdir name and assumed to be for gas 'abcdef' from subdir 0NN_abcdef
+#
+# first input: flag to print out ascii file ( FORTRAN logical T or .TRUE. or F or .FALSE. )
+.TRUE.
+#
+# next non-comment line is a path to the directory tree where the gas subdirectories are
+/data/linelist/
+#
+# next non-comment entry is the number of path/files to look for
+2
+#
+# Then the next lines are paths to each gas file that will be searched for lines in the
+#  desired wavenember region
+# the id numbers are in sfit order - not exactly HITRAN, BUT KEEP these directory names
+# the files are in HITRAN format
+#
+# tip: put a blank after the '/' to skip that gas or just remove it
+# 049_O2CIA/o2cia_20060420.101 - this file is a special case, molid & isotope
+#  ids are dealt with differently
+#
+006_CH4/06_kit15_2015-12-08.par
+012_HNO3/12_hit08.par
+#
+#
+# Galatry (Galatry function) or Dicke narrowing (pCqSDHC) parameters
+# molecule id numbers in these files have to match the sfit molecule id
+0
+#
+# Line mixing parameters for 1st order expansion of line mixing
+1
+006_CH4/06_kit15_2015-12-08_LM1ST.par 
+#
+0
+0
+0
+! end of file
+

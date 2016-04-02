@@ -31,12 +31,13 @@ module binput_parse_4_0
   use isotope
   use writeout
   use continuum
+  use hitran
 
   implicit none;
   save
 
   character (len=255), dimension(5) :: keyword
-  character (len=1023) :: value
+  character (len=2048) :: value
   character (len=7), dimension(10) :: gas_prf, gas_col
   logical, dimension(10) :: gas_detail=.false.
   logical :: f_gasprf=.false., f_gascol=.false.
@@ -80,7 +81,7 @@ contains
              CALL SHUTDOWN
              STOP 1
           end select
-          
+
        elseif( trim(adjustl(keyword(2))) .eq. 'out' )then
 
        select case(trim(adjustl(keyword(3))))
@@ -138,7 +139,7 @@ contains
        CALL SHUTDOWN
        STOP 1
     endif
- 
+
 end subroutine read_file_section
 
 
@@ -226,9 +227,9 @@ end subroutine read_file_section
              case ('maxalt')
                 read(value,*) zgmax(nr)
              case default
-                WRITE(16,*) 'BINPUT_PARSE_4_0:READ_GAS_SECTION: Key ', trim(keyword(4)), &
+                WRITE(16,*) 'BINPUT_PARSE_4_0:READ_GAS_SECTION: Key ', trim(keyword(5)), &
                             ' not contained in section gas...correlation'
-                WRITE( 0,*) 'BINPUT_PARSE_4_0:READ_GAS_SECTION: Key ', trim(keyword(4)), &
+                WRITE( 0,*) 'BINPUT_PARSE_4_0:READ_GAS_SECTION: Key ', trim(keyword(5)), &
                             ' not contained in section gas...correlation'
                 CALL SHUTDOWN
                 STOP 1
@@ -322,39 +323,7 @@ end subroutine read_file_section
     case ('delnu')
        read(value,*) delnu
     case('lshapemodel')
-       if (len_trim(keyword(3)).eq.0) then
-          read(value,*) lshapemodel
-       else
-          select case (trim(adjustl(keyword(3))))
-          case('sdv')
-             read(value,*) lsm_sdv
-          case('dicke') 
-             read(value,*) lsm_dicke
-          case('corr') 
-             read(value,*) lsm_corr
-          case default
-             write(*,*) 'BINPUT_PARSE_4_0:READ_FW_SECTION: Parameter ', trim(keyword(3)), 'not defined for fm.lshapemodel'
-             write(16,*) 'BINPUT_PARSE_4_0:READ_FW_SECTION: Parameter ', trim(keyword(3)), 'not defined for fm.lshapemodel'
-             stop
-          end select
-       end if
-    case('lab')
-       if (len_trim(keyword(3)).eq.0) then
-          read(value, *) is_cellspectra
-       else
-          select case (trim(adjustl(keyword(3))))
-          case('length')
-             read(value,*) length_cell 
-          case('pressure')
-             read(value,*) pressure_cell 
-          case('temperature')
-             read(value,*) temperature_cell 
-          case default
-             write(*,*) 'BINPUT_PARSE_4_0:READ_FW_SECTION: Parameter ', trim(keyword(3)), 'not defined for fm.lab'
-             write(16,*) 'BINPUT_PARSE_4_0:READ_FW_SECTION: Parameter ', trim(keyword(3)), 'not defined for fm.lab'
-             stop
-          end select
-       end if
+       read(value,*) lshapemodel
     case('linemixing')
        if (len_trim(keyword(3)).eq.0) then
           read(value, *) use_lm
@@ -493,8 +462,9 @@ end subroutine read_file_section
        read(value,*) f_kb_solstrnth
     case ('phase')
        read(value,*) f_kb_phase
-    case ('dwshift')
-       read(value,*) f_kb_ifdiff
+       ! dwshift error calculation not sensible!!!
+!    case ('dwshift')
+!       read(value,*) f_kb_ifdiff
     case ('wshift')
        read(value,*) f_kb_wshift
     case ('apod_fcn')
@@ -507,8 +477,6 @@ end subroutine read_file_section
        read(value,*) f_kb_sza
     case ('omega')
        read(value,*) f_kb_fov
-    case ('max_opd')
-       read(value,*) f_kb_opd
     case ('line')
        if (len_trim(keyword(3)).eq.0) then
           read(value,*) f_kb_line
@@ -573,7 +541,7 @@ end subroutine read_file_section
        else
           select case (trim(adjustl(keyword(3))))
           case ('sigma')
-             read(value,*) tsigma(1:nlayers)
+             read(value,*) tsigma(1:nlayers+ncell)
           end select
        end if
     case ('lm')
@@ -713,14 +681,81 @@ end subroutine read_file_section
     case ('dwshift')
        read(value, *) ifdiff
     case default
-       WRITE(16,*) 'BINPUT_PARSE_4_0:READ_RT_SECTION: Key ', trim(keyword(2)), ' not contained in section : rt'
-       WRITE( 0,*) 'BINPUT_PARSE_4_0:READ_RT_SECTION: Key ', trim(keyword(2)), ' not contained in section : rt'
+       WRITE(16,*) 'BINPUT_PARSE_4_0:READ_RT_SECTION: Key ', trim(keyword(3)), ' not contained in section : rt'
+       WRITE( 0,*) 'BINPUT_PARSE_4_0:READ_RT_SECTION: Key ', trim(keyword(3)), ' not contained in section : rt'
        CALL SHUTDOWN
        STOP 1
     end select
 
 
   end subroutine read_rt_section
+
+
+ subroutine read_cell_section(keyword, value)
+
+    implicit none
+    character (len=*), dimension(*),intent(in) :: keyword
+    character (len=*), intent(in) :: value
+
+    integer :: pos, nr, nr_cell, nr_cell_2
+    character (len=1023)  :: val
+    logical :: flag
+
+    if (len_trim(keyword(2)).eq.0) then
+       val = adjustl(trim(value))
+       nr_cell = 0
+       pos = index(adjustl(val),' ')
+       do
+          if (len_trim(val).eq.0) exit
+          ncell = ncell + 1
+          if (pos.gt.0) then
+             read(val(1:pos),*) ncells(ncell)
+          else
+             read(val(1:len_trim(adjustl(val))),*) ncells(ncell)
+             exit
+          end if
+          val = adjustl(val(pos+1:len(val)))
+          pos = index(trim(adjustl(val)),' ')
+       end do
+       return
+    else
+       read(keyword(2),*) nr_cell_2
+    end if
+
+    flag = .false.
+
+    do nr = 1, ncell
+       if (nr_cell_2.eq.ncells(nr)) then
+          flag = .true.
+          nr_cell = nr
+       end if
+    end do
+
+    if (.not.flag) return
+
+    select case (trim(adjustl(keyword(3))))
+    case ('temperature')
+       read(value,*) ctemp(nr_cell)
+    case ('pressure')
+       read(value,*) cpres(nr_cell)
+    case ('gas')
+       read(value,*) cgas(nr_cell)
+    case ('vmr')
+       read(value,*) cvmr(nr_cell)
+    case ('path')
+       read(value,*) cpath(nr_cell)
+
+   case default
+       WRITE(16,*) 'BINPUT_PARSE_4_0:READ_CELL_SECTION: Key ', trim(keyword(3)), ' not contained in section : cell'
+       WRITE( 0,*) 'BINPUT_PARSE_4_0:READ_CELL_SECTION: Key ', trim(keyword(3)), ' not contained in section : cell'
+       CALL SHUTDOWN
+       STOP 1
+   end select
+ end subroutine read_cell_section
+
+
+
+
 
   subroutine read_band_section(keyword, value)
 
@@ -787,8 +822,8 @@ end subroutine read_file_section
     case ('nu_stop')
        read(value, *) wave4(nr_band)
     case ('snr')
-       read(value,*) scnsnr(nr_band,1)
-       scnsnr(nr_band,2:maxspe) = scnsnr(nr_band,1)
+       read(value,*) scnsnr(1,nr_band,1)
+       scnsnr(1,nr_band,2:maxspe) = scnsnr(1,nr_band,1)
     case ('gasb')
        val = value
        pos = index(adjustl(trim(val)),' ')
@@ -813,7 +848,6 @@ end subroutine read_file_section
     case ('zshift')
        if (len_trim(keyword(4)).eq.0) then
           read(value, *) f_zshift(nr_band)
-          izero(nr_band) = 1
        else
           select case (trim(adjustl(keyword(4))))
           case ('type')
@@ -931,8 +965,8 @@ end subroutine read_file_section
           read(value, *) gstnr(nr_snr)
        end select
        case default
-          print*, 'Key ', trim(keyword(2)), ' not contained in section : sp'
-          write(16,*) 'Key ', trim(keyword(2)), ' not contained in section : sp'
+       WRITE(16,*) 'BINPUT_PARSE_4_0:READ_BAND_SECTION: Key ', trim(keyword(4)), ' not contained in section : sp'
+       WRITE( 0,*) 'BINPUT_PARSE_4_0:READ_BAND_SECTION: Key ', trim(keyword(4)), ' not contained in section : sp'
        end select
 
      end subroutine read_spectrum_section
@@ -1016,5 +1050,142 @@ end subroutine read_file_section
        end select
 
      end subroutine read_output_section
+
+     subroutine read_hbin_hitran_section(keyword, value)
+
+       implicit none
+       character (len=*), dimension(*),intent(in) :: keyword
+       character (len=*), intent(in) :: value
+       integer :: nr_files
+       
+       select case (trim(adjustl(keyword(2))))
+       case ('nr')
+          read(value, *) nhit_files
+       case ('files')
+          call read_string_list(value, hitran_files, nr_files)
+          if (nr_files.ne.nhit_files) then
+             print *, 'Wrong number of hitran files entries'
+             print *, nr_files, nhit_files
+          end if
+       case default
+          WRITE( 0,*) 'BINPUT_PARSE_4_0:READ_HBIN_HITRAN_SECTION: Key ', trim(keyword(2)), ' not contained in section : HITRAN'
+       end select
+
+     end subroutine read_hbin_hitran_section
+
+     subroutine read_hbin_aux_section(keyword, value)     
+       implicit none
+       character (len=*), dimension(*),intent(in) :: keyword
+       character (len=*), intent(in) :: value
+
+       integer :: nr_aux, nr_files
+       character (len=10), dimension(4) :: aux_param
+       
+       if (len_trim(keyword(2)).eq.0) then       
+          call read_string_list(value, aux_param, nr_aux)
+          return
+       end if
+       select case (trim(adjustl(keyword(2))))
+       case ('gal')
+          select case (trim(adjustl(keyword(3))))
+          case ('nr')
+             read(value,*) ngal_files
+          case ('files')
+             call read_string_list(value, gal_files, nr_files)
+          if (nr_files.ne.ngal_files) then
+             print *, 'Wrong number of galatry files entries'
+             print *, nr_files, ngal_files
+          end if
+          case default
+             WRITE( 0,*) 'BINPUT_PARSE_4_0:READ_AUX_HITRAN_SECTION: Key ', trim(keyword(3)), ' not contained in section : AUX.GAL'
+          end select
+       case ('lm')
+          select case (trim(adjustl(keyword(3))))
+          case ('nr')
+             read(value,*) nlm_files
+          case ('files')
+             call read_string_list(value, lm_files, nr_files)
+             if (nr_files.ne.nlm_files) then
+                print *, 'Wrong number of line mixing files entries'
+                print *, nr_files, nlm_files
+             end if
+          case default
+             WRITE( 0,*) 'BINPUT_PARSE_4_0:READ_AUX_HITRAN_SECTION: Key ', trim(keyword(3)), ' not contained in section : AUX.LM'
+          end select
+       case ('sdv')
+          select case (trim(adjustl(keyword(3))))
+          case ('nr')
+             read(value,*) nsdv_files
+          case ('files')
+             call read_string_list(value, sdv_files, nr_files)
+             if (nr_files.ne.nsdv_files) then
+                print *, 'Wrong number of line mixing files entries'
+                print *, nr_files, nsdv_files
+             end if
+          case default
+             WRITE( 0,*) 'BINPUT_PARSE_4_0:READ_AUX_HITRAN_SECTION: Key ', trim(keyword(3)), ' not contained in section : AUX.SDV'
+          end select
+       case default
+          WRITE( 0,*) 'BINPUT_PARSE_4_0:READ_AUX_HITRAN_SECTION: Key ', trim(keyword(3)), ' not contained in section : AUX'
+       end select
+
+     end subroutine read_hbin_aux_section
+
+     subroutine read_hbin_file_section(keyword, value)     
+       character (len=*), dimension(*),intent(in) :: keyword
+       character (len=*), intent(in) :: value
+
+       select case (trim(adjustl(keyword(2))))
+       case ('out')
+          select case (trim(adjustl(keyword(3))))
+          case ('ascii')
+             read(value,*) out_ascii
+          case default
+             WRITE( 0,*) 'BINPUT_PARSE_4_0:READ_HBIN_FILE_SECTION: Key ', trim(keyword(3)), ' not contained in section : OUT'
+          end select
+       case ('in')
+          select case (trim(adjustl(keyword(3))))
+          case ('linelist')
+             read(value,'(a)') linelist_path
+          case default
+             WRITE( 0,*) 'BINPUT_PARSE_4_0:READ_HBIN_FILE_SECTION: Key ', trim(keyword(3)), ' not contained in section : OUT'
+          end select
+       case default
+          WRITE( 0,*) 'BINPUT_PARSE_4_0:READ_HBIN_FILE_SECTION: Key ', trim(keyword(3)), ' not contained in section : FILE'
+       end select
+     end subroutine read_hbin_file_section
+
+     subroutine read_string_list(value, vallist, nr_val)
+       character (len=*), intent(in) :: value
+       character (len=*), dimension(*), intent(out) :: vallist
+       integer, intent(out) :: nr_val
+
+       integer :: pos
+
+       character (len=2048) :: val
+
+       val = value
+       
+       nr_val = 0
+       pos = index(adjustl(val),' ')
+       !       write(*,*) val, pos
+       if (pos.eq.0) return
+       do
+          if (len_trim(val).eq.0) exit
+          nr_val = nr_val + 1
+          if (pos.gt.0) then
+             vallist(nr_val) = trim(adjustl(val(1:pos)))
+          else
+             vallist(nr_val) = trim(adjustl(val(1:len_trim(val))))
+             exit
+          end if
+          val = adjustl(val(pos+1:len(val)))
+          pos = index(trim(adjustl(val)),' ')
+       end do
+
+       return
+       
+     end subroutine read_string_list
+
    end module binput_parse_4_0
 
