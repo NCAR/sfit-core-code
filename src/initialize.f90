@@ -741,6 +741,7 @@
                   DO K = 1, NSTNR
                      IF ((WWV(IW) .LT. WWV0(K)) .OR. (WWV(IW) .GT. WWV1(K))) CYCLE
                      IF ((IEMISSION .EQ. 0) .OR.( IENORM(IBAND) .eq. 1)) THEN
+                        IF (GSTNR(K).LT.TINY(GSTNR(K))) GSTNR(K)=1.0D0
                         STNR(IW) = 1.0D0 / GSTNR(K)
                      ELSE
                         STNR(IW) = GSTNR(K)
