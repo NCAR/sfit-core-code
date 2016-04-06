@@ -871,7 +871,7 @@
             N = NSCAN(I)
             IF (N > 0) THEN
                DO KK = 1, N
-                  WRITE(PNAME(KK+NVAR),'(A8,I1)') 'ZeroLev_',KK
+                  WRITE(PNAME(KK+NVAR),'(A8,I1,A1,I1)') 'ZeroLev_',I,'_',KK
                END DO
                PARM(NVAR+1:N+NVAR) = ZSHIFT(I,1)
                SPARM(NVAR+1:N+NVAR) = SZERO(I)
@@ -945,7 +945,7 @@
             N = NSCAN(I)
             IF (N > 0) THEN
                DO KK = 1, N
-                  WRITE(PNAME(KK+NVAR),'(A8,I1)') 'SPhsErr_',I
+                  WRITE(PNAME(KK+NVAR),'(A8,I1,A1,I1)') 'SPhsErr_',KK,'_',I
                END DO
                PARM(NVAR+1:N+NVAR) = PHS
                SPARM(NVAR+1:N+NVAR) = SPHS
