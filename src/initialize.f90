@@ -741,6 +741,7 @@
                   DO K = 1, NSTNR
                      IF ((WWV(IW) .LT. WWV0(K)) .OR. (WWV(IW) .GT. WWV1(K))) CYCLE
                      IF ((IEMISSION .EQ. 0) .OR.( IENORM(IBAND) .eq. 1)) THEN
+                        IF (GSTNR(K).LT.TINY(GSTNR(K))) GSTNR(K)=1.0D0
                         STNR(IW) = 1.0D0 / GSTNR(K)
                      ELSE
                         STNR(IW) = GSTNR(K)
@@ -870,7 +871,7 @@
             N = NSCAN(I)
             IF (N > 0) THEN
                DO KK = 1, N
-                  WRITE(PNAME(KK+NVAR),'(A8,I1)') 'ZeroLev_',KK
+                  WRITE(PNAME(KK+NVAR),'(A8,I1,A1,I1)') 'ZeroLev_',I,'_',KK
                END DO
                PARM(NVAR+1:N+NVAR) = ZSHIFT(I,1)
                SPARM(NVAR+1:N+NVAR) = SZERO(I)
@@ -944,7 +945,7 @@
             N = NSCAN(I)
             IF (N > 0) THEN
                DO KK = 1, N
-                  WRITE(PNAME(KK+NVAR),'(A8,I1)') 'SPhsErr_',I
+                  WRITE(PNAME(KK+NVAR),'(A8,I1,A1,I1)') 'SPhsErr_',KK,'_',I
                END DO
                PARM(NVAR+1:N+NVAR) = PHS
                SPARM(NVAR+1:N+NVAR) = SPHS
@@ -1002,8 +1003,8 @@
             STOP 1
          END IF
          IF (ANY(IENORM(1:NBAND).LT.0)) then
-            WRITE(*,*) 'EMISSION: SPECTRA NORMALISED? SET FW.EMISSION.NORM TO TRUE OR FALSE.'
-            WRITE(16,*) 'EMISSION: SPECTRA NORMALISED? SET FW.EMISSION.NORM TO TRUE OR FALSE.'
+            WRITE(*,*) 'EMISSION: SPECTRA NORMALISED? SET FW.EMISSION.NORMALIZED TO TRUE OR FALSE.'
+            WRITE(16,*) 'EMISSION: SPECTRA NORMALISED? SET FW.EMISSION.NORMALIZED TO TRUE OR FALSE.'
             CALL SHUTDOWN()
             STOP 1
          END IF
