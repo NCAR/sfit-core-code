@@ -39,7 +39,7 @@ FFLAGS = -Warray-bounds -Wcharacter-truncation -Wunused-parameter \
 # -Warray-temporaries too many...
 
 #error check a lot
-FFLAGS = -Wall -fno-automatic -fcheck=all -ffpe-trap=invalid,zero,overflow,underflow -Warray-bounds -mcmodel=medium\
+FFLAGS = -Wall -fno-automatic -fcheck=all -ffpe-trap=invalid,zero,overflow,underflow -Warray-bounds \
          -fbounds-check -fbacktrace -g -ffree-line-length-none
 
 # optimize -Ofast v4.8
