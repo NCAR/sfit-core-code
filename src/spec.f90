@@ -1514,7 +1514,7 @@ subroutine calcsnr( wavs, amps, npfile, wlim1, wlim2, spac, opdmax, nterp, noise
          k = i
       endif
    enddo
-   !print*, k, psnr(:,k), wlim1, wlim2
+   print*, k, psnr(:,k), wlim1, wlim2
 
   !  loop through snr regions get first that we have spectra for
    k = 0
@@ -1555,7 +1555,7 @@ subroutine calcsnr( wavs, amps, npfile, wlim1, wlim2, spac, opdmax, nterp, noise
    endif
 
    ! get the spectra in this region
-
+   !print*, 'snrcalc 1'
    w1 = psnr(1,k)
    w2 = psnr(2,k)
    ilow = minloc(( wavs-w1 ), mask=((wavs-w1) > 0.0D0))
@@ -1592,7 +1592,7 @@ subroutine calcsnr( wavs, amps, npfile, wlim1, wlim2, spac, opdmax, nterp, noise
    do i=1, np
       x(i) = real(i,8)
    enddo
-   !print*, size(x), size( outspec(iil:iih))
+   !print*, size(x) !, size( outspec(iil:iih) )
 
    curve(:) = 0.0d0
    order = 4
@@ -1616,9 +1616,13 @@ subroutine calcsnr( wavs, amps, npfile, wlim1, wlim2, spac, opdmax, nterp, noise
       noise = noise + y(i) * y(i)
    enddo
    noise = sqrt( noise / real(np,8) )
-   opdm = 0.5d0 / spac
-   if( opdmax .lt. opdm )then
-      noise = noise * sqrt( opdmax / opdm ) * real(nterp,8)
+
+   ! added check for nterp > 0
+   if( nterp .GT. 0 ) then
+      opdm = 0.5d0 / spac
+      if( opdmax .lt. opdm )then
+         noise = noise * sqrt( opdmax / opdm ) * real(nterp,8)
+      endif
    endif
 
    if(vflag .ge. 1 )write(6,102) 'Mean signal : ', mean
