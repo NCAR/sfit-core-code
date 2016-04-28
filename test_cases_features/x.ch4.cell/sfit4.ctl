@@ -10,7 +10,7 @@
 # file.in.linelist               = 02390.441722-02709.558278.hbin.kit01.all
 # file.in.linelist               = 02390.441722-03008.558278.hbin.009
 #  file.in.linelist               = 02390.441722-02709.558278.hbin.kit01.all
- file.in.linelist               = 02390.441722-02709.558278.hbin.hit08
+ file.in.linelist               =  02895.941722-02954.058278.hbin
 # Definition for retrieval gases
  
  gas.layers                  =              0
@@ -27,19 +27,14 @@
  gas.column.CH43.sigma               = 1.0
  gas.column.HBR.logstate = F
  gas.column.HBR.scale               = 1.0
- gas.column.HBR.sigma               = 1.0
- gas.column.CO2.logstate = F
- gas.column.CO2.scale               = 1.0
- gas.column.CO2.sigma               = 1.0
- gas.column.H2O.logstate = F
- gas.column.H2O.scale               = 1.0
- gas.column.H2O.sigma               = 1.0
+# Definition for retrieval gases
+ 
    
  
  # Forward model parameters
  
  fw.delnu                    =           0.10000
-# fw.lshapemodel              =               0
+ fw.lshapemodel              =               0
 # fw.lshapemodel.sdv          =               T
  fw.linemixing = T
  fw.solar_spectrum	     =               F
@@ -72,22 +67,22 @@
 
  cell = 1
  cell.1.temperature = 296
- cell.1.pressure = 30
+ cell.1.pressure = 30.54
  cell.1.gas = CH4
- cell.1.vmr = 0.005
- cell.1.path = 4000.0
+ cell.1.vmr = 0.00498
+ cell.1.path = 4017.5
 
  rt                          = T
  rt.lm                               = F
  rt.lm.gamma_start                   = 1.0e5
  rt.lm.gamma_inc                     = 10.0
  rt.lm.gamma_dec                     = 10.0
- rt.convergence                      = 0.01
+ rt.convergence                      = 0.1
  rt.max_iteration                    = 30
  rt.dwshift                          = F
  rt.wshift                           = T
  rt.wshift.type                      = 3
- rt.wshift.apriori                   = 0.000
+ rt.wshift.apriori                   = 0.0
  rt.wshift.sigma                     = 0.100
  rt.slope                            = F
  rt.slope.apriori                    = 0.000
@@ -106,18 +101,18 @@
  rt.phase_fcn.sigma                  = 0.000
  rt.solshift                         = F
  rt.solstrnth                        = F
- rt.temperature                      = T
+ rt.temperature                      = F
  rt.temperature.sigma                = 0.1
 
  # Microwindows and their parameters
  
- band                        =   1
- band.1.nu_start             =        2400.000
- band.1.nu_stop              =        2700.000
+ band                        =   4
+ band.1.nu_start             =        2900.000
+ band.1.nu_stop              =        2950.000
  band.1.zshift               =              F
  band.1.beam                 =               0
  band.1.calc_point_space     =       0.500E-03
- band.1.wave_factor          =      0.9999999
+ band.1.wave_factor          =      1.0
  band.1.max_opd		     =        180.0000
  band.1.omega	             =		2.3923
  band.1.apodization_code     =               0
@@ -157,9 +152,8 @@
  band.4.calc_point_space     =       0.500E-04
  band.4.wave_factor          =           1.0
  band.4.max_opd		     =        180.0000
- band.4.omega                = 2.409
+ band.4.omega                = 	2.3923
  band.4.apodization_code     =               0
- band.4.snr= 570.3035
  band.4.gasb                 = CH4 
  band.4.tempretb = T
  out.level = 1
