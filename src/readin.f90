@@ -337,19 +337,6 @@
          WRITE(16,108) GAMMA_START, GAMMA_DEC, GAMMA_INC, CONVERGENCE
       END IF
 
-! --- SOLAR SPECTRUM PARAMETERS
-      IF( IFCO )THEN
-! --- DEFINE NAMES OF SOLAR PARAMETERS
-         CPNAM(1) = 'Sol - n/a'
-         CPNAM(2) = 'Sol - n/a'
-         CPNAM(3) = 'Sol - n/a'
-         CPNAM(4) = 'SolLnShft'
-         CPNAM(5) = 'SolLnStrn'
-! --- ADD ONE TO WAVENUMBER SHIFT PARAMETER TO AVOID THE CASE OF ZERO
-! --- INITIAL SHIFT
-!         CIPARM(:) = CIPARM(:) + 1.D0
-!         CPARM(:)  = CIPARM(:)
-      ENDIF
 
 ! --- PRINT OUT GAS FILES
       IF( F_WRTGASSPC )THEN

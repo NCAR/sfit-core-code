@@ -886,6 +886,12 @@
       !  --- SOLAR LINES INCLUSION
       NSOLAR = 0
       IF( IFCO )THEN
+! --- DEFINE NAMES OF SOLAR PARAMETERS
+         CPNAM(1) = 'Sol - n/a'
+         CPNAM(2) = 'Sol - n/a'
+         CPNAM(3) = 'Sol - n/a'
+         CPNAM(4) = 'SolLnShft'
+         CPNAM(5) = 'SolLnStrn'
          DO I = 1, 5
             IF( .NOT. F_RTSOL(I) )CYCLE
             NVAR = NVAR + 1

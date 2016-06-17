@@ -3,10 +3,10 @@ Tool to correct matrices which habe lines of more than 10000 numbers. Newer vers
 to change all matrices in 2015 (e.g. May to September)
 
 copy all g.out to g.out.orig
-3
+
 find 2015* -name 'g.out' -exec cp {} {}.orig ';'
 
-refomat matrices:
+reformat matrices:
 for i in 20150*; do cd $i; ~/sfit-core-code/tools/correct_matrix/correct_matrices; cd ..; done
 
 reformatted matrices are in g.out.new
