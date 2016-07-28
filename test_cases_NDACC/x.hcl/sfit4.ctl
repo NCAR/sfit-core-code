@@ -5,7 +5,7 @@
  file.in.refprofile             = reference.prf
  file.in.spectrum               = spectrum
  file.in.isotope                = isotope.input
- file.in.solarlines             = ../../linelist/solar/120621/solar.dat
+ file.in.solarlines             = /usr/local/share/linelist_v0.9/solar/120621/solar.dat
  file.in.linelist               = 02723.671422-02930.058578.hbin
  file.out.ak_matrix             = ak.target
  file.out.ab_matrix             = AB.out
@@ -120,3 +120,6 @@
  out.level = 1
  out.gas_spectra = F
 
+ kb = T
+ kb.profile = T
+ kb.profile.gas = CH4

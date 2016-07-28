@@ -311,11 +311,11 @@
                !NCOUNT = NCOUNT + KMAX
                T(:NPATH) = PARM(NCOUNT+1:NCOUNT+NPATH) * TORG(:NPATH)
                NCOUNT = NCOUNT + NPATH
-                  !CALL LBLATM( ITER, KMAX )
-                  !IF (K .GT. KMAX) K = KMAX
-                  IF (K .GT. NPATH) K = NPATH
-                  CALL MASSPATH( K )
-                  CALL SETUP3( XSC_DETAIL, K )
+               !CALL LBLATM( ITER, KMAX )
+               !IF (K .GT. KMAX) K = KMAX
+               IF (K .GT. NPATH) K = NPATH
+               CALL MASSPATH( K )
+               CALL SETUP3( XSC_DETAIL, K )
             ENDIF ! K
          ENDIF ! IFTEMP
 
@@ -733,7 +733,7 @@
             !IF (ANALYTIC_K.AND.XRET) THEN
             !   KN(:NFIT,IPARM) = (YC(:NFIT)-YN)/DEL
             !ELSE
-               KN(:NFIT,IPARM) = (YC(:NFIT)-YN)/DEL
+            KN(:NFIT,IPARM) = (YC(:NFIT)-YN)/DEL
             !END IF
             IF( BUG1 ) &
             WRITE(0,204) '   KN: ', tret, ICOUNT, IPARM, PARM(IPARM), SUM(KN(:NFIT,IPARM))/REAL(NFIT,8), &

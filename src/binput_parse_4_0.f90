@@ -824,7 +824,7 @@ end subroutine read_file_section
        read(value,*) scnsnr(1,nr_band,1)
        scnsnr(1,nr_band,2:maxspe) = scnsnr(1,nr_band,1)
     case ('gasb')
-       val = value
+       val = trim(value)
        pos = index(adjustl(trim(val)),' ')
        if (pos.eq.0) write(*,*) 'No gas given in band ', nr_band, '?'
        nretb(nr_band) = 0

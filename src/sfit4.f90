@@ -410,8 +410,8 @@
       DO I = 1, NRET
          IF( IFCELL(I) )THEN
             ICELL = ICELL + 1
-            VERSUM(I,KMAX+1) = X(I,1)*CCC(KVERT,KMAX+ICELL)
-            VOSUM(I,KMAX+1)  = XORG(I,1)*CCC(KVERT,KMAX+ICELL)
+            VERSUM(I,KMAX+1) = X(I,ICELL)*CCC(KVERT,KMAX+ICELL)
+            VOSUM(I,KMAX+1)  = XORG(I,ICELL)*CCC(KVERT,KMAX+ICELL)
          ELSE
             VERSUM(I,1) = X(I,1)*CCC(KVERT,1)
             VOSUM(I,1)  = XORG(I,1)*CCC(KVERT,1)
@@ -838,6 +838,11 @@
             PNAME(I) = 'LineTAir'//'_'//TRIM(s_kb_line_gas(L3))
             L3 = L3 + 1
          END SELECT
+         DO J = 1,NRET
+            IF ((PNAME(I).EQ.GAS(J)).AND.(IFPRF_KB(J))) THEN
+               PNAME(I) = 'PROFILE_'//TRIM(GAS(J))
+            END IF
+         END DO
       END DO
 
 
@@ -871,7 +876,7 @@
 
       RETURN
 
-  251 FORMAT(I5, 3X, A10, 2F15.7, 4X, L1 )
+  251 FORMAT(I5, 3X, A16, 2F15.7, 4X, L1 )
   250 FORMAT(/, '    I   PARAMETER   POSTERORI_VALUE     SIGMA     COMPUTED_IN_KB')
 !  252 FORMAT(' COMPUTING KB FOR PARAMTETERS :',255(/,3X,A14))
   254 FORMAT(/, 'BEGIN KB CALCULATIONS:',/)

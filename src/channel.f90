@@ -154,7 +154,7 @@
 
       INTEGER, INTENT(INOUT)      :: NVAR
       REAL(DOUBLE), INTENT(INOUT) :: PARM(NMAX), SPARM(NMAX)
-      CHARACTER, INTENT(INOUT)    :: PNAME(NMAX)*(14)
+      CHARACTER, INTENT(INOUT)    :: PNAME(NMAX)*(16)
 
       INTEGER :: IBAND, IBEAM, K
 
@@ -177,16 +177,16 @@
                SELECT CASE (K)
                CASE (1)
                   !PNAME(NVAR) = 'PEAK_AMP'
-                  WRITE(PNAME(NVAR), '(A8,I1)'), 'PeakAmp_', IBAND
+                  WRITE(PNAME(NVAR), '(A8,I1,"_",I1)'), 'PeakAmp_', IBAND, IBEAM
                CASE (2)
                   !PNAME(NVAR) = 'CHAN_SEP'
-                  WRITE(PNAME(NVAR), '(A8,I1)'), 'ChanSep_', IBAND
+                  WRITE(PNAME(NVAR), '(A8,I1,"_",I1)'), 'ChanSep_', IBAND, IBEAM
                CASE (3)
                   !PNAME(NVAR) = 'ZERO_PH_REF'
-                  WRITE(PNAME(NVAR), '(A8,I1)'), 'ZroPhsR_', IBAND
+                  WRITE(PNAME(NVAR), '(A8,I1,"_",I1)'), 'ZroPhsR_', IBAND, IBEAM
                CASE (4)
                   !PNAME(NVAR) = 'DELTA_PEAK_AMP'
-                  WRITE(PNAME(NVAR), '(A8,I1)'), 'DlPkAmp_' , IBAND
+                  WRITE(PNAME(NVAR), '(A8,I1,"_",I1)'), 'DlPkAmp_' , IBAND, IBEAM
                END SELECT
                PARM(NVAR)  = 1.0D0
                SPARM(NVAR) = SCHAN_SCALE(IBAND,IBEAM,K)

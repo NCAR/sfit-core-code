@@ -263,7 +263,8 @@
          ENDIF
          NLAY  = 0
          NPATH = NCELL
-         NMOL  = NCELL
+         !         NMOL  = NCELL
+         NMOL  = 51
          RETURN
       ENDIF
 

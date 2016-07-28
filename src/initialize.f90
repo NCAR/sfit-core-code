@@ -47,8 +47,8 @@
       REAL(DOUBLE), DIMENSION(MMAX)    :: WWV
       REAL(DOUBLE), DIMENSION(MAXSNR)  :: WWV0, WWV1, GSTNR
 
-      CHARACTER (LEN=14), DIMENSION(NMAX) :: PNAME
-      CHARACTER (LEN=14), DIMENSION(NMAX) :: ORIG_PNAME
+      CHARACTER (LEN=16), DIMENSION(NMAX) :: PNAME
+      CHARACTER (LEN=16), DIMENSION(NMAX) :: ORIG_PNAME
       REAL(DOUBLE), DIMENSION(NMAX)       :: PARM  = 0.0D0
       REAL(DOUBLE), DIMENSION(NMAX)       :: SPARM = 0.0D0
       CHARACTER (LEN=14), DIMENSION(5)    :: CPNAM
@@ -339,6 +339,7 @@
             !print*, 'set2 ', j, k, nret, KMAX, NCELL, IRET(J), igas(J), xgas(IRET(J),k)
             X(J,K)    = XGAS(IRET(J),K)
             XORG(J,K) = XGAS(IRET(J),K)
+            call flush()
          END DO
 
       END DO
@@ -740,6 +741,7 @@
                   DO K = 1, NSTNR
                      IF ((WWV(IW) .LT. WWV0(K)) .OR. (WWV(IW) .GT. WWV1(K))) CYCLE
                      IF ((IEMISSION .EQ. 0) .OR.( IENORM(IBAND) .eq. 1)) THEN
+                        IF (GSTNR(K).LT.TINY(GSTNR(K))) GSTNR(K)=1.0D0
                         STNR(IW) = 1.0D0 / GSTNR(K)
                      ELSE
                         STNR(IW) = GSTNR(K)
@@ -869,7 +871,7 @@
             N = NSCAN(I)
             IF (N > 0) THEN
                DO KK = 1, N
-                  WRITE(PNAME(KK+NVAR),'(A8,I1)') 'ZeroLev_',KK
+                  WRITE(PNAME(KK+NVAR),'(A8,I1,A1,I1)') 'ZeroLev_',I,'_',KK
                END DO
                PARM(NVAR+1:N+NVAR) = ZSHIFT(I,1)
                SPARM(NVAR+1:N+NVAR) = SZERO(I)
@@ -884,6 +886,12 @@
       !  --- SOLAR LINES INCLUSION
       NSOLAR = 0
       IF( IFCO )THEN
+! --- DEFINE NAMES OF SOLAR PARAMETERS
+         CPNAM(1) = 'Sol - n/a'
+         CPNAM(2) = 'Sol - n/a'
+         CPNAM(3) = 'Sol - n/a'
+         CPNAM(4) = 'SolLnShft'
+         CPNAM(5) = 'SolLnStrn'
          DO I = 1, 5
             IF( .NOT. F_RTSOL(I) )CYCLE
             NVAR = NVAR + 1
@@ -943,7 +951,7 @@
             N = NSCAN(I)
             IF (N > 0) THEN
                DO KK = 1, N
-                  WRITE(PNAME(KK+NVAR),'(A8,I1)') 'SPhsErr_',I
+                  WRITE(PNAME(KK+NVAR),'(A8,I1,A1,I1)') 'SPhsErr_',KK,'_',I
                END DO
                PARM(NVAR+1:N+NVAR) = PHS
                SPARM(NVAR+1:N+NVAR) = SPHS
@@ -1001,8 +1009,8 @@
             STOP 1
          END IF
          IF (ANY(IENORM(1:NBAND).LT.0)) then
-            WRITE(*,*) 'EMISSION: SPECTRA NORMALISED? SET FW.EMISSION.NORM TO TRUE OR FALSE.'
-            WRITE(16,*) 'EMISSION: SPECTRA NORMALISED? SET FW.EMISSION.NORM TO TRUE OR FALSE.'
+            WRITE(*,*) 'EMISSION: SPECTRA NORMALISED? SET FW.EMISSION.NORMALIZED TO TRUE OR FALSE.'
+            WRITE(16,*) 'EMISSION: SPECTRA NORMALISED? SET FW.EMISSION.NORMALIZED TO TRUE OR FALSE.'
             CALL SHUTDOWN()
             STOP 1
          END IF

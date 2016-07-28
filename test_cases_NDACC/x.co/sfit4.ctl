@@ -4,7 +4,7 @@
  file.in.stalayers              = station.layers
  file.in.refprofile             = reference.prf
  file.in.spectrum               = spectrum
- file.in.solarlines             = ../../linelist/solar/120621/solar.dat
+ file.in.solarlines             = solar.dat
  file.in.linelist               = 02053.641622-02163.208378.hbin
  file.out.ak_matrix= ak.out
  
@@ -183,7 +183,6 @@
  kb.temperature= T
  kb.phase= T
  kb.omega= T
- kb.max_opd= T
  kb.zshift= T
  kb.sza= T
  out.aprprofiles = T

@@ -4,9 +4,22 @@
  file.in.refprofile             = reference.prf
  file.in.spectrum               = spectrum
  file.in.isotope                = isotope.input
- file.in.solarlines             = ../../linelist/solar/120621/solar.dat
+ file.in.solarlines             = solar.dat
  file.in.linelist               = 00778.501722-01008.558278.hbin
- 
+
+ file.out.ak_matrix= ak.out
+ file.out.k_matrix= k.out
+ file.out.g_matrix= g.out
+ file.out.kb_matrix= kb.out
+ file.out.sa_matrix= sa.out
+ file.out.retprofiles= rprfs.table
+ file.out.aprprofiles= aprfs.table
+ file.out.summary= summary
+ file.out.seinv_vector          = seinv.vector
+ file.out.pbpfile          = pbpfile
+ file.out.retprofiles      = rprfs.table
+ file.out.aprprofiles      = aprfs.table
+
  # Definition for retrieval gases
  
  gas.layers                  =              41
@@ -108,7 +121,10 @@
  band.1.nu_start             =        782.56
  band.1.nu_stop              =        782.86
  band.1.zshift		     =	      F
- band.1.beam                 =               0
+ band.1.beam                 = 1
+ band.1.beam.model          = PS
+ band.1.beam.1.apriori       = 0.01 0.02 782.56 1.0
+ band.1.beam.1.sigma         = 1.0  0.0 1.0 0.0
  band.1.calc_point_space     =       0.500E-03
  band.1.wave_factor          =           1.000
  band.1.max_opd= 180.0000
@@ -118,7 +134,7 @@
  band.2.nu_start             =        788.85
  band.2.nu_stop              =        789.37
  band.2.zshift		     =	      F
- band.2.beam                 =               0
+ band.2.beam                 =               
  band.2.calc_point_space                   =       0.500E-03
  band.2.wave_factor              =           1.000
  band.2.max_opd= 180.0000
@@ -128,7 +144,7 @@
  band.3.nu_start             =        993.3
  band.3.nu_stop              =        993.8
  band.3.zshift		     =	      F
- band.3.beam                 =               0
+ band.3.beam                 =               
  band.3.calc_point_space                   =       0.500E-03
  band.3.wave_factor               =           1.000
  band.3.max_opd= 180.0000
@@ -141,7 +157,7 @@
  band.4.zshift.type          = 1
  band.4.zshift.apriori       =           0.000
  band.4.zshift.sigma         =           0.200
- band.4.beam                 =               0
+ band.4.beam                 =               
  band.4.calc_point_space     =       0.500E-03
  band.4.wave_factor          =           1.000
  band.4.max_opd= 180.0000
@@ -154,28 +170,22 @@
  sp.snr.1.nu_stop  = 1001.45
  sp.snr.1.snr  = 1.0
  sp.snr.2.nu_start = 1003.16
- sp.snr.2.nu_stop  = 1004.5
+ sp.snr.2.nu_stop  = 1005.0
  sp.snr.2.snr  = 1.0
 
 
  out.level= 1
  out.smeas_matrix = T
- 
- out.gas_spectra= T
+  out.gas_spectra= T
  out.k_matrix= T
  out.ak_matrix= T
  out.g_matrix= T
  out.sa_matrix= T
  out.retprofiles= T
  out.aprprofiles= T
- file.out.ak_matrix= ak.out
- file.out.k_matrix= k.out
- file.out.g_matrix= g.out
- file.out.kb_matrix= kb.out
- file.out.sa_matrix= sa.out
- file.out.retprofiles= rprfs.table
- file.out.aprprofiles= aprfs.table
- file.out.summary= summary
+ out.seinv_vector = T
+
+
  kb= T
  kb.slope= T
  kb.curvature= T
@@ -184,6 +194,8 @@
  kb.temperature= T
  kb.phase= T
  kb.omega= T
- kb.max_opd= T
  kb.zshift= T
  kb.sza= T
+ kb.line = T
+ kb.line.type = 1
+ kb.line.gas = retrieval

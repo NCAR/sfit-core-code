@@ -63,7 +63,7 @@
 
             do kk = 1, npath  !kmax
                CCC(:nspec,kk) = CORG(:nspec,kk) * (TORG(kk) / T(kk) )
-               print*, "masspath ",k, kk, T(kk), CCC(:nspec,kk)
+!               print*, "masspath ",k, kk, T(kk), CCC(:nspec,kk)
             enddo
 
 !print*, k, nspec, ccc(:nspec,k), T(K), TORG(k), CORG(:nspec,k)
@@ -81,9 +81,11 @@
       IF( KMAX .EQ. 0 )THEN
          DO KK = 1, NCELL
             PMASMX(KK) = 0.D0
-            PMASMX(KK) = DMAX1(MAXVAL(CCC(:NSPEC,KK)),PMASMX(KK))
+            PMASMX(KK) = DMAX1(MAXVAL(CCC(:NSPEC,KK)),PMASMX(KK))            
             !PRINT *,  PMASMX(KK)
          END DO
+!         IF (NCELL .GT. 0) THEN
+!            PMASMX(NCELL) = DMAX1(MAXVAL(CCC(:NSPEC,KK)),PMASMX(KK))
       ENDIF
 
       END SUBROUTINE MASSPATH
@@ -188,7 +190,10 @@
                      ! --- DON'T APPLY SHIFT TO FIRST POINT
                      CROSS_FACMAS(1,K,MSTOR) = CROSS(1,K,ICINDX) * FACMAS
 
-                     TCALC(IPOINT,MSTOR) = TCALC(IPOINT,MSTOR) + (X(1,K)/XORG(1,K)) * CROSS_FACMAS(1,K,MSTOR)
+                     ! IF THERE IS AN LAYER WITH 0.0 VMR OF THE TARGET GAS
+                     IF (XORG(1,K).GT.TINY(XORG(1,K))) THEN
+                        TCALC(IPOINT,MSTOR) = TCALC(IPOINT,MSTOR) + (X(1,K)/XORG(1,K)) * CROSS_FACMAS(1,K,MSTOR)
+                     end if
 !print*, IPOINT, MSTOR, TCALC(IPOINT,MSTOR), X(1,K), XORG(1,K), CROSS_FACMAS(1,K,MSTOR)
                      IF (IEMISSION/=0) THEN
                         ! Transmission calculated below the layer ALT, needed
@@ -260,6 +265,9 @@
                      ELSE
                         ! ------------LOOP OVER RETRIEVAL GASES
                         DO IR = 2, NRET
+                           if (xorg(ir,k).le.tiny(xorg(ir,k))) then
+                              cycle
+                           end if
                            CROSS_FACMAS(IR,K,MSTOR) = CROSS(IR,K,ICINDX)*FACMAS
                            TCALC(IPOINT,MSTOR) = &
                            TCALC(IPOINT,MSTOR) + (X(IR,K)/XORG(IR,K)) * CROSS_FACMAS(IR,K,MSTOR)
@@ -432,7 +440,10 @@
          JSCAN = ISCAN(IBAND,JMIN)
          IF (K <= KZTAN(JSCAN)) THEN
             XFAC = 1.0D0
-            if (IR.le.nret) XFAC = X(IR,K)/XORG(IR,K) !IR can be used for continuums contribution
+            if (IR.le.nret) then
+               if (xorg(ir,k).le.tiny(xorg(ir,k))) cycle
+               XFAC = X(IR,K)/XORG(IR,K) !IR can be used for continuums contribution
+            end if
             FACMAS = CCC(JSCAN,K)/PMASMX(K)
             !                   ------------LOOP OVER FREQUENCIES
             DO J = 1, NMON
