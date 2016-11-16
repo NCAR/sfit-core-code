@@ -794,7 +794,7 @@
                   ! IF SO, CALCULATE A KB ENTRY FOR THIS GAS AS A PROFILE
                   IF ((PNAME(K).EQ.GAS(J)).AND.(IFPRF_KB(J).AND.IFPRF(J))) THEN
                      IS_IN_KB(K) = .TRUE.
-                     PARM(K:K+NLEV) = XHAT(I)
+                     PARM(K:K+NLEV-1) = XHAT(I)
                   END IF
                END DO
                EXIT
