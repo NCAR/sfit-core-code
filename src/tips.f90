@@ -969,7 +969,7 @@ END
 !...value depends on temperature range
       if(T.lt.70. .OR. T.gt.3000.) then
         Qt = -1.
-        write(*,'(a)') '  OUT OF TEMPERATURE RANGE'
+        write(*,'(a,f10.3)') '  OUT OF TEMPERATURE RANGE:', T
         go to 99
       endif
 
