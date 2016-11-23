@@ -53,6 +53,7 @@ program hbin
    type (galatrydata), dimension(ngal)        :: glp
    type (galatrydata), dimension(nlmx)        :: lmx
    type (galatrydata), dimension(nsdv)        :: sdv
+   type (galatrydata), dimension(ncorr)        :: elp
 
    call date_and_time (cdate, ztime, zone)
    write (tag,*) trim(version), ' runtime:', cdate(1:8), '-', ztime(1:2), ':', ztime(3:4), ':', ztime(5:6)
@@ -66,7 +67,7 @@ program hbin
    call read_ctrl
 
    ! --- read in paths to HITRAN files
-   call read_input( hasc, wave5(1), wave6(nband), HFL, GLP, LMX, SDV )
+   call read_input( hasc, wave5(1), wave6(nband), HFL, GLP, LMX, SDV, ELP )
 
    ! --- see if we need to separate out isotopes
    !print *, useiso
@@ -240,6 +241,31 @@ program hbin
       write(6,117) sdv(ifl)%n, ' lines read in SDV file : ', ifl
    enddo
 
+701 format(f6.5,f4.3,f4.2,f8.6,1x,g15.6)
+   
+   ! --- fill CORRELATION line parameters struct with all line data from each file
+   do ifl = 1, enml
+
+      ! --- loop over files
+      elp(ifl)%n = 1
+      do i = 1, nglines
+         read( elp(ifl)%lun, 109, end=35 ) buf
+         !print *, buf
+         ! HITRAN 2012
+         ind = elp(ifl)%n
+         elp(ifl)%eta(ind) = 0.0D0
+         read( buf, 108 ) elp(ifl)%mo(ind), elp(ifl)%is(ind), elp(ifl)%qa(ind), elp(ifl)%g0_air(ind), elp(ifl)%eta(ind)
+         if (elp(ifl)%eta(ind) .le. tiny(0.0D0)) cycle
+         elp(ifl)%n = elp(ifl)%n + 1
+
+         goto 36
+35       close( elp(ifl)%lun )
+         exit
+36       continue
+         
+      enddo
+      write(6,117) elp(ifl)%n, ' lines read in CORR file : ', ifl
+   enddo
 
 
    nl = 0
@@ -292,8 +318,8 @@ program hbin
                         hlp(ldx)%lmtk1 = lmx(ifl)%lm_t1(i)
                         hlp(ldx)%lmtk2 = lmx(ifl)%lm_t2(i)
                         write( hfl(ldx)%buf(220:280), 1121 ) hlp(ldx)%lmtk1, hlp(ldx)%lmtk2, hlp(ldx)%ylm
-                        hlp(ldx)%flag(LM_FLAG) = .TRUE.
-                        dum = flagoff + LM_FLAG
+                        hlp(ldx)%flag(LM_1ST_FLAG) = .TRUE.
+                        dum = flagoff + LM_1ST_FLAG
                         write( hfl(ldx)%buf(dum:dum), '(l1)' ) .TRUE.
                         exit
                      endif ! right wavenumber
@@ -319,8 +345,8 @@ program hbin
                            hlp(ldx)%ylm   = real(sdv(ifl)%lm_air(i))
                            hlp(ldx)%lmtk1   = 1.0d0
                            hlp(ldx)%lmtk2   = 0.0d0
-                           hlp(ldx)%flag(LM_FLAG) = .TRUE.
-                           dum = flagoff + LM_FLAG
+                           hlp(ldx)%flag(LM_1ST_FLAG) = .TRUE.
+                           dum = flagoff + LM_1ST_FLAG
                            write( hfl(ldx)%buf(dum:dum), '(l1)' ) .TRUE.
                         end if
                         write( hfl(ldx)%buf(172:280), 112 ) hlp(ldx)%gamma0, hlp(ldx)%gamma2, &
@@ -333,6 +359,22 @@ program hbin
                   endif ! right molecule
                enddo ! i, records in file
             enddo ! line mix files
+
+            ! --- check if a CORRELATION can be appended
+            do ifl = 1, enml
+               do i = 1, elp(ifl)%n
+                  if ( elp(ifl)%mo(i) .eq. hlp(ldx)%mo .and. &
+                       elp(ifl)%is(i) .eq. hlp(ldx)%is ) then
+                     if (qu_equal(hlp(ldx)%qa, elp(ifl)%qa(i))) then
+                        write( hfl(ldx)%buf(220:232), 110 ) elp(ifl)%eta(i)
+                        hlp(ldx)%eta = real(elp(ifl)%eta(i))
+                        hlp(ldx)%flag(CORR_FLAG) = .TRUE.
+                        dum = flagoff + CORR_FLAG
+                        write( hfl(ldx)%buf(dum:dum), '(l1)' ) .TRUE.
+                     endif                  
+                  end if
+               enddo
+            enddo
 
 
             ! --- check if this is an isotope that is to be separated out
@@ -419,7 +461,7 @@ stop
 109 format( a255 )
 110 format( f12.5 )
 111 format( 3i5,f12.5,2x,a)
-112 format( 8e12.4 )
+112 format( 4e12.4,12x,4e12.4 )
 1121 format( 4e12.4 )
 113 format( a, a )
 !115 format(a, 2i4, 2(f14.6, 2i4))
@@ -430,6 +472,9 @@ stop
 120 format( a,i4,3x,a )
 
 end program hbin
+
+
+
 
 ! --- fill a hitran record from its buffer
 subroutine filh( hd, hf )
@@ -447,6 +492,7 @@ subroutine filh( hd, hf )
    hd%gamma2 = 0.0            ! gamma 2 for sdv
    hd%shift0   = 0.0          ! shift 0 for sdv
    hd%shift2   = 0.0          ! shift 2 for sdv
+   hd%eta      = 0.0
    hd%lmtk1  = 0.0            ! lmtk1 for line mixing
    hd%lmtk2  = 0.0            ! lmtk2 for line mixing
    hd%ylm    = 0.0            ! ylm for line mixing
@@ -531,7 +577,7 @@ subroutine filh( hd, hf )
 end subroutine filh
 
 
-subroutine read_input( hasc, wstr, wstp, HFL, GLP, LFL, SDV )
+subroutine read_input( hasc, wstr, wstp, HFL, GLP, LFL, SDV, ELP )
 
    use hitran
    use binput_4_0
@@ -555,6 +601,7 @@ subroutine read_input( hasc, wstr, wstp, HFL, GLP, LFL, SDV )
    TYPE (HITRANFILE),  intent(inout)   :: HFL(nhit+ncia)
    TYPE (GALATRYDATA), intent(inout)   :: LFL(nlmx)
    TYPE (GALATRYDATA), intent(inout)   :: SDV(nsdv)
+   TYPE (GALATRYDATA), intent(inout)   :: ELP(ncorr)
 
    ! --- open hbin.input file if its here
    inquire( file=trim(ifilename), exist = fexist)
@@ -680,7 +727,7 @@ subroutine read_input( hasc, wstr, wstp, HFL, GLP, LFL, SDV )
    write(6,114) ' Number of HITRAN molecules/files found : ', hnml
 
 
-   ! --- Galatry data files - block 2 in hbin.input
+   ! --- Dicke narrowing narrowing or Galatry data files - block 2 in hbin.input
    ! --- read number of expected Galatry files (max=2)
    ! --- Galatry files are unique format from hitran
    
@@ -996,16 +1043,16 @@ end subroutine nextbuf
 
 
 !--------------------------------------------------------------------------------------------
-logical function qu_equal(quanta1, quanta2)
+
+function qu_equal(quanta1, quanta2)
   ! compares quanta1 and quanta2 field in HITRAN 2004 format, retruns T if they are equal
   ! until now, only string compare, may get more complicated though
   implicit none
   character (len=*), intent(in):: quanta1, quanta2
-  !logical :: qu_equal
+  logical :: qu_equal
 
   qu_equal = .false.
   if (quanta1.eq.quanta2) qu_equal = .true.
   return
 
 end function qu_equal
-

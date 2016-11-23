@@ -78,6 +78,7 @@ LIBS =
 VLIBS =
 
 OBJS = \
+gen_lineshape.o\
 bandparam.o \
 binput_parse_4_0.o \
 binput_4_0.o \

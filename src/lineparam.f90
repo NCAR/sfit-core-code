@@ -42,11 +42,13 @@
       REAL(DOUBLE), DIMENSION(:),   ALLOCATABLE :: PSLIN   ! PRESSURE SHIFT
       REAL(DOUBLE), DIMENSION(:),   ALLOCATABLE :: TDLIN   ! COEFFICIENT TEMP. DEP. AIR H-W
       REAL(DOUBLE), DIMENSION(:),   ALLOCATABLE :: BETA    ! BETA0 FOR GALATRY ROUTINE
+                                                           ! ANUVC FOR PCQSDHV MODEL
       INTEGER,      DIMENSION(:),   ALLOCATABLE :: LGAS    ! LINE INDEX NUMBER
-      REAL(DOUBLE), DIMENSION(:),   ALLOCATABLE :: GAMMA0  ! GAMMA0 FOR SDV (BOONE) ROUTINE
-      REAL(DOUBLE), DIMENSION(:),   ALLOCATABLE :: GAMMA2  ! GAMMA2 FOR SDV (BOONE) ROUTINE
+      REAL(DOUBLE), DIMENSION(:),   ALLOCATABLE :: GAMMA0  ! GAMMA0 FOR SDV (BOONE, PCQSDHC) ROUTINE
+      REAL(DOUBLE), DIMENSION(:),   ALLOCATABLE :: GAMMA2  ! GAMMA2 FOR SDV (BOONE, PCQSDHC) ROUTINE
       REAL(DOUBLE), DIMENSION(:),   ALLOCATABLE :: SHIFT0  ! PRESSURE SHIFT FOR LSHAPE (TRAN) ROUTINE
       REAL(DOUBLE), DIMENSION(:),   ALLOCATABLE :: SHIFT2  ! T-DEP OF P-SHIFT FOR LSHAPE (TRAN) ROUTINE
+      REAL(DOUBLE), DIMENSION(:),   ALLOCATABLE :: ETA     ! CORRELATION FOR PCQSDHC MODEL
       REAL(DOUBLE), DIMENSION(:),   ALLOCATABLE :: LMTK1, LMTK2, YLM ! LINE MIXING PARAMETERS
 
 
@@ -66,9 +68,17 @@
                                                 ! 0 = CHOOSE LINEPARAM DEPENDING ON EXISTANCE OF PARAMETERS
                                                 ! 1 = FORCE VOIGT FOR ALL LINES
                                                 ! 2 = USE GALATRY FOR LINES WITH PARAMETERS, VOIGT ELSE
-                                                ! 3 = USE SDV FOR LINES WITH PARAMETERS
+                                                ! 3 = USE Boone SDV FOR LINES WITH PARAMETERS
 
-      INTEGER, PARAMETER   :: GALATRY_FLAG=1,FCIA_FLAG=2,SCIA_FLAG=3,SDV_FLAG=4,LM_FLAG=5
+      ! if lshapemodel = 0, the following switches may be used to switch certain features
+      ! by default all switched on for default line shape
+      logical :: lsm_sdv = .false.              ! if TRUE, speed dependent Voigt is used
+      logical :: lsm_dicke = .false.            ! if TRUE, Dicke narrowing is calculated
+      logical :: lsm_corr = .false.            ! if TRUE, crosscorrelation between SDV and Dicke 
+                                                ! narrowing is calculated
+
+      INTEGER, PARAMETER   :: GALATRY_FLAG=1,FCIA_FLAG=2,SCIA_FLAG=3,SDV_FLAG=4,&
+           CORR_FLAG=5,LM_1ST_FLAG=6, LM_FULL_FLAG=7
 
       TYPE, PUBLIC :: HITRANDATA
          INTEGER  :: MO              ! MOL ID
@@ -91,10 +101,11 @@
          REAL(4) :: GAMMA2           ! GAMMA 2
          REAL(4) :: SHIFT0           ! PRESSURE SHIFT FOR GEN LINESHAPE
          REAL(4) :: SHIFT2           ! TEMPERATURE DEPENDENCY OF PRESSURE SHIFT FOR GEN LINESHAPE
-         REAL(4) :: LMTK1            ! LMTK1 for Line Mixing
-         REAL(4) :: LMTK2            ! LMTK2 for Line Mixing
-         REAL(4) :: YLM              ! YLM for Line Mixing
-         LOGICAL :: FLAG(8)          ! GAL, FCIA, SCIA, SVD, LM, 6, 7, 8
+         REAL(4) :: ETA              ! ETA 
+         REAL(4) :: LMTK1            ! LMTK1 for Line Mixing (1st order expansion, Rosenkranz model)
+         REAL(4) :: LMTK2            ! LMTK2 for Line Mixing (1st order expansion, Rosenkranz model)
+         REAL(4) :: YLM              ! YLM for Line Mixing (1st order expansion, Rosenkranz model)
+         LOGICAL :: FLAG(8)          ! GAL, FCIA, SCIA, SVD, CORR, LM_1ST, LM_FULL, 8
       END TYPE HITRANDATA
 
       CONTAINS
@@ -103,9 +114,9 @@
       SUBROUTINE OPTLIN
 
       INTEGER      :: LINE, IBAND, ISO, MO, L, K, I, NUMLIN, TNBAND
-      INTEGER      :: NLINES, NLINES_GALATRY, NLINES_LM, NLINES_SDV, NLINES_FCIA, NLINES_SCIA
+      INTEGER      :: NLINES, NLINES_GALATRY, NLINES_1ST_LM, NLINES_FULL_LM, NLINES_SDV, NLINES_FCIA, NLINES_SCIA, NLINES_ETA
       REAL(8)      :: WAVLO, WAVHI, PS, TW, ELOWER, SW, AW, SLINE, WAVNUM=0.0, DENLIN, B0
-      REAL(8)      :: G0, G2, S0, S2, L1, L2, L3, TW5, TW6
+      REAL(8)      :: G0, G2, S0, S2, ETA0, L1, L2, L3, TW5, TW6
       CHARACTER (LEN=200)        :: CHLINE
       INTEGER, DIMENSION(MAXGAS) :: NMOLINE
       LOGICAL                    :: HBIN = .TRUE., HF(8)
@@ -118,8 +129,10 @@
       IFMIX(:MAXGAS)=0
       NGAS = 0
       NLINES = 0
-      NLINES_LM = 0
+      NLINES_1ST_LM = 0
+      NLINES_FULL_LM = 0
       NLINES_SDV = 0
+      NLINES_ETA = 0
       NLINES_FCIA = 0
       NLINES_SCIA = 0
       NLINES_GALATRY = 0
@@ -127,7 +140,37 @@
       WRITE (*, 120) TRIM(TFILE(14))
       WRITE (16, 121) TRIM(TFILE(14))
 
-!  --- OPEN HITRAN LINE DATA FILE
+      write(16,*) 'LINESHAPEMODEL = ', LSHAPEMODEL
+      write(16,*) 'DICKE NARROWING ', LSM_DICKE
+      write(16,*) 'SPEED DEPENDANCY OF PRESSURE BROADENING ', LSM_SDV
+      write(16,*) 'CORRELATION OF PRESSURE AND TEMPERATURE BROADENING ', LSM_CORR
+      ! Check for consistency in line parameters and line features
+      IF ((LSHAPEMODEL == 1).AND.LSM_DICKE) THEN
+         write (*,*) 'Line shape model Voigtfunction does not support Dicke narrowing'
+         write (16,*) 'Line shape model Voigtfunction does not support Dicke narrowing'
+         call shutdown
+         stop 2
+      end IF
+      IF (((LSHAPEMODEL == 1).OR.(LSHAPEMODEL == 2)).AND.LSM_SDV) THEN
+         write (*,*) 'Line shape model Voigtfunction does not support speed dependancy'
+         write (16,*) 'Line shape model Voigtfunction does not support speed dependancy'
+         call shutdown
+         stop 2
+      end IF
+      IF (((LSHAPEMODEL == 1).OR.(LSHAPEMODEL == 2)).AND.LSM_CORR) THEN
+         write (*,*) 'Line shape model does not support coorelation between pressure and temperature broadening'
+         write (16,*) 'Line shape model does not support coorelation between pressure and temperature broadening'
+         call shutdown
+         stop 2
+      end IF
+      IF (((LSHAPEMODEL == 1).OR.(LSHAPEMODEL == 2)).AND.USE_LM) THEN
+         write (*,*) 'Line shape model does not support line mixing'
+         write (16,*) 'Line shape model does not support line mixing'
+         call shutdown
+         stop 2
+      end IF
+!
+!  --- OPEN HITRANLINE DATA FILE
       IF( HBIN )THEN
          OPEN( UNIT=14, FILE=TRIM(TFILE(14)), STATUS='OLD', ERR=669, FORM='UNFORMATTED' )
          READ(14) TNBAND
@@ -151,8 +194,8 @@
 
       ALLOCATE( ST296(LNMAX), AAA(LNMAX), SSS(LNMAX), AZERO(LNMAX), ETWO(LNMAX), &
            GMASS(LNMAX), PSLIN(LNMAX), TDLIN(LNMAX), BETA(LNMAX), LGAS(LNMAX), &
-           GAMMA0(LNMAX), GAMMA2(LNMAX), SHIFT0(LNMAX), SHIFT2(LNMAX),  LMTK1(LNMAX), LMTK2(LNMAX), &
-           YLM(LNMAX), HFLAG(LNMAX,8) )
+           GAMMA0(LNMAX), GAMMA2(LNMAX), SHIFT0(LNMAX), SHIFT2(LNMAX), ETA(LNMAX), &
+           LMTK1(LNMAX), LMTK2(LNMAX), YLM(LNMAX), HFLAG(LNMAX,8) )
 
       LINE = 0
  10   CONTINUE
@@ -175,6 +218,7 @@
          G2     = REAL( HLP%GAMMA2, 8 )
          S0     = REAL( HLP%SHIFT0, 8 )
          S2     = REAL( HLP%SHIFT2, 8 )
+         ETA0     = REAL( HLP%ETA, 8 )
          L1     = REAL( HLP%LMTK1, 8 )
          L2     = REAL( HLP%LMTK2, 8 )
          L3     = REAL( HLP%YLM, 8 )
@@ -273,14 +317,21 @@
       BETA(NLINES)   = B0
       GAMMA0(NLINES) = G0
       GAMMA2(NLINES) = G2
-      SHIFT0(NLINES) = S0
-      SHIFT2(NLINES) = S2
+
+      ! Default pressure shift is PSLIN
+      if (S0.lt.tiny(S0)) then
+         SHIFT0(NLINES)   = PS
+      else
+         SHIFT0(NLINES)   = S0
+      end if
+      SHIFT2(NLINES)   = S2
+      ETA(NLINES)   = ETA0
       LMTK1(NLINES)  = L1
       LMTK2(NLINES)  = L2
       YLM(NLINES)    = L3
 
       HFLAG(NLINES,1:8) = .FALSE.
-      IF( HF(GALATRY_FLAG) .AND. ((LSHAPEMODEL == 0).OR.(LSHAPEMODEL==2))) THEN
+      IF( LSM_DICKE.AND.HF(GALATRY_FLAG) .AND. ((LSHAPEMODEL == 0).OR.(LSHAPEMODEL==2))) THEN
          HFLAG(NLINES,GALATRY_FLAG) = .TRUE.
          NLINES_GALATRY = NLINES_GALATRY + 1
          !print *, HFLAG(NLINES,GALATRY_FLAG), nlines
@@ -293,13 +344,21 @@
          HFLAG(NLINES,SCIA_FLAG) = .TRUE.
          NLINES_SCIA = NLINES_SCIA + 1
       END IF
-      IF( HF(SDV_FLAG).AND.((LSHAPEMODEL == 0).OR.(LSHAPEMODEL==3))) THEN
+      IF( LSM_SDV.and.HF(SDV_FLAG).AND.(LSHAPEMODEL == 0)) THEN
          HFLAG(NLINES,SDV_FLAG) = .TRUE.
          NLINES_SDV = NLINES_SDV + 1
       END IF
-      IF( HF(LM_FLAG).AND.USE_LM.AND.((LSHAPEMODEL == 0).OR.(LSHAPEMODEL==1).OR.(LSHAPEMODEL==3))) THEN
-         HFLAG(NLINES,LM_FLAG) = .TRUE.
-         NLINES_LM = NLINES_LM + 1
+      IF( LSM_CORR.and.HF(CORR_FLAG).AND.(LSHAPEMODEL == 0)) THEN
+         HFLAG(NLINES,CORR_FLAG) = .TRUE.
+         NLINES_ETA = NLINES_ETA + 1
+      END IF
+      IF( HF(LM_1ST_FLAG).AND.USE_LM.AND.((LSHAPEMODEL == 0))) THEN
+         HFLAG(NLINES,LM_1ST_FLAG) = .TRUE.
+         NLINES_1ST_LM = NLINES_1ST_LM + 1
+      END IF
+      IF( HF(LM_FULL_FLAG).AND.USE_LM.AND.((LSHAPEMODEL == 0))) THEN
+         HFLAG(NLINES,LM_FULL_FLAG) = .TRUE.
+         NLINES_FULL_LM = NLINES_FULL_LM + 1
       END IF
 
 !  --- CHECK TO BE SURE ISOTOPIC MOLECULAR WEIGHT IS DEFINED
@@ -382,14 +441,16 @@
          WRITE (16, 302) IBAND, WAVE5(IBAND), LINE1(IBAND), WAVE6(IBAND), LINE2(IBAND)
       END DO
 
-! ---REUSE HF -- GALATRY_FLAG=1,FCIA_FLAG=2,SCIA_FLAG=3,SDV_FLAG=4,LM_FLAG=5
+! ---REUSE HF -- GALATRY_FLAG=1,FCIA_FLAG=2,SCIA_FLAG=3,SDV_FLAG=4,CORR_FLAG=5,LM_1ST_FLAG=6,LM_FULL_FLAG=7
       HF(1:8) = .FALSE.
       DO I=1, NUMLIN
          IF( HFLAG(I,GALATRY_FLAG) ) HF(GALATRY_FLAG) = .TRUE.
          IF( HFLAG(I,FCIA_FLAG) )    HF(FCIA_FLAG) = .TRUE.
          IF( HFLAG(I,SCIA_FLAG) )    HF(SCIA_FLAG) = .TRUE.
          IF( HFLAG(I,SDV_FLAG) )     HF(SDV_FLAG) = .TRUE.
-         IF( HFLAG(I,LM_FLAG) )      HF(LM_FLAG) = .TRUE.
+         IF( HFLAG(I,CORR_FLAG) )     HF(CORR_FLAG) = .TRUE.
+         IF( HFLAG(I,LM_1ST_FLAG) )      HF(LM_1ST_FLAG) = .TRUE.
+         IF( HFLAG(I,LM_FULL_FLAG) )      HF(LM_FULL_FLAG) = .TRUE.
       ENDDO
 
       !FORALL( I=1:NLINES, HFLAG(I,GALATRY_FLAG) ) HF(GALATRY_FLAG) = .TRUE.
@@ -398,17 +459,22 @@
       !FORALL( I=1:NLINES, HFLAG(I,SDV_FLAG) ) HF(SDV_FLAG) = .TRUE.
       !FORALL( I=1:NLINES, HFLAG(I,LM_FLAG) ) HF(LM_FLAG) = .TRUE.
 
-      WRITE(*,130) HF(GALATRY_FLAG) ,NLINES_GALATRY
+
       WRITE(*,131) HF(FCIA_FLAG) ,NLINES_FCIA
       WRITE(*,132) HF(SCIA_FLAG) ,NLINES_SCIA
+      WRITE(*,130) HF(GALATRY_FLAG) ,NLINES_GALATRY
       WRITE(*,133) HF(SDV_FLAG) ,NLINES_SDV
-      WRITE(*,134) HF(LM_FLAG) ,NLINES_LM
+      WRITE(*,134) HF(CORR_FLAG) ,NLINES_ETA
+      WRITE(*,135) HF(LM_1ST_FLAG) ,NLINES_1ST_LM
+      WRITE(*,136) HF(LM_FULL_FLAG) ,NLINES_FULL_LM
 
-      WRITE(16,140) HF(GALATRY_FLAG) ,NLINES_GALATRY
       WRITE(16,141) HF(FCIA_FLAG) ,NLINES_FCIA
       WRITE(16,142) HF(SCIA_FLAG) ,NLINES_SCIA
+      WRITE(16,140) HF(GALATRY_FLAG) ,NLINES_GALATRY
       WRITE(16,143) HF(SDV_FLAG) ,NLINES_SDV
-      WRITE(16,144) HF(LM_FLAG) ,NLINES_LM
+      WRITE(16,144) HF(CORR_FLAG) ,NLINES_ETA
+      WRITE(16,145) HF(LM_1ST_FLAG) ,NLINES_1ST_LM
+      WRITE(16,146) HF(LM_FULL_FLAG) ,NLINES_FULL_LM
 
       RETURN
 
@@ -464,12 +530,16 @@
   131 FORMAT( '     FCIA FLAG & FCIA LINES FOUND                             :',L3, I7)
   132 FORMAT( '     SCIA FLAG & SCIA LINES FOUND                             :',L3, I7)
   133 FORMAT( '     SDV FLAG & LINES WITH SDV PARAMETERS FOUND               :',L3, I7)
-  134 FORMAT( '     LINEMIXING FLAG & LINES WITH LINEMIXING PARAMETERS FOUND :',L3, I7)
+  134 FORMAT( '     CORR FLAG & LINES WITH CORR PARAMETERS FOUND             :',L3, I7)
+  135 FORMAT( '     LMIX 1ST FLAG & LINES WITH LMIX 1ST PARAMETERS FOUND     :',L3, I7)
+  136 FORMAT( '     LMIX FULL FLAG & LINES WITH LMIX FULL PARAMETERS FOUND   :',L3, I7)
   140 FORMAT(/' GALATRY FLAG & LINES WITH GALATRY PARAMETERS FOUND       :',L3, I7)
   141 FORMAT( ' FCIA FLAG & FCIA LINES FOUND                             :',L3, I7)
   142 FORMAT( ' SCIA FLAG & SCIA LINES FOUND                             :',L3, I7)
   143 FORMAT( ' SDV FLAG & LINES WITH SDV PARAMETERS FOUND               :',L3, I7)
-  144 FORMAT( ' LINEMIXING FLAG & LINES WITH LINEMIXING PARAMETERS FOUND :',L3, I7)
+  144 FORMAT( ' CORR FLAG & LINES WITH CORR PARAMETERS FOUND             :',L3, I7)
+  145 FORMAT( ' LMIX 1ST FLAG & LINES WITH LMIX 1ST PARAMETERS FOUND     :',L3, I7)
+  146 FORMAT( ' FULL LMIX FLAG & LINES WITH FULL LMIX PARAMETERS FOUND   :',L3, I7)
   150 FORMAT( 2I6, A)
   151 FORMAT( I6, 2F14.6, A)
 

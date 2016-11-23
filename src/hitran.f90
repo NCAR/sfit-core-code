@@ -8,10 +8,10 @@ module hitran
 
    implicit none
 
-   integer, parameter     :: nhit=99, ngal=2, ncia=2, nglines=100000, flagoff=280,nlmx=5, nsdv=5 
+   integer, parameter     :: nhit=99, ngal=2, ncia=2, nglines=100000, flagoff=280,nlmx=5, nsdv=5, ncorr=2 
    integer, parameter     :: nlmlines=100000, nsdlines=100000
    real(8), parameter     :: weps = 1.0d-6
-   integer                :: hnml, gnml, lnml, snml
+   integer                :: hnml, gnml, lnml, snml, enml
    integer                :: stlun, map(nhit)
    integer :: nhit_files, nlm_files, ngal_files, nsdv_files
    logical :: out_ascii=.TRUE.
@@ -48,6 +48,7 @@ module hitran
       real(4)            :: s_air(nglines)
       real(4)            :: g2_air(nglines)
       real(4)            :: ts_air(nglines)
+      real(4)            :: eta(nglines)
       real(4)            :: lm_air(nglines) ! line mixing coefficients
       real(4)            :: lm_t1(nglines)  ! extra parameters of F. Hase to model
       real(4)            :: lm_t2(nglines)  ! temperature dependency
