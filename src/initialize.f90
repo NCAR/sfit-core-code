@@ -574,7 +574,7 @@
                CALL SHUTDOWN
                STOP 2
             END IF
-            WAVE         = WLOW + REAL((I - 1),8)*SPAC(IBAND)
+            WAVE         = WLOW + REAL((I - 1),DOUBLE)*SPAC(IBAND)
             IF (WAVE<WLIM1 .OR. WAVE>WLIM2) CYCLE L5
             NPTSB        = NPTSB + 1
             NATMOS       = NATMOS + 1
