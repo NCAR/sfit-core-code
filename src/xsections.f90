@@ -180,11 +180,11 @@
                ! PRESSURE SHIFT PARAMETER FOR pCqSD
                IF ( FPS ) THEN
                   IF ( HFLAG(N,SDV_FLAG) ) THEN
-                     S0 = SHIFT0(N)*P(K)           ! PRESSURE SHIFT IF SDV IS USED
+                     S0 = SHIFT0(N)*P(K) * (1.0D0 - XGAS(IMOL,K)) + SELF_SHIFT0(N)*P(K) * XGAS(IMOL,K)          ! PRESSURE SHIFT IF SDV IS USED
                   ELSE
-                     S0 = PSLIN(N)*P(K)            ! PRESSURE SHIFT IF SDV IS NOT USED
+                     S0 = PSLIN(N)*P(K) * (1.0D0 - XGAS(IMOL,K)) + SELF_SHIFT0(N)*P(K) * XGAS(IMOL,K)        ! PRESSURE SHIFT IF SDV IS NOT USED
                   END IF
-                  S2 = SHIFT2(N)*P(k)*T(K)      ! TEMPERATURE DEPENDANCE OF PRESSURE SHIFT
+                  S2 = SHIFT2(N)*P(k)* (1.0D0 - XGAS(IMOL,K))    ! PRESSURE SHIFT OF GAMMA2
                ELSE
                   S0 = 0.0D0
                   S2 = 0.0D0
@@ -197,7 +197,7 @@
                ELSEIF  ( LSM_SDV.and.HFLAG(N,SDV_FLAG) ) THEN
                   ACOFB = GAMMA0(N)*P(K)*(1.0D0 - XGAS(IMOL,K))
                   SCOFB = SSS(N)*P(K)*XGAS(IMOL,K)
-                  G2 = GAMMA2(N)*P(k)
+                  G2 = GAMMA2(N)*P(k) * (1.0D0 - XGAS(IMOL,K)) + SELF_GAMMA2(N)*P(K)*XGAS(IMOL,K)
                ELSE
                   ACOFB = AAA(N)*P(K)*(1.0D0 - XGAS(IMOL,K))
                   SCOFB = SSS(N)*P(K)*XGAS(IMOL,K)

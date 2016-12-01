@@ -42,11 +42,13 @@ module hitran
       ! The HITRAN 2004 molecular spectroscopic database
       ! Journal Of Quantitative Spectroscopy & Radiative Transfer, 2005, 96, 139-204
       real(8)            :: g0_air(nglines)
+      real(4)            :: g0_self(nglines)
       real(8)            :: td_g0_air(nglines)
       real(8)            :: beta(nglines)
-      real(4)            :: g0_self(nglines)
-      real(4)            :: s_air(nglines)
+      real(4)            :: s0_air(nglines)
+      real(4)            :: s0_self(nglines)
       real(4)            :: g2_air(nglines)
+      real(4)            :: g2_self(nglines)
       real(4)            :: ts_air(nglines)
       real(4)            :: eta(nglines)
       real(4)            :: lm_air(nglines) ! line mixing coefficients
