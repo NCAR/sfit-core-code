@@ -1,0 +1,14 @@
+\documentclass{article}
+
+\begin{document}
+\section{Modeling of an absorbing layer}
+
+An absorbing layer in the troposphere is of interest in case of a weak
+lightsource as the moon or the atmosphere itself (thermal radiation). 
+
+An absorbing layer is modeled by simply stacking cross sections. I got
+the idea from the QPACK package (Erikson, 1999) but dont know if it
+has been developped by them or used anywhere else before.
+
+
+\end{document}
