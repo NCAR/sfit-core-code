@@ -763,7 +763,7 @@ subroutine read_input( hasc, wstr, wstp, HFL, GLP, LFL, SDV, ELP )
          stop
       endif
 
-      lun = stlun + gnml
+      lun = stlun + 1
       open( lun, file=filename, status='old', iostat=istat )
 
       ! --- find starting wavenumber in file
@@ -831,7 +831,7 @@ subroutine read_input( hasc, wstr, wstp, HFL, GLP, LFL, SDV, ELP )
          stop
       endif
 
-      lun = lun + lnml
+      lun = lun + 1
       !print*, lun
       open( lun, file=filename, status='old', iostat=istat )
       read( lun, 100, end=30 ) buffer
@@ -894,7 +894,7 @@ subroutine read_input( hasc, wstr, wstp, HFL, GLP, LFL, SDV, ELP )
          stop
       endif
 
-      lun = lun +snml
+      lun = lun + 1
       !print*, lun
       open( lun, file=filename, status='old', iostat=istat )
 
