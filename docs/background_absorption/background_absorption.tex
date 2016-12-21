@@ -8,13 +8,21 @@ lightsource as the moon or the atmosphere itself (thermal radiation).
 
 An absorbing layer is modeled by simply stacking cross sections. I got
 the idea from the QPACK package (Erikson, 1999) but dont know if it
-has been developped by them or used anywhere else before.
+has been developped by them or used anywhere else before. Please be aware, that this is not for learning something about the true absorption in the atmopshere, for this we need a little more sophisticated radiativ transfer models.
 
 The absorbing layer is modeled as a polynomial, taking the
-exponetially decreasing air pressure iinto account. 
+exponetially decreasing air pressure iinto account. The parameters are:
+\begin{description}
+\item[continuum.order] The order of the polynomial to model the absorption
+\item[continuum.apriori] The a priori for the polynomials 
+\item[continuum.sigma]  The diagonal of the SA matrix for the polynomials
+\end{description}
+Note: The aprioris and SA matrix entries are the same for all orders.
 
+Let n be the order of the polynomial and m be the maximum number of
+the altitude levels. The polynomial is then modeled as:
 \begin{eqnarray}
-  p(\nu)_i = p(\nu)_{i-1} + a_i * \nu_{mid}
+  p(\nu) = \sum_{i=0,k=0}^{n,m} a_i \left(\frac{\nu - \nu_{mid}}{\nu_{end} - \nu_{start}}\right)^i \frac{P_k}{P_0}
 \end{eqnarray}
 
 
