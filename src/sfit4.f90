@@ -525,8 +525,9 @@
 
       IF( F_WRTRAYTC )CALL FILECLOSE( 73, 1 )
 
-! --- DEALLOCATE ARRAYS
-      CALL RELEASE_MEM_INT
+      ! --- DEALLOCATE ARRAYS
+!      this function leads to segfaults in some setups, dont know yet why
+!      CALL RELEASE_MEM_INT
       CALL RELEASE_MEM_DIA
       CALL RELEASE_MEM_OPT
       CALL RELEASE_MEM_LP

@@ -1246,7 +1246,6 @@
 
 !-------------------------------------------------------------------------------
       SUBROUTINE RELEASE_MEM_INT
-
       IF( ALLOCATED( CROSS )       )DEALLOCATE (CROSS)
       IF( ALLOCATED( CROSS_FACMAS ))DEALLOCATE (CROSS_FACMAS)
       IF( ALLOCATED( TCO )         )DEALLOCATE (TCO)

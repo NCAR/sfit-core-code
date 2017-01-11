@@ -34,6 +34,7 @@ FFLAGS = -Warray-bounds -Wcharacter-truncation -Wunused-parameter \
          -fcheck=all -fimplicit-none -fwhole-file -fall-intrinsics -fno-automatic \
          -fstack-arrays -frepack-arrays \
          -std=gnu -pedantic \
+         -freal-4-real-8
          -ffpe-trap=invalid,zero,overflow,underflow -g -fbacktrace -fsanitize=address
 
 # -Warray-temporaries too many...
@@ -43,7 +44,7 @@ FFLAGS = -Warray-bounds -Wcharacter-truncation -Wunused-parameter \
          -fbounds-check -fbacktrace -g -ffree-line-length-none
 
 # optimize -Ofast v4.8
-FFLAGS = -O2 -Wall -fno-automatic -frepack-arrays  -ffree-line-length-none -mcmodel=large
+FFLAGS = -g -Wall -fno-automatic -frepack-arrays  -ffree-line-length-none -mcmodel=medium
 
 # supply compile date:
 # -cpp -DBDATE="\"`date +%Y%m%d`"\" -O2 -fno-automatic
