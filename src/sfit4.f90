@@ -525,8 +525,9 @@
 
       IF( F_WRTRAYTC )CALL FILECLOSE( 73, 1 )
 
-! --- DEALLOCATE ARRAYS
-      CALL RELEASE_MEM_INT
+      ! --- DEALLOCATE ARRAYS
+      ! memory crashes. The heap is somehow corrupted. Have niot yet found the reason.
+!      CALL RELEASE_MEM_INT
       CALL RELEASE_MEM_DIA
       CALL RELEASE_MEM_OPT
       CALL RELEASE_MEM_LP
