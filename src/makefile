@@ -34,6 +34,7 @@ FFLAGS = -Warray-bounds -Wcharacter-truncation -Wunused-parameter \
          -fcheck=all -fimplicit-none -fwhole-file -fall-intrinsics -fno-automatic \
          -fstack-arrays -frepack-arrays \
          -std=gnu -pedantic \
+         -freal-4-real-8
          -ffpe-trap=invalid,zero,overflow,underflow -g -fbacktrace -fsanitize=address
 
 # -Warray-temporaries too many...

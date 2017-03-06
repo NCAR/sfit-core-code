@@ -1082,7 +1082,7 @@ subroutine kpno( opdmax, wl1, wl2, roe, lat, lon, nterp, rflag, oflag, zflag, vf
 
       zero = bc2( amps, wavs, npfile, wmid, vflag, noise )
 
-      if( zero .ne. -999.d0 )then
+      if( zero .ne. -999.0d0 )then
          write(6,102) 'Zero offset determined : ', zero
          write(6,102) ' at wavenumber : ', wmid
          write(6,102) 'RMS Noise from zero : ', noise
@@ -1625,7 +1625,8 @@ subroutine calcsnr( wavs, amps, npfile, wlim1, wlim2, spac, opdmax, nterp, noise
       write(66,*)'Exact noise region in resampled spectrum, i, w#, spec, fit, diff'
       write(66,*) 4, np, iil*dnue + wstart, dnue
       do i=1, np
-         write(66,*) x(i), wavs(iil+i-1), amps(iil+i-1), (curve(1) + (curve(2) + (curve(3) + (curve(4) + curve(5)*x(i)) * x(i)) * x(i)) * x(i)), y(i)
+         write(66,*) x(i), wavs(iil+i-1), amps(iil+i-1), &
+              & (curve(1) + (curve(2) + (curve(3) + (curve(4) + curve(5)*x(i)) * x(i)) * x(i)) * x(i)), y(i)
       enddo
       close(66)
    endif
@@ -1857,7 +1858,8 @@ subroutine calcsnr2( wavs, amps, npfile, wlim1, wlim2, spac, opdmax, nterp, nois
       write(66,*)'Exact noise region in resampled spectrum, i, w#, spec, fit, diff'
       write(66,*) 4, np, iil*dnue + wstart, dnue
       do i=1, np
-         write(66,*) x(i), z(iil+i-1), outspec(iil+i-1), (curve(1) + (curve(2) + (curve(3) + (curve(4) + curve(5)*x(i)) * x(i)) * x(i)) * x(i)), y(i)
+         write(66,*) x(i), z(iil+i-1), outspec(iil+i-1), &
+              & (curve(1) + (curve(2) + (curve(3) + (curve(4) + curve(5)*x(i)) * x(i)) * x(i)) * x(i)), y(i)
       enddo
       close(66)
    endif

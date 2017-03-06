@@ -527,7 +527,7 @@
 
       ! --- DEALLOCATE ARRAYS
       ! memory crashes. The heap is somehow corrupted. Have niot yet found the reason.
-!      CALL RELEASE_MEM_INT
+      !      CALL RELEASE_MEM_INT
       CALL RELEASE_MEM_DIA
       CALL RELEASE_MEM_OPT
       CALL RELEASE_MEM_LP
@@ -795,7 +795,7 @@
                   ! IF SO, CALCULATE A KB ENTRY FOR THIS GAS AS A PROFILE
                   IF ((PNAME(K).EQ.GAS(J)).AND.(IFPRF_KB(J).AND.IFPRF(J))) THEN
                      IS_IN_KB(K) = .TRUE.
-                     PARM(K:K+NLEV) = XHAT(I)
+                     PARM(K:K+NLEV-1) = XHAT(I)
                   END IF
                END DO
                EXIT
