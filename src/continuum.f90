@@ -12,8 +12,9 @@ module continuum
   integer :: abscont_type, abscont_order
   real(double), dimension(cont_poly_max) :: abscont_param, abscont_sparam
   real(double), dimension(:), allocatable :: cont_param
-  
-  contains
+  real(double) :: cont_z_abs, cont_alpha
+
+contains
 
   subroutine calc_continuum(param)
     ! wrapper for calculation of the continua. The continuums absorption gets
@@ -30,7 +31,6 @@ module continuum
     real(double) :: polynom
 
 
-    abscont_type = 2
     select case (abscont_type) 
     case (0)
        ! Offset only
@@ -77,7 +77,32 @@ module continuum
              end do
           end DO
           mone = mone + nm(iband)
-       end DO       
+       end DO
+    case(3)
+       ! an absorbing layer modeled as a polynomial (dep on nu) at the altitude
+       ! z_abs with the absorbing strength cont_alpha (retrieved)
+       mone = 1
+       CROSS(nret+2,:KMAX,:ncross) = 0.0d0
+       cont_alpha = param(1)
+       DO IBAND = 1, NBAND
+          mxne = mone + nm(iband) - 1
+          wone = wstart(iband)
+          wxne = wstart(iband) + dn(iband)*nm(iband)
+          wmid = (wone + wxne)/2.0d0
+          DO K = 1, KMAX
+             IF ((zbnd(k).ge.cont_z_abs).and.(zbnd(k+1).le.cont_z_abs)) then 
+                do j = mone,mxne
+                   polynom = param(1)
+                   do l = 1,n_contabs-1
+                      polynom = polynom + param(l+1)*(((wone+dble(j)*dn(iband))-wmid)/(wxne-wone))**l
+                   end do
+                   if (cont_alpha.lt.tiny(cont_alpha)) cont_alpha = tiny(cont_alpha)
+                   CROSS(nret+2,K,j) = CROSS(nret+2,K,j) + log(cont_alpha)
+                end do
+             end IF
+          end DO
+          mone = mone + nm(iband)
+       end DO
     end select
   end subroutine calc_continuum
   
