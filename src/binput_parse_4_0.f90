@@ -525,13 +525,20 @@ end subroutine read_file_section
           case ('order')
              read(value,*) abscont_order
           case ('apriori')
-             ! be default, all coefficients get the same apriori and sigma, this may change later on
-             ! it definitely should be changed when calculating the KB-matrix
+             ! be default, all coefficients get the same apriori and
+             ! sigma, this may change later on it definitely should be
+             ! changed when calculating the KB-matrix the meaning of
+             ! abscont_param changes depending on the type of the
+             ! continuum.  type 0-2 polynomial type 3 an absorbing
+             ! layer at altitude z_cloud with an absorption strength
+             ! of abscont_param(1) which is retrieved.
              read(value,*) abscont_param(1)
              abscont_param(:) = abscont_param(1)
           case ('sigma')
              read(value,*) abscont_sparam(1)
              abscont_sparam(:) = abscont_sparam(1)
+          case('z_cloud')
+             read(value,*) cont_z_abs
           end select
        endif
     case ('temperature')
@@ -540,7 +547,7 @@ end subroutine read_file_section
        else
           select case (trim(adjustl(keyword(3))))
           case ('sigma')
-             read(value,*) tsigma(1:nlayers+ncell)
+             if (iftemp) read(value,*) tsigma(1:nlayers+ncell)
           end select
        end if
     case ('lm')
