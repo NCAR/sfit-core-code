@@ -315,7 +315,7 @@
                !IF (K .GT. KMAX) K = KMAX
                IF (K .GT. NPATH) K = NPATH
                CALL MASSPATH( K )
-               CALL SETUP3( XSC_DETAIL, K )
+               CALL SETUP3( XSC_DETAIL, k )
             ENDIF ! K
          ENDIF ! IFTEMP
 
