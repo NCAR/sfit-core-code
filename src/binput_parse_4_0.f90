@@ -414,6 +414,34 @@ end subroutine read_file_section
        end if
     case ('raytonly')
        read(value,*) raytonly
+    case ('continuum')
+       if (len_trim(keyword(3)).eq.0) then
+          read(value,*) f_contabs
+       else
+          select case (trim(adjustl(keyword(3))))
+          case ('type')
+             read(value,*) abscont_type
+          case ('order')
+             read(value,*) abscont_order
+          case ('strength')
+             ! be default, all coefficients get the same strength = apriori and
+             ! sigma, this may change later on it definitely should be
+             ! changed when calculating the KB-matrix the meaning of
+             ! abscont_param changes depending on the type of the
+             ! continuum.  type 0-2 polynomial type 3 an absorbing
+             ! layer at altitude z_cloud with an absorption strength
+             ! of abscont_param(1) which is retrieved.
+             read(value,*) abscont_param(1)
+             abscont_param(:) = abscont_param(1)
+          case('z')
+             read(value,*) cont_z_abs
+          case default
+             WRITE(16,*) 'BINPUT_PARSE_4_0:READ_FW_SECTION: Key ', trim(keyword(3)), ' not contained in section fw.continuum'
+             WRITE( 0,*) 'BINPUT_PARSE_4_0:READ_FW_SECTION: Key ', trim(keyword(3)), ' not contained in section fw.continuum'
+             CALL SHUTDOWN
+             STOP 1
+          end select
+       end if
     case default
        WRITE(16,*) 'BINPUT_PARSE_4_0:READ_FW_SECTION: Key ', trim(keyword(2)), ' not contained in section : fw'
        WRITE( 0,*) 'BINPUT_PARSE_4_0:READ_FW_SECTION: Key ', trim(keyword(2)), ' not contained in section : fw'
@@ -517,30 +545,6 @@ end subroutine read_file_section
     end if
 
     select case (trim(adjustl(keyword(2))))
-    case ('continuum')
-       if (len_trim(keyword(3)).eq.0) then
-          read(value,*) f_contabs
-       else
-          select case (trim(adjustl(keyword(3))))
-          case ('order')
-             read(value,*) abscont_order
-          case ('apriori')
-             ! be default, all coefficients get the same apriori and
-             ! sigma, this may change later on it definitely should be
-             ! changed when calculating the KB-matrix the meaning of
-             ! abscont_param changes depending on the type of the
-             ! continuum.  type 0-2 polynomial type 3 an absorbing
-             ! layer at altitude z_cloud with an absorption strength
-             ! of abscont_param(1) which is retrieved.
-             read(value,*) abscont_param(1)
-             abscont_param(:) = abscont_param(1)
-          case ('sigma')
-             read(value,*) abscont_sparam(1)
-             abscont_sparam(:) = abscont_sparam(1)
-          case('z_cloud')
-             read(value,*) cont_z_abs
-          end select
-       endif
     case ('temperature')
        if (len_trim(keyword(3)).eq.0) then
           read(value,*) iftemp
@@ -686,6 +690,11 @@ end subroutine read_file_section
        read(value, *) ifcalcse
     case ('dwshift')
        read(value, *) ifdiff
+    case ('continuum')
+       select case (trim(adjustl(keyword(3))))
+       case ('sigma')
+          read(value,*) abscont_sparam(1)
+       end select
     case default
        WRITE(16,*) 'BINPUT_PARSE_4_0:READ_RT_SECTION: Key ', trim(keyword(3)), ' not contained in section : rt'
        WRITE( 0,*) 'BINPUT_PARSE_4_0:READ_RT_SECTION: Key ', trim(keyword(3)), ' not contained in section : rt'
