@@ -26,7 +26,8 @@
       USE molcparam
       USE lineparam
       USE continuum       
-
+      USE CKD_CONTINUUM
+      
       IMPLICIT NONE
 
 ! --- TCONV and TCALC now allocated in setup
@@ -296,6 +297,22 @@
                               ENDDO
                            ENDIF
                         END IF
+                       IF (F_CKD_CONTINUUM) THEN
+                          ! ATTACH H2O CONTINUUM ABSORPTION
+                          WAVE_NR = WSTART(IBAND) + (I-1)*DN(IBAND)
+                          TCALC(IPOINT,MSTOR) = TCALC(IPOINT,MSTOR) + CKD(JSCAN, K, WAVE_NR)
+                          IF (IEMISSION/=0) THEN
+                             ! TRANSMISSION CALCULATED BELOW THE LAYER ALT, NEEDED
+                             ! FOR CALCULATION OF CONTRIBUTION TO EMISSION FROM 
+                             ! LAYER ALT TO THE GROUND 
+                             DO ALT=1,KSMAX2
+                                IF (ZBAR(ALT) > ZBAR(K)) THEN
+                                   TCALC_E(IPOINT,MSTOR,ALT) = &
+                                        TCALC_E(IPOINT,MSTOR,ALT) + CKD(JSCAN, K, WAVE_NR)
+                                ENDIF
+                             ENDDO
+                          ENDIF
+                       END IF
                      ELSE
                         ! ------------LOOP OVER RETRIEVAL GASES
                         DO IR = 2, NRET
@@ -344,6 +361,22 @@
                                 IF (ZBAR(ALT) > ZBAR(K)) THEN
                                    TCALC_E(IPOINT,MSTOR,ALT) = &
                                         TCALC_E(IPOINT,MSTOR,ALT) + CROSS_FACMAS(NRET+2,K,MSTOR)
+                                ENDIF
+                             ENDDO
+                          ENDIF
+                       END IF
+                       IF (F_CKD_CONTINUUM) THEN
+                          ! ATTACH H2O CONTINUUM ABSORPTION
+                          WAVE_NR = WSTART(IBAND) + (I-1)*DN(IBAND)
+                          TCALC(IPOINT,MSTOR) = TCALC(IPOINT,MSTOR) + CKD(JSCAN, K, WAVE_NR)
+                          IF (IEMISSION/=0) THEN
+                             ! TRANSMISSION CALCULATED BELOW THE LAYER ALT, NEEDED
+                             ! FOR CALCULATION OF CONTRIBUTION TO EMISSION FROM 
+                             ! LAYER ALT TO THE GROUND 
+                             DO ALT=1,KSMAX2
+                                IF (ZBAR(ALT) > ZBAR(K)) THEN
+                                   TCALC_E(IPOINT,MSTOR,ALT) = &
+                                        TCALC_E(IPOINT,MSTOR,ALT) + CKD(JSCAN, K, WAVE_NR)
                                 ENDIF
                              ENDDO
                           ENDIF

@@ -37,9 +37,9 @@
       CHARACTER (LEN=7), DIMENSION(MOLMAX) :: SDV_GAS
       CHARACTER (LEN=7), DIMENSION(MOLMAX) :: LM_GAS
 
-      CONTAINS
-
-!------------------------------------------------------------------------------
+    CONTAINS
+      
+      !------------------------------------------------------------------------------
       SUBROUTINE FM(XN, YN, KN, NFIT, NVAR, KFLG, ITER, TFLG )
 
       IMPLICIT NONE

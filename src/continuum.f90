@@ -100,5 +100,5 @@ contains
        end DO
     end select
   end subroutine calc_continuum
-  
+
 end module continuum
