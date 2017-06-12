@@ -31,6 +31,7 @@ module binput_parse_4_0
   use isotope
   use writeout
   use hitran
+  use ckd_continuum
 
   implicit none;
   save
@@ -212,6 +213,22 @@ end subroutine read_file_section
        end if
 
        select case (trim(adjustl(keyword(4))))
+       case ('regmethod')
+          if (len_trim(keyword(5)).eq.0) then
+             read(value,*) regmethod(nr)
+          else
+             select case (trim(adjustl(keyword(5))))
+             case ('lambda')
+                read(value,*) tplambda(nr)
+             case default
+                WRITE(16,*) 'BINPUT_PARSE_4_0:READ_GAS_SECTION: Key ', trim(keyword(5)), &
+                            ' not contained in section gas...regmethod'
+                WRITE( 0,*) 'BINPUT_PARSE_4_0:READ_GAS_SECTION: Key ', trim(keyword(5)), &
+                            ' not contained in section gas...regmethod'
+                CALL SHUTDOWN
+                STOP 1
+             end select
+          end if
        case ('correlation')
           if (len_trim(keyword(5)).eq.0) then
              read(value,*) correlate(nr)
@@ -414,6 +431,8 @@ end subroutine read_file_section
        end if
     case ('raytonly')
        read(value,*) raytonly
+    case ('h2o_continuum')
+       read(value,*) f_ckd_continuum
     case ('continuum')
        if (len_trim(keyword(3)).eq.0) then
           read(value,*) f_contabs

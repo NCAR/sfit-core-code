@@ -1131,12 +1131,12 @@
       INTEGER                       :: I, J, KK, N, JROW, JCOL, INDXX
       REAL(DOUBLE)                  :: TSAHWD, DELZ = 0.0D0, RHO  = 0.0D0
 
-!  --- FILL DIAGONAL ELEMENTS OF SA
+      !  --- FILL DIAGONAL ELEMENTS OF SA
       DO I = 1, NVAR
          SA(I,I) = SPARM(I)*SPARM(I)
       ENDDO
-
-!  --- OFF DIAGONAL ELEMENTS OF SA MATRIX (A PRIORI COMPONENTS)
+      
+      !  --- OFF DIAGONAL ELEMENTS OF SA MATRIX (A PRIORI COMPONENTS)
       INDXX = ISMIX
       DO KK = 1, NRET
          !print *, 'fill off diag ', kk, IFPRF(KK)
@@ -1145,38 +1145,38 @@
             N = NLAYERS
             SELECT CASE ( IFOFF(KK) )
             CASE ( 1:3 )
-!  --- FILL OFF DIAGONAL ELEMENTS OF SA
-            DO I = 1, NLAYERS
-              DO J = 1, NLAYERS
-                IF (I == J) CYCLE
-                JROW = I + INDXX
-                JCOL = J + INDXX
-                IF( ZBAR(I) < ZGMIN(KK) ) CYCLE
-                IF( ZBAR(J) < ZGMIN(KK) ) CYCLE
-                IF( ZBAR(I) > ZGMAX(KK) ) CYCLE
-                IF( ZBAR(J) > ZGMAX(KK) ) CYCLE
-
-                DELZ = ZBAR(I) - ZBAR(J)
-
-                SELECT CASE ( IFOFF(KK) )
-                CASE (1)       !gaussian
-                  RHO = (ALOGSQ*DELZ/ZWID(KK))**2
-                  RHO = MIN( RHO, 90.0D0 )
-                  SA(JROW,JCOL) = SPARM(JROW)*SPARM(JCOL)*EXP(-RHO)
-                CASE (2)       !exponential
-                  RHO = ABS(ALOGSQ*DELZ/ZWID(KK))
-                  RHO = MIN( RHO, 90.0D0 ) !664
-                  SA(JROW,JCOL) = SPARM(JROW)*SPARM(JCOL)*EXP(-RHO)
-                CASE (3)
-                  WRITE(16,*) "IFOFF=3 NOT SUPPORTED"
-                  WRITE(00,*) "IFOFF=3 NOT SUPPORTED"
-                  CALL SHUTDOWN
-                  STOP 2
-                END SELECT
-
-              END DO
-            END DO
-! --- READ IN FULL COVARIANCE FROM FILE
+               !  --- FILL OFF DIAGONAL ELEMENTS OF SA
+               DO I = 1, NLAYERS
+                  DO J = 1, NLAYERS
+                     IF (I == J) CYCLE
+                     JROW = I + INDXX
+                     JCOL = J + INDXX
+                     IF( ZBAR(I) < ZGMIN(KK) ) CYCLE
+                     IF( ZBAR(J) < ZGMIN(KK) ) CYCLE
+                     IF( ZBAR(I) > ZGMAX(KK) ) CYCLE
+                     IF( ZBAR(J) > ZGMAX(KK) ) CYCLE
+                     
+                     DELZ = ZBAR(I) - ZBAR(J)
+                     
+                     SELECT CASE ( IFOFF(KK) )
+                     CASE (1)       !gaussian
+                        RHO = (ALOGSQ*DELZ/ZWID(KK))**2
+                        RHO = MIN( RHO, 90.0D0 )
+                        SA(JROW,JCOL) = SPARM(JROW)*SPARM(JCOL)*EXP(-RHO)
+                     CASE (2)       !exponential
+                        RHO = ABS(ALOGSQ*DELZ/ZWID(KK))
+                        RHO = MIN( RHO, 90.0D0 ) !664
+                        SA(JROW,JCOL) = SPARM(JROW)*SPARM(JCOL)*EXP(-RHO)
+                     CASE (3)
+                        WRITE(16,*) "IFOFF=3 NOT SUPPORTED"
+                        WRITE(00,*) "IFOFF=3 NOT SUPPORTED"
+                        CALL SHUTDOWN
+                        STOP 2
+                     END SELECT
+                     
+                  END DO
+               END DO
+               ! --- READ IN FULL COVARIANCE FROM FILE
             CASE ( 4 )
                INQUIRE( UNIT=62, OPENED=FILOPEN )
                IF ( .NOT. FILOPEN )CALL FILEOPEN( 62, 3 )
@@ -1189,59 +1189,60 @@
          ENDIF
          INDXX = INDXX + N
       END DO
-
+      
       CALL FILECLOSE( 62, 2 )
-
-
-!  --- FILL OFF DIAGONAL ELEMENTS OF SA of T
+      
+      
+      !  --- FILL OFF DIAGONAL ELEMENTS OF SA of T
       IF( IFTEMP )THEN
          INDXX = NTEMP1
-            DO I = 1, NLAYERS
-              DO J = 1, NLAYERS
-                IF (I == J) CYCLE
-                JROW = I + INDXX
-                JCOL = J + INDXX
-                DELZ = ZBAR(I) - ZBAR(J)
-                TSAHWD = 20.0D0
-                SELECT CASE ( 1 )
-                CASE (1)       !gaussian
+         DO I = 1, NLAYERS
+            DO J = 1, NLAYERS
+               IF (I == J) CYCLE
+               JROW = I + INDXX
+               JCOL = J + INDXX
+               DELZ = ZBAR(I) - ZBAR(J)
+               TSAHWD = 20.0D0
+               SELECT CASE ( 1 )
+               CASE (1)       !gaussian
                   RHO = (ALOGSQ*DELZ/TSAHWD)**2
                   RHO = MIN( RHO, 90.0D0 )
                   SA(JROW,JCOL) = SPARM(JROW)*SPARM(JCOL)*EXP(-RHO)
-                CASE (2)       !exponential
+               CASE (2)       !exponential
                   RHO = ABS(ALOGSQ*DELZ/TSAHWD)
                   RHO = MIN( RHO, 90.0D0 ) !664
                   SA(JROW,JCOL) = SPARM(JROW)*SPARM(JCOL)*EXP(-RHO)
-                CASE (3)
+               CASE (3)
                   WRITE(16,*) "IFOFF=3 NOT SUPPORTED"
                   WRITE(00,*) "IFOFF=3 NOT SUPPORTED"
                   CALL SHUTDOWN
                   STOP 2
-                END SELECT
-              END DO
+               END SELECT
             END DO
-       ENDIF
-
-!  --- WRITE OUT FULL SA MATRIX
+         END DO
+      ENDIF
+      WRITE(16,*) "REGULARISATION METHOD OEM"
+         
+         
+      !  --- WRITE OUT FULL SA MATRIX
       IF (F_WRTSA) THEN
          CALL FILEOPEN( 63, 1 )
          WRITE(63,*) TRIM(TAG), ' FULL INITIAL STATE VECTOR COVARIANCE N X N MATRIX'
          WRITE(63,*) NVAR, NVAR
-         WRITE(63,260) ADJUSTR(PNAME(:NVAR))
+         WRITE(63,260) (trim(ADJUSTL(PNAME(i))),I=1,NVAR)
          DO I=1,NVAR
             WRITE(63,261) (SA(I,J),J=1,NVAR)
          END DO
          CALL FILECLOSE( 63, 1 )
       ENDIF
-
+      
       RETURN
-
-  260 FORMAT( 2000( 12X, A14 ))
-  261 FORMAT( 2000ES26.18 )
-
-
-      END SUBROUTINE FILSA
-
+      
+260   FORMAT( 2000( 12X, A14 ))
+261   FORMAT( 2000ES26.18 )
+      
+      
+    END SUBROUTINE FILSA
 
 
 

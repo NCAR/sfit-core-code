@@ -32,6 +32,7 @@
       LOGICAL                         :: CONVERGE=.FALSE., DIVWARN=.FALSE.
 
       LOGICAL, DIMENSION(MOLMAX)      :: CORRELATE = .FALSE.  ! OFF-AXIS CORRELATION FOR PROFILE RETRIEVAL
+      CHARACTER (len=3), DIMENSION(MOLMAX)      :: REGMETHOD = 'OEM'  ! METHOD OF CONSTRAINT (OEM AND TP SUPPORTED)
       INTEGER                         :: NRPRFGAS             ! NR OF GASES RETRIEVED AS PROFILES
       LOGICAL, DIMENSION(MOLMAX)      :: IFPRF = .FALSE.      ! PROFILE RETRIEVAL
       LOGICAL, DIMENSION(MOLMAX)      :: IFPRF_KB = .FALSE.   ! PROFILE FOR KB MATRIX CALCULATION
@@ -112,6 +113,8 @@
       REAL(DOUBLE),  DIMENSION(2)     :: CPRES
       REAL(DOUBLE),  DIMENSION(2)     :: CVMR
       REAL(DOUBLE),  DIMENSION(2)     :: CPATH
+      REAL(DOUBLE), DIMENSION(MOLMAX) :: TPLAMBDA ! Regularisation strength
+                                                  ! for TP method
 
 
       CONTAINS
