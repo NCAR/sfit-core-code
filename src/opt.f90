@@ -728,6 +728,7 @@ SUBROUTINE GETSAINV( ISMIX )
                   SAINV(I+INDXX,J+INDXX) = TPMAT(I,J) / (TPLAMBDA(KK) * SQRT( SA(I+INDXX,I+INDXX)))
                END DO
             END DO
+            DEALLOCATE(TPMAT)
             WRITE(16,304) KK, REGMETHOD(KK)
          ELSE
             WRITE(16,303) KK, REGMETHOD(KK), IFOFF(KK)
