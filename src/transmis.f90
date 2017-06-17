@@ -62,11 +62,9 @@
 !            CCC(:nspec,K) = CORG(:nspec,K) * (TORG(K) / T(K) )
             ! reset to last iteration and update k
 
-            do kk = 1, npath  !kmax
-               CCC(:nspec,kk) = CORG(:nspec,kk) * ( TORG(kk) / T(KK) )
-!               print*, "masspath ",k, kk, T(kk), CCC(:nspec,kk)
-            enddo
-!            print *, T(npath), TORG(npath), CCC(:nspec,npath)
+!            do kk = 1, npath  !kmax
+!               CCC(:nspec,kk) = CORG(:nspec,kk) * ( TORG(kk) / T(KK) )
+!            enddo
             
 !print*, k, nspec, ccc(:nspec,k), T(K), TORG(k), CORG(:nspec,k)
 

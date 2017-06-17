@@ -487,6 +487,7 @@ END SUBROUTINE READLAYRS
 
       CALL ATMPTH( NSPEC+1, 999,  00.0D0, 6390.D0, 2500.D0, ITER, NLEV )
 
+      
       CALL CPU_TIME(TSTP)
 
       !WRITE(0,905)  "  RAYTRACE PROCESS TIME : ", TSTP-TSRT
@@ -2496,7 +2497,6 @@ END SUBROUTINE READLAYRS
            HMOD(3) = "TMOSPHER"
            CALL LNGMDL ( NMOL, IMMAX )
            TM0(:IMMAX) = TM(:IMMAX)
-
             !PRINT *, IREAD, LMAX, KMAX, IMMAX
             !PRINT *, ZMDL(:IMMAX)
             !PRINT *,''
@@ -2526,9 +2526,8 @@ END SUBROUTINE READLAYRS
             !PRINT *,''
             !write(*, '(3f10.3)') (x(im), y(im), y0(im), im=1, kmax+1)
 
-            ! CHANGE MODEL T TO PERTURBED T
-            CALL SPLINE (KMAX, X, Y, B, C, D)
-
+          ! CHANGE MODEL T TO PERTURBED T
+          CALL SPLINE (KMAX, X, Y, B, C, D)
             DO IM = 1, IMMAX
                TM(IM) = SEVAL (KMAX, ZMDL(IM), X, Y, B, C, D)
             ENDDO
@@ -2543,6 +2542,8 @@ END SUBROUTINE READLAYRS
            STOP '3'
         ENDIF
 
+!        print *, TM(:IMMAX)
+        
         IF( NOPRNT .GE. 0 )THEN
            WRITE(IPR,901)"CONVERT UNITS AND CALCULATE AMOUNTS & RH"
            WRITE(IPR,904)

@@ -435,7 +435,7 @@ end subroutine read_file_section
        read(value,*) f_ckd_continuum
     case ('continuum')
        if (len_trim(keyword(3)).eq.0) then
-          read(value,*) f_contabs
+          read(value,*) f_continuum
        else
           select case (trim(adjustl(keyword(3))))
           case ('type')
@@ -710,10 +710,14 @@ end subroutine read_file_section
     case ('dwshift')
        read(value, *) ifdiff
     case ('continuum')
-       select case (trim(adjustl(keyword(3))))
-       case ('sigma')
-          read(value,*) abscont_sparam(1)
-       end select
+       if (len_trim(keyword(3)).eq.0) then
+          read(value,*) f_contabs
+       else
+          select case (trim(adjustl(keyword(3))))
+          case ('sigma')
+             read(value,*) abscont_sparam(1)
+          end select
+       end if
     case default
        WRITE(16,*) 'BINPUT_PARSE_4_0:READ_RT_SECTION: Key ', trim(keyword(3)), ' not contained in section : rt'
        WRITE( 0,*) 'BINPUT_PARSE_4_0:READ_RT_SECTION: Key ', trim(keyword(3)), ' not contained in section : rt'

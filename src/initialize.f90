@@ -142,8 +142,8 @@
       NCROSS = SUM(NM(:NBAND))
       NMONSM = DOT_PRODUCT(NM(:NBAND),NSCAN(:NBAND))
 
-      ncont = 0
-      if (f_contabs) ncont = 1
+      NCONT = 0
+      IF (F_CONTINUUM) NCONT = 1
 
       ALLOCATE (CROSS(NRET+1+NCONT,KMAX+NCELL,NCROSS), STAT=NAERR)
       IF (NAERR /= 0) THEN
@@ -1016,7 +1016,7 @@
          END IF
       END IF
       ! CONTINUUM ABSORPTION
-      IF (F_CONTABS) THEN
+      IF (F_CONTINUUM) THEN
          IF (IEMISSION.EQ.0) THEN
             WRITE(*,*) 'CONTINUUM ABSORPTION ONLY WORKING IN EMISSION MODE.'
             WRITE(16,*) 'CONTINUUM ABSORPTION ONLY WORKING IN EMISSION MODE.'
@@ -1184,7 +1184,9 @@
                   READ( 62,* ) (SA( I+INDXX, J+INDXX), J=1, N)
                END DO
             CASE ( 0 )
-               PRINT *, ' PROFILE RETRIEVAL GAS: ', NAME(IGAS(KK)), ' NO OFF DIAGONAL VALUES SET.'
+               IF (REGMETHOD(KK).EQ.'OEM') THEN
+                  PRINT *, ' PROFILE RETRIEVAL GAS: ', NAME(IGAS(KK)), ' NO OFF DIAGONAL VALUES SET.'
+               END IF
             END SELECT
          ENDIF
          INDXX = INDXX + N
@@ -1221,7 +1223,7 @@
             END DO
          END DO
       ENDIF
-      WRITE(16,*) "REGULARISATION METHOD OEM"
+      WRITE(16,'(A22,A3)') "REGULARISATION METHOD"
          
          
       !  --- WRITE OUT FULL SA MATRIX
