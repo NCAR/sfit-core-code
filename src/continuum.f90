@@ -92,7 +92,7 @@ contains
           DO K = 1, KMAX-1
              IF ((z(k).ge.cont_z_abs).and.(z(k+1).le.cont_z_abs)) then
                 do j = mone,mxne
-                   CROSS(nret+2,K,j) = CROSS(nret+2,K,j) - cont_alpha
+                   CROSS(nret+2,K,j) = CROSS(nret+2,K,j) + cont_alpha
                 end do
              end IF
           end DO
