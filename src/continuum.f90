@@ -94,7 +94,11 @@ contains
              DO K = 1, KMAX-1
                 IF ((z(k).ge.cont_z_abs).and.(z(k+1).le.cont_z_abs)) then
                    do j = mone,mxne
-                      CROSS(nret+2,K,j) = CROSS(nret+2,K,j) + cont_alpha
+                      polynom = param(1)
+                      do l = 1,n_contabs-1
+                         polynom = polynom + param(l+1)*(((wone+dble(j)*dn(iband))-wmid)/(wxne-wone))**l
+                      end do
+                      CROSS(nret+2,K,j) = CROSS(nret+2,K,j) - polynom
                    end do
                 end IF
              end DO
