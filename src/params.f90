@@ -17,7 +17,7 @@
 !-----------------------------------------------------------------------------
 
       MODULE PARAMS
-      !Hi
+
 
       INTEGER, PARAMETER :: BYTE_LOG = SELECTED_INT_KIND(2)
       INTEGER, PARAMETER :: SHORT_LOG = SELECTED_INT_KIND(4)
