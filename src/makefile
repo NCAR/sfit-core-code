@@ -39,11 +39,15 @@ FFLAGS = -Warray-bounds -Wcharacter-truncation -Wunused-parameter \
 # -Warray-temporaries too many...
 
 #error check a lot
-#FFLAGS = -Wall -fno-automatic -fcheck=all -ffpe-trap=invalid,zero,overflow,underflow -Warray-bounds \
+FFLAGS = -Wall -fno-automatic -fcheck=all -ffpe-trap=invalid,zero,overflow,underflow -Warray-bounds \
          -fbounds-check -fbacktrace -g -ffree-line-length-none
 
 # optimize -Ofast v4.8
 FFLAGS = -O2 -Wall -fno-automatic -frepack-arrays  -ffree-line-length-none -mcmodel=large
+FFLAGS = -Wall -fno-automatic -frepack-arrays  -ffree-line-length-none
+
+# this flag did not work on OSX 10.11.5
+# -mcmodel=large
 
 # supply compile date:
 # -cpp -DBDATE="\"`date +%Y%m%d`"\" -O2 -fno-automatic
