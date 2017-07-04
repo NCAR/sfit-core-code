@@ -26,7 +26,6 @@
       USE molcparam
       USE lineparam
       USE continuum       
-      USE CKD_CONTINUUM
       
       IMPLICIT NONE
 
@@ -295,10 +294,9 @@
                               ENDDO
                            ENDIF
                         END IF
-                       IF (F_CKD_CONTINUUM) THEN
+                       IF (F_MTCKD) THEN
                           ! ATTACH H2O CONTINUUM ABSORPTION
-                          WAVE_NR = WSTART(IBAND) + (I-1)*DN(IBAND)
-                          TCALC(IPOINT,MSTOR) = TCALC(IPOINT,MSTOR) + CKD(JSCAN, K, WAVE_NR)
+                          TCALC(IPOINT,MSTOR) = TCALC(IPOINT,MSTOR) + MTCKD(1, K, ICINDX2)
                           IF (IEMISSION/=0) THEN
                              ! TRANSMISSION CALCULATED BELOW THE LAYER ALT, NEEDED
                              ! FOR CALCULATION OF CONTRIBUTION TO EMISSION FROM 
@@ -306,7 +304,7 @@
                              DO ALT=1,KSMAX2
                                 IF (ZBAR(ALT) > ZBAR(K)) THEN
                                    TCALC_E(IPOINT,MSTOR,ALT) = &
-                                        TCALC_E(IPOINT,MSTOR,ALT) + CKD(JSCAN, K, WAVE_NR)
+                                        TCALC_E(IPOINT,MSTOR,ALT) + MTCKD(1, K, ICINDX2)
                                 ENDIF
                              ENDDO
                           ENDIF
@@ -363,10 +361,9 @@
                              ENDDO
                           ENDIF
                        END IF
-                       IF (F_CKD_CONTINUUM) THEN
+                       IF (F_MTCKD) THEN
                           ! ATTACH H2O CONTINUUM ABSORPTION
-                          WAVE_NR = WSTART(IBAND) + (I-1)*DN(IBAND)
-                          TCALC(IPOINT,MSTOR) = TCALC(IPOINT,MSTOR) + CKD(JSCAN, K, WAVE_NR)
+                          TCALC(IPOINT,MSTOR) = TCALC(IPOINT,MSTOR) + MTCKD(1, K, ICINDX)
                           IF (IEMISSION/=0) THEN
                              ! TRANSMISSION CALCULATED BELOW THE LAYER ALT, NEEDED
                              ! FOR CALCULATION OF CONTRIBUTION TO EMISSION FROM 
@@ -374,7 +371,7 @@
                              DO ALT=1,KSMAX2
                                 IF (ZBAR(ALT) > ZBAR(K)) THEN
                                    TCALC_E(IPOINT,MSTOR,ALT) = &
-                                        TCALC_E(IPOINT,MSTOR,ALT) + CKD(JSCAN, K, WAVE_NR)
+                                        TCALC_E(IPOINT,MSTOR,ALT) + MTCKD(1, K, ICINDX)
                                 ENDIF
                              ENDDO
                           ENDIF

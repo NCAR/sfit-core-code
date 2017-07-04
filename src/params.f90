@@ -85,8 +85,12 @@
       REAL(DOUBLE), PARAMETER :: c_planck = 6.58211928D-34! Planck's constant
 
 
+! ********************************************************************
+!      parameters used ind h2o_continuum
+! ********************************************************************
 
-
+      integer, parameter :: N_ABSRB=5050, IPTS=5050, IPTS2=6000
+      real(double) , parameter  :: RADCN2 = 1.4387752 ! value from NIST.
 
 !  ********************************************************************
 !   CMPEPSILON is the epsilon used in floating point comparisons

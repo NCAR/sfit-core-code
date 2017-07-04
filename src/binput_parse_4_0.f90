@@ -31,7 +31,7 @@ module binput_parse_4_0
   use isotope
   use writeout
   use hitran
-  use ckd_continuum
+
 
   implicit none;
   save
@@ -431,8 +431,8 @@ end subroutine read_file_section
        end if
     case ('raytonly')
        read(value,*) raytonly
-    case ('h2o_continuum')
-       read(value,*) f_ckd_continuum
+    case ('mtckd_continuum')
+       read(value,*) f_mtckd
     case ('continuum')
        if (len_trim(keyword(3)).eq.0) then
           read(value,*) f_continuum
