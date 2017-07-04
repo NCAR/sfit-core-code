@@ -114,6 +114,10 @@
 
       END DO
 
+      if (F_MTCKD) call h2o_continuum()
+
+
+      
       !  --- Write out crossections per altitude and frequency
       if (.false.) then
          print *, 'write out crosssections'
@@ -221,7 +225,8 @@
 
                      ! --- DON'T APPLY SHIFT TO FIRST POINT
                      CROSS_FACMAS(1,K,MSTOR) = CROSS(1,K,ICINDX) * FACMAS
-
+                     
+                     
                      ! IF THERE IS AN LAYER WITH 0.0 VMR OF THE TARGET GAS
                      IF (XORG(1,K).GT.TINY(XORG(1,K))) THEN
                         TCALC(IPOINT,MSTOR) = TCALC(IPOINT,MSTOR) + (X(1,K)/XORG(1,K)) * CROSS_FACMAS(1,K,MSTOR)
@@ -304,7 +309,7 @@
                              DO ALT=1,KSMAX2
                                 IF (ZBAR(ALT) > ZBAR(K)) THEN
                                    TCALC_E(IPOINT,MSTOR,ALT) = &
-                                        TCALC_E(IPOINT,MSTOR,ALT) + MTCKD(1, K, ICINDX2)
+                                        TCALC_E(IPOINT,MSTOR,ALT) + MTCKD(1, ALT, ICINDX2)
                                 ENDIF
                              ENDDO
                           ENDIF
@@ -371,7 +376,7 @@
                              DO ALT=1,KSMAX2
                                 IF (ZBAR(ALT) > ZBAR(K)) THEN
                                    TCALC_E(IPOINT,MSTOR,ALT) = &
-                                        TCALC_E(IPOINT,MSTOR,ALT) + MTCKD(1, K, ICINDX)
+                                        TCALC_E(IPOINT,MSTOR,ALT) + MTCKD(1, ALT, ICINDX)
                                 ENDIF
                              ENDDO
                           ENDIF

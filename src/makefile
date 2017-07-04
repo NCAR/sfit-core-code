@@ -44,7 +44,7 @@ FFLAGS = -Warray-bounds -Wcharacter-truncation -Wunused-parameter \
          -fbounds-check -fbacktrace -g -ffree-line-length-none
 
 # optimize -Ofast v4.8
-FFLAGS = -g -Wall -fno-automatic -frepack-arrays  -ffree-line-length-none -mcmodel=medium
+FFLAGS = -g -Wall -fno-automatic -frepack-arrays  -ffree-line-length-none -mcmodel=medium -fdefault-double-8 -fdefault-real-8
 
 # supply compile date:
 # -cpp -DBDATE="\"`date +%Y%m%d`"\" -O2 -fno-automatic
@@ -171,7 +171,7 @@ mt-ckd-cont.o\
 : params.o bandparam.o retvparam.o
 
 continuum.o\
-: params.o xsections.o retvparam.o
+: params.o xsections.o retvparam.o 
 
 
 datafiles.o \

@@ -247,11 +247,12 @@ SUBROUTINE CONTNM(JRAD)
 !                                                                       
       RHOAVE = (PAVE/P0)*(T0/TAVE)                                      
       XKT = TAVE/RADCN2                                                 
-                                                                        
+
+      
 !     the amagat value is used for the broadenening component for a
 !     number of the collision induced continua                                 
 !                                                                       
-      amagat = (Pave/P0)*(273./Tave)                                    
+      amagat = (Pave/P0)*(273.0d0/Tave)                                    
 !                                                                       
       WTOT = WBROAD                                                     
       DO 10 M = 1, NMOL_C                                                 
@@ -325,7 +326,8 @@ SUBROUTINE CONTNM(JRAD)
       h2o_fac  = WK(1)/Wtot                                             
       Rself    =     h2o_fac  * RHOave * 1.e-20 * xself                 
       Rfrgn    = (1.-h2o_fac) * RHOave * 1.e-20 * xfrgn                 
-      Rfrgn_aj =     h2o_fac  * RHOave * 1.e-20 * xfrgn                 
+      Rfrgn_aj =     h2o_fac  * RHOave * 1.e-20 * xfrgn
+
 !                                                                       
 !=======================================================================
 !                                                                       
@@ -408,7 +410,7 @@ SUBROUTINE CONTNM(JRAD)
                dvh=DVC                                                  
                npth=NPTC                                                
 !                                                                       
-               csh2o(j)=1.e-20 * sh2o * xself                           
+               csh2o(j)=1.e-20 * sh2o * xself
 !********************************************                           
 !                                                                       
 !              ---------------------------------------------------------
@@ -421,7 +423,7 @@ SUBROUTINE CONTNM(JRAD)
 !                                                                       
 !           Interpolate to total optical depth grid                     
                                                                         
-            CALL XINT (V1C,V2C,DVC,cself,1.0,V1ABS,DVABS,ABSRB,1,NPTABS)
+               CALL XINT (V1C,V2C,DVC,cself,1.0,V1ABS,DVABS,ABSRB,1,NPTABS)
                                                                         
          endif                                                          
 !                                                                       
