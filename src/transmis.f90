@@ -98,7 +98,10 @@
 
       INTEGER :: MONONE, MXONE, IBAND, N, KSMAX2, IR, K, I
       REAL(DOUBLE), DIMENSION(:),   ALLOCATABLE :: cross_all
-      
+
+      IF (F_MTCKD) CALL H2O_CONTINUUM()
+
+
       MONONE = 1
       MXONE  = 1
 !  --- COMPUTE MONOCHROMATIC TRANSMITTANCES FOR ALL SCANS
@@ -113,9 +116,6 @@
          MXONE  = MXONE  + NM(IBAND)
 
       END DO
-
-      if (F_MTCKD) call h2o_continuum()
-
 
       
       !  --- Write out crossections per altitude and frequency
@@ -302,6 +302,8 @@
                        IF (F_MTCKD) THEN
                           ! ATTACH H2O CONTINUUM ABSORPTION
                           TCALC(IPOINT,MSTOR) = TCALC(IPOINT,MSTOR) + MTCKD(1, K, ICINDX2)
+                          
+                         
                           IF (IEMISSION/=0) THEN
                              ! TRANSMISSION CALCULATED BELOW THE LAYER ALT, NEEDED
                              ! FOR CALCULATION OF CONTRIBUTION TO EMISSION FROM 
@@ -369,6 +371,7 @@
                        IF (F_MTCKD) THEN
                           ! ATTACH H2O CONTINUUM ABSORPTION
                           TCALC(IPOINT,MSTOR) = TCALC(IPOINT,MSTOR) + MTCKD(1, K, ICINDX)
+
                           IF (IEMISSION/=0) THEN
                              ! TRANSMISSION CALCULATED BELOW THE LAYER ALT, NEEDED
                              ! FOR CALCULATION OF CONTRIBUTION TO EMISSION FROM 
@@ -595,6 +598,118 @@
       RETURN
       
     END SUBROUTINE GASNTRAN
+
+    !--------------------------------------------------------------------------------
+   SUBROUTINE MTCKDTRAN( IBAND, JMIN, IPOINT, MONONE, MXONE)
+
+!     COMPUTE MONOCHROMATIC TRANSMITTANCES AT EACH WAVELENGTH
+!     FOR BANDPASS IBAND FOR THE MTCKD CONTINUUM.
+!     TRANMSITTANCES ARE COMPUTED FOR SPECTRA
+!     BETWEEN SPECTRUM ISCAN(IBAND,JMIN) AND ISCAN(IBAND,NSCAN(IBAND)).
+!
+!          IBAND=BAND PASS NUMBER
+!          JSCAN=ISCAN(IBAND,J)=SPECTRUM NUMBER FOR CALCULATIONS
+!          IPOINT,MONONE-INDICES IN TCALC ARRAY FOR CALCULATED TRANSMITTANCES
+
+      INTEGER :: IR
+      INTEGER :: IBAND
+      INTEGER :: JMIN
+      INTEGER :: IPOINT
+      INTEGER :: MONONE
+      INTEGER :: MXONE
+
+      INTEGER :: NMON, NSCANS, KSMAX2, K, JSCAN,ICINDX, MSTOR, MXMAX, J, MADD, I, ALT
+      REAL(DOUBLE) :: FACMAS, XFAC, WAVE_NR
+
+
+!  --- NMON=NUMBER OF MONOCHROMATIC POINTS FOR THE BANDPASS CALCULATION
+      NMON   = NM(IBAND)
+      NSCANS = NSCAN(IBAND)
+
+!  --- ZERO APPROPRIATE TRANSMISSION ARRAY ELEMENTS FOR CROSS SECTION
+!  ---  CALCULATIONS
+      MADD = MONONE
+!  --- MAXIMUM LAYER FOR SUMMING CROSS SECTIONS CALCULATIONS
+      KSMAX2 = KZTAN(ISCAN(IBAND,NSCANS))
+
+      TCALC(IPOINT,MADD:NMON-1+MADD) = 0.D0
+      TCALC_E(IPOINT,MADD:NMON-1+MADD,:KMAX+1) = 0.D0
+      TCALC_S(IPOINT,MADD:NMON-1+MADD,:KMAX)   = 0.D0
+
+
+!                   ------------LOOP OVER LAYERS
+      DO K = 1, KSMAX2
+         MADD = MONONE
+
+         JSCAN = ISCAN(IBAND,JMIN)
+         IF (K <= KZTAN(JSCAN)) THEN
+            XFAC = 1.0D0
+            !                   ------------LOOP OVER FREQUENCIES
+            DO J = 1, NMON
+               ICINDX = MXONE + J - 1
+               MSTOR = MADD + J - 1
+               WAVE_NR = WSTART(IBAND) + (J-1)*DN(IBAND)
+               TCALC(IPOINT,MSTOR) = TCALC(IPOINT,MSTOR) + MTCKD(1, K, ICINDX)
+               print *, TCALC(IPOINT,MSTOR)
+
+               
+               IF (IEMISSION.EQ.1) THEN
+                  ! Transmission calculated below the layer ALT, needed
+                  ! for calculation of contribution to emission from
+                  ! layer ALT to the ground
+                  TCALC_E(IPOINT,MSTOR,KSMAX2) = 0.0D0
+                  DO ALT=1,KSMAX2
+                     IF (ZBAR(ALT) > ZBAR(K)) THEN
+                        TCALC_E(IPOINT,MSTOR,ALT) = &
+                             TCALC_E(IPOINT,MSTOR,ALT) + MTCKD(1,ALT,ICINDX)
+                     END IF
+                  END DO
+               END IF
+            END DO
+         ENDIF
+      END DO
+      !  --- COMPUTE MONOCHROMATIC TRANSMITTANCES FROM CROSS SECTION SUMS
+      MADD = MONONE
+      DO I = 1, NMON
+         WAVE_NR = WSTART(IBAND) + (i-1)*DN(IBAND)
+         if( ABS( TCALC(IPOINT,MADD+I-1)) .GT. 664.0 ) THEN
+            ! LIMIT SO ONLY GET EXPONENT < 300
+            TCALC(IPOINT,MADD+I-1) = 664.0d0
+         ENDIF
+         if (IEMISSION.EQ.1) then
+            DO ALT=1,KSMAX2
+               IF( ABS( TCALC_E(IPOINT,MADD+I-1,ALT)) .GT. 664.0 ) THEN
+                  ! LIMIT SO ONLY GET EXPONENT < 300
+                  TCALC_E(IPOINT,MADD+I-1,ALT) = 664.0d0
+               ENDIF
+
+               TCALC_E(IPOINT,MAdd+i-1,ALT) = exp(-TCALC_E(IPOINT,Madd+i-1,ALT))
+            end DO
+            TCALC(IPOINT, MADD+I-1) = 0.0D0
+                             ! Background
+            !                  TCALC(IPOINT, MADD+I-1) &
+            !                       = PLANCK(WAVE_NR,EMISSION_T_BACK) !&
+            !* EXP((-TCALC(IPOINT,MADD+I-1)))
+            TCALC_E(IPOINT,MADD+I-1,KMAX+1) = TCALC(IPOINT, MADD+I-1)
+            TCALC_S(IPOINT, MADD+I-1, 1)=0.D0
+            DO K=2,KSMAX2
+               ! Calculates the spectrum, Planck is the emission of a black body at the temperature
+               ! of T(K) in layer K,
+               ! TCALC_E(IPOINT,MADD+I-1,K) - TCALC_E(IPOINT,MADD+I-1,K-1) is the absorption
+               ! of the layer K alone
+               TCALC_S(IPOINT, MADD+I-1, K) = PLANCK(WAVE_NR,T(K))&
+                    *(TCALC_E(IPOINT,MADD+I-1,K) - TCALC_E(IPOINT,MADD+I-1,K-1))
+               ! TCALC contains the spectrum
+               TCALC(IPOINT, MADD+I-1) = TCALC(IPOINT, MADD+I-1) &
+                    + TCALC_S(IPOINT, MADD+I-1, K)
+            end DO
+         else
+            TCALC(IPOINT,MADD+I-1) = EXP((-TCALC(IPOINT,MADD+I-1)))
+         end if
+      endDO
+      RETURN
+      
+    END SUBROUTINE MTCKDTRAN
 
 !---------------------------------------------------------------------------
       SUBROUTINE ZERONTRAN(IBAND, IPOINT, MONONE)

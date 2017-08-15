@@ -200,8 +200,9 @@ contains
 !          print *, absrb(1:nmon)
 
           mtckd(1, k, mxone:mxone+nmon) = absrb(1:nmon)
-          mxone = mxone + nmon
+!          print *, k, mxone,mxone+nmon
        end do
+       mxone = mxone + nmon
     end do
     
   end subroutine h2o_continuum
