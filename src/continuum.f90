@@ -115,12 +115,13 @@ contains
     ! It is a wrapper for the MT-CKD continuum and sets up the variables for
 
     implicit none
-    integer iband,k, kk, mxone, nmon, kvert, nptabs
-    real (double) :: wtot, wa, wn2, vmrh2o,w_dry
+    integer iband,i, k, kk, mxone, nmon, kvert, nptabs, ksmax2
+    CHARACTER*8      XID,       HMOLID,      YID 
+    real (double) :: wtot, wa, wn2, vmrh2o,w_dry, vi
     real (double) :: V1ABS,V2ABS,DVABS,ABSRB,xlength
-    real (double) :: XID,SECANT,PAVE,TAVE,HMOLID,XALTZ
+    real (double) :: SECANT,PAVE,TAVE,XALTZ
     real (double) :: WK,PZL,PZU,TZL,TZU,WBROAD,DV,V1 ,V2 ,TBOUND
-    real (double) :: EMISIV,FSCDID,NMOL_C,LAYER ,YI1,YID,LSTWDF
+    real (double) :: EMISIV,FSCDID,NMOL_C,LAYER ,YI1,LSTWDF
     real (double) :: XSELF,XFRGN,XCO2C,XO3CN,XO2CN,XN2CN,XRAYL 
     COMMON /ABSORB/ V1ABS,V2ABS,DVABS,NPTABS,ABSRB(n_absrb)
     COMMON /FILHDR/ XID(10),SECANT,PAVE,TAVE,HMOLID(60),XALTZ(4),     &
@@ -130,8 +131,11 @@ contains
 
     kvert = nspec + 1
     mxone = 1
+
+    ksmax2 = kztan(iscan(1,1))
+    
     do iband = 1, nband
-       do k = 1, kmax-1
+       do k = 1, ksmax2
           pave = p(k)*1013.15d0 ! convert in mbar
           tave = t(k)
           xlength = abs((z(k+1) - z(k))*10000.0d0) !thickness needed in cm
@@ -188,18 +192,24 @@ contains
              
           nmon = nm(iband)
           v1abs = wstart(iband)
-          v2abs = wstart(iband) + nmon*spac(iband)
-          dvabs = spac(iband)
-          nptabs = nmon
+          v2abs = wstart(iband) + nm(iband)*dn(iband)
+          dvabs = dn(iband)
+          nptabs = nm(iband)
           v1 = v1abs
           v2 = v2abs
           xself(1:7) = 1.0d0
-!          print *, pave, tave, xlength, wk(1), wk(2), wk(3), wk(7)
+          xlength = 1.0d0
+          print *, pave, tave, xlength, wa, wn2, wk(1:7)
           call contnm(1)
 
-!          print *, absrb(1:nmon)
-
-          mtckd(1, k, mxone:mxone+nmon) = absrb(1:nmon)
+          open(10, file='h2ocont')
+          DO 100 I=1,NPTABS
+             VI=V1ABS+dble(I-1)*DVABS
+100          WRITE (10, 910) VI, ABSRB(I) 
+910          FORMAT(F10.3,1P,E12.3)
+             close(10)
+             
+          mtckd(1, k, mxone:mxone+nm(iband)) = absrb(1:nm(iband))
 !          print *, k, mxone,mxone+nmon
        end do
        mxone = mxone + nmon

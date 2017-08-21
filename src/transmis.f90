@@ -101,7 +101,7 @@
 
       IF (F_MTCKD) CALL H2O_CONTINUUM()
 
-
+      
       MONONE = 1
       MXONE  = 1
 !  --- COMPUTE MONOCHROMATIC TRANSMITTANCES FOR ALL SCANS
@@ -299,23 +299,23 @@
                               ENDDO
                            ENDIF
                         END IF
-                       IF (F_MTCKD) THEN
-                          ! ATTACH H2O CONTINUUM ABSORPTION
-                          TCALC(IPOINT,MSTOR) = TCALC(IPOINT,MSTOR) + MTCKD(1, K, ICINDX2)
-                          
-                         
-                          IF (IEMISSION/=0) THEN
-                             ! TRANSMISSION CALCULATED BELOW THE LAYER ALT, NEEDED
-                             ! FOR CALCULATION OF CONTRIBUTION TO EMISSION FROM 
-                             ! LAYER ALT TO THE GROUND 
-                             DO ALT=1,KSMAX2
-                                IF (ZBAR(ALT) > ZBAR(K)) THEN
-                                   TCALC_E(IPOINT,MSTOR,ALT) = &
-                                        TCALC_E(IPOINT,MSTOR,ALT) + MTCKD(1, ALT, ICINDX2)
-                                ENDIF
-                             ENDDO
-                          ENDIF
-                       END IF
+                        IF (F_MTCKD) THEN
+                           ! ATTACH H2O CONTINUUM ABSORPTION
+                           TCALC(IPOINT,MSTOR) = TCALC(IPOINT,MSTOR) + MTCKD(1, K, ICINDX2)
+                           
+                           
+                           IF (IEMISSION/=0) THEN
+                              ! TRANSMISSION CALCULATED BELOW THE LAYER ALT, NEEDED
+                              ! FOR CALCULATION OF CONTRIBUTION TO EMISSION FROM 
+                              ! LAYER ALT TO THE GROUND 
+                              DO ALT=1,KSMAX2
+                                 IF (ZBAR(ALT) > ZBAR(K)) THEN
+                                    TCALC_E(IPOINT,MSTOR,ALT) = &
+                                         TCALC_E(IPOINT,MSTOR,ALT) + MTCKD(1, ALT, ICINDX2)
+                                 ENDIF
+                              ENDDO
+                           ENDIF
+                        END IF
                      ELSE
                         ! ------------LOOP OVER RETRIEVAL GASES
                         DO IR = 2, NRET
@@ -465,7 +465,6 @@
                     TCALC(IPOINT,MADD+I-1) = 664.0D0
                  ENDIF
                  TCALC(IPOINT,MADD+I-1) = EXP((-TCALC(IPOINT,MADD+I-1)))
-!print*, ipoint, madd+i-1,TCALC(IPOINT,MADD+I-1)
               END DO
            ENDIF
            MADD = MADD + NM(IBAND)
@@ -650,7 +649,6 @@
                MSTOR = MADD + J - 1
                WAVE_NR = WSTART(IBAND) + (J-1)*DN(IBAND)
                TCALC(IPOINT,MSTOR) = TCALC(IPOINT,MSTOR) + MTCKD(1, K, ICINDX)
-               print *, TCALC(IPOINT,MSTOR)
 
                
                IF (IEMISSION.EQ.1) THEN
