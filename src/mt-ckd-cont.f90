@@ -26,7 +26,7 @@
 !
 SUBROUTINE CONTNM(JRAD) 
   !
-  use params, only: n_absrb, ipts, ipts2, radcn2
+  use params, only: n_absrb, ipts, ipts2, radcn2, double
   !      Use lblparams, ONLY: n_absrb, ipts, ipts2
   !      USE phys_consts, ONLY: radcn2
   IMPLICIT REAL*8           (V) 
@@ -53,6 +53,14 @@ SUBROUTINE CONTNM(JRAD)
        &              NLTEFL,LNFIL4,LNGTH4                                
                                                                         
   common /cntscl/ XSELF,XFRGN,XCO2C,XO3CN,XO2CN,XN2CN,XRAYL 
+    real (double) :: wtot, wa, wn2, vmrh2o,w_dry, vi
+    real (double) :: V1ABS,V2ABS,DVABS,ABSRB,xlength
+    real (double) :: PAVE,TAVE
+    real (double) :: WK,PZL,PZU,TZL,TZU,WBROAD,DV,V1 ,V2 ,TBOUND
+    real (double) :: EMISIV,FSCDID,NMOL_C,LAYER ,YI1,LSTWDF
+    real (double) :: XSELF,XFRGN,XCO2C,XO3CN,XO2CN,XN2CN,XRAYL 
+
+
   !                                                                       
   !------------------------------------                                   
   ! for analytic derivative calculation                                   
@@ -248,6 +256,9 @@ SUBROUTINE CONTNM(JRAD)
       RHOAVE = (PAVE/P0)*(T0/TAVE)                                      
       XKT = TAVE/RADCN2                                                 
 
+
+      print *, pave, tave, xlength, wa, wn2, wk(1:7)
+      
       
 !     the amagat value is used for the broadenening component for a
 !     number of the collision induced continua                                 

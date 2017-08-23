@@ -43,8 +43,8 @@ FFLAGS = -Warray-bounds -Wcharacter-truncation -Wunused-parameter \
 #FFLAGS = -Wall -fno-automatic -fcheck=all -ffpe-trap=invalid,zero,overflow,underflow -Warray-bounds \
          -fbounds-check -fbacktrace -g -ffree-line-length-none
 
-# optimize -Ofast v4.8
-FFLAGS = -O2 -Wall -fno-automatic -frepack-arrays  -ffree-line-length-none -mcmodel=large
+
+FFLAGS = -O2 -Wall -fno-automatic -frepack-arrays  -ffree-line-length-none -mcmodel=large -fdefault-double-8 -fdefault-real-8 
 
 
 # supply compile date:
