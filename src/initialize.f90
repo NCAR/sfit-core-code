@@ -99,6 +99,10 @@
 
       CALL GETSPEC()
 
+      IF (F_MEAS_TRANSMIS) THEN
+         CALL GETFILTERTRANSMISSION()
+      END IF
+      
       WRITE(16,105) NATMOS
 
 !  --- COMPUTE INTERVAL FOR MONOCHROMATIC CALCULATIONS FOR EACH BANDPASS
@@ -415,6 +419,47 @@
 
       END SUBROUTINE SETUP3
 
+!-------------------------------------------------------------------------------
+      SUBROUTINE GETFILTERTRANSMISSION()
+        ! READS THE FILTER TRANSMISSION CURVE
+        ! THE FILE IS BASICALLY IN THE SAME FORMAT AS THE SPECTRAL FILE, BUT THE HEADER LINES
+        ! ARE IGNORED. ALSO, ONLY ONE MICROWINDOW IS ALLOWED
+
+        INTEGER            :: NPFILE, I
+        REAL(DOUBLE)       :: WHI, WLOW, SPACE, R4AMP
+        CHARACTER(LEN = 80):: TITLE
+        
+        
+        CALL FILEOPEN( 96, 3 )
+        READ(96, 888) TITLE
+        READ(96, 888) TITLE
+        READ(96, 888) TITLE
+
+        READ (96, *) WLOW, WHI, SPACE, NUM_FILTER
+
+        WRITE(16,*) "TRANSMISSION CURVE READ IN: ", TRIM(TITLE)
+        WRITE(0,*) "TRANSMISSION CURVE READ IN: ", TRIM(TITLE)
+
+        ALLOCATE(FILTERTRANS(2,NUM_FILTER))
+
+        print *, WLOW
+        DO I = 1, NUM_FILTER
+           READ (96, *) R4AMP
+           IF (ISNAN(R4AMP))THEN
+              WRITE(16,*) "NAN DETECTED IN TAPE 96 (FILTER TRANSMISSION)"
+              WRITE(0,*) "NAN DETECTED IN TAPE 96 (FILTER TRANSMISSION)"
+              CALL SHUTDOWN
+              STOP 2
+           END IF
+           FILTERTRANS(1,I) = WLOW + REAL((I - 1),8)*SPACE
+           FILTERTRANS(2,I) = R4AMP
+        ENDDO
+        
+        CALL FILECLOSE(96,2)
+        
+888     FORMAT(A80)
+      END SUBROUTINE GETFILTERTRANSMISSION
+        
 !-------------------------------------------------------------------------------
 
       SUBROUTINE GETSPEC( )

@@ -73,6 +73,8 @@
 !                              TFIL92, &      ! AB MATRIX
 !                              TFIL93, &      ! GAIN MATRIX
 !                              TFIL94, &      ! xsections per altitude and spectral point
+!                              TFIL95, &      ! sum of xsections
+!                              TFIL96, &      ! measured transmission of the instrument (filter curve)
 !                              LINDIR, &
 
       INTEGER :: NCHAR
@@ -238,6 +240,9 @@
 
 ! --- xsection_sum
       TFILE(95) = 'xsections_sum.dat'
+
+! --- filter transmission
+      TFILE(96) = 'filter_transmission.dat'
 
       RETURN
 

@@ -461,6 +461,7 @@
                CALL FSPEC1 (IBAND, MONONE, MXONE)
                CALL FSPEC2 (IBAND, MONONE, PHI)
 
+               
 !  --- COMPUTE RESIDUALS
    16          CONTINUE
 
@@ -481,9 +482,19 @@
                   TCALI = TCALL + FRACS*(TCALH - TCALL)
                   YS = (J - 1)*SPAC(IBAND)
                   WAVE_X(JATMOS) = YS + WSTART(IBAND)
+
+                  
+                  ! CALCULATES (RETRIEVED) FILTER TRANSMISSION CURVE
                   BKGND = B(1)*(1.0D0 + B(2)*YS+B(3)*YS*YS)
                   BKGND = BKGND*(1.0D0/(1.0D0 + ZSHIFT(IBAND,JSCAN)))
 
+
+                  !Applies measured transmission to the synthetic spectrum
+                  
+                  if (F_MEAS_TRANSMIS) THEN
+                     TCALI = TCALI * FTRANS(WAVE_X(JATMOS))
+                  END if
+                  
 !-- FIT CHANNEL PARMS IF NEEDED ----------------------------------------!PWJ
 
                   IF (NBEAM_OF_BAND(IBAND) /= 0) THEN
