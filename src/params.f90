@@ -32,8 +32,8 @@
 
 !  --- VERSION STRING - NO SPACES: USE AS FIRST WORD IN OUTPUT FILE TAG
 !      CHARACTER(len=10) :: BUILDDATE = BDATE
-      CHARACTER (LEN=15),  PARAMETER :: VERSION1 = 'SFIT4:v0.9.6.3'
-      CHARACTER (LEN=100),  PARAMETER :: VERSION2 = ':Pre-Release -- April 2016'
+      CHARACTER (LEN=15),  PARAMETER :: VERSION1 = 'SFIT4:v0.9.6.4'
+      CHARACTER (LEN=100),  PARAMETER :: VERSION2 = ':Pre-Release -- June 2017'
       CHARACTER (LEN=255) :: VERSION = VERSION1//VERSION2
       CHARACTER (LEN=255)            :: TAG              ! OUTPUT FILE TAG IS VERSION + RUNTIME
 
@@ -50,7 +50,7 @@
       INTEGER, PARAMETER :: LAYMAX = 100          ! MAXIMUM NUMBER OF ATMOSPHERIC LAYERS
       INTEGER, PARAMETER :: MAXSPE = 40           ! MAXIMUM NUMBER OF SPECTRA (SCANS)
       INTEGER, PARAMETER :: MAXGAS = 99          ! MAXIMUM NUMBER OF GASES IN BANDPASS
-      INTEGER, PARAMETER :: LNMAX = 8*131072      ! MAXIMUM NUMBER OF LINES
+      INTEGER, PARAMETER :: LNMAX = 16*131072      ! MAXIMUM NUMBER OF LINES
       INTEGER, PARAMETER :: MAXPRF = 10            ! MAXIMUM NUMBER OF PROFILE RETRIEVALS
       INTEGER, PARAMETER :: MAXBND = 125          ! MAXIMUM NUMBER OF BANDPASSES
 !      INTEGER MAXCROSS                           ! MAXIMUM NUMBER OF MONOCHROMATIC
@@ -85,8 +85,12 @@
       REAL(DOUBLE), PARAMETER :: c_planck = 6.58211928D-34! Planck's constant
 
 
+! ********************************************************************
+!      parameters used ind h2o_continuum
+! ********************************************************************
 
-
+      integer, parameter :: N_ABSRB=5050, IPTS=5050, IPTS2=6000
+      real(double) , parameter  :: RADCN2 = 1.4387752 ! value from NIST.
 
 !  ********************************************************************
 !   CMPEPSILON is the epsilon used in floating point comparisons

@@ -72,6 +72,7 @@
 !                              TFIL91, &      ! SPECTRA BY ITERATION
 !                              TFIL92, &      ! AB MATRIX
 !                              TFIL93, &      ! GAIN MATRIX
+!                              TFIL94, &      ! xsections per altitude and spectral point
 !                              LINDIR, &
 
       INTEGER :: NCHAR
@@ -231,6 +232,12 @@
 
 ! --- DY
       TFILE(93) = 'd.complete'
+
+! --- xsection
+      TFILE(94) = 'xsections.dat'
+
+! --- xsection_sum
+      TFILE(95) = 'xsections_sum.dat'
 
       RETURN
 

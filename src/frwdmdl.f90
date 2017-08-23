@@ -37,9 +37,9 @@
       CHARACTER (LEN=7), DIMENSION(MOLMAX) :: SDV_GAS
       CHARACTER (LEN=7), DIMENSION(MOLMAX) :: LM_GAS
 
-      CONTAINS
-
-!------------------------------------------------------------------------------
+    CONTAINS
+      
+      !------------------------------------------------------------------------------
       SUBROUTINE FM(XN, YN, KN, NFIT, NVAR, KFLG, ITER, TFLG )
 
       IMPLICIT NONE
@@ -246,11 +246,11 @@
                DO K = 1,N_CONTABS
                   CONT_PARAM(K) = PARM(NCOUNT+K)
                END DO
-               CALL CALC_CONTINUUM(CONT_PARAM)
                TALL_FLAG = .TRUE.
             END IF
             NCOUNT = NCOUNT + N_CONTABS
          END IF
+         CALL CALC_CONTINUUM(CONT_PARAM)
 
 
 !  ---  UPDATE VMRS OF RETRIEVAL GASES
@@ -309,16 +309,17 @@
                TRET = .TRUE.
                !T(:KMAX) = PARM(NCOUNT+1:NCOUNT+KMAX) * TORG(:KMAX)
                !NCOUNT = NCOUNT + KMAX
-               T(:NPATH) = PARM(NCOUNT+1:NCOUNT+NPATH) * TORG(:NPATH)
-               NCOUNT = NCOUNT + NPATH
-               !CALL LBLATM( ITER, KMAX )
+!               T(:NPATH) = PARM(NCOUNT+1:NCOUNT+NPATH) * TORG(:NPATH)
+               CALL LBLATM( ITER, KMAX )
                !IF (K .GT. KMAX) K = KMAX
                IF (K .GT. NPATH) K = NPATH
                CALL MASSPATH( K )
-               CALL SETUP3( XSC_DETAIL, K )
+               CALL SETUP3( XSC_DETAIL, k )
             ENDIF ! K
+            NCOUNT = NCOUNT + NPATH
          ENDIF ! IFTEMP
 
+         !         print *, IPARM, PNAME(IPARM), PARM(IPARM), T(KMAX), CCC(1,KMAX)
 
 ! --- UPDATE TO SOLAR SPECTRAL CALCULATIONS - ALL BANDS AT ONCE
          IF (NSOLAR /= 0) THEN
@@ -613,7 +614,7 @@
                   CLOSE (80)
 
 !  --- Continuum absorption if calculated
-                  if (f_contabs) then
+                  if (F_CONTINUUM) then
                      call GASNTRAN(NRET+2,IBAND,JSCAN,2,MONONE,MXONE)
 !                     CALL CONTNTRAN( IBAND,JSCAN,2,MONONE,MXONE )
                      !  --- COMPUTE FFTS

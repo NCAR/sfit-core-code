@@ -324,7 +324,7 @@ real(8) function bc2( sp, wavelength, n, wmid, vflag, noise ) result (zero)
 
       integer(4),    intent (in)    :: n, vflag
       real   (8),    intent (in)    :: wavelength(:)
-      real   (4),    intent (inout) :: sp(:)
+      real   (8),    intent (inout) :: sp(:)
       real   (8),    intent (in)    :: wmid
       real   (8),    intent (out)   :: noise
 
@@ -732,11 +732,11 @@ end function bc2
 subroutine ratio( outspec, wstart, dnue, np )
 
    integer, intent(inout)                         :: np
-   real (kind=4), dimension(np), intent(inout)    :: outspec
+   real (kind=8), dimension(np), intent(inout)    :: outspec
    real (kind=8), intent(inout)                   :: dnue, wstart
 
    character (len=80)                             :: rtitl
-   real      (kind=4), dimension(:), allocatable  :: rmp, rwv, wavs
+   real      (kind=8), dimension(:), allocatable  :: rmp, rwv, wavs
    real      (kind=8)                             :: rlo, rhi, rspac, y !interp, y
    integer   (kind=4)                             :: i, iil, rpts, startpt, endpt
    integer   (kind=4), dimension(1)               :: ilow
@@ -855,8 +855,8 @@ subroutine sincinterp ( inspec, outspec, n, wlow, space, opdmax, nterp, vflag )
    integer (4), intent(in)                 :: nterp, vflag
    integer (4), intent(inout)              :: n
    real    (8), intent(inout)              :: wlow, space, opdmax
-   real    (4), dimension(n),  intent(in)  :: inspec
-   real    (4), dimension(:), allocatable, intent(out) :: outspec
+   real    (8), dimension(n),  intent(in)  :: inspec
+   real    (8), dimension(:), allocatable, intent(out) :: outspec
 
    integer (4) :: nofpts_in, nofpts_out, sincradius, nmaxsinc, ninterpol
    integer (4) :: i, j, npos
@@ -989,14 +989,14 @@ subroutine kpno( opdmax, wl1, wl2, roe, lat, lon, nterp, rflag, oflag, zflag, vf
 
    character (len=80)  :: title, bfile
    character (len=1)   :: loc
-   real      (4), dimension(:), allocatable :: amps, outspec
+   real      (8), dimension(:), allocatable :: amps, outspec
    real      (8), dimension(:), allocatable :: wavs, awavs
    integer   (4), dimension(1)              :: ilow, ihi
    real      (8) :: opdmax, wlow, whi, spac, wlim1, wlim2, wl1, wl2, wstart, dnue, roe, noise, peak
    logical       :: writezero
    integer   (4) :: npfile, i, iil, iih, np, nterp, rflag, bflag, oflag, vflag
    integer       :: yy, mm, dd, hh, nn, ss
-   real      (4) :: sza, azm, dur, res, fov
+   real      (8) :: sza, azm, dur, res, fov
    real      (8) :: lat, lon, pspc, tag, wmid, zero, zflag, snr
 
    writezero = .false.
@@ -1458,9 +1458,9 @@ real(8) function interp( rmp, rspac, rwv, wav )
 
    implicit none
 
-   real(4), dimension(5) :: rmp
+   real(8), dimension(5) :: rmp
    real(8) :: rspac, a,b,c,d,e,f,g,h,j,k,n
-   real(4) :: rwv, wav
+   real(8) :: rwv, wav
 
    !print *, wav, rwv, rspac, rmp
    n = (wav-rwv)/rspac
@@ -1495,7 +1495,7 @@ subroutine calcsnr( wavs, amps, npfile, wlim1, wlim2, spac, opdmax, nterp, noise
 
    integer   (4), intent(in)    :: npfile, nterp, vflag
    real      (8), intent(in)    :: wavs(npfile), spac, opdmax, wlim1, wlim2, zflag
-   real      (4), intent(in)    :: amps(npfile)
+   real      (8), intent(in)    :: amps(npfile)
    real      (8), intent(inout) :: noise
    real      (8), dimension(:), allocatable :: x, y, curve
    integer   (4)                :: i, k, l, iil, iih, np, order
@@ -1668,10 +1668,10 @@ subroutine calcsnr2( wavs, amps, npfile, wlim1, wlim2, spac, opdmax, nterp, nois
 
    integer   (4), intent(in)    :: npfile, nterp, vflag
    real      (8), intent(in)    :: wavs(npfile), spac, opdmax, wlim1, wlim2
-   real      (4), intent(in)    :: amps(npfile)
+   real      (8), intent(in)    :: amps(npfile)
    real      (8), intent(inout) :: noise
    real      (8), dimension(:), allocatable :: x, y, z, curve
-   real      (4), dimension(:), allocatable :: outspec
+   real      (8), dimension(:), allocatable :: outspec
    integer   (4)                :: i, k, l, iil, iih, np, order
    integer   (4), dimension(1)  :: ilow, ihi
    real      (8)                :: mind, mean, wstart, dnue, opdm, w1, w2
