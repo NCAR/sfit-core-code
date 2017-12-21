@@ -32,6 +32,7 @@ module binput_parse_4_0
   use writeout
   use hitran
 
+
   implicit none;
   save
 
@@ -214,6 +215,22 @@ end subroutine read_file_section
        end if
 
        select case (trim(adjustl(keyword(4))))
+       case ('regmethod')
+          if (len_trim(keyword(5)).eq.0) then
+             read(value,*) regmethod(nr)
+          else
+             select case (trim(adjustl(keyword(5))))
+             case ('lambda')
+                read(value,*) tplambda(nr)
+             case default
+                WRITE(16,*) 'BINPUT_PARSE_4_0:READ_GAS_SECTION: Key ', trim(keyword(5)), &
+                            ' not contained in section gas...regmethod'
+                WRITE( 0,*) 'BINPUT_PARSE_4_0:READ_GAS_SECTION: Key ', trim(keyword(5)), &
+                            ' not contained in section gas...regmethod'
+                CALL SHUTDOWN
+                STOP 1
+             end select
+          end if
        case ('correlation')
           if (len_trim(keyword(5)).eq.0) then
              read(value,*) correlate(nr)
@@ -418,9 +435,11 @@ end subroutine read_file_section
        read(value,*) raytonly
     case ('inst_transmission')
        read(value,*) f_meas_transmis
+    case ('mtckd_continuum')
+       read(value,*) f_mtckd
     case ('continuum')
        if (len_trim(keyword(3)).eq.0) then
-          read(value,*) f_contabs
+          read(value,*) f_continuum
        else
           select case (trim(adjustl(keyword(3))))
           case ('type')
@@ -695,10 +714,14 @@ end subroutine read_file_section
     case ('dwshift')
        read(value, *) ifdiff
     case ('continuum')
-       select case (trim(adjustl(keyword(3))))
-       case ('sigma')
-          read(value,*) abscont_sparam(1)
-       end select
+       if (len_trim(keyword(3)).eq.0) then
+          read(value,*) f_contabs
+       else
+          select case (trim(adjustl(keyword(3))))
+          case ('sigma')
+             read(value,*) abscont_sparam(1)
+          end select
+       end if
     case default
        WRITE(16,*) 'BINPUT_PARSE_4_0:READ_RT_SECTION: Key ', trim(keyword(3)), ' not contained in section : rt'
        WRITE( 0,*) 'BINPUT_PARSE_4_0:READ_RT_SECTION: Key ', trim(keyword(3)), ' not contained in section : rt'

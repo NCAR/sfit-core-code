@@ -25,7 +25,8 @@
       USE MATRIX
       USE WRITEOUT
       USE BANDPARAM
-
+      USE RETVPARAM
+      
       IMPLICIT NONE
 
       LOGICAL  :: TFLG
@@ -170,10 +171,14 @@
 ! --- LOOP OVER RETRIEVAL GASES BUT CALL ONCE IF NEEDED
       DO KK = 1, NRET
 ! --- PICK OUT GASES WITH SET FLAG (IFOFF=5)
-         IF ( CORRELATE(KK) .AND. IFPRF(KK) .AND. ( IFOFF(KK) .EQ. 5 )) THEN
+         IF ( IFPRF(KK) .AND. CORRELATE(KK) .AND. ( IFOFF(KK) .EQ. 5 )) THEN
             CALL GETSAINV( ISMIX )
             EXIT
-         ENDIF
+         ELSEIF ( IFPRF(KK) .AND. (REGMETHOD(KK).EQ.'TP')) THEN
+            ! SAME ROUNTINE CREATES TP METHOD AS WELL
+            CALL GETSAINV( ISMIX )
+            EXIT
+         END IF
       ENDDO
 
       SEINV(:M) = 1.D0/SE(:M)
@@ -677,7 +682,7 @@
 
 SUBROUTINE GETSAINV( ISMIX )
 
-      REAL(DOUBLE), DIMENSION(:,:), ALLOCATABLE :: SAINP
+      REAL(DOUBLE), DIMENSION(:,:), ALLOCATABLE :: SAINP, TPMAT
       REAL(DOUBLE), DIMENSION(:),   ALLOCATABLE :: SAROOT
       LOGICAL ::FILOPEN
       INTEGER :: ISMIX, KK, I, J, INDXX, NAERR
@@ -687,7 +692,7 @@ SUBROUTINE GETSAINV( ISMIX )
       INDXX = ISMIX
       DO KK = 1, NRET
 ! --- PICK OUT GASES WITH SET FLAG (IFOFF=5)
-         IF (( IFPRF(KK) ) .AND. ( IFOFF(KK) == 5 )) THEN
+         IF (( IFPRF(KK) ) .AND. (REGMETHOD(KK).EQ.'OEM').AND.( IFOFF(KK) == 5 )) THEN
             ALLOCATE( SAINP(LAYMAX,LAYMAX), SAROOT(LAYMAX), STAT=NAERR )
             IF (NAERR /= 0) THEN
                WRITE (16, *) 'OPT : COULD NOT ALLOCATE SAINP ARRAY, ERROR NUMBER = ', NAERR
@@ -700,22 +705,33 @@ SUBROUTINE GETSAINV( ISMIX )
                WRITE(16,301) TRIM(TFILE(62))
                FILOPEN = .TRUE.
             ENDIF
-            WRITE(16,302) KK, IFOFF(KK)
+            WRITE(16,302) KK, REGMETHOD(KK), IFOFF(KK)
 ! --- GET DIAGONAL FRACTIONAL VARIANCES FROM BINPUT && ALREADY SQUARED
             DO I = 1, NLAYERS
                SAROOT(I) = SQRT( SA(I+INDXX,I+INDXX) )
             END DO
-! --- READ IN PUT NEW SAINV VALUES
+            ! --- READ IN PUT NEW SAINV VALUES
             READ(62,*) SAINP(:NLAYERS, :NLAYERS )
-! --- SCALE AND STORE THEM IN SAINV
+            ! --- SCALE AND STORE THEM IN SAINV
             DO I = 1, NLAYERS
                DO J = 1, NLAYERS
                   SAINV(I+INDXX,J+INDXX) = SAINP(I,J)*( 1.0D0/(SAROOT(I)*SAROOT(J)))
                END DO
             END DO
             DEALLOCATE( SAINP, SAROOT )
+         ELSE IF (( IFPRF(KK) ) .AND. (REGMETHOD(KK).EQ.'TP')) THEN
+            ! PICK OUT GASES WITH SMOOTHNESS CONSTRAINT
+            ALLOCATE(TPMAT(NLAYERS,NLAYERS))
+            CALL MAKE_TPMATRIX(NLAYERS,Z(1:NLAYERS),TPMAT)
+            DO I = 1, NLAYERS
+               DO J = 1, NLAYERS
+                  SAINV(I+INDXX,J+INDXX) = TPMAT(I,J) / (TPLAMBDA(KK) * SQRT( SA(I+INDXX,I+INDXX)))
+               END DO
+            END DO
+            DEALLOCATE(TPMAT)
+            WRITE(16,304) KK, REGMETHOD(KK)
          ELSE
-            WRITE(16,303) KK, IFOFF(KK)
+            WRITE(16,303) KK, REGMETHOD(KK), IFOFF(KK)
          ENDIF
 ! --- BUMP UP INDEX OF MIXING RATIO BLOCK IN SA(INV) MATRIX
          INDXX = INDXX + NLAYERS
@@ -725,12 +741,52 @@ SUBROUTINE GETSAINV( ISMIX )
       RETURN
 
  301  FORMAT(/," FILE: ", A, " OPENED IN OPT" )
- 302  FORMAT("  RETRIEVAL GAS # :",I3," HAS IFOFF FLAG:", I3, &
+ 302  FORMAT("  RETRIEVAL GAS # :",I3, "REGULARIZATION METHOD: ", A3, " HAS IFOFF FLAG:", I3, &
              " ...READING IN NEW SAINV VALUES." )
- 303  FORMAT("  RETRIEVAL GAS # :",I3," HAS IFOFF FLAG:", I3, " ...SKIPPING." )
+303   FORMAT("  RETRIEVAL GAS # :",I3, "REGULARIZATION METHOD: ", A3," HAS IFOFF FLAG:", I3, " ...SKIPPING." )
+304   FORMAT("  RETRIEVAL GAS # :",I3, "REGULARIZATION METHOD: ", A3)
 
       END SUBROUTINE GETSAINV
 
+      subroutine make_TPmatrix(nl,altvec,TPmat)
+        ! Calculates a smoothness constraint matrix for the given
+        ! altitude vector. Routine pitched from Frank Hase.
+
+        ! nl is the number of altitude layers, altvec is Z,
+        ! i.e. the boundaries of the altitude grid
+        
+        implicit none
+        
+        integer,intent(in) :: nl
+        real(8),dimension(nl),intent(in) :: altvec
+        real(8),dimension(nl,nl),intent(out) :: TPmat
+        
+        integer :: i
+        real(8),dimension(:,:),allocatable :: Bmat,Dmat
+        
+        allocate (Bmat(nl,nl),Dmat(nl,nl))
+        ! Setup B matrix for TP = BT * D * B
+        Bmat = 0.0d0
+        do i = 1,nl - 1
+           Bmat(i,i) = 1.0d0
+           Bmat(i,i+1) = -1.0d0
+        end do
+        ! Setup matrix D
+        Dmat = 0.0d0
+        do i = 1,nl 
+           Dmat(i,i) = 1.0d0 / ((altvec(i+1) - altvec(i)) * (altvec(i+1) - altvec(i)))
+        end do
+        ! Calculate BT * D * B
+        TPmat = matmul(transpose(Bmat),matmul(Dmat,Bmat))
+        
+        deallocate (Bmat,Dmat)
+
+      end subroutine make_TPmatrix
+
+
+
+
+      
       SUBROUTINE RELEASE_MEM_OPT
 
 ! --- DEALLOCATE PUBLIC ARRAYS

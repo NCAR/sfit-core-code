@@ -37,9 +37,9 @@
       CHARACTER (LEN=7), DIMENSION(MOLMAX) :: SDV_GAS
       CHARACTER (LEN=7), DIMENSION(MOLMAX) :: LM_GAS
 
-      CONTAINS
-
-!------------------------------------------------------------------------------
+    CONTAINS
+      
+      !------------------------------------------------------------------------------
       SUBROUTINE FM(XN, YN, KN, NFIT, NVAR, KFLG, ITER, TFLG )
 
       IMPLICIT NONE
@@ -246,11 +246,11 @@
                DO K = 1,N_CONTABS
                   CONT_PARAM(K) = PARM(NCOUNT+K)
                END DO
-               CALL CALC_CONTINUUM(CONT_PARAM)
                TALL_FLAG = .TRUE.
             END IF
             NCOUNT = NCOUNT + N_CONTABS
          END IF
+         CALL CALC_CONTINUUM(CONT_PARAM)
 
 
 !  ---  UPDATE VMRS OF RETRIEVAL GASES
@@ -309,16 +309,17 @@
                TRET = .TRUE.
                !T(:KMAX) = PARM(NCOUNT+1:NCOUNT+KMAX) * TORG(:KMAX)
                !NCOUNT = NCOUNT + KMAX
-               T(:NPATH) = PARM(NCOUNT+1:NCOUNT+NPATH) * TORG(:NPATH)
-               NCOUNT = NCOUNT + NPATH
-               !CALL LBLATM( ITER, KMAX )
+!               T(:NPATH) = PARM(NCOUNT+1:NCOUNT+NPATH) * TORG(:NPATH)
+               CALL LBLATM( ITER, KMAX )
                !IF (K .GT. KMAX) K = KMAX
                IF (K .GT. NPATH) K = NPATH
                CALL MASSPATH( K )
-               CALL SETUP3( XSC_DETAIL, K )
+               CALL SETUP3( XSC_DETAIL, k )
             ENDIF ! K
+            NCOUNT = NCOUNT + NPATH
          ENDIF ! IFTEMP
 
+         !         print *, IPARM, PNAME(IPARM), PARM(IPARM), T(KMAX), CCC(1,KMAX)
 
 ! --- UPDATE TO SOLAR SPECTRAL CALCULATIONS - ALL BANDS AT ONCE
          IF (NSOLAR /= 0) THEN
@@ -624,7 +625,7 @@
                   CLOSE (80)
 
 !  --- Continuum absorption if calculated
-                  if (f_contabs) then
+                  if (F_CONTINUUM) then
                      call GASNTRAN(NRET+2,IBAND,JSCAN,2,MONONE,MXONE)
 !                     CALL CONTNTRAN( IBAND,JSCAN,2,MONONE,MXONE )
                      !  --- COMPUTE FFTS
@@ -640,6 +641,33 @@
                         ENDIF
                      ENDIF
                      WRITE(TITLE,710) 'CONT', IBAND, JSCAN, ITER
+
+                     OPEN(UNIT=80, FILE=GASFNAME, STATUS='REPLACE', ERR=555)
+                     WRITE (80, 640) TITLE
+                  WRITE (80, *) WA, WE, SP, N3
+                     DO J = 1, N3
+                        I = N1 + (J - 1)*NSPAC(IBAND)
+                        WRITE (80, *) DBLE(TCONV(I))
+                     ENDDO
+                     CLOSE (80)
+                  ENDIF
+
+!  --- MTCKD continuum if calculated
+                  if (F_MTCKD) then
+                     call MTCKDTRAN(IBAND,JSCAN,2,MONONE,MXONE)
+                     !  --- COMPUTE FFTS
+                     CALL FSPEC1 (IBAND, MONONE, MXONE)
+                     CALL FSPEC2 (IBAND, MONONE, PHI)
+                     IF( GASOUTTYPE .EQ. 1 .AND. ITER .EQ. -1 )THEN
+                        WRITE(GASFNAME,751)IBAND,JSCAN
+                     ELSEIF( GASOUTTYPE .EQ. 2 )THEN
+                        IF (ITER == -1 ) THEN
+                           WRITE(GASFNAME,751)IBAND,JSCAN
+                        ELSE
+                           WRITE(GASFNAME,761)IBAND,JSCAN,ITER
+                        ENDIF
+                     ENDIF
+                     WRITE(TITLE,710) 'MTCKD', IBAND, JSCAN, ITER
 
                      OPEN(UNIT=80, FILE=GASFNAME, STATUS='REPLACE', ERR=555)
                      WRITE (80, 640) TITLE
@@ -827,8 +855,10 @@
  710  FORMAT('GAS ',a7,' BAND ', I2, ' SCAN ', I2, ' ITER ', I3)
  730  FORMAT('spc.sol.',I2.2,'.',I2.2,'.final')
  740  FORMAT('spc.sol.',I2.2,'.',I2.2,'.',I2.2)
- 750  FORMAT('spc.CON.',I2.2,'.',I2.2,'.final')
- 760  FORMAT('spc.CON.',I2.2,'.',I2.2,'.',I2.2)
+750   FORMAT('spc.CON.',I2.2,'.',I2.2,'.final')
+751   FORMAT('spc.MTCKD.',I2.2,'.',I2.2,'.final')
+760   FORMAT('spc.CON.',I2.2,'.',I2.2,'.',I2.2)
+761   FORMAT('spc.MTCKD.',I2.2,'.',I2.2,'.',I2.2)
  770  FORMAT('spc.REST.',I2.2,'.',I2.2,'.final')
  780  FORMAT('spc.REST.',I2.2,'.',I2.2,'.',I2.2)
 ! 750  FORMAT('GAS SOLAR',' BAND ', I2, ' SCAN ', I2, ' ITER ', I3)

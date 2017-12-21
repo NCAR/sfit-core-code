@@ -146,8 +146,8 @@
       NCROSS = SUM(NM(:NBAND))
       NMONSM = DOT_PRODUCT(NM(:NBAND),NSCAN(:NBAND))
 
-      ncont = 0
-      if (f_contabs) ncont = 1
+      NCONT = 0
+      IF (F_CONTINUUM) NCONT = 1
 
       ALLOCATE (CROSS(NRET+1+NCONT,KMAX+NCELL,NCROSS), STAT=NAERR)
       IF (NAERR /= 0) THEN
@@ -1061,25 +1061,42 @@
          END IF
       END IF
       ! CONTINUUM ABSORPTION
-      IF (F_CONTABS) THEN
+      IF ((.NOT.F_CONTINUUM).AND.(F_CONTABS)) THEN
+         WRITE(*,*) 'RETRIEVAL OF CONTINUUMS ABSORPTION ONLY POSSIBLE IF CONTINUUM IS CALCULATED (FW.CONTINUUM = T)'
+         WRITE(16,*) 'RETRIEVAL OF CONTINUUMS ABSORPTION ONLY POSSIBLE IF CONTINUUM IS CALCULATED (FW.CONTINUUM = T)'
+         CALL SHUTDOWN()
+         STOP 1
+      END IF
+      
+      IF (F_CONTINUUM) THEN
          IF (IEMISSION.EQ.0) THEN
             WRITE(*,*) 'CONTINUUM ABSORPTION ONLY WORKING IN EMISSION MODE.'
             WRITE(16,*) 'CONTINUUM ABSORPTION ONLY WORKING IN EMISSION MODE.'
             CALL SHUTDOWN()
             STOP 1
          END IF
-         IF (ABSCONT_TYPE.EQ.2) ABSCONT_PARAM(1) = LOG(MAX(ABSCONT_PARAM(1),TINY(ABSCONT_PARAM(1))))
+         IF (ABSCONT_TYPE.EQ.2) ABSCONT_PARAM(1) = -LOG(MAX(ABSCONT_PARAM(1),TINY(ABSCONT_PARAM(1))))
          N_CONTABS = ABSCONT_ORDER + 1 ! 0-TH ORDER ALREADY NEEDS ONE PARAM.
          IF (ALLOCATED(CONT_PARAM)) DEALLOCATE(CONT_PARAM)
          ALLOCATE(CONT_PARAM(N_CONTABS))
          DO I = 1,N_CONTABS
-            WRITE(PNAME(NVAR+I:NVAR+1+I), '(A10,I1)'), 'CONTINUUM_', I-1
+            CONT_PARAM(I) = ABSCONT_PARAM(1)
          END DO
-         PARM(NVAR+1:NVAR+N_CONTABS)  = ABSCONT_PARAM(1)
-         SPARM(NVAR+1:NVAR+N_CONTABS) = ABSCONT_SPARAM(1)
-         NVAR = NVAR + N_CONTABS
+         if (F_CONTABS) THEN
+            DO I = 1,N_CONTABS
+               WRITE(PNAME(NVAR+I:NVAR+1+I), '(A10,I1)'), 'CONTINUUM_', I-1
+            END DO
+            PARM(NVAR+1:NVAR+N_CONTABS)  = ABSCONT_PARAM(1)
+            SPARM(NVAR+1:NVAR+N_CONTABS) = ABSCONT_SPARAM(1)
+            NVAR = NVAR + N_CONTABS
+         END if
       END IF
 
+      IF (F_MTCKD) THEN
+         IF (ALLOCATED(MTCKD)) DEALLOCATE(MTCKD)
+         ALLOCATE(MTCKD(1,KMAX+NCELL,NCROSS))
+      END IF
+      
       ! --- INSERT  CHANNEL PARAMETERS INTO STATE VECTOR PARM()
       CALL INSERT_CHANNEL_PARMS (NVAR, PARM, PNAME, SPARM)
 
@@ -1176,12 +1193,12 @@
       INTEGER                       :: I, J, KK, N, JROW, JCOL, INDXX
       REAL(DOUBLE)                  :: TSAHWD, DELZ = 0.0D0, RHO  = 0.0D0
 
-!  --- FILL DIAGONAL ELEMENTS OF SA
+      !  --- FILL DIAGONAL ELEMENTS OF SA
       DO I = 1, NVAR
          SA(I,I) = SPARM(I)*SPARM(I)
       ENDDO
-
-!  --- OFF DIAGONAL ELEMENTS OF SA MATRIX (A PRIORI COMPONENTS)
+      
+      !  --- OFF DIAGONAL ELEMENTS OF SA MATRIX (A PRIORI COMPONENTS)
       INDXX = ISMIX
       DO KK = 1, NRET
          !print *, 'fill off diag ', kk, IFPRF(KK)
@@ -1190,38 +1207,38 @@
             N = NLAYERS
             SELECT CASE ( IFOFF(KK) )
             CASE ( 1:3 )
-!  --- FILL OFF DIAGONAL ELEMENTS OF SA
-            DO I = 1, NLAYERS
-              DO J = 1, NLAYERS
-                IF (I == J) CYCLE
-                JROW = I + INDXX
-                JCOL = J + INDXX
-                IF( ZBAR(I) < ZGMIN(KK) ) CYCLE
-                IF( ZBAR(J) < ZGMIN(KK) ) CYCLE
-                IF( ZBAR(I) > ZGMAX(KK) ) CYCLE
-                IF( ZBAR(J) > ZGMAX(KK) ) CYCLE
-
-                DELZ = ZBAR(I) - ZBAR(J)
-
-                SELECT CASE ( IFOFF(KK) )
-                CASE (1)       !gaussian
-                  RHO = (ALOGSQ*DELZ/ZWID(KK))**2
-                  RHO = MIN( RHO, 90.0D0 )
-                  SA(JROW,JCOL) = SPARM(JROW)*SPARM(JCOL)*EXP(-RHO)
-                CASE (2)       !exponential
-                  RHO = ABS(ALOGSQ*DELZ/ZWID(KK))
-                  RHO = MIN( RHO, 90.0D0 ) !664
-                  SA(JROW,JCOL) = SPARM(JROW)*SPARM(JCOL)*EXP(-RHO)
-                CASE (3)
-                  WRITE(16,*) "IFOFF=3 NOT SUPPORTED"
-                  WRITE(00,*) "IFOFF=3 NOT SUPPORTED"
-                  CALL SHUTDOWN
-                  STOP 2
-                END SELECT
-
-              END DO
-            END DO
-! --- READ IN FULL COVARIANCE FROM FILE
+               !  --- FILL OFF DIAGONAL ELEMENTS OF SA
+               DO I = 1, NLAYERS
+                  DO J = 1, NLAYERS
+                     IF (I == J) CYCLE
+                     JROW = I + INDXX
+                     JCOL = J + INDXX
+                     IF( ZBAR(I) < ZGMIN(KK) ) CYCLE
+                     IF( ZBAR(J) < ZGMIN(KK) ) CYCLE
+                     IF( ZBAR(I) > ZGMAX(KK) ) CYCLE
+                     IF( ZBAR(J) > ZGMAX(KK) ) CYCLE
+                     
+                     DELZ = ZBAR(I) - ZBAR(J)
+                     
+                     SELECT CASE ( IFOFF(KK) )
+                     CASE (1)       !gaussian
+                        RHO = (ALOGSQ*DELZ/ZWID(KK))**2
+                        RHO = MIN( RHO, 90.0D0 )
+                        SA(JROW,JCOL) = SPARM(JROW)*SPARM(JCOL)*EXP(-RHO)
+                     CASE (2)       !exponential
+                        RHO = ABS(ALOGSQ*DELZ/ZWID(KK))
+                        RHO = MIN( RHO, 90.0D0 ) !664
+                        SA(JROW,JCOL) = SPARM(JROW)*SPARM(JCOL)*EXP(-RHO)
+                     CASE (3)
+                        WRITE(16,*) "IFOFF=3 NOT SUPPORTED"
+                        WRITE(00,*) "IFOFF=3 NOT SUPPORTED"
+                        CALL SHUTDOWN
+                        STOP 2
+                     END SELECT
+                     
+                  END DO
+               END DO
+               ! --- READ IN FULL COVARIANCE FROM FILE
             CASE ( 4 )
                INQUIRE( UNIT=62, OPENED=FILOPEN )
                IF ( .NOT. FILOPEN )CALL FILEOPEN( 62, 3 )
@@ -1229,64 +1246,67 @@
                   READ( 62,* ) (SA( I+INDXX, J+INDXX), J=1, N)
                END DO
             CASE ( 0 )
-               PRINT *, ' PROFILE RETRIEVAL GAS: ', NAME(IGAS(KK)), ' NO OFF DIAGONAL VALUES SET.'
+               IF (REGMETHOD(KK).EQ.'OEM') THEN
+                  PRINT *, ' PROFILE RETRIEVAL GAS: ', NAME(IGAS(KK)), ' NO OFF DIAGONAL VALUES SET.'
+               END IF
             END SELECT
          ENDIF
          INDXX = INDXX + N
       END DO
-
+      
       CALL FILECLOSE( 62, 2 )
-
-
-!  --- FILL OFF DIAGONAL ELEMENTS OF SA of T
+      
+      
+      !  --- FILL OFF DIAGONAL ELEMENTS OF SA of T
       IF( IFTEMP )THEN
          INDXX = NTEMP1
-            DO I = 1, NLAYERS
-              DO J = 1, NLAYERS
-                IF (I == J) CYCLE
-                JROW = I + INDXX
-                JCOL = J + INDXX
-                DELZ = ZBAR(I) - ZBAR(J)
-                TSAHWD = 20.0D0
-                SELECT CASE ( 1 )
-                CASE (1)       !gaussian
+         DO I = 1, NLAYERS
+            DO J = 1, NLAYERS
+               IF (I == J) CYCLE
+               JROW = I + INDXX
+               JCOL = J + INDXX
+               DELZ = ZBAR(I) - ZBAR(J)
+               TSAHWD = 20.0D0
+               SELECT CASE ( 1 )
+               CASE (1)       !gaussian
                   RHO = (ALOGSQ*DELZ/TSAHWD)**2
                   RHO = MIN( RHO, 90.0D0 )
                   SA(JROW,JCOL) = SPARM(JROW)*SPARM(JCOL)*EXP(-RHO)
-                CASE (2)       !exponential
+               CASE (2)       !exponential
                   RHO = ABS(ALOGSQ*DELZ/TSAHWD)
                   RHO = MIN( RHO, 90.0D0 ) !664
                   SA(JROW,JCOL) = SPARM(JROW)*SPARM(JCOL)*EXP(-RHO)
-                CASE (3)
+               CASE (3)
                   WRITE(16,*) "IFOFF=3 NOT SUPPORTED"
                   WRITE(00,*) "IFOFF=3 NOT SUPPORTED"
                   CALL SHUTDOWN
                   STOP 2
-                END SELECT
-              END DO
+               END SELECT
             END DO
-       ENDIF
-
-!  --- WRITE OUT FULL SA MATRIX
+         END DO
+      ENDIF
+      WRITE(16,'(A22,A3)') "REGULARISATION METHOD"
+         
+         
+      !  --- WRITE OUT FULL SA MATRIX
       IF (F_WRTSA) THEN
          CALL FILEOPEN( 63, 1 )
          WRITE(63,*) TRIM(TAG), ' FULL INITIAL STATE VECTOR COVARIANCE N X N MATRIX'
          WRITE(63,*) NVAR, NVAR
-         WRITE(63,260) ADJUSTR(PNAME(:NVAR))
+         WRITE(63,260) (trim(ADJUSTL(PNAME(i))),I=1,NVAR)
          DO I=1,NVAR
             WRITE(63,261) (SA(I,J),J=1,NVAR)
          END DO
          CALL FILECLOSE( 63, 1 )
       ENDIF
-
+      
       RETURN
-
-  260 FORMAT( 2000( 12X, A14 ))
-  261 FORMAT( 2000ES26.18 )
-
-
-      END SUBROUTINE FILSA
-
+      
+260   FORMAT( 2000( 12X, A14 ))
+261   FORMAT( 2000ES26.18 )
+      
+      
+    END SUBROUTINE FILSA
 
 
 
@@ -1294,6 +1314,7 @@
       SUBROUTINE RELEASE_MEM_INT
       IF( ALLOCATED( CROSS )       )DEALLOCATE (CROSS)
       IF( ALLOCATED( CROSS_FACMAS ))DEALLOCATE (CROSS_FACMAS)
+      IF( ALLOCATED( MTCKD )       )DEALLOCATE (MTCKD)
       IF( ALLOCATED( TCO )         )DEALLOCATE (TCO)
       IF( ALLOCATED( TCONV )       )DEALLOCATE (TCONV)
       IF( ALLOCATED( TCALC )       )DEALLOCATE (TCALC)
