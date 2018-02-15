@@ -176,7 +176,7 @@
 
  out.level= 1
  out.smeas_matrix = T
-  out.gas_spectra= T
+ out.gas_spectra= T
  out.k_matrix= T
  out.ak_matrix= T
  out.g_matrix= T
