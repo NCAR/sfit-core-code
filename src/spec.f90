@@ -1309,7 +1309,7 @@ subroutine parsetitle( title, yy, mm, dd, hh, nn, ss, sza, azm, dur, res, fov, l
 character (len=80), intent(out)   :: title
 character (len=1), intent(inout)  :: loc
 integer, intent(out)              :: yy, mm, dd, hh, nn, ss
-real, intent(out)                 :: sza, azm, dur, fov, res
+real(8), intent(out)                 :: sza, azm, dur, fov, res
 real(8)                           :: roe, hour
 !real(4)                           :: opd
 character (len=3)                 :: apd, mstr
