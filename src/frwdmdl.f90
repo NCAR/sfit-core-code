@@ -297,6 +297,8 @@
             ENDIF
          END DO
 
+         NCOUNT = NCOUNT + 1
+         
 ! --- TEMPERATURE RETRIEVAL
          IF( IFTEMP ) THEN
             !IF( BUG1 )PRINT *, IFTEMP, IPARM, NCOUNT, NTEMP1, NTEMP, PARM(NCOUNT+1:NCOUNT+1)
@@ -308,8 +310,8 @@
             IF( K .GE. 1 .AND. K .LE. NPATH + 1 )THEN
                TRET = .TRUE.
                !T(:KMAX) = PARM(NCOUNT+1:NCOUNT+KMAX) * TORG(:KMAX)
-               !NCOUNT = NCOUNT + KMAX
-!               T(:NPATH) = PARM(NCOUNT+1:NCOUNT+NPATH) * TORG(:NPATH)
+!               NCOUNT = NCOUNT + KMAX
+               T(:NPATH) = PARM(NCOUNT+1:NCOUNT+NPATH) * TORG(:NPATH)
                CALL LBLATM( ITER, KMAX )
                !IF (K .GT. KMAX) K = KMAX
                IF (K .GT. NPATH) K = NPATH
