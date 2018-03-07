@@ -5,7 +5,7 @@
  file.in.refprofile             = reference.prf
  file.in.spectrum               = spectrum
  file.in.isotope                = isotope.input
- file.in.solarlines             = /usr/local/share/linelist_v0.9/solar/120621/solar.dat
+ file.in.solarlines             = solar.dat
  file.in.linelist               = 02723.671422-02930.058578.hbin
  file.out.ak_matrix             = ak.target
  file.out.ab_matrix             = AB.out
@@ -35,6 +35,7 @@
  gas.column.HDO.logstate            =               F
  gas.column.HDO.scale               = 1.0
  gas.column.HDO.sigma               = 1.0
+ gas.column.H2O.logstate            =               F
  gas.column.CH4.logstate            =               F
  gas.column.CH4.scale               =             1.0
  gas.column.CH4.sigma               = 1.0
@@ -75,7 +76,13 @@
  rt.curvature.apriori        =           0.000
  rt.curvature.sigma             =           0.100
  rt.dwshift                   =               F
- rt.temperature              =               F
+ rt.temperature              =               T
+ rt.temperature.sigma                =
+ 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01
+ 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01
+ 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01
+ 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01
+ 0.01
  
  # Microwindows and their parameters
  
@@ -92,6 +99,7 @@
  band.1.omega= 2.3932
  band.1.apodization_code     =               0
  band.1.gasb                 = HCL O3 HDO
+ band.1.tempretb = T
  band.2.nu_start             =        2775.7000
  band.2.nu_stop              =        2775.8000
  band.2.zshift               =               F
@@ -116,10 +124,9 @@
  band.3.omega= 2.3932
  band.3.apodization_code     =               0
  band.3.gasb                 = HCL CH4 NO2 
- 
  out.level = 1
  out.gas_spectra = F
 
  kb = T
- kb.profile = T
- kb.profile.gas = CH4
+ kb.temperature = T
+
