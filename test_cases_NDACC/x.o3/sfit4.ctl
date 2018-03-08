@@ -114,6 +114,13 @@
  rt.phase.apriori            =           0.000
  rt.phase.sigma              =           0.200
  rt.dwshift                  =               F
+ rt.temperature              =               F
+ rt.temperature.sigma                =
+ 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001
+ 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001
+ 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001
+ 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001
+ 0.001
  
  # Microwindows and their parameters
  
@@ -131,6 +138,7 @@
  band.1.omega= 2.3923
  band.1.apodization_code =               0
  band.1.gasb                 = O3  H2O    CO2 O3668 O3686
+ band.1.tempretb = F
  band.2.nu_start             =        788.85
  band.2.nu_stop              =        789.37
  band.2.zshift		     =	      F
