@@ -297,7 +297,7 @@
             ENDIF
          END DO
 
-         NCOUNT = NCOUNT + 1
+!         NCOUNT = NCOUNT + 1
          
 ! --- TEMPERATURE RETRIEVAL
          IF( IFTEMP ) THEN
