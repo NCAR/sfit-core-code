@@ -18,6 +18,13 @@
 
       MODULE molcparam
 
+! December 2017 - EM@ULIEGE
+! add CHF3/HFC-23 - Based on GCT information (available on mark4sun)
+! Modification of the rotation partition function exponent from 1.5 to 2.0 for F141B
+
+!id      name        mass           nmode    symbol      # lines     result
+!70      HFC-23      70.01          9        CHF3        28000   
+
 ! June 2013
 ! add isotopes to N2O # 6 7 8 / from Toth via ggg linelist
 
@@ -119,7 +126,7 @@
         'NF3',     'OTHER',   'OTHER',  'OTHER',   'OTHER',   &
         'OTHER',   'OTHER',   'OCLO',   'F134A',   'C3H8',    & ! 60
         'F142B',   'CFC113',  'F141B',  'CH3OH',   'CH3CNPL', &
-        'C2H6PL',  'PAN',     'CH3CHO ','CH3CN',   'OTHER',   & ! 70
+        'C2H6PL',  'PAN',     'CH3CHO ','CH3CN',   'CHF3',    & ! 70
         'CH3COOH', 'C5H8',    'MVK',    'MACR',    'C3H6',    &
         'C4H8',    'OTHER',   'OTHER',  'OTHER',   'OTHER',   & ! 80
         'OTHER',   'OTHER',   'OTHER',  'OTHER',   'OTHER',   &
@@ -140,8 +147,8 @@
             1.5,       1.5,       1.5,       1.0,       1.5, & ! 50
             1.5,       0.0,       0.0,       0.0,       0.0, &
             0.0,       0.0,       1.5,       1.5,       1.5, & ! 60
-            2.0,       2.0,       1.5,       1.5,       1.5, &
-            1.9,       1.5,       1.5,       1.5,       0.0, & ! 70
+            2.0,       2.0,       2.0,       1.5,       1.5, & ! 2.0 i.o. 1.5 for F141B
+            1.9,       1.5,       1.5,       1.5,       1.5, & ! 70
             1.5,       1.5,       1.5,       1.5,       1.5, &
             1.5,       0.0,       0.0,       0.0,       0.0, & ! 80
             0.0,       0.0,       0.0,       0.0,       0.0, &
@@ -232,7 +239,7 @@
       121.D0,  8*0.D0,                                               & !PAN       PL
        44.D0,  8*0.D0,                                               & !CH3CHO    PL
      41.05D0,  8*0.D0,                                               & !CH3CN     PL
-        0.D0,  8*0.D0/                                                 !OTHER
+       70.D0,  8*0.D0/                                                 !CHF3      PL
 
       DATA ((XMASS(JISO,IMOLM),JISO=1,NI),IMOLM=71,80)/ &
        60.D0,  8*0.D0,                                               & !CH3COOH   PL
@@ -277,7 +284,7 @@
         1,  1,  1,  1,  1,  1,  1,  2,  2,  2,                       & !31-40
         1,  1,  1,  2,  1,  1,  3,  1,  2,  1,                       & !41-50
         1,  1,  0,  0,  0,  0,  0,  1,  1,  1,                       & !51-60
-        1,  1,  1,  1,  1,  1,  1,  1,  1,  0,                       & !61-70
+        1,  1,  1,  1,  1,  1,  1,  1,  1,  1,                       & !61-70
         1,  1,  1,  1,  1,  1,  0,  0,  0,  0,                       & !71-80
         0,  0,  0,  0,  0,  0,  0,  0,  0,  0,                       & !81-90
         0,  0,  0,  0,  0,  0,  0,  0,  0/                             !91-99

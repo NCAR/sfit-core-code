@@ -30,6 +30,10 @@
 
 ! --- VIBRATIONAL FUNCTION DATA
 
+! December 2017 - EM@ULIEGE
+! add CHF3/HFC-23 - Based on GCT information (available on mark4sun)
+! add vibrational frequencies and degeneracies for F141B - Based on GCT information
+
 ! June 2013
 ! add isotopes to N2O # 6 7 8 / from Toth via ggg linelist
 
@@ -71,8 +75,8 @@
         4,  9,  6, 12,  4,  6,  6, 11, 12,  5,                       & !31-40
         1,  9,  6,  6,  6,  9,  3,  9,  1, 15,                       & !41-50
         6,  0,  0,  0,  0,  0,  0,  3,  1,  1,                       & !51-60
-       12, 12,  1, 12,  8, 11, 27, 15,  8,  0,                       & !61-70
-       18, 10, 10,  4, 21,  2,  0,  0,  0,  0,                       & !71-80
+       12, 12,  1, 12,  8, 11, 27, 15,  8,  9,                       & !61-70
+       18, 33, 27, 27, 21, 30,  0,  0,  0,  0,                       & !71-80
         0,  0,  0,  0,  0,  0,  0,  0,  0,  0,                       & !81-90
         0,  0,  0,  0,  0,  0,  0,  0,  0/                             !91-99
 
@@ -165,7 +169,8 @@
       1135,2, 1455,2, 3013,2,  239,2, 36*0,                          &
       1100,1,  807,1,  348,1,  675,1,  372,1, 1250,2,  619,2,  372,2,& !CFC113
        778,2,  271,2,  114,2,   68,2, 36*0,                          &
-      5000,1, 58*0,                                                  & !F141B
+       340,1,  681,1, 1095,1, 1163,1, 2928,1,  330,2,  300,2,  757,2,& !F141B
+      1120,2, 1387,2, 3013,2,  230,2, 36*0,                          &
       3681,1, 3000,1, 2844,1, 1477,1, 1455,1, 1345,1, 1060,1, 1033,1,& !CH3OH
       2960,1, 1477,1, 1165,1,  295,1,   36*0,                        &
       2954,1, 2267,1, 1385,1,  920,1, 3009,2, 1448,2, 1041,2,  362,2,& !CH3CNPL
@@ -180,7 +185,7 @@
        919,1,  509,1, 2967,1, 1420,1,  867,1,  763,1,  150,1,  30*0, &
       2954,1, 2267,1, 1385,1,  920,1, 3009,2, 1448,2, 1041,2,  362,2,& !CH3CN
         44*0,                                                        &
-      5000,1, 58*0/                                                    !OTHER
+      3035,1, 1141,1,  700,1, 1378,2, 1158,2,  508,2, 48*0/            !CHF3 
 
       DATA (((IVIB(J,K,L),J=1,2),K=1,MAXVIBVALS),L=71,80)/ &
 
@@ -233,7 +238,7 @@
       CONTAINS
 
 !----------------------------------------------------------------------
-      SUBROUTINE QVIB( XSC_DETAIL )
+      SUBROUTINE QVIB( XCS_DETAIL )
 
 !  COMPUTE VIBRATIONAL PARTITION FUNCTION FOR RETRIEVAL AND BACKGROUND
 !  GASES FOR EACH LAYER TEMPERATURE AND AT THE REFERENCE TEMPERATURE
@@ -243,7 +248,7 @@
 !           TORSIONAL MODES NOT INCLUDED -- C2H6(#38), CLONO2 (#27)
 !     IVIB=ARRAY CONTAINING FUNDAMENTAL FREQUENCIES AND DEGENERACIES
 
-      LOGICAL, INTENT(IN) :: XSC_DETAIL
+      LOGICAL, INTENT(IN) :: XCS_DETAIL
       INTEGER             :: KLEVEL, I, K, N, IMODE, ISUBS(MAXSPE)
       REAL(DOUBLE)        :: TEMP, FREQ
 
@@ -272,7 +277,7 @@
          ISUBS(N) = I
       END DO
 
-      IF( XSC_DETAIL )THEN
+      IF( XCS_DETAIL )THEN
 !  --- WRITE OUT VIBRATIONAL PARTITION FUNCTIONS
          WRITE(16, 100)
          WRITE(16, 5, ADVANCE='NO')

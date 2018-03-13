@@ -226,7 +226,7 @@
          -1.0, & !  none                                  , PAN
          -1.0, & !  none                                  , CH3CHO
          -1.0, & !  none                                  , CH3CN
-         -1.0, & !  none                                  , OTHER       70
+         -1.0, & !  none                                  , CHF3        70
          -1.0, & !  none                                  , CH3COOH
          -1.0, & !  none                                  , C5H8
          -1.0, & !  none                                  , MVK
