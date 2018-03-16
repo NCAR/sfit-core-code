@@ -433,7 +433,7 @@ end subroutine read_file_section
        end if
     case ('raytonly')
        read(value,*) raytonly
-    case ('inst_transmission')
+    case ('filter_transmission')
        read(value,*) f_meas_transmis
     case ('mtckd_continuum')
        read(value,*) f_mtckd
