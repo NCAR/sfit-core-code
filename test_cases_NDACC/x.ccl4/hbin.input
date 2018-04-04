@@ -1,7 +1,7 @@
 
 file.out.ascii = T
 #
-file.in.linelist = ../../linelist/
+file.in.linelist = /usr/local/share/linelist_v0.9/
 #
 # next non-comment entry is the number of path/files to look for
 hitran.nr = 99
@@ -124,7 +124,7 @@ aux.lm.files =
 #
 #
 # Speed Dependent Voigt parameter files --- not yet!
-aux.sdv.nr = 1
+aux.sdv.nr = 0
 aux.sdv.files = 
 005_CO/05_hit12_SDV.txt
 #
