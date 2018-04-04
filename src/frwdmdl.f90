@@ -63,6 +63,7 @@
          NS1, NS2
       LOGICAL :: XRET, TRET, FLINE, FSZA
 
+      REAL(DOUBLE) :: MEAS_BCK, filter_max
       REAL(DOUBLE), DIMENSION(3)      :: B
       REAL(DOUBLE), DIMENSION(NMAX)   :: PARM
       REAL(DOUBLE), DIMENSION(MMAX)   :: YC
@@ -475,6 +476,15 @@
                N3 = NPRIM(IBAND)
 
                SMM = 0.D0
+               filter_max = 0.0d0
+               
+               if (F_MEAS_TRANSMIS) THEN
+                  do j = 1, N3
+                     ! norm filter transmission to 1
+                     YS = (J - 1)*SPAC(IBAND)
+                     filter_max = max(filter_max,ftrans(ys+wstart(iband)))
+                  end do
+               end if
                DO J = 1, N3
 
                   I = N1 + (J - 1)*NSPAC(IBAND)
@@ -486,16 +496,20 @@
                   WAVE_X(JATMOS) = YS + WSTART(IBAND)
 
                   
+                  !APPLIES MEASURED TRANSMISSION TO THE SYNTHETIC SPECTRUM
+                  
+
+
                   ! CALCULATES (RETRIEVED) FILTER TRANSMISSION CURVE
-                  BKGND = B(1)*(1.0D0 + B(2)*YS+B(3)*YS*YS)
+                  if (F_MEAS_TRANSMIS) THEN
+                     MEAS_BCK = FTRANS(WAVE_X(JATMOS))/filter_max
+                  else
+                     MEAS_BCK = 1.0D0
+                  end if
+                  BKGND = B(1)*(MEAS_BCK + B(2)*YS+B(3)*YS*YS)
                   BKGND = BKGND*(1.0D0/(1.0D0 + ZSHIFT(IBAND,JSCAN)))
 
 
-                  !Applies measured transmission to the synthetic spectrum
-                  
-                  if (F_MEAS_TRANSMIS) THEN
-                     TCALI = TCALI * FTRANS(WAVE_X(JATMOS))
-                  END if
                   
 !-- FIT CHANNEL PARMS IF NEEDED ----------------------------------------!PWJ
 
@@ -506,6 +520,7 @@
                      ENDIF
                   ELSE
                      YC(JATMOS) = BKGND*(DBLE(TCALI) + ZSHIFT(IBAND,JSCAN))
+                     
                   ENDIF
 !print *,jatmos, yc(jatmos)
                   SMM = SMM + YC(JATMOS)
