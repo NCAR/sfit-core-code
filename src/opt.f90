@@ -26,7 +26,7 @@
       USE WRITEOUT
       USE BANDPARAM
       USE RETVPARAM
-      
+
       IMPLICIT NONE
 
       LOGICAL  :: TFLG
@@ -100,6 +100,11 @@
       REAL(DOUBLE), DIMENSION(MMAX)            :: YN, KDX
       REAL(DOUBLE), DIMENSION(NMAX*NMAX)       :: SPKSK, SHATINV
       REAL(DOUBLE), DIMENSION(NMAX*MMAX)       :: KNT, KHATT
+
+      !REAL(DOUBLE), DIMENSION(M)               :: YN, KDX
+      !REAL(DOUBLE), DIMENSION(N*N)             :: SPKSK, SHATINV
+      !REAL(DOUBLE), DIMENSION(N*M)             :: KNT, KHATT
+
 
       EQUIVALENCE (KNT, KHATT), (SPKSK, SHATINV), (YN, KDX)
       ! REMOVED (DX, KSDYMKDX), BECAUSE NEED BOTH AT THE SAME TIME FOR
@@ -580,7 +585,11 @@
          CALL FILEOPEN( 69, 2 )
          WRITE(69,*)  TRIM(TAG), ' SAINV N X N (BLOCK DIAGONAL)'
          WRITE(69,*) N, N
+<<<<<<< HEAD
          WRITE(69,260) (trim(ADJUSTL(PNAME(i))),i=1,N)
+=======
+         WRITE(66,260) (trim(ADJUSTL(PNAME(i))),i=1,N)
+>>>>>>> 8bec8b0... laptop: N=255 allows no memory model spec-good for MacOS
          DO I = 1, N
             WRITE(69,261) (SAINV(I,J), J=1, N)
          END DO
@@ -640,7 +649,11 @@
          CALL FILEOPEN( 64, 1 )
          WRITE(64,*)  TRIM(TAG), ' SHAT N X N (BLOCK DIAGONAL)'
          WRITE(64,*) N, N
+<<<<<<< HEAD
          WRITE(69,260) (trim(ADJUSTL(PNAME(i))),i=1,N)
+=======
+         WRITE(66,260) (trim(ADJUSTL(PNAME(i))),i=1,N)
+>>>>>>> 8bec8b0... laptop: N=255 allows no memory model spec-good for MacOS
          DO I=1,N
             WRITE(64,261) (SHAT(I,J), J=1, N)
          END DO
@@ -754,16 +767,16 @@ SUBROUTINE GETSAINV( ISMIX )
 
         ! nl is the number of altitude layers, altvec is Z,
         ! i.e. the boundaries of the altitude grid
-        
+
         implicit none
-        
+
         integer,intent(in) :: nl
         real(8),dimension(nl),intent(in) :: altvec
         real(8),dimension(nl,nl),intent(out) :: TPmat
-        
+
         integer :: i
         real(8),dimension(:,:),allocatable :: Bmat,Dmat
-        
+
         allocate (Bmat(nl,nl),Dmat(nl,nl))
         ! Setup B matrix for TP = BT * D * B
         Bmat = 0.0d0
@@ -773,12 +786,12 @@ SUBROUTINE GETSAINV( ISMIX )
         end do
         ! Setup matrix D
         Dmat = 0.0d0
-        do i = 1,nl 
+        do i = 1,nl
            Dmat(i,i) = 1.0d0 / ((altvec(i+1) - altvec(i)) * (altvec(i+1) - altvec(i)))
         end do
         ! Calculate BT * D * B
         TPmat = matmul(transpose(Bmat),matmul(Dmat,Bmat))
-        
+
         deallocate (Bmat,Dmat)
 
       end subroutine make_TPmatrix
@@ -786,7 +799,7 @@ SUBROUTINE GETSAINV( ISMIX )
 
 
 
-      
+
       SUBROUTINE RELEASE_MEM_OPT
 
 ! --- DEALLOCATE PUBLIC ARRAYS
