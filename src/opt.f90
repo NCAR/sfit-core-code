@@ -231,7 +231,7 @@
             CALL FILEOPEN( 69, 2 )
             WRITE(69, *) TRIM(TAG), ' SAINV N X N (BLOCK DIAGONAL) '
             WRITE(69,*) N, N
-            WRITE(66,260) (trim(ADJUSTL(PNAME(i))),i=1,N)
+            WRITE(69,260) (trim(ADJUSTL(PNAME(i))),i=1,N)
             DO I = 1, N
                WRITE (69,261) (SAINV(I,J), J=1, N)
             END DO
@@ -585,7 +585,7 @@
          CALL FILEOPEN( 69, 2 )
          WRITE(69,*)  TRIM(TAG), ' SAINV N X N (BLOCK DIAGONAL)'
          WRITE(69,*) N, N
-         WRITE(66,260) (trim(ADJUSTL(PNAME(i))),i=1,N)
+         WRITE(69,260) (trim(ADJUSTL(PNAME(i))),i=1,N)
          DO I = 1, N
             WRITE(69,261) (SAINV(I,J), J=1, N)
          END DO
@@ -645,7 +645,7 @@
          CALL FILEOPEN( 64, 1 )
          WRITE(64,*)  TRIM(TAG), ' SHAT N X N (BLOCK DIAGONAL)'
          WRITE(64,*) N, N
-         WRITE(66,260) (trim(ADJUSTL(PNAME(i))),i=1,N)
+         WRITE(69,260) (trim(ADJUSTL(PNAME(i))),i=1,N)
          DO I=1,N
             WRITE(64,261) (SHAT(I,J), J=1, N)
          END DO
