@@ -758,7 +758,7 @@ SUBROUTINE GETSAINV( ISMIX )
         implicit none
         
         integer,intent(in) :: nl
-        real(8),dimension(nl),intent(in) :: altvec
+        real(8),dimension(nl+1),intent(in) :: altvec
         real(8),dimension(nl,nl),intent(out) :: TPmat
         
         integer :: i
