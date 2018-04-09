@@ -8,11 +8,10 @@ module continuum
   integer, parameter :: cont_poly_max = 10
 
   integer :: ncont = 0, n_contabs
-  logical :: f_continuum = .false., f_mtckd = .false.
+  logical :: f_continuum = .false.
   integer :: abscont_type, abscont_order
   real(double), dimension(cont_poly_max) :: abscont_param, abscont_sparam
   real(double), dimension(:), allocatable :: cont_param
-  real(double), dimension(:,:,:), allocatable :: mtckd
   real(double) :: cont_z_abs, cont_alpha
   
   
@@ -110,111 +109,5 @@ contains
     end if
   end subroutine calc_continuum
 
-  subroutine h2o_continuum()
-    ! calculates the continuum absorption for a give atmoshere
-    ! It is a wrapper for the MT-CKD continuum and sets up the variables for
-
-    implicit none
-    integer iband,i, k, kk, mxone, nmon, kvert, nptabs, ksmax2
-    CHARACTER*8      XID,       HMOLID,      YID 
-    real (double) :: wtot, wa, wn2, vmrh2o,w_dry, vi
-    real (double) :: V1ABS,V2ABS,DVABS,ABSRB,xlength
-    real (double) :: SECANT,PAVE,TAVE,XALTZ
-    real (double) :: WK,PZL,PZU,TZL,TZU,WBROAD,DV,V1 ,V2 ,TBOUND
-    real (double) :: EMISIV,FSCDID,NMOL_C,LAYER ,YI1,LSTWDF
-    real (double) :: XSELF,XFRGN,XCO2C,XO3CN,XO2CN,XN2CN,XRAYL 
-    COMMON /ABSORB/ V1ABS,V2ABS,DVABS,NPTABS,ABSRB(n_absrb)
-    COMMON /FILHDR/ XID(10),SECANT,PAVE,TAVE,HMOLID(60),XALTZ(4),     &
-         &                WK(60),PZL,PZU,TZL,TZU,WBROAD,DV ,V1 ,V2 ,TBOUND, &
-         &                EMISIV,FSCDID(17),NMOL_C,LAYER ,YI1,YID(10),LSTWDF
-      common /cntscl/ XSELF(7),XFRGN(7),XCO2C,XO3CN,XO2CN,XN2CN,XRAYL 
-
-    kvert = nspec + 1
-    mxone = 1
-
-    ksmax2 = kztan(iscan(1,1))
-    
-    do iband = 1, nband
-       do k = 1, ksmax2
-          pave = p(k)*1013.15d0 ! convert in mbar
-          tave = t(k)
-          xlength = abs((z(k+1) - z(k))*10000.0d0) !thickness needed in cm
-
-          vmrh2o = xgas(1,k)
-          wtot = xgas(1,k)*ccc(kvert,k)
-          do kk = 1, nret
-             if( trim(name(igas(kk))) .eq. trim('H2O')) then
-                vmrh2o = x(kk,k)
-                wtot = x(kk,k)*ccc(kvert,k)
-             end if
-          end do
-          
-          w_dry = wtot * (1.-vmrh2o)
-          wk(1) = vmrh2o * w_dry
-          !ARGON
-          WA     = 0.009     * W_dry 
-          
-          !NITROGEN
-          wn2 = xgas(41,k) * ccc(kvert,k)
-          do kk = 1, nret
-             if( trim(name(igas(kk))) .eq. trim('N2')) then
-                wn2 = x(kk,k)*ccc(kvert,k)
-             end if
-          end do
-
-          ! CO2
-          wk(2) = xgas(2,k)*ccc(kvert,k)
-          do kk = 1, nret
-             if( trim(name(igas(kk))) .eq. trim('CO2')) then
-                wk(2) = x(kk,k)*ccc(kvert,k)
-             end if
-          end do
-
-          ! Ozone
-          wk(3) = xgas(3,k)*ccc(kvert,k)
-          do kk = 1, nret
-             if( trim(name(igas(kk))) .eq. trim('O3')) then
-                wk(3) = x(kk,k)*ccc(kvert,k)
-             end if
-          end do
-
-          ! Oxygen
-          wk(7) = xgas(7,k)*ccc(kvert,k)
-          
-          do kk = 1, nret
-             if( trim(name(igas(kk))) .eq. trim('O2')) then
-                wk(7) = x(kk,k)*ccc(kvert,k)
-             end if
-          end do
-
-          wbroad=wn2+wa
-          nmol_c = 7
-             
-          nmon = nm(iband)
-          v1abs = wstart(iband)
-          v2abs = wstart(iband) + nm(iband)*dn(iband)
-          dvabs = dn(iband)
-          nptabs = nm(iband)
-          v1 = v1abs
-          v2 = v2abs
-          xself(1:7) = 1.0d0
-          xlength = 1.0d0
-          print *, pave, tave, xlength, wa, wn2, wk(1:7)
-          call contnm(1)
-
-          open(10, file='h2ocont')
-          DO 100 I=1,NPTABS
-             VI=V1ABS+dble(I-1)*DVABS
-100          WRITE (10, 910) VI, ABSRB(I) 
-910          FORMAT(F10.3,1P,E12.3)
-             close(10)
-             
-          mtckd(1, k, mxone:mxone+nm(iband)) = absrb(1:nm(iband))
-!          print *, k, mxone,mxone+nmon
-       end do
-       mxone = mxone + nmon
-    end do
-    
-  end subroutine h2o_continuum
   
 end module continuum

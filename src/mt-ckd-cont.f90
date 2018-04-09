@@ -34,15 +34,38 @@ SUBROUTINE CONTNM(JRAD)
   !     SUBROUTINE CONTNM CONTAINS THE CONTINUUM DATA                     
   !     WHICH IS INTERPOLATED INTO THE ARRAY ABSRB                        
   !                                                                       
-  !********************************************                           
+  !********************************************
+
+      real(double) :: V1ABS,V2ABS,DVABS, ABSRB
+      integer :: NPTABS, NMOL_C,LAYER ,LSTWDF,NPTC,NPTh
+      integer :: IRD,IPRcnt,IPU,NOPR,NFHDRF,NPHDRF,NFHDRL,NPHDRL
+      integer :: NLNGTH,KFILE,KPANEL,LINFIL,NFILE,IAFIL,IEXFIL  
+      integer :: NLTEFL,LNFIL4,LNGTH4
+      integer :: i,k,kk,icflg,jrad,mxone, nmon, kvert, ksmax2,iband
+
+      
+      real(double) :: PAVE,TAVE
+      real(double) :: WK,PZL,PZU,TZL,TZU,WBROAD,DV ,V1 ,V2 ,TBOUND
+      real(double) :: EMISIV,FSCDID,YI1
+      real(double) :: V1C,V2C,DVC,C
+      real(double) :: V1h,V2h,DVh,Ch,csh2o,cfh2o
+      real(double) :: XSELF,XFRGN,XCO2C,XO3CN,XO2CN,XN2CN,XRAYL
+      real(double) :: vi,vmrh2o,W_dry,wa,wn2,wtot,xcnt,xlength
+      
+      CHARACTER*18 HNAMCNT,HVRCNT
+!                                                                         F00100
+      CHARACTER*8      XID,       HMOLID,      YID 
+      REAL*8               SECANT,       XALTZ
+
+  
   COMMON /cnth2o/ V1h,V2h,DVh,NPTh,                                 &
        &                Ch(n_absrb),csh2o(n_absrb),cfh2o(n_absrb)         
 !********************************************                           
   COMMON /ABSORB/ V1ABS,V2ABS,DVABS,NPTABS,ABSRB(n_absrb) 
   COMMON /XCONT/ V1C,V2C,DVC,NPTC,C(6000) 
   !                                                                       
-  CHARACTER*8      XID,       HMOLID,      YID 
-  REAL*8               SECANT,       XALTZ 
+!  CHARACTER*8      XID,       HMOLID,      YID 
+!  REAL*8               SECANT,       XALTZ 
   !                                                                       
   COMMON /CVRCNT/ HNAMCNT,HVRCNT 
   COMMON /FILHDR/ XID(10),SECANT,PAVE,TAVE,HMOLID(60),XALTZ(4),     &
@@ -53,12 +76,12 @@ SUBROUTINE CONTNM(JRAD)
        &              NLTEFL,LNFIL4,LNGTH4                                
                                                                         
   common /cntscl/ XSELF,XFRGN,XCO2C,XO3CN,XO2CN,XN2CN,XRAYL 
-    real (double) :: wtot, wa, wn2, vmrh2o,w_dry, vi
-    real (double) :: V1ABS,V2ABS,DVABS,ABSRB,xlength
-    real (double) :: PAVE,TAVE
-    real (double) :: WK,PZL,PZU,TZL,TZU,WBROAD,DV,V1 ,V2 ,TBOUND
-    real (double) :: EMISIV,FSCDID,NMOL_C,LAYER ,YI1,LSTWDF
-    real (double) :: XSELF,XFRGN,XCO2C,XO3CN,XO2CN,XN2CN,XRAYL 
+!    real (double) :: wtot, wa, wn2, vmrh2o,w_dry, vi
+!    real (double) :: V1ABS,V2ABS,DVABS,ABSRB,xlength
+!    real (double) :: PAVE,TAVE
+!    real (double) :: WK,PZL,PZU,TZL,TZU,WBROAD,DV,V1 ,V2 ,TBOUND
+!    real (double) :: EMISIV,FSCDID,YI1
+!    real (double) :: XSELF,XFRGN,XCO2C,XO3CN,XO2CN,XN2CN,XRAYL 
 
 
   !                                                                       
@@ -85,9 +108,9 @@ SUBROUTINE CONTNM(JRAD)
       DIMENSION CCH0(5150),CCH1(5150),CCH2(5150)
       DIMENSION CN0(5150),CN1(5150),CN2(5150) 
       !                                                                       
-      REAL ABSBSV(n_absrb) 
+      REAL(double):: ABSBSV(n_absrb) 
 !                                                                       
-      CHARACTER*18 HNAMCNT,HVRCNT 
+!      CHARACTER*18 HNAMCNT,HVRCNT 
       !                                                                       
       equivalence (fscdid(4), iaersl) 
       !                                                                       
@@ -253,18 +276,16 @@ SUBROUTINE CONTNM(JRAD)
 !                                                                       
       HVRCNT = '$Revision: 30787 $'
 !                                                                       
+
       RHOAVE = (PAVE/P0)*(T0/TAVE)                                      
       XKT = TAVE/RADCN2                                                 
 
 
-      print *, pave, tave, xlength, wa, wn2, wk(1:7)
-      
-      
 !     the amagat value is used for the broadenening component for a
 !     number of the collision induced continua                                 
 !                                                                       
       amagat = (Pave/P0)*(273.0d0/Tave)                                    
-!                                                                       
+      !
       WTOT = WBROAD                                                     
       DO 10 M = 1, NMOL_C                                                 
          WTOT = WTOT+WK(M)                                              
@@ -10083,3 +10104,33 @@ SUBROUTINE CONTNM(JRAD)
       RETURN                                                              !B18450
 !                                                                         !B18460
       END                                                                 !B18470
+
+            BLOCK DATA                                                          !A07600
+!
+      COMMON /LAMCHN/ ONEPL,ONEMI,EXPMIN,ARGMIN                           !A03020
+!
+      DATA ONEPL/1.001/, ONEMI/0.999/, ARGMIN/34./
+!                                                                         A07710
+
+      END                                                                 !A07720
+      BLOCK DATA cntnm
+!
+      IMPLICIT REAL*8           (V)                                     ! F00030
+!
+      COMMON /FILHDR/ XID(10),SECANT,PAVE,TAVE,HMOLID(60),XALTZ(4), &      !F00130
+                      WK(60),PZL,PZU,TZL,TZU,WBROAD,DV ,V1 ,V2 ,TBOUND, &   !F00140
+                      EMISIV,FSCDID(17),NMOL_C,LAYER ,YI1,YID(10),LSTWDF    !F00150
+!
+      Common /share/ HOLN2
+!                                                                         F00100
+      CHARACTER*8      XID,       HMOLID,      YID 
+      REAL*8               SECANT,       XALTZ
+!
+      character*8 holn2
+!
+      DATA HMOlid/ '  H2O   ' , '  CO2   ' , '   O3   ' , '  N2O   ' ,  &  !A12260
+                   '   CO   ' , '  CH4   ' , '   O2   ' , 53*'        '/
+!
+      DATA HOLN2 / ' OTHER'/                                              !A19810
+!
+      end
