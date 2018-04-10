@@ -1,5 +1,7 @@
 Version Documentation for sfit4
 
+-------------- Version PreRelease: 0.9.6 (March 2018) --------------
+
 
 -------------- Version 9.4.4 (June 2014) --------------
 MAJOR

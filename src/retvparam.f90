@@ -121,18 +121,18 @@
       INTEGER :: NUM_FILTER
       REAL (DOUBLE), ALLOCATABLE :: FILTERTRANS (:,:)
 
-      
+
     CONTAINS
-      
+
       real(double) function FTRANS(WNUM)
         ! INTERPOLATES THE CURVE IN FILTERTRANS TO THE WAVENUMBER WNUM
 
         implicit none
-        
+
         integer :: nr, ind_min, ind_max
         real(double) :: wnum
         logical :: flag
-        
+
         flag = .false.
         do nr = 1,num_filter
            if (filtertrans(1,nr).le.wnum &
@@ -150,18 +150,18 @@
            ftrans = 1.0d0
            return
         end if
-        
-        
+
+
         ftrans = ((wnum - filtertrans(1,ind_min)) * filtertrans(2,ind_max) &
              + ((filtertrans(1,ind_max) - wnum) * filtertrans(2,ind_min))) &
              / (filtertrans(1,ind_max) - filtertrans(1,ind_min))
 
         return
       end function FTRANS
-        
-      
+
+
       SUBROUTINE RELEASE_MEM_RTP
-        
+
       IF( ALLOCATED( P ))DEALLOCATE( P )
       IF( ALLOCATED( PORG ))DEALLOCATE( PORG )
       IF( ALLOCATED( T ))DEALLOCATE( T )

@@ -1,5 +1,8 @@
 # To remove all the objects but leave the executables use the
-# command line 	make -f makefile clean
+# %make -f makefile clean
+
+# To remove everything
+# %make cleaner
 
 # Note: object channel.o is added by WUJIAN PENG in July, 2002
 #       object planck.o added by M. Palm in 2008
@@ -8,22 +11,9 @@
 
 .SUFFIXES: .f .f90 .o .mod .F
 
-# Fixed source, if any:
-#.f.o:
-#	$(FC) -c $(FFLAGS) $<
-#
-#.F.o:
-#	$(FC) -c $(FFLAGS) $<
-
-#.f90.mod:
-#	$(FC) -c $(FFLAGS) $<
-
 # Free form source:
 .f90.o:
 	$(FC) -c $(FFLAGS) $<
-
-#%.mod %.o: %,f90
-#	$(FC) -c $(FFLAGS) $<
 
 FC = gfortran
 
@@ -40,7 +30,7 @@ FFLAGS = -Warray-bounds -Wcharacter-truncation -Wunused-parameter \
 # -Warray-temporaries too many...
 
 #error check a lot
-#FFLAGS = -Wall -fno-automatic -fcheck=all -ffpe-trap=invalid,zero,overflow,underflow -Warray-bounds \
+FFLAGS = -Wall -fno-automatic -fcheck=all -ffpe-trap=invalid,zero,overflow,underflow -Warray-bounds \
          -fbounds-check -fbacktrace -g -ffree-line-length-none
 
 # optimize -Ofast v4.8
@@ -49,11 +39,9 @@ FFLAGS = -g -Wall -fno-automatic -frepack-arrays  -ffree-line-length-none \
 # supply compile date:
 # -cpp -DBDATE="\"`date +%Y%m%d`"\" -O2 -fno-automatic
 
-
 # intel
 #FC = ifort
 #FFLAGS = -fpe-all=0  -O0 -debug full
-
 #FFLAGS = -debug full
 
 
@@ -66,7 +54,7 @@ PGTRAP = -Ktrap=divz -Ktrap=align -Ktrap=denorm  -Ktrap=inv -Ktrap=ovf -Ktrap=un
 PGBUG = -Mbounds -Mchkfpstk -Mchkptr -Mchkstk -Mpgicoff
 PGOPT = -fast
 
-# use intermnal matrix inversion (not lapack)
+# use internal matrix inversion (not lapack)
 # no eigenvector output
 # mac:
 #VLIB = -Wl,-framework -Wl,vecLib
@@ -178,7 +166,7 @@ mt-ckd-cont.o\
 : params.o bandparam.o retvparam.o
 
 continuum.o\
-: params.o xsections.o retvparam.o 
+: params.o xsections.o retvparam.o
 
 
 datafiles.o \
