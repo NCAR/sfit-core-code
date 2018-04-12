@@ -1,5 +1,8 @@
 # To remove all the objects but leave the executables use the
-# command line 	make -f makefile clean
+# %make -f makefile clean
+
+# To remove everything
+# %make cleaner
 
 # Note: object channel.o is added by WUJIAN PENG in July, 2002
 #       object planck.o added by M. Palm in 2008
@@ -8,22 +11,9 @@
 
 .SUFFIXES: .f .f90 .o .mod .F
 
-# Fixed source, if any:
-#.f.o:
-#	$(FC) -c $(FFLAGS) $<
-#
-#.F.o:
-#	$(FC) -c $(FFLAGS) $<
-
-#.f90.mod:
-#	$(FC) -c $(FFLAGS) $<
-
 # Free form source:
 .f90.o:
 	$(FC) -c $(FFLAGS) $<
-
-#%.mod %.o: %,f90
-#	$(FC) -c $(FFLAGS) $<
 
 FC = gfortran
 
@@ -40,20 +30,18 @@ FFLAGS = -Warray-bounds -Wcharacter-truncation -Wunused-parameter \
 # -Warray-temporaries too many...
 
 #error check a lot
-#FFLAGS = -Wall -fno-automatic -fcheck=all -ffpe-trap=invalid,zero,overflow,underflow -Warray-bounds \
+FFLAGS = -Wall -fno-automatic -fcheck=all -ffpe-trap=invalid,zero,overflow,underflow -Warray-bounds \
          -fbounds-check -fbacktrace -g -ffree-line-length-none
 
 # optimize -Ofast v4.8
-FFLAGS = -g -Wall -fno-automatic -frepack-arrays  -ffree-line-length-none -mcmodel=large
-
+FFLAGS = -g -Wall -fno-automatic -frepack-arrays  -ffree-line-length-none \
+	-mcmodel=large
 # supply compile date:
 # -cpp -DBDATE="\"`date +%Y%m%d`"\" -O2 -fno-automatic
-
 
 # intel
 #FC = ifort
 #FFLAGS = -fpe-all=0  -O0 -debug full
-
 #FFLAGS = -debug full
 
 
@@ -66,7 +54,7 @@ PGTRAP = -Ktrap=divz -Ktrap=align -Ktrap=denorm  -Ktrap=inv -Ktrap=ovf -Ktrap=un
 PGBUG = -Mbounds -Mchkfpstk -Mchkptr -Mchkstk -Mpgicoff
 PGOPT = -fast
 
-# use intermnal matrix inversion (not lapack)
+# use internal matrix inversion (not lapack)
 # no eigenvector output
 # mac:
 #VLIB = -Wl,-framework -Wl,vecLib
@@ -109,23 +97,30 @@ voigt_sdv_lm.o \
 writeout.o \
 andex.o \
 xsections.o \
-continuum.o\
-mt-ckd-cont.o
+continuum.o
+#h2o_continuum.o\ They need extra lines because of other parameters.
+#mt-ckd-cont.o
 
 #convert_old_data_files.o
 
 all : sfit4 hbin pspec # convert_rdrv_394
 
-sfit4: $(OBJS) rdrv40.o
+mt-ckd-cont.o : mt-ckd-cont.f90 
+	$(FC) -c $^ $(FFLAGS) $(LIBS) $(VLIB) -fdefault-real-8 -fdefault-integer-8 -frecord-marker=4
+h2o_continuum.o : h2o_continuum.f90 
+	$(FC) -c $^ $(FFLAGS) $(LIBS) $(VLIB) -fdefault-real-8 -fdefault-integer-8 -frecord-marker=4
+
+
+sfit4: $(OBJS) rdrv40.o mt-ckd-cont.o h2o_continuum.o
 	$(FC) -o $@ $^ $(FFLAGS) $(LIBS) $(VLIB)
 
 #convert_rdrv_394 : convert_rdrv_394.o $(OBJS) convert_old_data_files.o read_binput_394.o
 #	$(FC) -o $@ $^ $(FFLAGS) $(LIBS) $(VLIB)
 
-hbin: hbin.o hitran.o $(OBJS)
+hbin: hbin.o hitran.o $(OBJS) mt-ckd-cont.o h2o_continuum.o
 	$(FC) -o $@ $^ $(FFLAGS) $(LIBS) $(VLIB)
 
-pspec: pspec.o spec.o fitting.o  $(OBJS)
+pspec: pspec.o spec.o fitting.o  $(OBJS) mt-ckd-cont.o h2o_continuum.o
 	$(FC) -o $@ $^ $(FFLAGS) $(LIBS) $(VLIB)
 
 #params.o binput_4_0.o binput_parse_4_0.o datafiles.o bandparam.o
@@ -171,7 +166,7 @@ mt-ckd-cont.o\
 : params.o bandparam.o retvparam.o
 
 continuum.o\
-: params.o xsections.o retvparam.o 
+: params.o xsections.o retvparam.o
 
 
 datafiles.o \
@@ -182,7 +177,7 @@ diagnostic.o \
 
 frwdmdl.o \
 : params.o transmis.o datafiles.o molcparam.o solar.o synspec.o channel.o bandparam.o retvparam.o \
-	writeout.o initialize.o continuum.o mt-ckd-cont.o
+	writeout.o initialize.o continuum.o mt-ckd-cont.o 
 
 galatry.o \
 : params.o
@@ -244,7 +239,7 @@ tips.o \
 
 transmis.o \
 : params.o bandparam.o retvparam.o vibfcn.o xsections.o molcparam.o lineparam.o\
-continuum.o mt-ckd-cont.o
+continuum.o mt-ckd-cont.o h2o_continuum.o
 
 vibfcn.o \
 : params.o retvparam.o molcparam.o #writeout.o
