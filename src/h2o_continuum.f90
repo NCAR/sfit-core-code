@@ -78,62 +78,73 @@ contains
     ksmax2 = kztan(iscan(1,1))
     
     do iband = 1, nband
-       do k = 1, ksmax2-1
+       do k = 1, ksmax2
           pave = p(k)*1013.15d0 ! convert in mbar
           tave = t(k)
-          xlength = abs((z(k+1) - z(k)))*10000.0d0 !thickness needed in cm
-          
-          vmrh2o = xgas(1,k)
-          wtot = xgas(1,k)*ccc(kvert,k)
+
+          w_dry = ccc(kvert,k)
+          ! IF the GASES ARE not retrieved, take them from reference.prf
+          do i = 1,ngas
+             if( trim(name(icode(kk))) .eq. trim('H2O')) then
+                vmrh2o = xgas(i,k)
+             end if
+             if( trim(name(icode(kk))) .eq. trim('CO2')) then
+                wk(2) = xgas(i,k)*w_dry!ccc(kvert,k)
+             end if
+             if( trim(name(icode(kk))) .eq. trim('O3')) then
+                wk(3) = xgas(i,k)*w_dry!ccc(kvert,k)
+             end if
+             ! oxygen and nitrogen may be deleted if there are not lines. This is especially
+             ! true for O2 in the 330-1300 1/cmregion
+             ! so we use the default mixing ratio
+             wn2 = 0.79*w_dry
+             wk(7) = 0.21*w_dry
+          end do
+
+
+          ! Check if they are retrieved and replace default value by the retrieved one.
+          ! H2O          
           do kk = 1, nret
              if( trim(name(igas(kk))) .eq. trim('H2O')) then
                 vmrh2o = x(kk,k)
-                wtot = x(kk,k)*ccc(kvert,k)
              end if
           end do
+          wk(1) = vmrh2o*w_dry
           
-          w_dry = wtot * (1.-vmrh2o)
-          wk(1) = vmrh2o * w_dry
           !ARGON
           WA     = 0.009     * W_dry 
           
           !NITROGEN
-          wn2 = xgas(41,k) * ccc(kvert,k)
           do kk = 1, nret
              if( trim(name(igas(kk))) .eq. trim('N2')) then
-                wn2 = x(kk,k)*ccc(kvert,k)
+                wn2 = x(kk,k)*w_dry!ccc(kvert,k)
              end if
           end do
           
           ! CO2
-          wk(2) = xgas(2,k)*ccc(kvert,k)
+
           do kk = 1, nret
              if( trim(name(igas(kk))) .eq. trim('CO2')) then
-                wk(2) = x(kk,k)*ccc(kvert,k)
+                wk(2) = x(kk,k)*w_dry!ccc(kvert,k)
              end if
           end do
           
           ! Ozone
-          wk(3) = xgas(3,k)*ccc(kvert,k)
+          wk(3) = xgas(3,k)*w_dry!ccc(kvert,k)
           do kk = 1, nret
              if( trim(name(igas(kk))) .eq. trim('O3')) then
-                wk(3) = x(kk,k)*ccc(kvert,k)
+                wk(3) = x(kk,k)*w_dry!ccc(kvert,k)
              end if
           end do
           
           ! Oxygen
-          wk(7) = xgas(7,k)*ccc(kvert,k)
-          
           do kk = 1, nret
              if( trim(name(igas(kk))) .eq. trim('O2')) then
-                wk(7) = x(kk,k)*ccc(kvert,k)
+                wk(7) = x(kk,k)*w_dry!ccc(kvert,k)
              end if
           end do
           
           
-          wtot = 0.0d0
-          w_dry = 0.0d0
-          wa = 0.0d0
           wbroad=wn2+wa
           nmol_c = 7
           
@@ -144,19 +155,18 @@ contains
           nptabs = nm(iband)
           v1 = v1abs
           v2 = v2abs
-          !          print *, v1abs, v2abs, dvabs, pave, tave, z(k+1), z(k), xlength, wbroad, wk(1:7)
                     
-          absrb(1:nptabs)=0.0
+          absrb(1:n_absrb)=0.0
           
           call contnm(1)
           
-          open(10, file='h2ocont')
-          DO I=1,NPTABS
-             VI=V1ABS+dble(I-1)*DVABS
-             WRITE (10, 910) VI, ABSRB(I)
-          end DO
-910       FORMAT(F10.3,1P,E12.3)
-          close(10)
+!          open(10, file='h2ocont')
+!          DO I=1,NPTABS
+!             VI=V1ABS+dble(I-1)*DVABS
+!             WRITE (10, 910) VI, ABSRB(I)
+!          end DO
+!910       FORMAT(F10.3,1P,E12.3)
+!          close(10)
 
           mtckd(1, k, mxone:mxone+nm(iband)-1) = absrb(1:nm(iband))
           !          print *, k, mxone,mxone+nmon

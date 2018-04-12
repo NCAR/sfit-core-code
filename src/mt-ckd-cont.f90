@@ -62,7 +62,7 @@ SUBROUTINE CONTNM(JRAD)
        &                Ch(n_absrb),csh2o(n_absrb),cfh2o(n_absrb)         
 !********************************************                           
   COMMON /ABSORB/ V1ABS,V2ABS,DVABS,NPTABS,ABSRB(n_absrb) 
-  COMMON /XCONT/ V1C,V2C,DVC,NPTC,C(6000) 
+  COMMON /XCONT/ V1C,V2C,DVC,NPTC,C(n_absrb) 
   !                                                                       
 !  CHARACTER*8      XID,       HMOLID,      YID 
 !  REAL*8               SECANT,       XALTZ 
