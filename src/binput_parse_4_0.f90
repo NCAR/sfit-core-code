@@ -73,8 +73,6 @@ contains
              tfile(10) = trim(adjustl(value))
           case ('refprofile')
              tfile(72) = trim(adjustl(value))
-          case ('transmission')
-             tfile(96) = trim(adjustl(value))
           case default
              WRITE(16,*) 'BINPUT_PARSE_4_0:READ_FILE_SECTION: Key ', &
                   trim(keyword(3)), ' not contained in section file.in'
@@ -433,10 +431,6 @@ end subroutine read_file_section
        end if
     case ('raytonly')
        read(value,*) raytonly
-    case ('inst_transmission')
-       read(value,*) f_meas_transmis
-    case ('mtckd_continuum')
-       read(value,*) f_mtckd
     case ('continuum')
        if (len_trim(keyword(3)).eq.0) then
           read(value,*) f_continuum

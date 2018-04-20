@@ -98,8 +98,7 @@ voigt_sdv_lm.o \
 writeout.o \
 andex.o \
 xsections.o \
-continuum.o\
-mt-ckd-cont.o
+continuum.o
 
 #convert_old_data_files.o
 
