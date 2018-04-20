@@ -39,7 +39,7 @@
 
 !      LOGICAL, PARAMETER :: BUG = .TRUE.
       LOGICAL, PARAMETER :: BUG = .FALSE.
-      LOGICAL, PARAMETER :: ANALYTIC_K = .TRUE.
+!      LOGICAL, PARAMETER :: ANALYTIC_K = .TRUE.
       LOGICAL, PARAMETER :: ANALYTIC_K = .FALSE.
 
       ! mp: For emission some of the predefault numbers seem to small (LNMAX, MAXGAS, LAYMAX)
