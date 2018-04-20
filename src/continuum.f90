@@ -8,11 +8,10 @@ module continuum
   integer, parameter :: cont_poly_max = 10
 
   integer :: ncont = 0, n_contabs
-  logical :: f_continuum = .false., f_mtckd = .false.
+  logical :: f_continuum = .false.
   integer :: abscont_type, abscont_order
   real(double), dimension(cont_poly_max) :: abscont_param, abscont_sparam
   real(double), dimension(:), allocatable :: cont_param
-  real(double), dimension(:,:,:), allocatable :: mtckd
   real(double) :: cont_z_abs, cont_alpha
   
   
