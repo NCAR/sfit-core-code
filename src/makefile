@@ -99,20 +99,11 @@ writeout.o \
 andex.o \
 xsections.o \
 continuum.o
-<<<<<<< HEAD
-=======
-#h2o_continuum.o\ They need extra lines because of other parameters.
-#mt-ckd-cont.o
->>>>>>> 36d394fd3f10fe34985970b9cba6489fa200492a
 
 #convert_old_data_files.o
 
 all : sfit4 hbin pspec # convert_rdrv_394
 
-mt-ckd-cont.o : mt-ckd-cont.f90 
-	$(FC) -c $^ $(FFLAGS) $(LIBS) $(VLIB) -fdefault-real-8 -fdefault-integer-8 -frecord-marker=4
-h2o_continuum.o : h2o_continuum.f90 
-	$(FC) -c $^ $(FFLAGS) $(LIBS) $(VLIB) -fdefault-real-8 -fdefault-integer-8 -frecord-marker=4
 
 
 sfit4: $(OBJS) rdrv40.o mt-ckd-cont.o h2o_continuum.o

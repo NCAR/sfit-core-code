@@ -100,11 +100,6 @@
       INTEGER :: MONONE, MXONE, IBAND, N, KSMAX2, IR, K, I
       REAL(DOUBLE), DIMENSION(:),   ALLOCATABLE :: cross_all
 
-<<<<<<< HEAD
-=======
-
-      IF (F_MTCKD) CALL CALC_H2O_CONTINUUM()
->>>>>>> 36d394fd3f10fe34985970b9cba6489fa200492a
 
       
       MONONE = 1
