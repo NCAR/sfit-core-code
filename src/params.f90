@@ -89,7 +89,7 @@
 !      parameters used ind h2o_continuum
 ! ********************************************************************
 
-      integer, parameter :: N_ABSRB=50500, IPTS=50500, IPTS2=60000
+      integer, parameter :: N_ABSRB=100000, IPTS=100000, IPTS2=100000
       real(double) , parameter  :: RADCN2 = 1.4387752 ! value from NIST.
 
 !  ********************************************************************
