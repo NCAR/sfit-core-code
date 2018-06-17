@@ -68,7 +68,9 @@
                                                 ! 2 = USE GALATRY FOR LINES WITH PARAMETERS, VOIGT ELSE
                                                 ! 3 = USE SDV FOR LINES WITH PARAMETERS
 
-      INTEGER, PARAMETER   :: GALATRY_FLAG=1,FCIA_FLAG=2,SCIA_FLAG=3,SDV_FLAG=4,LM_FLAG=5
+      INTEGER, PARAMETER   :: GALATRY_FLAG=1,FCIA_FLAG=2,SCIA_FLAG=3
+      integer, PARAMETER   :: SDV_FLAG=4,LM_FLAG=5,CORR_FLAG=5
+      INTEGER, PARAMETER   :: LM_1ST_FLAG=6, LM_FULL_FLAG=7
 
       TYPE, PUBLIC :: HITRANDATA
          INTEGER  :: MO              ! MOL ID
@@ -90,7 +92,7 @@
          REAL(4) :: GAMMA0           ! GAMMA 0
          REAL(4) :: GAMMA2           ! GAMMA 2
          REAL(4) :: SHIFT0           ! PRESSURE SHIFT FOR GEN LINESHAPE
-         REAL(4) :: SHIFT2           ! TEMPERATURE DEPENDENCY OF PRESSURE SHIFT FOR GEN LINESHAPE
+         REAL(4) :: SHIFT2           ! PRESSURE SHIFT FOR GEN LINESHAPE
          REAL(4) :: LMTK1            ! LMTK1 for Line Mixing
          REAL(4) :: LMTK2            ! LMTK2 for Line Mixing
          REAL(4) :: YLM              ! YLM for Line Mixing
