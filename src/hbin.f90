@@ -225,7 +225,10 @@ program hbin
          sdv(ifl)%g2_air(ind) = 0.0D0
          read( buf, 119 ) sdv(ifl)%mo(ind), sdv(ifl)%is(ind), &
               sdv(ifl)%qa(ind)
-         read (buf(64:), 701, err=26) sdv(ifl)%g0_air(ind), tmpreal, tmpreal, tmpreal, sdv(ifl)%g2_air(ind)
+         read (buf(63:), 701, err=26) sdv(ifl)%g0_air(ind), tmpreal, tmpreal, tmpreal, sdv(ifl)%g2_air(ind)
+         if (sdv(ifl)%g2_air(ind).lt.tiny(0.0d0)) then
+            goto 26
+         end if
 !              sdv(ifl)%g2_self(ind), sdv(ifl)%s0_self(ind)
 !         if (tiny(0.0E0).ge.abs(0.0749D0 - sdv(ifl)%g0_air(ind))) then
 !            print *, 'bla2 ', sdv(ifl)%g0_air(ind), sdv(ifl)%s0_self(ind), sdv(ifl)%qa(ind)
@@ -247,7 +250,7 @@ program hbin
    enddo
 
 !701 format(f6.5,f4.3,f4.2,f8.6,1x,g15.6,1x,g15.6,1x,g15.6)
-701 format(f6.5,f4.3,f4.2,f8.6,1x,g15.6)
+701 format(f6.5,f4.3,f4.2,f8.6,1x,g6.5)
    
    ! --- fill CORRELATION line parameters struct with all line data from each file
    do ifl = 1, enml
@@ -344,9 +347,8 @@ program hbin
                         hlp(ldx)%gamma2  = real(sdv(ifl)%g2_air(i))          ! gam2 for SDV
                         hlp(ldx)%shift0  = real(sdv(ifl)%s0_air(i))           ! shift0 for SDV
                         hlp(ldx)%shift2  = real(sdv(ifl)%ts_air(i))          ! shift2 for SDV
-                        write( hfl(ldx)%buf(172:295), 112 ) hlp(ldx)%gamma0, hlp(ldx)%gamma2, &
-                             hlp(ldx)%shift0, hlp(ldx)%shift2, hlp(ldx)%lmtk1, &
-                             hlp(ldx)%lmtk2, hlp(ldx)%ylm
+                        write( hfl(ldx)%buf(172:209), 112 ) hlp(ldx)%gamma0, hlp(ldx)%gamma2, &
+                             hlp(ldx)%shift0
                         hlp(ldx)%flag(SDV_FLAG) = .TRUE.
                         dum = flagoff + SDV_FLAG
                         write( hfl(ldx)%buf(dum:dum), '(l1)' ) .TRUE.
@@ -457,7 +459,7 @@ stop
 109 format( a255 )
 110 format( f12.5 )
 111 format( 3i5,f12.5,2x,a)
-112 format( 5e12.4,12x,4e12.4 )
+112 format( 3e12.4 )
 1121 format( 3e12.4 )
 113 format( a, a )
 !115 format(a, 2i4, 2(f14.6, 2i4))

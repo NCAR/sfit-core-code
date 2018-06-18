@@ -27,7 +27,7 @@
       USE BANDPARAM
       USE MOLCPARAM
       USE VOIGT_SDV_LM
-
+      USE LINESHAPE_PCQSDHC
       IMPLICIT NONE
 
       INTEGER :: NMONSM, NCROSS
@@ -53,7 +53,8 @@
       REAL(DOUBLE) :: DIST, TXE, VIBFAC, STIMFC, SSL, ACOFB, SCOFB, ALOR, ADOP, &
                       AKZERO, YDUM, OPTMAX, XDUM, AKV, OPTCEN, DELLOR, WLIN, START, &
                       SSTOP, ANUZ, QT, QTSTDTEMP, GI, SSLOLD, BETAP, GZ, LMTVAL
-      !REAL(DOUBLE) :: AKV_R, AKV_I, G2, LM, S0, S2, ANUVC
+      REAL(DOUBLE) :: AKV_R, AKV_I, G2, LM, S0=0.0D0, S2=0.0D0
+      REAL(DOUBLE) :: ANUVC = 0.0d0, ETA0=0.0D0
 
       REAL (DOUBLE), DIMENSION(4) :: SDVLM_PARAM ! PARAMETERS FOR SDV AND/OR LINEMIXING
                                                  ! CALCULATION ACCORDING TO BOONE
@@ -176,16 +177,36 @@
 !               MO  = ICODE(IMOL)
 !               ISO = ISCODE(IMOL)
 
-! --- ACCOUNT FOR O2
+               ! RESET SPEED DEPENDANCY PARAMETER
+               G2 = 0.0D0
+               ! --- ACCOUNT FOR O2
                IF( HFLAG(N,FCIA_FLAG) .OR. HFLAG(N,SCIA_FLAG) .OR. MO.EQ.7 )THEN
                   ACOFB = AAA(N) + (XGAS(IMOL,K)-0.21D0)*(SSS(N)-AAA(N))/0.79D0
                   ACOFB = ACOFB * P(K)
                   SCOFB = 0.0D0
+               ELSEIF  ( LSM_SDV.and.HFLAG(N,SDV_FLAG) ) THEN
+                  ACOFB = GAMMA0(N)*P(K)*(1.0D0 - XGAS(IMOL,K))
+                  SCOFB = SSS(N)*P(K)*XGAS(IMOL,K)
+                  G2 = GAMMA2(N)*GAMMA0(N)*P(k) * (1.0D0 - XGAS(IMOL,K))! not yet implemented: + SELF_GAMMA2(N)*P(K)*XGAS(IMOL,K)
                ELSE
                   ACOFB = AAA(N)*P(K)*(1.0D0 - XGAS(IMOL,K))
                   SCOFB = SSS(N)*P(K)*XGAS(IMOL,K)
                ENDIF
 
+               ! PRESSURE SHIFT PARAMETER FOR pCqSD
+               IF ( FPS.AND.(LSHAPEMODEL.EQ.4) ) THEN
+                  IF ( .false..and.HFLAG(N,SDV_FLAG) ) THEN
+                     S0 = SHIFT0(N)*P(K) * (1.0D0 - XGAS(IMOL,K))! + SELF_SHIFT0(N)*P(K) * XGAS(IMOL,K)          ! PRESSURE SHIFT IF SDV IS USED
+                  ELSE
+                     S0 = PSLIN(N)*P(K) * (1.0D0 - XGAS(IMOL,K))! + SELF_SHIFT0(N)*P(K) * XGAS(IMOL,K)        ! PRESSURE SHIFT IF SDV IS NOT USED
+                  END IF
+                  S2 = SHIFT2(N)*P(k)* (1.0D0 - XGAS(IMOL,K))    ! PRESSURE SHIFT OF GAMMA2
+               ELSE
+                  S0 = 0.0D0
+                  S2 = 0.0D0
+               END IF
+
+               
                ALOR = (ACOFB + SCOFB)*(STDTEMP/T(K))**TDLIN(N)
                ADOP = RFACTOR*SQRT(T(K)/GMASS(N))*AZERO(N)
 
@@ -198,7 +219,7 @@
 
                YDUM = ALOGSQ*ALOR/ADOP
 
-               ! SPEED DEPENDENT VOIGT - BOONE 2011
+               ! SPEED DEPENDENT VOIGT 
                SDVLM_PARAM(1:4) = 0.0D0
                IF (HFLAG(N,SDV_FLAG)) THEN
                   SDVLM_PARAM(1) = GAMMA2(N)*P(K) ! ASYMMETRY FOR SDV (MIXING COEFFICIENT)
@@ -210,18 +231,19 @@
                   SDVLM_PARAM(2) = (ACOFB + SCOFB)   ! PRESSURE BROADENING FOR VOIGT
                   LMTVAL = (T(K) - 260.0D0) / 60.0D0 ! LM-REF TEMPERATURES: 200/260/320 K
                   SDVLM_PARAM(4) = YLM(N) * (1.0D0 + LMTVAL *(LMTK1(N) + LMTVAL * LMTK2(N)))
+                  LM = SDVLM_PARAM(4)*P(K)
                END IF
 
 ! --- CHECK FOR ZERO PARAMETERS IN SVD_PARAM ESPECIALLY 3 (ETA2) MUST BE NON ZERO IF THIS IS NOT THE CASE,
 ! --- USE VOIGT LINESHAPE -- NOTE LINEMIXING PROMPTS USE OF SDVMIX OR VOIGTMIX !
-               IF(( ABS(SDVLM_PARAM(3)) .LT. TINY(0.0D0) ) .and. &
-                    ( HFLAG(N,SDV_FLAG)) .and. &
-                    ( K .EQ. K_START ))THEN
-                  NRESET = NRESET + 1
-                  WRITE(0,100) AZERO(N), HFLAG(N,1:8), SDVLM_PARAM(1:4), NRESET
-                  HFLAG(N,SDV_FLAG) = .FALSE.
-               ENDIF
-               IF ( HFLAG(N,SDV_FLAG) .OR. HFLAG(N,LM_FLAG) )THEN
+               ! IF(( ABS(SDVLM_PARAM(3)) .LT. TINY(0.0D0) ) .and. &
+               !      ( HFLAG(N,SDV_FLAG)) .and. &
+               !      ( K .EQ. K_START ))THEN
+               !    NRESET = NRESET + 1
+               !    WRITE(0,100) AZERO(N), HFLAG(N,1:8), SDVLM_PARAM(1:4), NRESET
+               !    HFLAG(N,SDV_FLAG) = .FALSE.
+               ! ENDIF
+               IF ((LSHAPEMODEL.eq.3).and.(HFLAG(N,SDV_FLAG) .OR. HFLAG(N,LM_FLAG)) )THEN
                   CALL SDV_MISC(ALOGSQ/ADOP, STDTEMP/T(K), P(K), TDLIN(N), SDVLM_PARAM)
                ENDIF
                DO I = 1, NRET + NCELL
@@ -236,17 +258,23 @@
 !  --- CALCULATE LINE CENTER OPTICAL DEPTH
   349          CONTINUE
                XDUM = 0.D0
-               IF(HFLAG(N,GALATRY_FLAG)) THEN
+               IF((LSHAPEMODEL.EQ.2).and.HFLAG(N,GALATRY_FLAG)) THEN
                   BETAP = BETA(N)*P(K)
                   BETAP = BETAP * BETAT(ICODE(IMOL),T(K))
                   GZ = ALOGSQ*BETAP/ADOP
                   AKV = AKZERO*GALATRY(XDUM,YDUM,GZ)
-               ELSEIF(HFLAG(N,SDV_FLAG).and.HFLAG(N,LM_FLAG)) THEN
+               ELSEIF((LSHAPEMODEL.EQ.3).and.HFLAG(N,SDV_FLAG).and.HFLAG(N,LM_FLAG)) THEN
                   CALL SDVMIX(XDUM*ADOP/ALOGSQ,AKV)
                   AKV = AKZERO * AKV
-               ELSEIF(HFLAG(N,LM_FLAG)) THEN
+               ELSEIF((LSHAPEMODEL.EQ.3).AND.(HFLAG(N,LM_FLAG))) THEN
                   CALL VOIGTMIX(XDUM*ADOP/ALOGSQ,AKV)
                   AKV = AKZERO * AKV
+               ELSEIF(LSHAPEMODEL.EQ.4) THEN
+                  ! pCqSDHC MODEL (Tran)
+                  call pCqSDHC(azero(N),ADOP,ALOR,G2,S0, S2, ANUVC,ETA0,&
+                       azero(N),AKV_R,AKV_I)
+                  AKV = SSL * (AKV_R + LM * AKV_I)! ALL OTHER PARTS OF AKZERO ARE ALREADY PART OF 
+                  ! AKV_R AND AKV_I
                ELSE
                   AKV = AKZERO * VOIGT(XDUM,YDUM)
                ENDIF
@@ -280,15 +308,21 @@
                DO J = JSTART, JSTOP
                   ANUZ = WMON(IBAND) + (J - 1)*DN(IBAND)
                   XDUM = ALOGSQ*(ANUZ - WLIN)/ADOP
-                  IF (HFLAG(N,GALATRY_FLAG)) THEN
+                  IF ((LSHAPEMODEL.EQ.2).AND.HFLAG(N,GALATRY_FLAG)) THEN
                      XDUM = ABS(XDUM)
                      AKV  = AKZERO*GALATRY(XDUM,YDUM,GZ)
-                  ELSEIF(HFLAG(N,SDV_FLAG).and.HFLAG(N,LM_FLAG)) THEN
+                  ELSEIF((LSHAPEMODEL.EQ.3).and.HFLAG(N,SDV_FLAG).and.HFLAG(N,LM_FLAG)) THEN
                      CALL SDVMIX(XDUM*ADOP/ALOGSQ,AKV)
                      AKV = AKZERO * AKV
-                  ELSEIF(HFLAG(N,LM_FLAG)) THEN
+                  ELSEIF((LSHAPEMODEL.EQ.3).AND.HFLAG(N,LM_FLAG)) THEN
                      CALL VOIGTMIX(XDUM*ADOP/ALOGSQ,AKV)
                      AKV = AKZERO * AKV
+                  ELSEIF (LSHAPEMODEL.EQ.4) THEN
+                     ! pCqSDHC MODEL (Tran)
+                     call pCqSDHC(WLIN,ADOP,ALOR,G2,S0, S2, ANUVC,ETA0,&
+                          ANUZ,AKV_R,AKV_I)
+                     AKV = SSL * (AKV_R + LM * AKV_I)! ALL OTHER PARTS OF AKZERO ARE ALREADY PART OF 
+                     ! AKV_R AND AKV_I
                   ELSE
                      XDUM = ABS(XDUM)
                      AKV  = AKZERO*VOIGT(XDUM,YDUM)

@@ -215,7 +215,9 @@
             CASE (2)
                WRITE (16,*) '  2 = USE GALATRY FOR LINES WITH PARAMETERS, VOIGT ELSE'
             CASE (3)
-               WRITE (16,*) '  3 = USE SDV & LINE MIXING FOR LINES WITH PARAMETERS'
+               WRITE (16,*) '  3 = VOIGT + LINE MIXING FOR LINES WITH PARAMETERS'
+            CASE (4)
+               WRITE (16,*) '  3 = USE PCQSDHC (Tran2013)'
             CASE DEFAULT
                WRITE(16,*)' LINE SHAPE MODEL FLAG OUT OF RANGE MIST BE 0, 1, 2, 3)'
                WRITE(00,*)' LINE SHAPE MODEL FLAG OUT OF RANGE MIST BE 0, 1, 2, 3)'

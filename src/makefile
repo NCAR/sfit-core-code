@@ -80,6 +80,7 @@ hitran.o \
 initialize.o \
 isotope.o \
 lineparam.o \
+lineshape_pcqsdhc.o\
 matrix.o \
 molcparam.o \
 opt.o \
