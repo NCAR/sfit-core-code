@@ -291,11 +291,11 @@
 !print*, 'kro 7 ',dist, DELLOR, SSL, ALOR, OPTMAX, TAUMIN
 !  --- EXTEND CALCULATIONS FURTHER INTO THE WINGS IF NECESSARY
                IF (DELLOR > DELNU) DIST = DELLOR
-!  --- CORRECT POSITION FOR PRESSURE SHIFT
+               !  --- CORRECT POSITION FOR PRESSURE SHIFT
                WLIN = AZERO(N) + P(K)*PSLIN(N)
 !print*, 'kro 8 azero ', AZERO(N), P(K), PSLIN(N)
-!  --- IF NO PRESSURE SHIFT
-               IF( .NOT. FPS ) WLIN = AZERO(N)
+!  --- IF NO PRESSURE SHIFT, pCqSDHC calculates it own pressure shift
+               IF( (.NOT. FPS).OR.(LSHAPEMODEL.EQ.4) ) WLIN = AZERO(N)
                START = WLIN - DIST
                SSTOP = WLIN + DIST
                JSTART = FLOOR((START - WMON(IBAND))/DN(IBAND) + 1.00000001D0)
