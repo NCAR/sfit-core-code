@@ -34,8 +34,9 @@ FFLAGS = -Wall -fno-automatic -fcheck=all -ffpe-trap=invalid,zero,overflow,under
          -fbounds-check -fbacktrace -g -ffree-line-length-none
 
 # optimize -Ofast v4.8
-FFLAGS = -g -Wall -fno-automatic -frepack-arrays  -ffree-line-length-none \
-	-mcmodel=large
+FFLAGS = -g -Wall -fno-automatic -frepack-arrays  -ffree-line-length-none -mcmodel=large
+#FFLAGS = -g -Wall -fno-automatic -frepack-arrays  -ffree-line-length-none
+
 # supply compile date:
 # -cpp -DBDATE="\"`date +%Y%m%d`"\" -O2 -fno-automatic
 
@@ -79,6 +80,7 @@ hitran.o \
 initialize.o \
 isotope.o \
 lineparam.o \
+lineshape_pcqsdhc.o\
 matrix.o \
 molcparam.o \
 opt.o \
@@ -98,17 +100,11 @@ writeout.o \
 andex.o \
 xsections.o \
 continuum.o
-#h2o_continuum.o\ They need extra lines because of other parameters.
-#mt-ckd-cont.o
 
 #convert_old_data_files.o
 
 all : sfit4 hbin pspec # convert_rdrv_394
 
-mt-ckd-cont.o : mt-ckd-cont.f90 
-	$(FC) -c $^ $(FFLAGS) $(LIBS) $(VLIB) -fdefault-real-8 -fdefault-integer-8 -frecord-marker=4
-h2o_continuum.o : h2o_continuum.f90 
-	$(FC) -c $^ $(FFLAGS) $(LIBS) $(VLIB) -fdefault-real-8 -fdefault-integer-8 -frecord-marker=4
 
 
 sfit4: $(OBJS) rdrv40.o mt-ckd-cont.o h2o_continuum.o

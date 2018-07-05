@@ -61,7 +61,7 @@
  # Forward model parameters
 
  fw.delnu                    =           0.10000
- fw.lshapemodel              =               0
+ fw.lshapemodel              =               4
  fw.solar_spectrum           =               T
  fw.linemixing               =              T
  fw.linemixing.gas           =            CO2
@@ -109,7 +109,7 @@
  band.1.apodization_code     =               0
  band.1.gasb                 = CCL4   H2O    O3     CO2
 
- kb = T 
+ kb = F
  kb.temperature = T
  kb.slope = T
  kb.curvature = T 

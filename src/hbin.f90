@@ -29,7 +29,7 @@ program hbin
    integer              :: ldx, nl, i, j, ifl
    integer              :: hblun=7, halun=8, istat, iband, inxt(1)
 !   integer(long_log)    :: nulm, nuht
-   real(double)         :: wavnum, wstr, wstp
+   real(double)         :: wavnum, wstr, wstp, tmpreal
    character (len=30)   :: hbfile, hafile
    character (len=200)  :: nam
    character (len=1)    :: pos
@@ -53,6 +53,7 @@ program hbin
    type (galatrydata), dimension(ngal)        :: glp
    type (galatrydata), dimension(nlmx)        :: lmx
    type (galatrydata), dimension(nsdv)        :: sdv
+   type (galatrydata), dimension(ncorr)        :: elp
 
    call date_and_time (cdate, ztime, zone)
    write (tag,*) trim(version), ' runtime:', cdate(1:8), '-', ztime(1:2), ':', ztime(3:4), ':', ztime(5:6)
@@ -66,7 +67,7 @@ program hbin
    call read_ctrl
 
    ! --- read in paths to HITRAN files
-   call read_input( hasc, wave5(1), wave6(nband), HFL, GLP, LMX, SDV )
+   call read_input( hasc, wave5(1), wave6(nband), HFL, GLP, LMX, SDV, ELP )
 
    ! --- see if we need to separate out isotopes
    !print *, useiso
@@ -181,7 +182,11 @@ program hbin
          ind = lmx(ifl)%n
          lmx(ifl)%g2_air(ind) = 0.0D0
          read( buf, 119 ) lmx(ifl)%mo(ind), lmx(ifl)%is(ind), lmx(ifl)%qa(ind)
-         read (buf(63:), *) lmx(ifl)%lm_t1(ind), lmx(ifl)%lm_t2(ind), lmx(ifl)%lm_air(ind)
+         lmx(ifl)%lm_air(ind) = 0.0d0
+         lmx(ifl)%lm_t1(ind) = 0.0d0
+         lmx(ifl)%lm_t2(ind) = 0.0d0
+         ! test for linemixing parameter
+         read (buf(63:), *, end=16) lmx(ifl)%lm_air(ind), lmx(ifl)%lm_t1(ind), lmx(ifl)%lm_t2(ind) 
 
          lmx(ifl)%n = lmx(ifl)%n + 1
 
@@ -220,15 +225,19 @@ program hbin
          sdv(ifl)%g2_air(ind) = 0.0D0
          read( buf, 119 ) sdv(ifl)%mo(ind), sdv(ifl)%is(ind), &
               sdv(ifl)%qa(ind)
-         read (buf(64:), '(f5.4,f5.3,f3.2,f8.6)') sdv(ifl)%g0_air(ind), sdv(ifl)%g0_self(ind),&
-              sdv(ifl)%td_g0_air(ind),sdv(ifl)%s_air(ind)
-         read (buf, '(tr84,a7,a8,a8,a9,a8,a8)') (sdv_params(j), j=1,6)
-         if (len_trim(sdv_params(1)).gt.0) read(sdv_params(1), *) sdv(ifl)%g2_air(ind)
-         if (len_trim(sdv_params(3)).gt.0) then
-            read(sdv_params(3), *) sdv(ifl)%lm_air(ind)
+         read (buf(63:), 701, err=26) sdv(ifl)%g0_air(ind), tmpreal, tmpreal, tmpreal, sdv(ifl)%g2_air(ind)
+         if (sdv(ifl)%g2_air(ind).lt.tiny(0.0d0)) then
+            goto 26
          end if
+!              sdv(ifl)%g2_self(ind), sdv(ifl)%s0_self(ind)
+!         if (tiny(0.0E0).ge.abs(0.0749D0 - sdv(ifl)%g0_air(ind))) then
+!            print *, 'bla2 ', sdv(ifl)%g0_air(ind), sdv(ifl)%s0_self(ind), sdv(ifl)%qa(ind)
+!            call flush()
+!         end if
+         
+!         read (buf(86:), *, end=26) sdv(ifl)%g2_air(ind)
 
-         if (sdv(ifl)%g2_air(ind) .le. tiny(0.0D0)) cycle
+!         if ((sdv(ifl)%g2_air(ind) .le. tiny(0.0D0)).and.(sdv(ifl)%s0_self(ind) .le. tiny(0.0D0))) cycle
 
          sdv(ifl)%n = sdv(ifl)%n + 1
 
@@ -240,6 +249,32 @@ program hbin
       write(6,117) sdv(ifl)%n, ' lines read in SDV file : ', ifl
    enddo
 
+!701 format(f6.5,f4.3,f4.2,f8.6,1x,g15.6,1x,g15.6,1x,g15.6)
+701 format(f6.5,f4.3,f4.2,f8.6,1x,g6.5)
+   
+   ! --- fill CORRELATION line parameters struct with all line data from each file
+   do ifl = 1, enml
+
+      ! --- loop over files
+      elp(ifl)%n = 1
+      do i = 1, nglines
+         read( elp(ifl)%lun, 109, end=35 ) buf
+         !print *, buf
+         ! HITRAN 2012
+         ind = elp(ifl)%n
+         elp(ifl)%eta(ind) = 0.0D0
+         read( buf, 108 ) elp(ifl)%mo(ind), elp(ifl)%is(ind), elp(ifl)%qa(ind), elp(ifl)%g0_air(ind), elp(ifl)%eta(ind)
+         if (elp(ifl)%eta(ind) .le. tiny(0.0D0)) cycle
+         elp(ifl)%n = elp(ifl)%n + 1
+
+         goto 36
+35       close( elp(ifl)%lun )
+         exit
+36       continue
+         
+      enddo
+      write(6,117) elp(ifl)%n, ' lines read in CORR file : ', ifl
+   enddo
 
 
    nl = 0
@@ -291,7 +326,7 @@ program hbin
                         hlp(ldx)%ylm = lmx(ifl)%lm_air(i)
                         hlp(ldx)%lmtk1 = lmx(ifl)%lm_t1(i)
                         hlp(ldx)%lmtk2 = lmx(ifl)%lm_t2(i)
-                        write( hfl(ldx)%buf(220:280), 1121 ) hlp(ldx)%lmtk1, hlp(ldx)%lmtk2, hlp(ldx)%ylm
+                        write( hfl(ldx)%buf(209:244), 1121 ) hlp(ldx)%lmtk1, hlp(ldx)%lmtk2, hlp(ldx)%ylm
                         hlp(ldx)%flag(LM_FLAG) = .TRUE.
                         dum = flagoff + LM_FLAG
                         write( hfl(ldx)%buf(dum:dum), '(l1)' ) .TRUE.
@@ -310,21 +345,10 @@ program hbin
                      if (qu_equal(hlp(ldx)%qa, sdv(ifl)%qa(i))) then
                         hlp(ldx)%gamma0  = real(sdv(ifl)%g0_air(i))          ! gam0 for SDV
                         hlp(ldx)%gamma2  = real(sdv(ifl)%g2_air(i))          ! gam2 for SDV
-                        hlp(ldx)%shift0  = real(sdv(ifl)%s_air(i))            ! shift0 for SDV
-                        hlp(ldx)%shift2  = real(sdv(ifl)%ts_air(i))            ! td shift0 for SDV
-                        hlp(ldx)%ylm = 0.0
-                        hlp(ldx)%lmtk1 = 0.0
-                        hlp(ldx)%lmtk2 = 0.0
-                        if (sdv(ifl)%lm_air(i).gt.tiny(0.0d0)) then
-                           hlp(ldx)%ylm   = real(sdv(ifl)%lm_air(i))
-                           hlp(ldx)%lmtk1   = 1.0d0
-                           hlp(ldx)%lmtk2   = 0.0d0
-                           hlp(ldx)%flag(LM_FLAG) = .TRUE.
-                           dum = flagoff + LM_FLAG
-                           write( hfl(ldx)%buf(dum:dum), '(l1)' ) .TRUE.
-                        end if
-                        write( hfl(ldx)%buf(172:280), 112 ) hlp(ldx)%gamma0, hlp(ldx)%gamma2, &
-                             hlp(ldx)%shift0, hlp(ldx)%shift2, hlp(ldx)%lmtk1, hlp(ldx)%lmtk2, hlp(ldx)%ylm
+                        hlp(ldx)%shift0  = real(sdv(ifl)%s0_air(i))           ! shift0 for SDV
+                        hlp(ldx)%shift2  = real(sdv(ifl)%ts_air(i))          ! shift2 for SDV
+                        write( hfl(ldx)%buf(172:209), 112 ) hlp(ldx)%gamma0, hlp(ldx)%gamma2, &
+                             hlp(ldx)%shift0
                         hlp(ldx)%flag(SDV_FLAG) = .TRUE.
                         dum = flagoff + SDV_FLAG
                         write( hfl(ldx)%buf(dum:dum), '(l1)' ) .TRUE.
@@ -333,6 +357,22 @@ program hbin
                   endif ! right molecule
                enddo ! i, records in file
             enddo ! line mix files
+
+            ! --- check if a CORRELATION can be appended
+            ! do ifl = 1, enml
+            !    do i = 1, elp(ifl)%n
+            !       if ( elp(ifl)%mo(i) .eq. hlp(ldx)%mo .and. &
+            !            elp(ifl)%is(i) .eq. hlp(ldx)%is ) then
+            !          if (qu_equal(hlp(ldx)%qa, elp(ifl)%qa(i))) then
+            !             write( hfl(ldx)%buf(220:232), 110 ) elp(ifl)%eta(i)
+            !             hlp(ldx)%eta = real(elp(ifl)%eta(i))
+            !             hlp(ldx)%flag(CORR_FLAG) = .TRUE.
+            !             dum = flagoff + CORR_FLAG
+            !             write( hfl(ldx)%buf(dum:dum), '(l1)' ) .TRUE.
+            !          endif                  
+            !       end if
+            !    enddo
+            ! enddo
 
 
             ! --- check if this is an isotope that is to be separated out
@@ -419,8 +459,8 @@ stop
 109 format( a255 )
 110 format( f12.5 )
 111 format( 3i5,f12.5,2x,a)
-112 format( 8e12.4 )
-1121 format( 4e12.4 )
+112 format( 3e12.4 )
+1121 format( 3e12.4 )
 113 format( a, a )
 !115 format(a, 2i4, 2(f14.6, 2i4))
 !116 format( a,4i4,f8.4,2f14.6)
@@ -430,6 +470,9 @@ stop
 120 format( a,i4,3x,a )
 
 end program hbin
+
+
+
 
 ! --- fill a hitran record from its buffer
 subroutine filh( hd, hf )
@@ -447,6 +490,7 @@ subroutine filh( hd, hf )
    hd%gamma2 = 0.0            ! gamma 2 for sdv
    hd%shift0   = 0.0          ! shift 0 for sdv
    hd%shift2   = 0.0          ! shift 2 for sdv
+!   hd%eta      = 0.0
    hd%lmtk1  = 0.0            ! lmtk1 for line mixing
    hd%lmtk2  = 0.0            ! lmtk2 for line mixing
    hd%ylm    = 0.0            ! ylm for line mixing
@@ -531,7 +575,7 @@ subroutine filh( hd, hf )
 end subroutine filh
 
 
-subroutine read_input( hasc, wstr, wstp, HFL, GLP, LFL, SDV )
+subroutine read_input( hasc, wstr, wstp, HFL, GLP, LFL, SDV, ELP )
 
    use hitran
    use binput_4_0
@@ -545,7 +589,7 @@ subroutine read_input( hasc, wstr, wstp, HFL, GLP, LFL, SDV )
    character (len=10)      :: ifilename = 'hbin.input'
    integer                 :: j, i, n, istat, ilun=9
    logical                 :: fexist
-   character (len=160)     :: buffer, linebuffer, filename
+   character (len=160)     :: buffer, linebuffer, path, filename
 
    integer :: ctl_version = 2 ! 1 - original hbin.input version (till v0.9.4.4)
                               !     test for existence of ASC flag in the first valid line
@@ -555,6 +599,7 @@ subroutine read_input( hasc, wstr, wstp, HFL, GLP, LFL, SDV )
    TYPE (HITRANFILE),  intent(inout)   :: HFL(nhit+ncia)
    TYPE (GALATRYDATA), intent(inout)   :: LFL(nlmx)
    TYPE (GALATRYDATA), intent(inout)   :: SDV(nsdv)
+   TYPE (GALATRYDATA), intent(inout)   :: ELP(ncorr)
 
    ! --- open hbin.input file if its here
    inquire( file=trim(ifilename), exist = fexist)
@@ -680,7 +725,7 @@ subroutine read_input( hasc, wstr, wstp, HFL, GLP, LFL, SDV )
    write(6,114) ' Number of HITRAN molecules/files found : ', hnml
 
 
-   ! --- Galatry data files - block 2 in hbin.input
+   ! --- Dicke narrowing narrowing or Galatry data files - block 2 in hbin.input
    ! --- read number of expected Galatry files (max=2)
    ! --- Galatry files are unique format from hitran
    
@@ -718,7 +763,7 @@ subroutine read_input( hasc, wstr, wstp, HFL, GLP, LFL, SDV )
          stop
       endif
 
-      lun = stlun + gnml
+      lun = stlun + 1
       open( lun, file=filename, status='old', iostat=istat )
 
       ! --- find starting wavenumber in file
@@ -786,7 +831,7 @@ subroutine read_input( hasc, wstr, wstp, HFL, GLP, LFL, SDV )
          stop
       endif
 
-      lun = lun + lnml
+      lun = lun + 1
       !print*, lun
       open( lun, file=filename, status='old', iostat=istat )
       read( lun, 100, end=30 ) buffer
@@ -849,7 +894,7 @@ subroutine read_input( hasc, wstr, wstp, HFL, GLP, LFL, SDV )
          stop
       endif
 
-      lun = lun +snml
+      lun = lun + 1
       !print*, lun
       open( lun, file=filename, status='old', iostat=istat )
 
@@ -996,16 +1041,16 @@ end subroutine nextbuf
 
 
 !--------------------------------------------------------------------------------------------
-logical function qu_equal(quanta1, quanta2)
+
+function qu_equal(quanta1, quanta2)
   ! compares quanta1 and quanta2 field in HITRAN 2004 format, retruns T if they are equal
   ! until now, only string compare, may get more complicated though
   implicit none
   character (len=*), intent(in):: quanta1, quanta2
-  !logical :: qu_equal
+  logical :: qu_equal
 
   qu_equal = .false.
   if (quanta1.eq.quanta2) qu_equal = .true.
   return
 
 end function qu_equal
-

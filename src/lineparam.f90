@@ -67,8 +67,16 @@
                                                 ! 1 = FORCE VOIGT FOR ALL LINES
                                                 ! 2 = USE GALATRY FOR LINES WITH PARAMETERS, VOIGT ELSE
                                                 ! 3 = USE SDV FOR LINES WITH PARAMETERS
+                                                ! 4 = USE pCqSDHC 
 
-      INTEGER, PARAMETER   :: GALATRY_FLAG=1,FCIA_FLAG=2,SCIA_FLAG=3,SDV_FLAG=4,LM_FLAG=5
+      ! if lshapemodel = 0, the following switches may be used to switch certain features
+      ! by default all switched on for default line shape
+      logical :: lsm_sdv = .false.              ! if TRUE, speed dependent Voigt is used
+
+      
+      INTEGER, PARAMETER   :: GALATRY_FLAG=1,FCIA_FLAG=2,SCIA_FLAG=3
+      integer, PARAMETER   :: SDV_FLAG=4,LM_FLAG=5,CORR_FLAG=5
+      INTEGER, PARAMETER   :: LM_1ST_FLAG=6, LM_FULL_FLAG=7
 
       TYPE, PUBLIC :: HITRANDATA
          INTEGER  :: MO              ! MOL ID
@@ -90,7 +98,7 @@
          REAL(4) :: GAMMA0           ! GAMMA 0
          REAL(4) :: GAMMA2           ! GAMMA 2
          REAL(4) :: SHIFT0           ! PRESSURE SHIFT FOR GEN LINESHAPE
-         REAL(4) :: SHIFT2           ! TEMPERATURE DEPENDENCY OF PRESSURE SHIFT FOR GEN LINESHAPE
+         REAL(4) :: SHIFT2           ! PRESSURE SHIFT FOR GEN LINESHAPE
          REAL(4) :: LMTK1            ! LMTK1 for Line Mixing
          REAL(4) :: LMTK2            ! LMTK2 for Line Mixing
          REAL(4) :: YLM              ! YLM for Line Mixing
@@ -126,6 +134,22 @@
 
       WRITE (*, 120) TRIM(TFILE(14))
       WRITE (16, 121) TRIM(TFILE(14))
+
+      write(16,*) 'LINESHAPEMODEL = ', LSHAPEMODEL
+      write(16,*) 'SPEED DEPENDANCY OF PRESSURE BROADENING ', LSM_SDV
+      ! Check for consistency in line parameters and line features
+      IF (((LSHAPEMODEL == 1).OR.(LSHAPEMODEL == 2)).AND.LSM_SDV) THEN
+         write (*,*) 'Line shape model Voigtfunction or Galatry does not support speed dependancy'
+         write (16,*) 'Line shape model Voigtfunction or Galatry does not support speed dependancy'
+         call shutdown
+         stop 2
+      end IF
+      IF (((LSHAPEMODEL == 1).OR.(LSHAPEMODEL == 2)).AND.USE_LM) THEN
+         write (*,*) 'Line shape model Voigtfunction or Galatry does not support line mixing'
+         write (16,*) 'Line shape model Voigtfunction or Galatry does not support line mixing'
+         call shutdown
+         stop 2
+      end IF
 
 !  --- OPEN HITRAN LINE DATA FILE
       IF( HBIN )THEN
@@ -293,11 +317,11 @@
          HFLAG(NLINES,SCIA_FLAG) = .TRUE.
          NLINES_SCIA = NLINES_SCIA + 1
       END IF
-      IF( HF(SDV_FLAG).AND.((LSHAPEMODEL == 0).OR.(LSHAPEMODEL==3))) THEN
+      IF( HF(SDV_FLAG).AND.LSM_SDV.and.(LSHAPEMODEL==4)) THEN
          HFLAG(NLINES,SDV_FLAG) = .TRUE.
          NLINES_SDV = NLINES_SDV + 1
       END IF
-      IF( HF(LM_FLAG).AND.USE_LM.AND.((LSHAPEMODEL == 0).OR.(LSHAPEMODEL==1).OR.(LSHAPEMODEL==3))) THEN
+      IF( HF(LM_FLAG).AND.USE_LM.AND.((LSHAPEMODEL==3).OR.(LSHAPEMODEL==4))) THEN
          HFLAG(NLINES,LM_FLAG) = .TRUE.
          NLINES_LM = NLINES_LM + 1
       END IF

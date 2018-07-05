@@ -52,26 +52,6 @@
       NRMAX = MOLMAX
       NPGAS = 0
 
-! --- CHECK IF WE HAVE A CELL OPTICAL PATH
-      IF( NCELL .NE. 0 )THEN
-         WRITE(06, 420) NCELL
-         WRITE(06, 421)
-         DO I=1, NCELL
-            CGASID(I) = -999
-            DO J=1, MOLTOTAL
-               IF( TRIM(NAME(J)) .EQ. TRIM(CGAS(I)) )THEN
-                  CGASID(I) = J
-                  EXIT
-               ENDIF
-            ENDDO
-            WRITE(06, 422) I, ADJUSTR(CGAS(I)), CGASID(I), CTEMP(I), CPRES(I), CVMR(I)
-            IF( CGASID(I) .EQ. -999 )THEN
-               WRITE(00, 423) CGAS(I), I
-               CALL SHUTDOWN
-               STOP '3'
-            ENDIF
-         ENDDO
-      ENDIF
 
 ! -- CHECK THAT EVERY GAS IS ONLY ONCE IN THE RETRIEVAL LIST
       !print *, gas(:nret)
@@ -114,6 +94,29 @@
 
 ! --- SEE IF WE NEED TO SEPARATE OUT ISOTOPES
       IF ( USEISO ) CALL RDISOFILE( 16 )
+
+      ! --- CHECK IF WE HAVE A CELL OPTICAL PATH
+      IF( NCELL .NE. 0 )THEN
+         WRITE(06, 420) NCELL
+         WRITE(06, 421)
+         DO I=1, NCELL
+            CGASID(I) = -999
+            DO J=1, MOLTOTAL
+               IF( TRIM(NAME(J)) .EQ. TRIM(CGAS(I)) )THEN
+                  CGASID(I) = J
+                  EXIT
+               ENDIF
+            ENDDO
+            WRITE(06, 422) I, ADJUSTR(CGAS(I)), CGASID(I), CTEMP(I), CPRES(I), CVMR(I)
+            IF( CGASID(I) .EQ. -999 )THEN
+               WRITE(00, 423) CGAS(I), I
+               CALL SHUTDOWN
+               STOP '3'
+            ENDIF
+         ENDDO
+      ENDIF
+
+
       !print *, nrmax, nret
       IF( NRET .LE. NRMAX .AND. NRET .GE. 1 )THEN
          DO J = 1, NRET
@@ -157,6 +160,8 @@
                CYCLE
             ENDIF
 
+
+            
 ! --- THIS WILL BE A PROFILE RETRIEVAL
             NPGAS = NPGAS + 1
             IF (NPGAS > MAXPRF) GO TO 301
@@ -215,7 +220,9 @@
             CASE (2)
                WRITE (16,*) '  2 = USE GALATRY FOR LINES WITH PARAMETERS, VOIGT ELSE'
             CASE (3)
-               WRITE (16,*) '  3 = USE SDV & LINE MIXING FOR LINES WITH PARAMETERS'
+               WRITE (16,*) '  3 = VOIGT + LINE MIXING FOR LINES WITH PARAMETERS'
+            CASE (4)
+               WRITE (16,*) '  4 = USE PCQSDHC (Tran2013)'
             CASE DEFAULT
                WRITE(16,*)' LINE SHAPE MODEL FLAG OUT OF RANGE MIST BE 0, 1, 2, 3)'
                WRITE(00,*)' LINE SHAPE MODEL FLAG OUT OF RANGE MIST BE 0, 1, 2, 3)'
