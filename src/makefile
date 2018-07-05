@@ -250,4 +250,4 @@ writeout.o \
 : params.o datafiles.o retvparam.o molcparam.o isotope.o bandparam.o
 
 xsections.o \
-: params.o retvparam.o vibfcn.o tips.o isotope.o lineparam.o bandparam.o molcparam.o voigt_sdv_lm.o
+: params.o retvparam.o vibfcn.o tips.o isotope.o lineparam.o bandparam.o molcparam.o voigt_sdv_lm.o lineshape_pcqsdhc.o
