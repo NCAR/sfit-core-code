@@ -10,7 +10,53 @@ module h2o_continuum
   
 contains
 
+  SUBROUTINE XINT (V1A,V2A,DVA,A,VFT,DVR3,R3,N1R3,N2R3)     
+    !
+    use params, only: double
+    !                                                       
+    IMPLIcit none
+    real (double) :: v1a,v2a,dva,vft,dvr3, argmin, onepl, onemi
+    real (double) :: b,b1,b2,p,c,conti,recdva,vi,vj
+    real (double), dimension(*) :: a,r3
+    integer :: n1r3,ilo,ihi,i,j
+    integer(4) :: n2r3
+    !                                                       
+    !     THIS SUBROUTINE INTERPOLATES THE A ARRAY STORED   
+    !     FROM V1A TO V2A IN INCREMENTS OF DVA USING        
+    !     INTO THE R3 ARRAY FROM LOCATION N1R3 TO N2R3 IN   
+    !     INCREMENTS OF DVR3
+    !     copied from mt-ckd continuum program
+    !                                                       
+    ONEPL = 1.001d0
+    ONEMI = 0.999d0
+    ARGMIN = 34.0d0
+    !                                                           
+    RECDVA = 1./DVA                                       
+    ILO = int((V1A+DVA-VFT)/DVR3+1.+ONEMI)                     
+    ILO = MAX(ILO,N1R3)                                   
+    IHI = int((V2A-DVA-VFT)/DVR3+ONEMI)                        
+    IHI = MIN(IHI,N2R3)                                   
+    !                                                           
+    DO  I = ILO, IHI                                    
+       VI = VFT+DVR3*FLOAT(I-1)                           
+       J = int((VI-V1A)*RECDVA+ONEPL)                          
+       VJ = V1A+DVA*FLOAT(J-1)                            
+       P = RECDVA*(VI-VJ)                                 
+       C = (3.-2.*P)*P*P                                  
+       B = 0.5*P*(1.-P)                                             
+       B1 = B*(1.-P)                                                
+       B2 = B*P                                                     
+       CONTI = -A(J-1)*B1+A(J)*(1.-C+B2)+A(J+1)*(C+B1)-A(J+2)*B2    
+       R3(I) = R3(I)+CONTI                                        
+    end DO
+    !                                                                     
+    RETURN                                                          
+    !                                                                     
+  END SUBROUTINE XINT
 
+
+
+  
   subroutine calc_h2o_continuum()
     ! calculates the continuum absorption for a give atmoshere
     ! It is a wrapper for the MT-CKD continuum and sets up the variables for
@@ -149,30 +195,41 @@ contains
           nmol_c = 7
           
           nmon = nm(iband)
-          v1abs = wstart(iband)
-          v2abs = wstart(iband) + nm(iband)*dn(iband)
-          dvabs = dn(iband)
-          nptabs = nm(iband)
+          dvabs = 2.0d0
+          v1abs = floor(wstart(iband))
+          v2abs = ceiling((wstart(iband) + nm(iband)*dn(iband))/dvabs)*int(dvabs)
+          nptabs = int((v2abs - v1abs)/dvabs)
           v1 = v1abs
           v2 = v2abs
-                    
+          dv = dvabs
+
+!          print *, wstart(iband), wstart(iband) + nm(iband)*dn(iband), v1,v2,dv,nptabs
+          
           absrb(1:n_absrb)=0.0
           
           call contnm(1)
           
+!          writes out the continuum absorption at every step. Can be used to compare to original
+!          cntnm absorptiono code by AER         
 !          open(10, file='h2ocont')
-!          DO I=1,NPTABS
-!             VI=V1ABS+dble(I-1)*DVABS
-!             WRITE (10, 910) VI, ABSRB(I)
-!          end DO
-!910       FORMAT(F10.3,1P,E12.3)
-!          close(10)
+!           write(10,*), wk(1), wk(2), wk(3), wk(4), wk(5), wk(6), wk(7)
+!           write(10,*), wbroad, pave
+!           write(10,*), v1,v2,dv
+!           DO I=1,NPTABS
+!              VI=V1ABS+dble(I-1)*DVABS
+!              WRITE (10, 910) VI, ABSRB(I)
+!           end DO
+! 910       FORMAT(F10.3,1P,E12.3)
+!           close(10)
 
-          mtckd(1, k, mxone:mxone+nm(iband)-1) = absrb(1:nm(iband))
+          call xint(v1abs,v2abs,dvabs,absrb,wstart(iband),dn(iband),mtckd(1, k, mxone:mxone+nm(iband)-1),1,nm(iband))
+!          mtckd(1, k, mxone:mxone+nm(iband)-1) = absrb(1:nm(iband))
           !          print *, k, mxone,mxone+nmon
        end do
     end do
     mxone = mxone + nmon
   end subroutine calc_h2o_continuum
+
+
   
 end module h2o_continuum
