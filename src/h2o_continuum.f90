@@ -47,7 +47,7 @@ contains
        B1 = B*(1.-P)                                                
        B2 = B*P                                                     
        CONTI = -A(J-1)*B1+A(J)*(1.-C+B2)+A(J+1)*(C+B1)-A(J+2)*B2    
-       R3(I) = R3(I)+CONTI                                        
+       R3(I) = CONTI                                        
     end DO
     !                                                                     
     RETURN                                                          
@@ -137,9 +137,9 @@ contains
              if( trim(name(icode(kk))) .eq. trim('CO2')) then
                 wk(2) = xgas(i,k)*w_dry!ccc(kvert,k)
              end if
-             if( trim(name(icode(kk))) .eq. trim('O3')) then
-                wk(3) = xgas(i,k)*w_dry!ccc(kvert,k)
-             end if
+!             if( trim(name(icode(kk))) .eq. trim('O3')) then
+!                wk(3) = xgas(i,k)*w_dry!ccc(kvert,k)
+!             end if
              ! oxygen and nitrogen may be deleted if there are not lines. This is especially
              ! true for O2 in the 330-1300 1/cmregion
              ! so we use the default mixing ratio
@@ -208,23 +208,28 @@ contains
           absrb(1:n_absrb)=0.0
           
           call contnm(1)
-          
+          !
 !          writes out the continuum absorption at every step. Can be used to compare to original
-!          cntnm absorptiono code by AER         
-!          open(10, file='h2ocont')
-!           write(10,*), wk(1), wk(2), wk(3), wk(4), wk(5), wk(6), wk(7)
-!           write(10,*), wbroad, pave
-!           write(10,*), v1,v2,dv
-!           DO I=1,NPTABS
-!              VI=V1ABS+dble(I-1)*DVABS
-!              WRITE (10, 910) VI, ABSRB(I)
-!           end DO
-! 910       FORMAT(F10.3,1P,E12.3)
-!           close(10)
+!          cntnm absorption code by AER         
+          open(10, file='h2ocont')
+           write(10,*), wk(1), wk(2), wk(3), wk(4), wk(5), wk(6), wk(7)
+           write(10,*), wbroad, pave
+           write(10,*), v1,v2,dv
+           DO I=1,NPTABS
+              VI=V1ABS+dble(I-1)*DVABS
+              WRITE (10, 910) VI, ABSRB(I)
+           end DO
+           close(10)
 
-          call xint(v1abs,v2abs,dvabs,absrb,wstart(iband),dn(iband),mtckd(1, k, mxone:mxone+nm(iband)-1),1,nm(iband))
-!          mtckd(1, k, mxone:mxone+nm(iband)-1) = absrb(1:nm(iband))
-          !          print *, k, mxone,mxone+nmon
+           call xint(v1abs,v2abs,dvabs,absrb,wstart(iband),dn(iband),mtckd(1, k, mxone:mxone+nm(iband)-1),1,nm(iband))
+           open(11, file='h2ocont_fine')
+           DO I=1,nm(iband)
+              VI=wstart(iband)+dble(I-1)*dn(iband)
+              WRITE (11, 910) VI, mtckd(1, k, i)
+           end DO
+           !          print *, k, mxone,mxone+nmon
+           close(11)
+910        FORMAT(F10.3,1P,E12.3)
        end do
     end do
     mxone = mxone + nmon

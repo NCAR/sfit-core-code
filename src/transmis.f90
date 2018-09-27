@@ -136,7 +136,7 @@
             cross_all(1:ncross) = CROSS(NRET+1,K,1:ncross)
             write(94, '(100000(ES13.4,1x))') (cross_all(i), i=1,ncross)
          end do
-         if(f_contabs) then   
+         if(f_continuum) then   
             do k = 1,ksmax2
                cross_all(1:ncross) = CROSS(NRET+2,K,1:ncross)
                write(94, '(100000(ES13.4,1x))') (cross_all(i), i=1,ncross)
@@ -285,7 +285,7 @@
                            ENDDO
                         ENDIF
 
-                        if (f_contabs) then
+                        if (F_CONTINUUM) then
                            CROSS_FACMAS(NRET+2,K,MSTOR) = CROSS(NRET+2,K,ICINDX2)*FACMAS
                            TCALC(IPOINT,MSTOR) = TCALC(IPOINT,MSTOR) + CROSS_FACMAS(NRET+2,K,MSTOR)
                            
@@ -355,7 +355,7 @@
                           END DO
                        END IF
                        ! ------------CONTINUA
-                       IF (F_CONTABS) THEN
+                       IF (F_CONTINUUM) THEN
                           CROSS_FACMAS(NRET+2,K,MSTOR) = CROSS(NRET+2,K,ICINDX)*FACMAS
                           TCALC(IPOINT,MSTOR) = TCALC(IPOINT,MSTOR) + CROSS_FACMAS(NRET+2,K,MSTOR)
                           IF (IEMISSION/=0) THEN

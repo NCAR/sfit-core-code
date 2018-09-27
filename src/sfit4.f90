@@ -238,7 +238,7 @@
       WRITE (16, 3695) NFIT, NVAR
       WRITE (16, 3696)
 
-!  --- SAVE NVAR KEY TO DETAIL
+      !  --- SAVE NVAR KEY TO DETAIL
       WRITE(16,502) (PNAME(I),I=1,NVAR)
       WRITE(16,*)''
 

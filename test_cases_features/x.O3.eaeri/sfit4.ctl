@@ -10,20 +10,20 @@
  # Definition for retrieval gases
 
  gas.layers                  =              41
- gas.profile.list            = O3 H2O
- gas.column.list            = CO2 
- gas.profile.O3.regmethod   = 'TP'
- gas.profile.O3.regmethod.lambda   = 0.1	
+ gas.profile.list            = O3 
+ gas.column.list            = CO2 H2O
+ gas.profile.O3.regmethod   = 'OEM'
+ gas.profile.O3.regmethod.lambda   = 0.001	
  gas.profile.O3.correlation               =              F
  gas.profile.O3.scale               =              1.0
  gas.profile.O3.sigma               = 
- 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 
- 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 
- 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 
- 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 
- 1.0
+ 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 
+ 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 
+ 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 
+ 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 
+ 0.5
  gas.profile.H2O.regmethod   = 'TP'
- gas.profile.H2O.regmethod.lambda   = 0.1	
+ gas.profile.H2O.regmethod.lambda   = 0.001	
  gas.profile.H2O.correlation               =              F
  gas.profile.H2O.scale               =              1.0
  gas.profile.H2O.sigma               = 
@@ -53,17 +53,17 @@
  fw.continuum = T
  fw.continuum.type = 1
  fw.continuum.strength = 0.01
- fw.continuum.order = 2
+ fw.continuum.order = 4
  # Retrieval parameter
 
  rt                          =               T
- rt.lm                       =               T
+ rt.lm                       =               F
  rt.lm.gamma_start           =           1.0e2
  rt.lm.gamma_inc             =           1.0e1
  rt.lm.gamma_dec             =           1.0e1
  rt.convergence              =           0.1
  rt.max_iteration            =              17
- rt.wshift                   =               F
+ rt.wshift                   =               T
  rt.wshift.type              = 3
  rt.wshift.apriori           =           0.000
  rt.wshift.sigma             =           0.100
@@ -89,7 +89,7 @@
  band.1.nu_stop              =          1050.0
  band.1.zshift               =               F
  band.1.beam                 =               0
- band.1.calc_point_space     =            0.04
+ band.1.calc_point_space     =            0.1
  band.1.wave_factor          =           1.000
  band.1.max_opd                 =            1.00
  band.1.omega                =             3.86

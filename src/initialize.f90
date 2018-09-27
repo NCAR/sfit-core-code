@@ -1076,21 +1076,18 @@
             CALL SHUTDOWN()
             STOP 1
          END IF
-         IF (ABSCONT_TYPE.EQ.2) ABSCONT_PARAM(1) = -LOG(MAX(ABSCONT_PARAM(1),TINY(ABSCONT_PARAM(1))))
          N_CONTABS = ABSCONT_ORDER + 1 ! 0-TH ORDER ALREADY NEEDS ONE PARAM.
          IF (ALLOCATED(CONT_PARAM)) DEALLOCATE(CONT_PARAM)
          ALLOCATE(CONT_PARAM(N_CONTABS))
          DO I = 1,N_CONTABS
             CONT_PARAM(I) = ABSCONT_PARAM(1)
+            if (F_CONTABS) THEN
+               WRITE(PNAME(NVAR+1:NVAR+2), '(A10,I1)'), 'CONTINUUM_', I-1
+               PARM(NVAR+1:NVAR+2)  = ABSCONT_PARAM(1)
+               SPARM(NVAR+1:NVAR+2) = ABSCONT_SPARAM(1)
+               NVAR = NVAR + 1
+            END if
          END DO
-         if (F_CONTABS) THEN
-            DO I = 1,N_CONTABS
-               WRITE(PNAME(NVAR+I:NVAR+1+I), '(A10,I1)'), 'CONTINUUM_', I-1
-            END DO
-            PARM(NVAR+1:NVAR+N_CONTABS)  = ABSCONT_PARAM(1)
-            SPARM(NVAR+1:NVAR+N_CONTABS) = ABSCONT_SPARAM(1)
-            NVAR = NVAR + N_CONTABS
-         END if
       END IF
 
       IF (F_MTCKD) THEN
