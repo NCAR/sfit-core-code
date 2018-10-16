@@ -26,7 +26,6 @@
       USE molcparam
       USE lineparam
       USE continuum
-      USE h2o_continuum       
       
       IMPLICIT NONE
 

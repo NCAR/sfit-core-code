@@ -107,16 +107,16 @@ all : sfit4 hbin pspec # convert_rdrv_394
 
 
 
-sfit4: $(OBJS) rdrv40.o mt-ckd-cont.o h2o_continuum.o
+sfit4: $(OBJS) rdrv40.o 
 	$(FC) -o $@ $^ $(FFLAGS) $(LIBS) $(VLIB)
 
 #convert_rdrv_394 : convert_rdrv_394.o $(OBJS) convert_old_data_files.o read_binput_394.o
 #	$(FC) -o $@ $^ $(FFLAGS) $(LIBS) $(VLIB)
 
-hbin: hbin.o hitran.o $(OBJS) mt-ckd-cont.o h2o_continuum.o
+hbin: hbin.o hitran.o $(OBJS) 
 	$(FC) -o $@ $^ $(FFLAGS) $(LIBS) $(VLIB)
 
-pspec: pspec.o spec.o fitting.o  $(OBJS) mt-ckd-cont.o h2o_continuum.o
+pspec: pspec.o spec.o fitting.o  $(OBJS) 
 	$(FC) -o $@ $^ $(FFLAGS) $(LIBS) $(VLIB)
 
 #params.o binput_4_0.o binput_parse_4_0.o datafiles.o bandparam.o
@@ -235,7 +235,7 @@ tips.o \
 
 transmis.o \
 : params.o bandparam.o retvparam.o vibfcn.o xsections.o molcparam.o lineparam.o\
-continuum.o mt-ckd-cont.o h2o_continuum.o
+continuum.o 
 
 vibfcn.o \
 : params.o retvparam.o molcparam.o #writeout.o

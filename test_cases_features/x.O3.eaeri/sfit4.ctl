@@ -77,7 +77,7 @@
  band.1.calc_point_space     =            0.04
  band.1.wave_factor          =           1.000
  band.1.max_opd                 =            1.00
- band.1.omega                =             3.86
+ band.1.omega                =            45.0 
  band.1.apodization_code        =               0
  band.1.gasb                 = O3     CO2 H2O   
  band.2.tempretb = F   
