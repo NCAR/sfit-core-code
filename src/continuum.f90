@@ -43,7 +43,7 @@ contains
           wmid = (wone + wxne)/2.0d0
           DO K = 1, KMAX
              IF ((abscont_type.ne.2).or.((k.lt.kmax).and.(z(k).ge.cont_z_abs).and.(z(k+1).le.cont_z_abs))) then
-                print *, k, param(1)
+!                print *, k, param(1)
                 do j = mone,mxne
                    polynom = param(1)
                    do l = 1,n_contabs-1
