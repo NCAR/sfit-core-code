@@ -224,8 +224,8 @@
             CASE (4)
                WRITE (16,*) '  4 = USE PCQSDHC (Tran2013)'
             CASE DEFAULT
-               WRITE(16,*)' LINE SHAPE MODEL FLAG OUT OF RANGE MIST BE 0, 1, 2, 3)'
-               WRITE(00,*)' LINE SHAPE MODEL FLAG OUT OF RANGE MIST BE 0, 1, 2, 3)'
+               WRITE(16,*)' LINE SHAPE MODEL FLAG OUT OF RANGE MUST BE 0, 1, 2, 3)'
+               WRITE(00,*)' LINE SHAPE MODEL FLAG OUT OF RANGE MUST BE 0, 1, 2, 3)'
                CALL SHUTDOWN
                STOP '2'
          END SELECT
