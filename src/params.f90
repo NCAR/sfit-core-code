@@ -32,7 +32,7 @@
 
 !  --- VERSION STRING - NO SPACES: USE AS FIRST WORD IN OUTPUT FILE TAG
 !      CHARACTER(len=10) :: BUILDDATE = BDATE
-      CHARACTER (LEN=15),  PARAMETER :: VERSION1 = 'SFIT4:v0.9.6.7'
+      CHARACTER (LEN=15),  PARAMETER :: VERSION1 = 'SFIT4:v0.9.7.0'
       CHARACTER (LEN=100),  PARAMETER :: VERSION2 = ':Pre-Release -- March 2018'
       CHARACTER (LEN=255) :: VERSION = VERSION1//VERSION2
       CHARACTER (LEN=255)            :: TAG              ! OUTPUT FILE TAG IS VERSION + RUNTIME
@@ -40,12 +40,11 @@
 !      LOGICAL, PARAMETER :: BUG = .TRUE.
       LOGICAL, PARAMETER :: BUG = .FALSE.
       LOGICAL, PARAMETER :: ANALYTIC_K = .TRUE.
-!      LOGICAL, PARAMETER :: ANALYTIC_K = .FALSE.
 
       ! mp: For emission some of the predefault numbers seem to small (LNMAX, MAXGAS, LAYMAX)
 
       INTEGER, PARAMETER :: MMAX = 8*131072       ! MAXIMUM NUMBER OF SPECTRAL DATA POINTS
-      INTEGER, PARAMETER :: NMAX = 255            ! MAXIMUM NUMBER OF FITTING PARAMETERS (-mcmodel=large NEEDED AT 512)
+      INTEGER, PARAMETER :: NMAX = 512            ! MAXIMUM NUMBER OF FITTING PARAMETERS (-mcmodel=large NEEDED AT 512)
       INTEGER, PARAMETER :: MOLMAX = 20           ! MAXIMUM NUMBER OF RETRIEVAL GASES
       INTEGER, PARAMETER :: LAYMAX = 100          ! MAXIMUM NUMBER OF ATMOSPHERIC LAYERS
       INTEGER, PARAMETER :: MAXSPE = 40           ! MAXIMUM NUMBER OF SPECTRA (SCANS)
@@ -89,7 +88,7 @@
 !      parameters used ind h2o_continuum
 ! ********************************************************************
 
-      integer, parameter :: N_ABSRB=5050, IPTS=5050, IPTS2=6000
+      integer, parameter :: N_ABSRB=100000, IPTS=100000, IPTS2=100000
       real(double) , parameter  :: RADCN2 = 1.4387752 ! value from NIST.
 
 !  ********************************************************************

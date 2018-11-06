@@ -35,7 +35,10 @@ FFLAGS = -Wall -fno-automatic -fcheck=all -ffpe-trap=invalid,zero,overflow,under
 
 # optimize -Ofast v4.8
 #FFLAGS = -g -Wall -fno-automatic -frepack-arrays  -ffree-line-length-none -mcmodel=large
-FFLAGS = -g -Wall -fno-automatic -frepack-arrays  -ffree-line-length-none # -Wno-unused-function -Wno-unused-variable -Wno-conversion
+#FFLAGS = -g -Wall -fno-automatic -frepack-arrays  -ffree-line-length-none # -Wno-unused-function -Wno-unused-variable -Wno-conversion
+FFLAGS = -g -Wall -fno-automatic -frepack-arrays  -ffree-line-length-none -mcmodel=small
+#FFLAGS = -g -Wall -fno-automatic -frepack-arrays  -ffree-line-length-none
+
 
 # supply compile date:
 # -cpp -DBDATE="\"`date +%Y%m%d`"\" -O2 -fno-automatic
@@ -79,6 +82,7 @@ hitran.o \
 initialize.o \
 isotope.o \
 lineparam.o \
+lineshape_pcqsdhc.o\
 matrix.o \
 molcparam.o \
 opt.o \
@@ -97,12 +101,13 @@ voigt_sdv_lm.o \
 writeout.o \
 andex.o \
 xsections.o \
-continuum.o\
-mt-ckd-cont.o
+continuum.o
 
 #convert_old_data_files.o
 
 all : sfit4 hbin pspec # convert_rdrv_394
+
+
 
 sfit4: $(OBJS) rdrv40.o
 	$(FC) -o $@ $^ $(FFLAGS) $(LIBS) $(VLIB)
@@ -232,7 +237,7 @@ tips.o \
 
 transmis.o \
 : params.o bandparam.o retvparam.o vibfcn.o xsections.o molcparam.o lineparam.o\
-continuum.o mt-ckd-cont.o
+continuum.o
 
 vibfcn.o \
 : params.o retvparam.o molcparam.o #writeout.o
@@ -247,4 +252,4 @@ writeout.o \
 : params.o datafiles.o retvparam.o molcparam.o isotope.o bandparam.o
 
 xsections.o \
-: params.o retvparam.o vibfcn.o tips.o isotope.o lineparam.o bandparam.o molcparam.o voigt_sdv_lm.o
+: params.o retvparam.o vibfcn.o tips.o isotope.o lineparam.o bandparam.o molcparam.o voigt_sdv_lm.o lineshape_pcqsdhc.o

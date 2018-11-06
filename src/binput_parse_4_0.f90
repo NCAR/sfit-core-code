@@ -341,7 +341,18 @@ end subroutine read_file_section
     case ('delnu')
        read(value,*) delnu
     case('lshapemodel')
-       read(value,*) lshapemodel
+       if (len_trim(keyword(3)).eq.0) then
+          read(value,*) lshapemodel
+       else
+          select case (trim(adjustl(keyword(3))))
+          case('sdv')
+             read(value,*) lsm_sdv
+          case default
+             write(*,*) 'BINPUT_PARSE_4_0:READ_FW_SECTION: Parameter ', trim(keyword(3)), 'not defined for fm.lshapemodel'
+             write(16,*) 'BINPUT_PARSE_4_0:READ_FW_SECTION: Parameter ', trim(keyword(3)), 'not defined for fm.lshapemodel'
+             stop
+          end select
+       end if
     case('linemixing')
        if (len_trim(keyword(3)).eq.0) then
           read(value, *) use_lm
@@ -435,8 +446,6 @@ end subroutine read_file_section
        read(value,*) raytonly
     case ('filter_transmission')
        read(value,*) f_meas_transmis
-    case ('mtckd_continuum')
-       read(value,*) f_mtckd
     case ('continuum')
        if (len_trim(keyword(3)).eq.0) then
           read(value,*) f_continuum

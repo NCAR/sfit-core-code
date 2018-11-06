@@ -26,7 +26,11 @@
       USE molcparam
       USE lineparam
       USE continuum
+<<<<<<< HEAD
 
+=======
+      
+>>>>>>> 4e42551f5e9e9359d84a0c2db9ce47d8717ffb49
       IMPLICIT NONE
 
 ! --- TCONV and TCALC now allocated in setup
@@ -99,7 +103,6 @@
       INTEGER :: MONONE, MXONE, IBAND, N, KSMAX2, IR, K, I
       REAL(DOUBLE), DIMENSION(:),   ALLOCATABLE :: cross_all
 
-      IF (F_MTCKD) CALL H2O_CONTINUUM()
 
 
       MONONE = 1
@@ -299,6 +302,7 @@
                               ENDDO
                            ENDIF
                         END IF
+<<<<<<< HEAD
                         IF (F_MTCKD) THEN
                            ! ATTACH H2O CONTINUUM ABSORPTION
                            TCALC(IPOINT,MSTOR) = TCALC(IPOINT,MSTOR) + MTCKD(1, K, ICINDX2)
@@ -316,6 +320,8 @@
                               ENDDO
                            ENDIF
                         END IF
+=======
+>>>>>>> 4e42551f5e9e9359d84a0c2db9ce47d8717ffb49
                      ELSE
                         ! ------------LOOP OVER RETRIEVAL GASES
                         DO IR = 2, NRET
@@ -368,6 +374,7 @@
                              ENDDO
                           ENDIF
                        END IF
+<<<<<<< HEAD
                        IF (F_MTCKD) THEN
                           ! ATTACH H2O CONTINUUM ABSORPTION
                           TCALC(IPOINT,MSTOR) = TCALC(IPOINT,MSTOR) + MTCKD(1, K, ICINDX)
@@ -384,6 +391,8 @@
                              ENDDO
                           ENDIF
                        END IF
+=======
+>>>>>>> 4e42551f5e9e9359d84a0c2db9ce47d8717ffb49
                     ENDIF
                  END DO
               ENDIF
@@ -599,6 +608,7 @@
     END SUBROUTINE GASNTRAN
 
     !--------------------------------------------------------------------------------
+<<<<<<< HEAD
    SUBROUTINE MTCKDTRAN( IBAND, JMIN, IPOINT, MONONE, MXONE)
 
 !     COMPUTE MONOCHROMATIC TRANSMITTANCES AT EACH WAVELENGTH
@@ -709,6 +719,8 @@
 
     END SUBROUTINE MTCKDTRAN
 
+=======
+>>>>>>> 4e42551f5e9e9359d84a0c2db9ce47d8717ffb49
 !---------------------------------------------------------------------------
       SUBROUTINE ZERONTRAN(IBAND, IPOINT, MONONE)
 

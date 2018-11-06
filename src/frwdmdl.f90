@@ -63,6 +63,7 @@
          NS1, NS2
       LOGICAL :: XRET, TRET, FLINE, FSZA
 
+      REAL(DOUBLE) :: MEAS_BCK, filter_max
       REAL(DOUBLE), DIMENSION(3)      :: B
       REAL(DOUBLE), DIMENSION(NMAX)   :: PARM
       REAL(DOUBLE), DIMENSION(MMAX)   :: YC
@@ -475,6 +476,15 @@
                N3 = NPRIM(IBAND)
 
                SMM = 0.D0
+               filter_max = 0.0d0
+               
+               if (F_MEAS_TRANSMIS) THEN
+                  do j = 1, N3
+                     ! norm filter transmission to 1
+                     YS = (J - 1)*SPAC(IBAND)
+                     filter_max = max(filter_max,ftrans(ys+wstart(iband)))
+                  end do
+               end if
                DO J = 1, N3
 
                   I = N1 + (J - 1)*NSPAC(IBAND)
@@ -486,16 +496,20 @@
                   WAVE_X(JATMOS) = YS + WSTART(IBAND)
 
                   
+                  !APPLIES MEASURED TRANSMISSION TO THE SYNTHETIC SPECTRUM
+                  
+
+
                   ! CALCULATES (RETRIEVED) FILTER TRANSMISSION CURVE
-                  BKGND = B(1)*(1.0D0 + B(2)*YS+B(3)*YS*YS)
+                  if (F_MEAS_TRANSMIS) THEN
+                     MEAS_BCK = FTRANS(WAVE_X(JATMOS))/filter_max
+                  else
+                     MEAS_BCK = 1.0D0
+                  end if
+                  BKGND = B(1)*(MEAS_BCK + B(2)*YS+B(3)*YS*YS)
                   BKGND = BKGND*(1.0D0/(1.0D0 + ZSHIFT(IBAND,JSCAN)))
 
 
-                  !Applies measured transmission to the synthetic spectrum
-                  
-                  if (F_MEAS_TRANSMIS) THEN
-                     TCALI = TCALI * FTRANS(WAVE_X(JATMOS))
-                  END if
                   
 !-- FIT CHANNEL PARMS IF NEEDED ----------------------------------------!PWJ
 
@@ -506,6 +520,7 @@
                      ENDIF
                   ELSE
                      YC(JATMOS) = BKGND*(DBLE(TCALI) + ZSHIFT(IBAND,JSCAN))
+                     
                   ENDIF
 !print *,jatmos, yc(jatmos)
                   SMM = SMM + YC(JATMOS)
@@ -653,32 +668,7 @@
                      CLOSE (80)
                   ENDIF
 
-!  --- MTCKD continuum if calculated
-                  if (F_MTCKD) then
-                     call MTCKDTRAN(IBAND,JSCAN,2,MONONE,MXONE)
-                     !  --- COMPUTE FFTS
-                     CALL FSPEC1 (IBAND, MONONE, MXONE)
-                     CALL FSPEC2 (IBAND, MONONE, PHI)
-                     IF( GASOUTTYPE .EQ. 1 .AND. ITER .EQ. -1 )THEN
-                        WRITE(GASFNAME,751)IBAND,JSCAN
-                     ELSEIF( GASOUTTYPE .EQ. 2 )THEN
-                        IF (ITER == -1 ) THEN
-                           WRITE(GASFNAME,751)IBAND,JSCAN
-                        ELSE
-                           WRITE(GASFNAME,761)IBAND,JSCAN,ITER
-                        ENDIF
-                     ENDIF
-                     WRITE(TITLE,710) 'MTCKD', IBAND, JSCAN, ITER
 
-                     OPEN(UNIT=80, FILE=GASFNAME, STATUS='REPLACE', ERR=555)
-                     WRITE (80, 640) TITLE
-                  WRITE (80, *) WA, WE, SP, N3
-                     DO J = 1, N3
-                        I = N1 + (J - 1)*NSPAC(IBAND)
-                        WRITE (80, *) DBLE(TCONV(I))
-                     ENDDO
-                     CLOSE (80)
-                  ENDIF
 
 !  --- FINALLY SOLAR SPECTRUM
                   IFCO = IFCOSAVE
@@ -857,9 +847,7 @@
  730  FORMAT('spc.sol.',I2.2,'.',I2.2,'.final')
  740  FORMAT('spc.sol.',I2.2,'.',I2.2,'.',I2.2)
 750   FORMAT('spc.CON.',I2.2,'.',I2.2,'.final')
-751   FORMAT('spc.MTCKD.',I2.2,'.',I2.2,'.final')
 760   FORMAT('spc.CON.',I2.2,'.',I2.2,'.',I2.2)
-761   FORMAT('spc.MTCKD.',I2.2,'.',I2.2,'.',I2.2)
  770  FORMAT('spc.REST.',I2.2,'.',I2.2,'.final')
  780  FORMAT('spc.REST.',I2.2,'.',I2.2,'.',I2.2)
 ! 750  FORMAT('GAS SOLAR',' BAND ', I2, ' SCAN ', I2, ' ITER ', I3)

@@ -4,7 +4,7 @@
  file.in.stalayers              = station.layers
  file.in.refprofile             = reference.prf
  file.in.spectrum               = spectrum
- file.in.solarlines             = ../../linelist/solar/120621/solar.dat
+ file.in.solarlines             = /usr/local/share/linelist_v0.9/solar/120621/solar.dat
  file.in.linelist               = 00780.871900-00811.128100.hbin
 
  # Definition for retrieval gases
@@ -61,7 +61,7 @@
  # Forward model parameters
 
  fw.delnu                    =           0.10000
- fw.lshapemodel              =               0
+ fw.lshapemodel              =               4
  fw.solar_spectrum           =               T
  fw.linemixing               =              T
  fw.linemixing.gas           =            CO2
@@ -109,7 +109,7 @@
  band.1.apodization_code     =               0
  band.1.gasb                 = CCL4   H2O    O3     CO2
 
- kb = T 
+ kb = F
  kb.temperature = T
  kb.slope = T
  kb.curvature = T 
@@ -122,7 +122,6 @@
  kb.zshift = T 
  kb.sza = T
  kb.omega = T 
- kb.max_opd = F 
  kb.line = T
  kb.line.type = 1 
  kb.line.gas = CCL4
