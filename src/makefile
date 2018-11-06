@@ -35,7 +35,7 @@ FFLAGS = -Wall -fno-automatic -fcheck=all -ffpe-trap=invalid,zero,overflow,under
 
 # optimize -Ofast v4.8
 #FFLAGS = -g -Wall -fno-automatic -frepack-arrays  -ffree-line-length-none -mcmodel=large
-FFLAGS = -g -Wall -fno-automatic -frepack-arrays  -ffree-line-length-none
+FFLAGS = -g -Wall -fno-automatic -frepack-arrays  -ffree-line-length-none # -Wno-unused-function -Wno-unused-variable -Wno-conversion
 
 # supply compile date:
 # -cpp -DBDATE="\"`date +%Y%m%d`"\" -O2 -fno-automatic
@@ -50,10 +50,9 @@ FFLAGS = -g -Wall -fno-automatic -frepack-arrays  -ffree-line-length-none
 #FC = pgf90
 #FFLAGS = ${PGBUG} ${PGTRAP}
 #FFLAGS = -traceback -g -Kieee  ${PGTRAP} ${PGBUG}
-
-PGTRAP = -Ktrap=divz -Ktrap=align -Ktrap=denorm  -Ktrap=inv -Ktrap=ovf -Ktrap=unf
-PGBUG = -Mbounds -Mchkfpstk -Mchkptr -Mchkstk -Mpgicoff
-PGOPT = -fast
+#PGTRAP = -Ktrap=divz -Ktrap=align -Ktrap=denorm  -Ktrap=inv -Ktrap=ovf -Ktrap=unf
+#PGBUG = -Mbounds -Mchkfpstk -Mchkptr -Mchkstk -Mpgicoff
+#PGOPT = -fast
 
 # use internal matrix inversion (not lapack)
 # no eigenvector output

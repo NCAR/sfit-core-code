@@ -102,7 +102,7 @@
       IF (F_MEAS_TRANSMIS) THEN
          CALL GETFILTERTRANSMISSION()
       END IF
-      
+
       WRITE(16,105) NATMOS
 
 !  --- COMPUTE INTERVAL FOR MONOCHROMATIC CALCULATIONS FOR EACH BANDPASS
@@ -425,11 +425,11 @@
         ! THE FILE IS BASICALLY IN THE SAME FORMAT AS THE SPECTRAL FILE, BUT THE HEADER LINES
         ! ARE IGNORED. ALSO, ONLY ONE MICROWINDOW IS ALLOWED
 
-        INTEGER            :: NPFILE, I
+        INTEGER            :: I !, MXMAX
         REAL(DOUBLE)       :: WHI, WLOW, SPACE, R4AMP
         CHARACTER(LEN = 80):: TITLE
-        
-        
+
+
         CALL FILEOPEN( 96, 3 )
         READ(96, 888) TITLE
         READ(96, 888) TITLE
@@ -454,12 +454,12 @@
            FILTERTRANS(1,I) = WLOW + REAL((I - 1),8)*SPACE
            FILTERTRANS(2,I) = R4AMP
         ENDDO
-        
+
         CALL FILECLOSE(96,2)
-        
+
 888     FORMAT(A80)
       END SUBROUTINE GETFILTERTRANSMISSION
-        
+
 !-------------------------------------------------------------------------------
 
       SUBROUTINE GETSPEC( )
@@ -1038,7 +1038,7 @@
 
       DO I = 1,NBAND
          IF (IFFOV /= 0) THEN
-            WRITE(PNAME(NVAR+1:NVAR+2), '(A4,I1)'), 'FOV_', I
+            WRITE(PNAME(NVAR+1:NVAR+2), '(A4,I1)') 'FOV_', I
             PARM(NVAR+1:NVAR+2)  = 0.0D0
             SPARM(NVAR+1:NVAR+2) = 1.0D0
             NVAR = NVAR + 1
@@ -1067,7 +1067,7 @@
          CALL SHUTDOWN()
          STOP 1
       END IF
-      
+
       IF (F_CONTINUUM) THEN
          IF (IEMISSION.EQ.0) THEN
             WRITE(*,*) 'CONTINUUM ABSORPTION ONLY WORKING IN EMISSION MODE.'
@@ -1084,7 +1084,7 @@
          END DO
          if (F_CONTABS) THEN
             DO I = 1,N_CONTABS
-               WRITE(PNAME(NVAR+I:NVAR+1+I), '(A10,I1)'), 'CONTINUUM_', I-1
+               WRITE(PNAME(NVAR+I:NVAR+1+I), '(A10,I1)') 'CONTINUUM_', I-1
             END DO
             PARM(NVAR+1:NVAR+N_CONTABS)  = ABSCONT_PARAM(1)
             SPARM(NVAR+1:NVAR+N_CONTABS) = ABSCONT_SPARAM(1)
@@ -1096,7 +1096,7 @@
          IF (ALLOCATED(MTCKD)) DEALLOCATE(MTCKD)
          ALLOCATE(MTCKD(1,KMAX+NCELL,NCROSS))
       END IF
-      
+
       ! --- INSERT  CHANNEL PARAMETERS INTO STATE VECTOR PARM()
       CALL INSERT_CHANNEL_PARMS (NVAR, PARM, PNAME, SPARM)
 
@@ -1197,7 +1197,7 @@
       DO I = 1, NVAR
          SA(I,I) = SPARM(I)*SPARM(I)
       ENDDO
-      
+
       !  --- OFF DIAGONAL ELEMENTS OF SA MATRIX (A PRIORI COMPONENTS)
       INDXX = ISMIX
       DO KK = 1, NRET
@@ -1217,9 +1217,9 @@
                      IF( ZBAR(J) < ZGMIN(KK) ) CYCLE
                      IF( ZBAR(I) > ZGMAX(KK) ) CYCLE
                      IF( ZBAR(J) > ZGMAX(KK) ) CYCLE
-                     
+
                      DELZ = ZBAR(I) - ZBAR(J)
-                     
+
                      SELECT CASE ( IFOFF(KK) )
                      CASE (1)       !gaussian
                         RHO = (ALOGSQ*DELZ/ZWID(KK))**2
@@ -1235,7 +1235,7 @@
                         CALL SHUTDOWN
                         STOP 2
                      END SELECT
-                     
+
                   END DO
                END DO
                ! --- READ IN FULL COVARIANCE FROM FILE
@@ -1253,10 +1253,10 @@
          ENDIF
          INDXX = INDXX + N
       END DO
-      
+
       CALL FILECLOSE( 62, 2 )
-      
-      
+
+
       !  --- FILL OFF DIAGONAL ELEMENTS OF SA of T
       IF( IFTEMP )THEN
          INDXX = NTEMP1
@@ -1286,8 +1286,8 @@
          END DO
       ENDIF
       WRITE(16,'(A22,A3)') "REGULARISATION METHOD"
-         
-         
+
+
       !  --- WRITE OUT FULL SA MATRIX
       IF (F_WRTSA) THEN
          CALL FILEOPEN( 63, 1 )
@@ -1299,13 +1299,13 @@
          END DO
          CALL FILECLOSE( 63, 1 )
       ENDIF
-      
+
       RETURN
-      
+
 260   FORMAT( 2000( 12X, A14 ))
 261   FORMAT( 2000ES26.18 )
-      
-      
+
+
     END SUBROUTINE FILSA
 
 

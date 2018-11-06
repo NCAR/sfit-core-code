@@ -1,4 +1,4 @@
-!  adapted for use in sfit4 June 2017 by mathias palm (mathias.palm@uni-bremen.de)  
+!  adapted for use in sfit4 June 2017 by mathias palm (mathias.palm@uni-bremen.de)
 
 !     path:      $HeadURL: https://svn.aer.com/svn/aer/project/RD/LBLRTM/trunk/src/contnm.f90 $
 !     author:    $Author: rpernak $
@@ -24,82 +24,82 @@
 ! |                       (http://www.rtweb.aer.com/)                        |
 !  --------------------------------------------------------------------------
 !
-SUBROUTINE CONTNM(JRAD) 
+SUBROUTINE CONTNM(JRAD)
   !
   use params, only: n_absrb, ipts, ipts2, radcn2, double
   !      Use lblparams, ONLY: n_absrb, ipts, ipts2
   !      USE phys_consts, ONLY: radcn2
-  IMPLICIT REAL*8           (V) 
-  !                                                                       
-  !     SUBROUTINE CONTNM CONTAINS THE CONTINUUM DATA                     
-  !     WHICH IS INTERPOLATED INTO THE ARRAY ABSRB                        
-  !                                                                       
-  !********************************************                           
+  IMPLICIT REAL*8           (V)
+  !
+  !     SUBROUTINE CONTNM CONTAINS THE CONTINUUM DATA
+  !     WHICH IS INTERPOLATED INTO THE ARRAY ABSRB
+  !
+  !********************************************
   COMMON /cnth2o/ V1h,V2h,DVh,NPTh,                                 &
-       &                Ch(n_absrb),csh2o(n_absrb),cfh2o(n_absrb)         
-!********************************************                           
-  COMMON /ABSORB/ V1ABS,V2ABS,DVABS,NPTABS,ABSRB(n_absrb) 
-  COMMON /XCONT/ V1C,V2C,DVC,NPTC,C(6000) 
-  !                                                                       
-  CHARACTER*8      XID,       HMOLID,      YID 
-  REAL*8               SECANT,       XALTZ 
-  !                                                                       
-  COMMON /CVRCNT/ HNAMCNT,HVRCNT 
+       &                Ch(n_absrb),csh2o(n_absrb),cfh2o(n_absrb)
+!********************************************
+  COMMON /ABSORB/ V1ABS,V2ABS,DVABS,NPTABS,ABSRB(n_absrb)
+  COMMON /XCONT/ V1C,V2C,DVC,NPTC,C(6000)
+  !
+  CHARACTER*8      XID,       HMOLID,      YID
+  REAL*8               SECANT,       XALTZ
+  !
+  COMMON /CVRCNT/ HNAMCNT,HVRCNT
   COMMON /FILHDR/ XID(10),SECANT,PAVE,TAVE,HMOLID(60),XALTZ(4),     &
        &                WK(60),PZL,PZU,TZL,TZU,WBROAD,DV ,V1 ,V2 ,TBOUND, &
-       &                EMISIV,FSCDID(17),NMOL_C,LAYER ,YI1,YID(10),LSTWDF  
+       &                EMISIV,FSCDID(17),NMOL_C,LAYER ,YI1,YID(10),LSTWDF
   COMMON /IFIL/ IRD,IPR,IPU,NOPR,NFHDRF,NPHDRF,NFHDRL,NPHDRL,       &
        &              NLNGTH,KFILE,KPANEL,LINFIL,NFILE,IAFIL,IEXFIL,      &
-       &              NLTEFL,LNFIL4,LNGTH4                                
-                                                                        
-  common /cntscl/ XSELF,XFRGN,XCO2C,XO3CN,XO2CN,XN2CN,XRAYL 
+       &              NLTEFL,LNFIL4,LNGTH4
+
+  common /cntscl/ XSELF,XFRGN,XCO2C,XO3CN,XO2CN,XN2CN,XRAYL
     real (double) :: wtot, wa, wn2, vmrh2o,w_dry, vi
     real (double) :: V1ABS,V2ABS,DVABS,ABSRB,xlength
     real (double) :: PAVE,TAVE
     real (double) :: WK,PZL,PZU,TZL,TZU,WBROAD,DV,V1 ,V2 ,TBOUND
     real (double) :: EMISIV,FSCDID,NMOL_C,LAYER ,YI1,LSTWDF
-    real (double) :: XSELF,XFRGN,XCO2C,XO3CN,XO2CN,XN2CN,XRAYL 
+    real (double) :: XSELF,XFRGN,XCO2C,XO3CN,XO2CN,XN2CN,XRAYL
 
 
-  !                                                                       
-  !------------------------------------                                   
-  ! for analytic derivative calculation                                   
-  ! note: ipts  = same dimension as ABSRB                                 
-  !       ipts2 = same dimension as C                                     
+  !
+  !------------------------------------
+  ! for analytic derivative calculation
+  ! note: ipts  = same dimension as ABSRB
+  !       ipts2 = same dimension as C
   common /CDERIV/ icflg,iuf,v1absc,v2absc,dvabsc,nptabsc,delT_pert, &
-       &    dqh2oC(ipts),dTh2oC(ipts),dUh2o                               
-  
-  real cself(ipts),cfrgn_aj(ipts) 
-  !------------------------------------                                   
-  !                                                                       
-  ! for cloud calculation                                                 
-  ! note: ipts  = same dimension as ABSRB                                 
-  !                                                                       
-      DIMENSION c_cld(ipts) 
-      !                                                                       
-      !------------------------------------                                   
-      !                                                                       
-      DIMENSION C0(n_absrb),C1(n_absrb),C2(n_absrb) 
+       &    dqh2oC(ipts),dTh2oC(ipts),dUh2o
+
+  real cself(ipts),cfrgn_aj(ipts)
+  !------------------------------------
+  !
+  ! for cloud calculation
+  ! note: ipts  = same dimension as ABSRB
+  !
+      DIMENSION c_cld(ipts)
+      !
+      !------------------------------------
+      !
+      DIMENSION C0(n_absrb),C1(n_absrb),C2(n_absrb)
       DIMENSION SH2OT0(n_absrb),SH2OT1(n_absrb),FH2O(n_absrb),          &
-           &          CN2T0(n_absrb),FCO2(n_absrb),CT1(n_absrb),CT2(n_absrb)  
+           &          CN2T0(n_absrb),FCO2(n_absrb),CT1(n_absrb),CT2(n_absrb)
       DIMENSION CCH0(5150),CCH1(5150),CCH2(5150)
-      DIMENSION CN0(5150),CN1(5150),CN2(5150) 
-      !                                                                       
-      REAL ABSBSV(n_absrb) 
-!                                                                       
-      CHARACTER*18 HNAMCNT,HVRCNT 
-      !                                                                       
-      equivalence (fscdid(4), iaersl) 
-      !                                                                       
+      DIMENSION CN0(5150),CN1(5150),CN2(5150)
+      !
+      REAL ABSBSV(n_absrb)
+!
+      CHARACTER*18 HNAMCNT,HVRCNT
+      !
+      equivalence (fscdid(4), iaersl)
+      !
       EQUIVALENCE (C0,SH2OT0,CN2T0,FCO2) , (C1,SH2OT1,CT1),             &
-           &            (C2,FH2O,CT2)                                         
-!                                                                       
-      DATA P0 / 1013. /,T0 / 296. / 
-      DATA XLOSMT / 2.68675E+19 / 
-!                                                                       
-      DIMENSION XFACCO2(500) 
-!     Correction factors for CO2 from 2000-3000 cm-1 (mt_ckd_2.5)       
-!     (stored every 2 cm-1 - same as CO2 continuum).                    
+           &            (C2,FH2O,CT2)
+!
+      DATA P0 / 1013. /,T0 / 296. /
+      DATA XLOSMT / 2.68675E+19 /
+!
+      DIMENSION XFACCO2(500)
+!     Correction factors for CO2 from 2000-3000 cm-1 (mt_ckd_2.5)
+!     (stored every 2 cm-1 - same as CO2 continuum).
       DATA XFACCO2/                                                     &
      &    1.0000,0.9998,0.9997,0.9996,0.9995,0.9994,0.9992,0.9991,      &
      &    0.9991,0.9990,0.9990,0.9989,0.9988,0.9988,0.9987,0.9986,      &
@@ -180,16 +180,16 @@ SUBROUTINE CONTNM(JRAD)
      &    1.0018,1.0017,1.0016,1.0015,1.0014,1.0014,1.0013,1.0012,      &
      &    1.0011,1.0011,1.0010,1.0010,1.0009,1.0009,1.0008,1.0007,      &
      &    1.0006,1.0005,1.0004,1.0003,1.0002,1.0001,1.0000,1.0000,      &
-     &    1.0000/                                                       
-                                                                        
-      DIMENSION XFACREV(0:14),XFACREV1(1:132), XFAC_RHU(-1:61)                           
-                                                                        
-!     Self correction factors for 820-960 cm-1.                         
+     &    1.0000/
+
+      DIMENSION XFACREV(0:14),XFACREV1(1:132), XFAC_RHU(-1:61)
+
+!     Self correction factors for 820-960 cm-1.
       DATA (XFACREV(I),I=0,14)/                                         &
      &     1.003,1.009,1.015,1.023,1.029,1.033,                         &
      &     1.037,1.039,1.040,1.046,1.036,1.027,                         &
-     &     1.01,1.002,1.00/                                             
-!                                                                       
+     &     1.01,1.002,1.00/
+!
 !     Self correction factors for 2000-3190 cm-1 (mt_ckd_2.8).
       DATA (XFACREV1(I),I=1,120)/                                       &
      &     1.000,1.039,1.064,1.081,1.088,                               &
@@ -217,7 +217,7 @@ SUBROUTINE CONTNM(JRAD)
      &     1.212,1.188,1.161,1.136,1.115,                               &
      &     1.090,1.065,1.040,1.020,1.000/
 
-!     Foreign correction factors from joint RHUBC-II/RHUBC-I 
+!     Foreign correction factors from joint RHUBC-II/RHUBC-I
 !     analysis (mt_ckd_3.0).
       DATA (XFAC_RHU(I),I=-1,61)/                                       &
      &     0.7810,0.8330,                                               &
@@ -234,233 +234,233 @@ SUBROUTINE CONTNM(JRAD)
      &     1.0200,1.1000,1.1250,1.1200,1.1110,                          &
      &     1.1370,1.1600,1.1490,1.1070,1.0640,                          &
      &     1.0450/
-!                                                                       
-!     ASSIGN SCCS VERSION NUMBER TO MODULE                              
-!                                                                       
-!     Continuum calculation flags:                                      
-!     ---------------------------                                       
-!     ICNTNM Value      Self     Foreign    Rayleigh     Others         
-!           0            no        no          no          no           
-!           1            yes       yes         yes         yes          
-!           2            no        yes         yes         yes          
-!           3            yes       no          yes         yes          
-!           4            no        no          yes         yes          
-!           5            yes       yes         no          yes          
-!           6   READ IN XSELF, XFRGN, XCO2C, XO3CN, XO2CN, XN2CN,       
-!               and XRAYL in Record 1.2a                                
-!                                                                       
-!     ASSIGN CVS VERSION NUMBER TO MODULE                               
-!                                                                       
+!
+!     ASSIGN SCCS VERSION NUMBER TO MODULE
+!
+!     Continuum calculation flags:
+!     ---------------------------
+!     ICNTNM Value      Self     Foreign    Rayleigh     Others
+!           0            no        no          no          no
+!           1            yes       yes         yes         yes
+!           2            no        yes         yes         yes
+!           3            yes       no          yes         yes
+!           4            no        no          yes         yes
+!           5            yes       yes         no          yes
+!           6   READ IN XSELF, XFRGN, XCO2C, XO3CN, XO2CN, XN2CN,
+!               and XRAYL in Record 1.2a
+!
+!     ASSIGN CVS VERSION NUMBER TO MODULE
+!
       HVRCNT = '$Revision: 30787 $'
-!                                                                       
-      RHOAVE = (PAVE/P0)*(T0/TAVE)                                      
-      XKT = TAVE/RADCN2                                                 
+!
+      RHOAVE = (PAVE/P0)*(T0/TAVE)
+      XKT = TAVE/RADCN2
 
 
       print *, pave, tave, xlength, wa, wn2, wk(1:7)
-      
-      
+
+
 !     the amagat value is used for the broadenening component for a
-!     number of the collision induced continua                                 
-!                                                                       
-      amagat = (Pave/P0)*(273.0d0/Tave)                                    
-!                                                                       
-      WTOT = WBROAD                                                     
-      DO 10 M = 1, NMOL_C                                                 
-         WTOT = WTOT+WK(M)                                              
-   10 CONTINUE                                                          
-                                                                        
-      x_vmr_h2o = wk(1)/wtot                                            
-      x_vmr_o2  = wk(7)/wtot                                            
-      x_vmr_n2  = 1. - x_vmr_h2o - x_vmr_o2                             
-                                                                        
-      wn2 = x_vmr_n2 * wtot                                             
-                                                                        
-!     H2O continuum derivatives are computed w.r.t. ln(q)               
-!        dqh2o must be returned with the radiation field included       
-                                                                        
-      if (icflg.gt.0) then                                           
-                                                                        
+!     number of the collision induced continua
+!
+      amagat = (Pave/P0)*(273.0d0/Tave)
+!
+      WTOT = WBROAD
+      DO 10 M = 1, NMOL_C
+         WTOT = WTOT+WK(M)
+   10 CONTINUE
+
+      x_vmr_h2o = wk(1)/wtot
+      x_vmr_o2  = wk(7)/wtot
+      x_vmr_n2  = 1. - x_vmr_h2o - x_vmr_o2
+
+      wn2 = x_vmr_n2 * wtot
+
+!     H2O continuum derivatives are computed w.r.t. ln(q)
+!        dqh2o must be returned with the radiation field included
+
+      if (icflg.gt.0) then
+
 !     amounts except for species of interest and n2 have been set to
 !     zero in lblrtm.
-!     wn2 must be set to zero here:                                     
-                                                                        
-         wn2 = 0.                                                       
-                                                                        
-!     zero derivative arrays and initialize panel information           
-                                                                        
-          do j=1,ipts                                                   
-              cself(j) = 0.0                                            
-              cfrgn_aj(j) = 0.0                                         
-          enddo                                                         
-                                                                        
-          v1absc=v1abs                                                  
-          v2absc=v2abs                                                  
-          dvabsc=dvabs                                                  
-          nptabsc=nptabs                                                
-      endif                                                             
-!                                                                       
+!     wn2 must be set to zero here:
+
+         wn2 = 0.
+
+!     zero derivative arrays and initialize panel information
+
+          do j=1,ipts
+              cself(j) = 0.0
+              cfrgn_aj(j) = 0.0
+          enddo
+
+          v1absc=v1abs
+          v2absc=v2abs
+          dvabsc=dvabs
+          nptabsc=nptabs
+      endif
+!
 !=======================================================================
-!                                                                       
+!
 !**** CLOUD EFFECTIVE OPTICAL DEPTH  FROM "in_lblrtm_cld" file  ********
 !=======================================================================
-!                                                                       
-      if (iaersl.eq.5) then                                             
-                                                                        
-         call cld_od (V1C,V2C,DVC,NPTC,c_cld,layer,xkt)                 
-                                                                        
-!        ---------------------------------------------------------      
-!        Radiation field                                                
-!                                                                       
-         if (jrad.eq.1) then                                            
-                                                                        
-            do j = 1, nptc                                              
-               vj = v1c +real(j-1)*dvc                                  
-               c_cld(j) = c_cld(j)*RADFN(VJ,XKT)                        
-            enddo                                                       
-                                                                        
-         endif                                                          
-!        ---------------------------------------------------------      
-                                                                        
-!        Interpolate to total optical depth grid                        
-                                                                        
-         CALL XINT (V1C,V2C,DVC,c_cld,1.0,V1ABS,DVABS,ABSRB,1,NPTABS)   
-                                                                        
-      endif                                                             
-!                                                                       
+!
+      if (iaersl.eq.5) then
+
+         call cld_od (V1C,V2C,DVC,NPTC,c_cld,layer,xkt)
+
+!        ---------------------------------------------------------
+!        Radiation field
+!
+         if (jrad.eq.1) then
+
+            do j = 1, nptc
+               vj = v1c +real(j-1)*dvc
+               c_cld(j) = c_cld(j)*RADFN(VJ,XKT)
+            enddo
+
+         endif
+!        ---------------------------------------------------------
+
+!        Interpolate to total optical depth grid
+
+         CALL XINT (V1C,V2C,DVC,c_cld,1.0,V1ABS,DVABS,ABSRB,1,NPTABS)
+
+      endif
+!
 !=======================================================================
-                                                                        
-!               ********    WATER VAPOR   ********                      
-!                                                                       
+
+!               ********    WATER VAPOR   ********
+!
 !=======================================================================
-!                                                                       
-      h2o_fac  = WK(1)/Wtot                                             
-      Rself    =     h2o_fac  * RHOave * 1.e-20 * xself                 
-      Rfrgn    = (1.-h2o_fac) * RHOave * 1.e-20 * xfrgn                 
+!
+      h2o_fac  = WK(1)/Wtot
+      Rself    =     h2o_fac  * RHOave * 1.e-20 * xself
+      Rfrgn    = (1.-h2o_fac) * RHOave * 1.e-20 * xfrgn
       Rfrgn_aj =     h2o_fac  * RHOave * 1.e-20 * xfrgn
 
-!                                                                       
+!
 !=======================================================================
-!                                                                       
-!     CORRECTION TO THE WATER VAPOR CONTINUUM    mt_ckd_2.4   Nov 2008  
-!                                                                       
+!
+!     CORRECTION TO THE WATER VAPOR CONTINUUM    mt_ckd_2.4   Nov 2008
+!
 !     The following modifications to the water vapor continuum arise
 !     from new analyses of ARM measurements in the microwave and far-IR
-!     regions. Analyses of measurements in the microwave are based 
-!     primarily on the two-channel MWR (23.8 and 31.4 GHz) at SGP, 
+!     regions. Analyses of measurements in the microwave are based
+!     primarily on the two-channel MWR (23.8 and 31.4 GHz) at SGP,
 !     with supporting evidence from 150 GHz MWRHF measurements during
-!     the COPS campaign and from 170 GHz GVRP measurements at SGP (V. H. 
-!     Payne, E. J. Mlawer and S. A. Clough). Measurements in the far-IR 
-!     were from the AERO_ext at the NSA site, in the time surrounding 
-!     and including the RHUBC-I campaign (J. Delamere and S. A. Clough).                                                
-!                                                                       
+!     the COPS campaign and from 170 GHz GVRP measurements at SGP (V. H.
+!     Payne, E. J. Mlawer and S. A. Clough). Measurements in the far-IR
+!     were from the AERO_ext at the NSA site, in the time surrounding
+!     and including the RHUBC-I campaign (J. Delamere and S. A. Clough).
+!
 !=======================================================================
-!                                                                       
-!                             SELF                                      
-                                                                        
-!     Only calculate if V2 > -20. cm-1 and V1 <  20000. cm-1            
-!                                                                       
-      if ((V2.gt.-20.0).and.(V1.lt.20000.) .and. xself.gt.0.) then      
+!
+!                             SELF
+
+!     Only calculate if V2 > -20. cm-1 and V1 <  20000. cm-1
+!
+      if ((V2.gt.-20.0).and.(V1.lt.20000.) .and. xself.gt.0.) then
          sh2ot0 = 0.
          sh2ot1 = 0.
-!                                                                       
-            CALL SL296 (V1C,V2C,DVC,NPTC,SH2OT0)                        
-            CALL SL260 (V1C,V2C,DVC,NPTC,SH2OT1)                        
-!                                                                       
-!           Loop calculating self continuum optical depth               
-!                                                                       
-            TFAC = (TAVE-T0)/(260.-T0)                                  
-!                                                                       
+!
+            CALL SL296 (V1C,V2C,DVC,NPTC,SH2OT0)
+            CALL SL260 (V1C,V2C,DVC,NPTC,SH2OT1)
+!
+!           Loop calculating self continuum optical depth
+!
+            TFAC = (TAVE-T0)/(260.-T0)
+!
 !-----------------------------------------------------------------------
-!          CORRECTION TO SELF CONTINUUM   mt_ckd_2.4  Nov 2008    sac   
+!          CORRECTION TO SELF CONTINUUM   mt_ckd_2.4  Nov 2008    sac
 !-----------------------------------------------------------------------
-!                                                                       
-            f1    = 0.25                                                
-            beta  = 350.                                                
-            n_s   = 6                                                   
+!
+            f1    = 0.25
+            beta  = 350.
+            n_s   = 6
 ! ***
 !   Correction from RHUBC-II    mt_ckd_3.0   Nov 2016
 ! ***
-            f1_rhu    = 0.08                                                
-            beta_rhu  = 40.                                                
-            n_s   = 6                                                   
-                                                                        
-            DO 20 J = 1, NPTC                                           
-               VJ = V1C+DVC* REAL(J-1)                                  
-               SH2O = 0.                                                
-               IF (SH2OT0(J).GT.0.) THEN                                
-                  SH2O = SH2OT0(J)*(SH2OT1(J)/SH2OT0(J))**TFAC          
-                  SFAC = 1.                                             
-!                                                                       
-                  IF (VJ .GE. 820. .AND. VJ .LE. 960.) THEN             
-                     JFAC = (VJ - 820.)/10. + 0.00001                   
-                     SFAC = XFACREV(JFAC)                               
-                  ENDIF                                                 
-!   ***                                                                 
-!     Correction to the self continuum     mt_ckd_2.5   Jan 2010        
+            f1_rhu    = 0.08
+            beta_rhu  = 40.
+            n_s   = 6
+
+            DO 20 J = 1, NPTC
+               VJ = V1C+DVC* REAL(J-1)
+               SH2O = 0.
+               IF (SH2OT0(J).GT.0.) THEN
+                  SH2O = SH2OT0(J)*(SH2OT1(J)/SH2OT0(J))**TFAC
+                  SFAC = 1.
+!
+                  IF (VJ .GE. 820. .AND. VJ .LE. 960.) THEN
+                     JFAC = (VJ - 820.)/10. + 0.00001
+                     SFAC = XFACREV(JFAC)
+                  ENDIF
+!   ***
+!     Correction to the self continuum     mt_ckd_2.5   Jan 2010
 !     Modified in mt_ckd_2.8 July 2016
-!   *** 
-!                                                                
-                  IF (VJ .GE. 2000. .AND. VJ .LE. 3190.) THEN           
-                     JFAC = (VJ - 1990.)/10. + 0.00001                  
-                     SFAC = XFACREV1(JFAC)                              
-                  ENDIF                                                 
-                                                                        
-                  sfac = sfac * ( 1 + ( f1/(1+(VJ/beta)**n_s) ) )       
-                  sfac = sfac * ( 1 + ( f1_rhu/(1+(VJ/beta_rhu)**n_s)))       
-                                                                        
-                  SH2O = SFAC * SH2O                                    
-!                                                                       
-               ENDIF                                                    
+!   ***
+!
+                  IF (VJ .GE. 2000. .AND. VJ .LE. 3190.) THEN
+                     JFAC = (VJ - 1990.)/10. + 0.00001
+                     SFAC = XFACREV1(JFAC)
+                  ENDIF
+
+                  sfac = sfac * ( 1 + ( f1/(1+(VJ/beta)**n_s) ) )
+                  sfac = sfac * ( 1 + ( f1_rhu/(1+(VJ/beta_rhu)**n_s)))
+
+                  SH2O = SFAC * SH2O
+!
+               ENDIF
 !              ---------------------------------------------------------
-!                                                                       
-               cself(j) = WK(1)*(SH2O*Rself)                            
-!                                                                       
-!********************************************                           
-               v1h=V1C                                                  
-               dvh=DVC                                                  
-               npth=NPTC                                                
-!                                                                       
+!
+               cself(j) = WK(1)*(SH2O*Rself)
+!
+!********************************************
+               v1h=V1C
+               dvh=DVC
+               npth=NPTC
+!
                csh2o(j)=1.e-20 * sh2o * xself
-!********************************************                           
-!                                                                       
+!********************************************
+!
 !              ---------------------------------------------------------
-!              Radiation field                                          
-!                                                                       
-               IF (JRAD.EQ.1) cself(j) = cself(j)*RADFN(VJ,XKT)         
+!              Radiation field
+!
+               IF (JRAD.EQ.1) cself(j) = cself(j)*RADFN(VJ,XKT)
 !              ---------------------------------------------------------
-                                                                        
-   20       CONTINUE                                                    
-!                                                                       
-!           Interpolate to total optical depth grid                     
-                                                                        
+
+   20       CONTINUE
+!
+!           Interpolate to total optical depth grid
+
                CALL XINT (V1C,V2C,DVC,cself,1.0,V1ABS,DVABS,ABSRB,1,NPTABS)
-                                                                        
-         endif                                                          
-!                                                                       
+
+         endif
+!
 !=======================================================================
-!                             FOREIGN                                   
-!                                                                       
-!--------------------------------------------------------------------   
-!                                                                       
-!        Only calculate if V2 > -20. cm-1 and V1 <  20000. cm-1         
-!                                                                       
-         if ((V2.gt.-20.0).and.(V1.lt.20000.) .and. xfrgn.gt.0.) then   
+!                             FOREIGN
+!
+!--------------------------------------------------------------------
+!
+!        Only calculate if V2 > -20. cm-1 and V1 <  20000. cm-1
+!
+         if ((V2.gt.-20.0).and.(V1.lt.20000.) .and. xfrgn.gt.0.) then
             fh2o = 0.
 !-----------------------------------------------------------------------
 !           CORRECTION TO FOREIGN CONTINUUM   mt_ckd_2.4  Nov 2008   sac
 !-----------------------------------------------------------------------
-                                                                        
-            f0     = 0.06                                               
-            V0F1   = 255.67                                             
-            HWSQ1  = 240.**2                                            
-            BETA1  = 57.83                                              
-            C_1    = -0.42                                              
-            N_1    = 8                                                  
-                                                                        
-            C_2    = 0.3                                                
-            BETA2  = 630.                                               
-            N_2    = 8  
+
+            f0     = 0.06
+            V0F1   = 255.67
+            HWSQ1  = 240.**2
+            BETA1  = 57.83
+            C_1    = -0.42
+            N_1    = 8
+
+            C_2    = 0.3
+            BETA2  = 630.
+            N_2    = 8
 !-----------------------------------------------------------------------
 !           mt_ckd_2.8    March 2016     Mlawer and Alvarado
 !-----------------------------------------------------------------------
@@ -472,726 +472,726 @@ SUBROUTINE CONTNM(JRAD)
 !     4000 cm-1 (blended with previous coefficients in transition
 !     regions between windows and bands). For 1800-3000 cm-1,
 !     this formulation guided the spectral shape of the foreign
-!     coefficients, but the values were reduced to obtain 
+!     coefficients, but the values were reduced to obtain
 !     agreement with measurements in this window by Baranov and
-!     Lafferty (2012) and IASI measurements from 1900-2150 cm-1. 
-!     Coefficients in this region were derived simultaneously  
+!     Lafferty (2012) and IASI measurements from 1900-2150 cm-1.
+!     Coefficients in this region were derived simultaneously
 !     with N2-H2O CIA coefficients and water vapor self continuum
 !     coefficents.
-                                                
-!                                                                       
-            CALL FRN296 (V1C,V2C,DVC,NPTC,FH2O)                         
-!                                                                       
-            DO 24 J = 1, NPTC                                           
-               VJ = V1C+DVC* REAL(J-1)                                  
-               IF (VJ .LE. 600.) THEN           
-                  JFAC = (VJ +10.)/10. + 0.00001                  
-                  FSCAL = XFAC_RHU(JFAC)                              
+
+!
+            CALL FRN296 (V1C,V2C,DVC,NPTC,FH2O)
+!
+            DO 24 J = 1, NPTC
+               VJ = V1C+DVC* REAL(J-1)
+               IF (VJ .LE. 600.) THEN
+                  JFAC = (VJ +10.)/10. + 0.00001
+                  FSCAL = XFAC_RHU(JFAC)
                ELSE
-!                                                                       
-                  vdelsq1  = (VJ-V0F1)**2                                  
-                  vdelmsq1 = (VJ+V0F1)**2                                  
-                  VF1  = ((VJ-V0F1)/beta1)**N_1                            
-                  VmF1 = ((VJ+V0F1)/beta1)**N_1                            
-                  VF2  = ((VJ     )/beta2)**N_2                            
-                                                                        
+!
+                  vdelsq1  = (VJ-V0F1)**2
+                  vdelmsq1 = (VJ+V0F1)**2
+                  VF1  = ((VJ-V0F1)/beta1)**N_1
+                  VmF1 = ((VJ+V0F1)/beta1)**N_1
+                  VF2  = ((VJ     )/beta2)**N_2
+
                   FSCAL = 1. +                                          &
      &                (f0 + C_1*( (HWSQ1/(VDELSQ1 +HWSQ1+VF1))  +       &
      &                            (HWSQ1/(VDELmSQ1+HWSQ1+VmF1)) ) ) /   &
-     &                                                 (1.+C_2*VF2)     
+     &                                                 (1.+C_2*VF2)
                ENDIF
-                                                                        
-               FH2O(J)=FH2O(J)*FSCAL                                    
-!                                                                       
-               c_f = WK(1) * FH2O(J)                                    
-!                                                                       
-!********************************************                           
-               cfh2o(j)=1.e-20 * fh2o(j) * xfrgn                        
-!********************************************                           
+
+               FH2O(J)=FH2O(J)*FSCAL
+!
+               c_f = WK(1) * FH2O(J)
+!
+!********************************************
+               cfh2o(j)=1.e-20 * fh2o(j) * xfrgn
+!********************************************
 !              ---------------------------------------------------------
-!              Radiation field                                          
-!                                                                       
-               IF (JRAD.EQ.1) c_f = c_f * RADFN(VJ,XKT)                 
+!              Radiation field
+!
+               IF (JRAD.EQ.1) c_f = c_f * RADFN(VJ,XKT)
 !              ---------------------------------------------------------
-                                                                        
-               C(J)        = c_f * RFRGN                                
-               cfrgn_aj(j) = c_f * rfrgn_aj                             
-!                                                                       
-   24       CONTINUE                                                    
-!                                                                       
-            CALL XINT (V1C,V2C,DVC,C,1.0,V1ABS,DVABS,ABSRB,1,NPTABS)    
-!                                                                       
+
+               C(J)        = c_f * RFRGN
+               cfrgn_aj(j) = c_f * rfrgn_aj
+!
+   24       CONTINUE
+!
+            CALL XINT (V1C,V2C,DVC,C,1.0,V1ABS,DVABS,ABSRB,1,NPTABS)
+!
 !           ------------------------------------------------------------
-!                                                                       
-            if  (icflg.eq.1) then                                       
-                                                                        
-               do j=1,nptc                                              
-                  c(j) =  cself(j)-cfrgn_aj(j)                          
-               enddo                                                    
-                                                                        
-               Call XINT (V1C,V2C,DVC,C,1.0,V1ABS,DVABS,ABSRB,1,NPTABS) 
-                                                                        
-            endif                                                       
-                                                                        
+!
+            if  (icflg.eq.1) then
+
+               do j=1,nptc
+                  c(j) =  cself(j)-cfrgn_aj(j)
+               enddo
+
+               Call XINT (V1C,V2C,DVC,C,1.0,V1ABS,DVABS,ABSRB,1,NPTABS)
+
+            endif
+
 !           ------------------------------------------------------------
-!                                                                       
-         endif                                                          
-                                                                        
+!
+         endif
+
 !=======================================================================
-                                                                        
-                                                                        
-!     ********    CARBON DIOXIDE   ********                             
-!                                                                       
-!                                                                       
-!        Only calculate if V2 > -20. cm-1 and V1 <  10000. cm-1         
-!                                                                       
-         if ((V2.gt.-20.0).and.(V1.lt.10000.) .and. xco2c.gt.0) then    
+
+
+!     ********    CARBON DIOXIDE   ********
+!
+!
+!        Only calculate if V2 > -20. cm-1 and V1 <  10000. cm-1
+!
+         if ((V2.gt.-20.0).and.(V1.lt.10000.) .and. xco2c.gt.0) then
             fco2 = 0.
-!                                                                       
-            WCO2 = WK(2) * RHOAVE * 1.0E-20 * xco2c                     
-!                                                                       
-            CALL FRNCO2 (V1C,V2C,DVC,NPTC,FCO2,tave)                    
-!                                                                       
-            DO 30 J = 1, NPTC                                           
-               VJ = V1C+DVC* REAL(J-1)                                  
-                                                                        
-!**mt_ckd_2.0      11 July 2007    sac                                  
-!             This continuum differs from mt_ck_1.3 in that an entirely 
-!             new co2 continuum has been developed based on the line    
-!             coupling parameters from Hartmann's group as distributed  
-!             with hitran.  This continuum must be used with lblrtm_v11 
-!             and spectral line parameters including Hartmann's line    
-!             parameters for co2.                                       
-!             Based on recent validation studies, a scaling of the      
-!             continuum for v3 is required to achieve an acceptable 
-!             result at 2385 cm-1, the 'bandhead' of v3.                       
-!             Clough et al., presentation at EGU 2007                   
-!   *** mt_ckd_2.5  Adjustment to the original scaling made.            
-!                   (temperature dependence of continuum also added)    
-                                                                        
-               CFAC = 1.                                                
-               IF (VJ .GE. 2000. .AND. VJ .LE. 2998.) THEN              
-                   JFAC = (VJ - 1998.)/2. + 0.00001                     
-                   CFAC = XFACCO2(JFAC)                                 
-               ENDIF                                                    
-               fco2(j) = cfac*fco2(j)                                   
-!**********                                                             
-!                                                                       
-               C(J) = FCO2(J)*WCO2                                      
-!                                                                       
-!              Radiation field                                          
-!                                                                       
-               IF (JRAD.EQ.1) C(J) = C(J)*RADFN(VJ,XKT)                 
-   30       CONTINUE                                                    
-            CALL XINT (V1C,V2C,DVC,C,1.0,V1ABS,DVABS,ABSRB,1,NPTABS)    
-                                                                        
-         endif                                                          
-!                                                                       
-!     ********    DIFFUSE OZONE  ********                               
-!                                                                       
-!     Smoothing coefficients from 8920.0-9165.0 cm-1 and from           
-!     24570.0-24665.0 cm-1.  Data covers 9170.0-24565.0 cm-1            
-!     region.                                                           
-!                                                                       
-         IF (V2.GT.8920.0.AND.V1.LE.24665.0.and.xo3cn.gt.0.) THEN       
+!
+            WCO2 = WK(2) * RHOAVE * 1.0E-20 * xco2c
+!
+            CALL FRNCO2 (V1C,V2C,DVC,NPTC,FCO2,tave)
+!
+            DO 30 J = 1, NPTC
+               VJ = V1C+DVC* REAL(J-1)
+
+!**mt_ckd_2.0      11 July 2007    sac
+!             This continuum differs from mt_ck_1.3 in that an entirely
+!             new co2 continuum has been developed based on the line
+!             coupling parameters from Hartmann's group as distributed
+!             with hitran.  This continuum must be used with lblrtm_v11
+!             and spectral line parameters including Hartmann's line
+!             parameters for co2.
+!             Based on recent validation studies, a scaling of the
+!             continuum for v3 is required to achieve an acceptable
+!             result at 2385 cm-1, the 'bandhead' of v3.
+!             Clough et al., presentation at EGU 2007
+!   *** mt_ckd_2.5  Adjustment to the original scaling made.
+!                   (temperature dependence of continuum also added)
+
+               CFAC = 1.
+               IF (VJ .GE. 2000. .AND. VJ .LE. 2998.) THEN
+                   JFAC = (VJ - 1998.)/2. + 0.00001
+                   CFAC = XFACCO2(JFAC)
+               ENDIF
+               fco2(j) = cfac*fco2(j)
+!**********
+!
+               C(J) = FCO2(J)*WCO2
+!
+!              Radiation field
+!
+               IF (JRAD.EQ.1) C(J) = C(J)*RADFN(VJ,XKT)
+   30       CONTINUE
+            CALL XINT (V1C,V2C,DVC,C,1.0,V1ABS,DVABS,ABSRB,1,NPTABS)
+
+         endif
+!
+!     ********    DIFFUSE OZONE  ********
+!
+!     Smoothing coefficients from 8920.0-9165.0 cm-1 and from
+!     24570.0-24665.0 cm-1.  Data covers 9170.0-24565.0 cm-1
+!     region.
+!
+         IF (V2.GT.8920.0.AND.V1.LE.24665.0.and.xo3cn.gt.0.) THEN
             cch0 = 0.
             cch1 = 0.
             cch2 = 0.
 
-            WO3 = WK(3) * 1.0E-20 * xo3cn                               
-            CALL XO3CHP (V1C,V2C,DVC,NPTO3,CCH0,CCH1,CCH2)              
-!                                                                       
-            DT=TAVE-273.15                                              
-!                                                                       
-            DO 50 J = 1, NPTO3                                          
-               CCH0(J)=(CCH0(J)+(CCH1(J)+CCH2(J)*DT)*DT)*WO3            
-               VJ = V1C+DVC* REAL(J-1)                                  
-               IF (JRAD.EQ.1) CCH0(J) = CCH0(J)*RADFN(VJ,XKT)           
-   50       CONTINUE                                                    
-            CALL XINT (V1C,V2C,DVC,CCH0,1.0,V1ABS,DVABS,ABSRB,1,NPTABS) 
-         ENDIF                                                          
-!                                                                       
-         IF (V2.GT.27370..AND.V1.LT.40800. .and.xo3cn.gt.0.) THEN       
+            WO3 = WK(3) * 1.0E-20 * xo3cn
+            CALL XO3CHP (V1C,V2C,DVC,NPTO3,CCH0,CCH1,CCH2)
+!
+            DT=TAVE-273.15
+!
+            DO 50 J = 1, NPTO3
+               CCH0(J)=(CCH0(J)+(CCH1(J)+CCH2(J)*DT)*DT)*WO3
+               VJ = V1C+DVC* REAL(J-1)
+               IF (JRAD.EQ.1) CCH0(J) = CCH0(J)*RADFN(VJ,XKT)
+   50       CONTINUE
+            CALL XINT (V1C,V2C,DVC,CCH0,1.0,V1ABS,DVABS,ABSRB,1,NPTABS)
+         ENDIF
+!
+         IF (V2.GT.27370..AND.V1.LT.40800. .and.xo3cn.gt.0.) THEN
             c0 = 0.
             ct1 = 0.
             ct2 = 0.
 
-            WO3 = WK(3) * 1.E-20 * xo3cn                                
-            TC = TAVE-273.15                                            
-            CALL O3HHT0 (V1C,V2C,DVC,NPTO3,C0)                          
-            CALL O3HHT1 (V1T1,V2T1,DVT1,NPT1,CT1)                       
-            CALL O3HHT2 (V1T2,V2T2,DVT2,NPT2,CT2)                       
-!                                                                       
-            DO 60 J = 1, NPTO3                                          
-               C(J) = C0(J)*WO3                                         
-!                                                                       
-               VJ = V1C+DVC* REAL(J-1)                                  
-               IF (JRAD.EQ.1) C(J) = C(J)*RADFN(VJ,XKT)                 
-               C(J) = C(J)*(1.+CT1(J)*TC+CT2(J)*TC*TC)                  
-   60       CONTINUE                                                    
-!                                                                       
-!           Save non-Hartley Huggins optical depth contribution to      
-!           prevent double counting for wavenumber region beyond        
-!           40800 cm-1.                                                 
-!                                                                       
-            IF ((VJ.GT.40815.).AND.(V2.GT.40800) .and.xo3cn.gt.0.) THEN 
-               I_FIX = (40800.-V1ABS)/DVABS+1.001                       
-               DO 62 I=I_FIX,NPTABS                                     
-                  ABSBSV(I) = ABSRB(I)                                  
-   62          CONTINUE                                                 
-            ENDIF                                                       
-!                                                                       
-!           Combine Hartley Huggins with previous optical depths        
-!                                                                       
-            CALL XINT (V1C,V2C,DVC,C,1.0,V1ABS,DVABS,ABSRB,1,NPTABS)    
-!                                                                       
-!           If V2 > 40800 cm-1, replace points with previously          
-!           saved values (non-Hartley Huggins contribution)             
-!                                                                       
-            IF ((VJ.GT.40815.).AND.(V2.GT.40800).and.xo3cn.gt.0.)THEN   
-               DO 64 I=I_FIX,NPTABS                                     
-                  ABSRB(I) = ABSBSV(I)                                  
-   64          CONTINUE                                                 
-            ENDIF                                                       
-         ENDIF                                                          
-!                                                                       
-!        If V2 > 40800 cm-1, add UV Hartley Huggins contribution        
-!                                                                       
-         IF (V2.GT.40800..AND.V1.LT.54000. .and.xo3cn.gt.0.) THEN       
+            WO3 = WK(3) * 1.E-20 * xo3cn
+            TC = TAVE-273.15
+            CALL O3HHT0 (V1C,V2C,DVC,NPTO3,C0)
+            CALL O3HHT1 (V1T1,V2T1,DVT1,NPT1,CT1)
+            CALL O3HHT2 (V1T2,V2T2,DVT2,NPT2,CT2)
+!
+            DO 60 J = 1, NPTO3
+               C(J) = C0(J)*WO3
+!
+               VJ = V1C+DVC* REAL(J-1)
+               IF (JRAD.EQ.1) C(J) = C(J)*RADFN(VJ,XKT)
+               C(J) = C(J)*(1.+CT1(J)*TC+CT2(J)*TC*TC)
+   60       CONTINUE
+!
+!           Save non-Hartley Huggins optical depth contribution to
+!           prevent double counting for wavenumber region beyond
+!           40800 cm-1.
+!
+            IF ((VJ.GT.40815.).AND.(V2.GT.40800) .and.xo3cn.gt.0.) THEN
+               I_FIX = (40800.-V1ABS)/DVABS+1.001
+               DO 62 I=I_FIX,NPTABS
+                  ABSBSV(I) = ABSRB(I)
+   62          CONTINUE
+            ENDIF
+!
+!           Combine Hartley Huggins with previous optical depths
+!
+            CALL XINT (V1C,V2C,DVC,C,1.0,V1ABS,DVABS,ABSRB,1,NPTABS)
+!
+!           If V2 > 40800 cm-1, replace points with previously
+!           saved values (non-Hartley Huggins contribution)
+!
+            IF ((VJ.GT.40815.).AND.(V2.GT.40800).and.xo3cn.gt.0.)THEN
+               DO 64 I=I_FIX,NPTABS
+                  ABSRB(I) = ABSBSV(I)
+   64          CONTINUE
+            ENDIF
+         ENDIF
+!
+!        If V2 > 40800 cm-1, add UV Hartley Huggins contribution
+!
+         IF (V2.GT.40800..AND.V1.LT.54000. .and.xo3cn.gt.0.) THEN
             c0 = 0.
 
-            WO3 = WK(3) * xo3cn                                         
-            CALL O3HHUV (V1C,V2C,DVC,NPTO3,C0)                          
-!                                                                       
-            DO 70 J = 1, NPTO3                                          
-               C(J) = C0(J)*WO3                                         
-               VJ = V1C+DVC* REAL(J-1)                                  
-               IF (JRAD.EQ.1) C(J) = C(J)*RADFN(VJ,XKT)                 
-   70       CONTINUE                                                    
-!                                                                       
-!           Save non-Hartley Huggins UV optical depth contribution to   
-!           prevent double counting for wavenumber region before        
-!           40800 cm-1.                                                 
-!                                                                       
-            IF (V1.LT.40800) THEN                                       
-               I_FIX = (40800.-V1ABS)/DVABS+1.001                       
-               DO 72 I=1,I_FIX-1                                        
-                  ABSBSV(I) = ABSRB(I)                                  
-   72          CONTINUE                                                 
-            ENDIF                                                       
-!                                                                       
-!           Combine UV Hartley Huggins with previous optical depths     
-!                                                                       
-            CALL XINT (V1C,V2C,DVC,C,1.0,V1ABS,DVABS,ABSRB,1,NPTABS)    
-!                                                                       
-!           If V1 < 40800 cm-1, replace points with previously          
-!           saved values (non-Hartley Huggins UV contribution)          
-!                                                                       
-            IF (V1.LT.40800) THEN                                       
-               DO 74 I=1,I_FIX-1                                        
-                  ABSRB(I) = ABSBSV(I)                                  
-   74          CONTINUE                                                 
-            ENDIF                                                       
-!                                                                       
-         ENDIF                                                          
-!                                                                       
-!     ********    O2 OXYGEN COLLISION INDUCED FUNDAMENTAL  ***********  
-!                                                                       
-!     version_1 of the Oxygen Collision Induced Fundamental             
-!                                                                       
+            WO3 = WK(3) * xo3cn
+            CALL O3HHUV (V1C,V2C,DVC,NPTO3,C0)
+!
+            DO 70 J = 1, NPTO3
+               C(J) = C0(J)*WO3
+               VJ = V1C+DVC* REAL(J-1)
+               IF (JRAD.EQ.1) C(J) = C(J)*RADFN(VJ,XKT)
+   70       CONTINUE
+!
+!           Save non-Hartley Huggins UV optical depth contribution to
+!           prevent double counting for wavenumber region before
+!           40800 cm-1.
+!
+            IF (V1.LT.40800) THEN
+               I_FIX = (40800.-V1ABS)/DVABS+1.001
+               DO 72 I=1,I_FIX-1
+                  ABSBSV(I) = ABSRB(I)
+   72          CONTINUE
+            ENDIF
+!
+!           Combine UV Hartley Huggins with previous optical depths
+!
+            CALL XINT (V1C,V2C,DVC,C,1.0,V1ABS,DVABS,ABSRB,1,NPTABS)
+!
+!           If V1 < 40800 cm-1, replace points with previously
+!           saved values (non-Hartley Huggins UV contribution)
+!
+            IF (V1.LT.40800) THEN
+               DO 74 I=1,I_FIX-1
+                  ABSRB(I) = ABSBSV(I)
+   74          CONTINUE
+            ENDIF
+!
+         ENDIF
+!
+!     ********    O2 OXYGEN COLLISION INDUCED FUNDAMENTAL  ***********
+!
+!     version_1 of the Oxygen Collision Induced Fundamental
+!
 !     F. Thibault, V. Menoux, R. Le Doucen, L. Rosenman, J.-M. Hartmann,
-!        and Ch. Boulet,                                                
+!        and Ch. Boulet,
 !        Infrared collision-induced absorption by O2 near 6.4 microns
-!        for atmospheric applications: measurements and emprirical 
-!        modeling, Appl. Optics, 35, 5911-5917, (1996).                           
-                                                                        
-!                                                                       
-!        Only calculate if V2 > 1340. cm-1 and V1 <  1850. cm-1         
-                                                                        
-         if ((V2.gt.1340.0).and.(V1.lt.1850.).and. xo2cn.gt.0.) then    
+!        for atmospheric applications: measurements and emprirical
+!        modeling, Appl. Optics, 35, 5911-5917, (1996).
+
+!
+!        Only calculate if V2 > 1340. cm-1 and V1 <  1850. cm-1
+
+         if ((V2.gt.1340.0).and.(V1.lt.1850.).and. xo2cn.gt.0.) then
             c0 = 0.
-!                                                                       
-            tau_fac = xo2cn *  Wk(7) * 1.e-20 * amagat                  
-!                                                                       
-!           Wk(7) is the oxygen column amount in units of molec/cm2     
-!           amagat is in units of amagats (air)                         
-!                                                                       
+!
+            tau_fac = xo2cn *  Wk(7) * 1.e-20 * amagat
+!
+!           Wk(7) is the oxygen column amount in units of molec/cm2
+!           amagat is in units of amagats (air)
+!
 !           The temperature correction is done in the subroutine o2_ver_
-!                                                                       
-            call o2_ver_1 (v1c,v2c,dvc,nptc,c0,tave)                    
-!                                                                       
+!
+            call o2_ver_1 (v1c,v2c,dvc,nptc,c0,tave)
+!
 !           c0 are the oxygen absorption coefficients at temperature
 !           tave
-!              - these absorption coefficients are in units of          
-!                   [(cm^2/molec) 10^20)]/(cm-1  amagat)                
-!              - cm-1 in the denominator arises through the removal     
-!                   of the radiation field                              
-!              - for this case, an amagat is interpreted as one         
-!                   loschmidt of air (273K)                             
-!                                                                       
-            DO 80 J = 1, NPTC                                           
-               VJ = V1C+DVC* REAL(J-1)                                  
-               C(J) = tau_fac * c0(J)                                   
-!                                                                       
-!              Radiation field                                          
-!                                                                       
-               IF (JRAD.EQ.1) C(J) = C(J)*RADFN(VJ,XKT)                 
-!                                                                       
-   80       CONTINUE                                                    
-                                                                        
-            CALL XINT (V1C,V2C,DVC,C,1.0,V1ABS,DVABS,ABSRB,1,NPTABS)    
-         endif                                                          
-                                                                        
-!        ********    O2 Collision Induced   ********                    
-!                                                                       
+!              - these absorption coefficients are in units of
+!                   [(cm^2/molec) 10^20)]/(cm-1  amagat)
+!              - cm-1 in the denominator arises through the removal
+!                   of the radiation field
+!              - for this case, an amagat is interpreted as one
+!                   loschmidt of air (273K)
+!
+            DO 80 J = 1, NPTC
+               VJ = V1C+DVC* REAL(J-1)
+               C(J) = tau_fac * c0(J)
+!
+!              Radiation field
+!
+               IF (JRAD.EQ.1) C(J) = C(J)*RADFN(VJ,XKT)
+!
+   80       CONTINUE
+
+            CALL XINT (V1C,V2C,DVC,C,1.0,V1ABS,DVABS,ABSRB,1,NPTABS)
+         endif
+
+!        ********    O2 Collision Induced   ********
+!
 !        O2 continuum formulated by Mate et al. over the spectral region
-!        7550-8486 cm-1:  "Absolute Intensities for the O2 1.27 micron  
-!        continuum absorption", B. Mate, C. Lugez, G.T. Fraser, and     
-!        W.J. Lafferty, J. Geophys. Res., 104, 30,585-30,590, 1999.     
-!                                                                       
+!        7550-8486 cm-1:  "Absolute Intensities for the O2 1.27 micron
+!        continuum absorption", B. Mate, C. Lugez, G.T. Fraser, and
+!        W.J. Lafferty, J. Geophys. Res., 104, 30,585-30,590, 1999.
+!
 !        Units of these coefficients are 1 / (amagat_O2*amagat_air)
-!                                                                       
-!        Also, refer to the paper "Observed  Atmospheric                
-!        Collision Induced Absorption in Near Infrared Oxygen Bands",   
-!        Mlawer, Clough, Brown, Stephen, Landry, Goldman, & Murcray,    
-!        Journal of Geophysical Research (1998).                        
-!                                                                       
-!        Only calculate if V2 > 7536. cm-1 and V1 <  8500. cm-1         
-!                                                                       
-         if ((V2.gt.7536.0).and.(V1.lt.8500.).and. xo2cn.gt.0.) then    
+!
+!        Also, refer to the paper "Observed  Atmospheric
+!        Collision Induced Absorption in Near Infrared Oxygen Bands",
+!        Mlawer, Clough, Brown, Stephen, Landry, Goldman, & Murcray,
+!        Journal of Geophysical Research (1998).
+!
+!        Only calculate if V2 > 7536. cm-1 and V1 <  8500. cm-1
+!
+         if ((V2.gt.7536.0).and.(V1.lt.8500.).and. xo2cn.gt.0.) then
             c0 = 0.
-!                                                                       
-            a_o2  = 1./0.446                                            
-            a_n2  = 0.3/0.446                                           
-            a_h2o = 1.                                                  
-                                                                        
+!
+            a_o2  = 1./0.446
+            a_n2  = 0.3/0.446
+            a_h2o = 1.
+
             tau_fac = xo2cn * (Wk(7)/xlosmt) * amagat *                 &
-     &           (a_o2*x_vmr_o2+a_n2*x_vmr_n2+a_h2o*x_vmr_h2o)          
-                                                                        
-!                                                                       
-            CALL O2INF1 (V1C,V2C,DVC,NPTC,C0)                           
-!                                                                       
-            DO 92 J = 1, NPTC                                           
-               C(J) = tau_fac * C0(J)                                   
-               VJ = V1C+DVC* REAL(J-1)                                  
-!                                                                       
-!              Radiation field                                          
-!                                                                       
-               IF (JRAD.EQ.1) C(J) = C(J)*RADFN(VJ,XKT)                 
-                                                                        
-   92       CONTINUE                                                    
-!                                                                       
-            CALL XINT (V1C,V2C,DVC,C,1.0,V1ABS,DVABS,ABSRB,1,NPTABS)    
-!                                                                       
-         endif                                                          
-!                                                                       
+     &           (a_o2*x_vmr_o2+a_n2*x_vmr_n2+a_h2o*x_vmr_h2o)
+
+!
+            CALL O2INF1 (V1C,V2C,DVC,NPTC,C0)
+!
+            DO 92 J = 1, NPTC
+               C(J) = tau_fac * C0(J)
+               VJ = V1C+DVC* REAL(J-1)
+!
+!              Radiation field
+!
+               IF (JRAD.EQ.1) C(J) = C(J)*RADFN(VJ,XKT)
+
+   92       CONTINUE
+!
+            CALL XINT (V1C,V2C,DVC,C,1.0,V1ABS,DVABS,ABSRB,1,NPTABS)
+!
+         endif
+!
 !        O2 continuum formulated by Mlawer et al. over the spectral
-!        region 9100-11000 cm-1. Refer to the paper "Observed  
-!        Atmospheric Collision Induced Absorption in Near Infrared 
-!        Oxygen Bands", Mlawer, Clough, Brown, Stephen, Landry, Goldman, 
-!        & Murcray, Journal of Geophysical Research (1998).                        
-!                                                                       
-!        Only calculate if V2 > 9100. cm-1 and V1 <  11000. cm-1        
-!                                                                       
-         if ((V2.gt.9100.0).and.(V1.lt.11000.).and. xo2cn.gt.0.) then   
+!        region 9100-11000 cm-1. Refer to the paper "Observed
+!        Atmospheric Collision Induced Absorption in Near Infrared
+!        Oxygen Bands", Mlawer, Clough, Brown, Stephen, Landry, Goldman,
+!        & Murcray, Journal of Geophysical Research (1998).
+!
+!        Only calculate if V2 > 9100. cm-1 and V1 <  11000. cm-1
+!
+         if ((V2.gt.9100.0).and.(V1.lt.11000.).and. xo2cn.gt.0.) then
             c0 = 0.
-!                                                                       
-            CALL O2INF2 (V1C,V2C,DVC,NPTC,C0)                           
-            WO2 = xo2cn * (WK(7)*1.e-20) * RHOAVE                       
-            ADJWO2 = (WK(7)/WTOT) * (1./0.209) * WO2                    
-!                                                                       
-            DO 93 J = 1, NPTC                                           
-               C(J) = C0(J)*ADJWO2                                      
-               VJ = V1C+DVC* REAL(J-1)                                  
-!                                                                       
-!              Radiation field                                          
-!                                                                       
-               IF (JRAD.EQ.1) C(J) = C(J)*RADFN(VJ,XKT)                 
-!                                                                       
-   93       CONTINUE                                                    
-!                                                                       
-            CALL XINT (V1C,V2C,DVC,C,1.0,V1ABS,DVABS,ABSRB,1,NPTABS)    
-!                                                                       
-         endif  
-                                                        
+!
+            CALL O2INF2 (V1C,V2C,DVC,NPTC,C0)
+            WO2 = xo2cn * (WK(7)*1.e-20) * RHOAVE
+            ADJWO2 = (WK(7)/WTOT) * (1./0.209) * WO2
+!
+            DO 93 J = 1, NPTC
+               C(J) = C0(J)*ADJWO2
+               VJ = V1C+DVC* REAL(J-1)
+!
+!              Radiation field
+!
+               IF (JRAD.EQ.1) C(J) = C(J)*RADFN(VJ,XKT)
+!
+   93       CONTINUE
+!
+            CALL XINT (V1C,V2C,DVC,C,1.0,V1ABS,DVABS,ABSRB,1,NPTABS)
+!
+         endif
+
 ! *******
-!        O2 A-band continuum formulated by Mlawer and Gombos based 
+!        O2 A-band continuum formulated by Mlawer and Gombos based
 !        on solar FTS measurements.
-!                                                                       
+!
 !        Units of these coefficients are 1 / (amagat_O2*amagat_air)
-!                                                                       
-!        Only calculate if V2 > 12990.5 cm-1 and V1 < 13229.5 cm-1         
-!                                                                       
-!         if ((V2.gt.12990.5).and.(V1.lt.13229.5).and. xo2cn.gt.0.) then    
+!
+!        Only calculate if V2 > 12990.5 cm-1 and V1 < 13229.5 cm-1
+!
+!         if ((V2.gt.12990.5).and.(V1.lt.13229.5).and. xo2cn.gt.0.) then
 !            c0 = 0.
-!                                                                       
-!            tau_fac = xo2cn * (Wk(7)/xlosmt) * amagat 
-!                                                                        
-!                                                                       
-!            CALL O2INF3 (V1C,V2C,DVC,NPTC,C0)                           
-!                                                                       
-!            DO 94 J = 1, NPTC                                           
-!               C(J) = tau_fac * C0(J)                                   
-!               VJ = V1C+DVC* REAL(J-1)                                  
-!                                                                       
-!              Radiation field                                          
-!                                                                       
-!               IF (JRAD.EQ.1) C(J) = C(J)*RADFN(VJ,XKT)                 
-!   94       CONTINUE                                                    
-!                                                                       
-!            CALL XINT (V1C,V2C,DVC,C,1.0,V1ABS,DVABS,ABSRB,1,NPTABS)    
-!                                                                       
+!
+!            tau_fac = xo2cn * (Wk(7)/xlosmt) * amagat
+!
+!
+!            CALL O2INF3 (V1C,V2C,DVC,NPTC,C0)
+!
+!            DO 94 J = 1, NPTC
+!               C(J) = tau_fac * C0(J)
+!               VJ = V1C+DVC* REAL(J-1)
+!
+!              Radiation field
+!
+!               IF (JRAD.EQ.1) C(J) = C(J)*RADFN(VJ,XKT)
+!   94       CONTINUE
+!
+!            CALL XINT (V1C,V2C,DVC,C,1.0,V1ABS,DVABS,ABSRB,1,NPTABS)
+!
 !         endif
-                                                          
-! *******                                                                       
-!        O2 continuum formulated by Greenblatt et al. over the spectral 
-!        region 8797-29870 cm-1:  "Absorption Coefficients of Oxygen 
-!        Between 330 and 1140 nm, G.D. Greenblatt, J.J. Orlando, J.B. 
-!        Burkholder, and A.R. Ravishabkara,  J. Geophys. Res., 95, 
+
+! *******
+!        O2 continuum formulated by Greenblatt et al. over the spectral
+!        region 8797-29870 cm-1:  "Absorption Coefficients of Oxygen
+!        Between 330 and 1140 nm, G.D. Greenblatt, J.J. Orlando, J.B.
+!        Burkholder, and A.R. Ravishabkara,  J. Geophys. Res., 95,
 !        18577-18582, 1990.
-!                                                                       
-!        The units conversion to (cm^2/molec)/atm(o2)  has been done in 
-!        subroutine o2_vis.                                             
-!                                                                       
-!        Only calculate if V2 > 15000. cm-1 and V1 <  29870. cm-1       
-!                                                                       
-         if ((V2.gt.15000.0).and.(V1.lt.29870.).and. xo2cn.gt.0.) then  
+!
+!        The units conversion to (cm^2/molec)/atm(o2)  has been done in
+!        subroutine o2_vis.
+!
+!        Only calculate if V2 > 15000. cm-1 and V1 <  29870. cm-1
+!
+         if ((V2.gt.15000.0).and.(V1.lt.29870.).and. xo2cn.gt.0.) then
             c0 = 0.
-!                                                                       
-            WO2 = WK(7) * 1.e-20 * ((pave/1013.)*(273./tave)) * xo2cn   
-            CHIO2 =  WK(7)/WTOT                                         
-            ADJWO2 = chio2 * WO2                                        
-!                                                                       
-            CALL O2_vis (V1C,V2C,DVC,NPTC,C0)                           
-!                                                                       
-            DO 96 J = 1, NPTC                                           
-               C(J) = C0(J)*ADJWO2                                      
-               VJ = V1C+DVC* REAL(J-1)                                  
-!                                                                       
-!              Radiation field                                          
-!                                                                       
-               IF (JRAD.EQ.1) C(J) = C(J)*RADFN(VJ,XKT)                 
-!                                                                       
-   96       CONTINUE                                                    
-!                                                                       
-            CALL XINT (V1C,V2C,DVC,C,1.0,V1ABS,DVABS,ABSRB,1,NPTABS)    
-!                                                                       
-         endif                                                          
-!                                                                       
-!        Only calculate if V2 > 36000. cm-1                             
-                                                                        
-         if (V2.gt.36000.0 .and. xo2cn.gt.0.) then                      
+!
+            WO2 = WK(7) * 1.e-20 * ((pave/1013.)*(273./tave)) * xo2cn
+            CHIO2 =  WK(7)/WTOT
+            ADJWO2 = chio2 * WO2
+!
+            CALL O2_vis (V1C,V2C,DVC,NPTC,C0)
+!
+            DO 96 J = 1, NPTC
+               C(J) = C0(J)*ADJWO2
+               VJ = V1C+DVC* REAL(J-1)
+!
+!              Radiation field
+!
+               IF (JRAD.EQ.1) C(J) = C(J)*RADFN(VJ,XKT)
+!
+   96       CONTINUE
+!
+            CALL XINT (V1C,V2C,DVC,C,1.0,V1ABS,DVABS,ABSRB,1,NPTABS)
+!
+         endif
+!
+!        Only calculate if V2 > 36000. cm-1
+
+         if (V2.gt.36000.0 .and. xo2cn.gt.0.) then
             c0 = 0.
-            WO2 = WK(7) * 1.e-20 * xo2cn                                
-!                                                                       
-            CALL O2HERZ (V1C,V2C,DVC,NPTC,C0,TAVE,PAVE)                 
-            DO 90 J = 1, NPTC                                           
-               C(J) = C0(J)*WO2                                         
-               VJ = V1C+DVC* REAL(J-1)                                  
-!                                                                       
-!              Radiation field                                          
-!                                                                       
-               IF (JRAD.EQ.1) C(J) = C(J)*RADFN(VJ,XKT)                 
-   90       CONTINUE                                                    
-            CALL XINT (V1C,V2C,DVC,C,1.0,V1ABS,DVABS,ABSRB,1,NPTABS)    
-                                                                        
-         endif                                                          
-!                                                                       
-!     *********************  NITROGEN CONTINUA  ********************    
-!                                                                       
-!                                                                       
-!     ******** NITROGEN COLLISION INDUCED PURE ROTATION BAND  ********  
-!                                                                       
-!        Model used:                                                    
-!         Borysow, A, and L. Frommhold, "Collision-induced              
-!            rototranslational absorption spectra of N2-N2              
-!            pairs for temperatures from 50 to 300 K", The              
-!            Astrophysical Journal, 311, 1043-1057, 1986.               
-!                                                                       
-!     Uodated 2004/09/22 based on:                                      
-!                                                                       
-!      Boissoles, J., C. Boulet, R.H. Tipping, A. Brown and Q. Ma,      
-!         Theoretical Calculations of the Translation-Rotation          
-!         Collision-Induced Absorption in N2-N2, O2-O2 and N2-O2 Pairs, 
-!         J.Quant. Spec. Rad. Transfer, 82,505 (2003).                  
-!                                                                       
-!         The temperature dependence between the two reference 
-!         temperatures has been assumed the same as that for the 
+            WO2 = WK(7) * 1.e-20 * xo2cn
+!
+            CALL O2HERZ (V1C,V2C,DVC,NPTC,C0,TAVE,PAVE)
+            DO 90 J = 1, NPTC
+               C(J) = C0(J)*WO2
+               VJ = V1C+DVC* REAL(J-1)
+!
+!              Radiation field
+!
+               IF (JRAD.EQ.1) C(J) = C(J)*RADFN(VJ,XKT)
+   90       CONTINUE
+            CALL XINT (V1C,V2C,DVC,C,1.0,V1ABS,DVABS,ABSRB,1,NPTABS)
+
+         endif
+!
+!     *********************  NITROGEN CONTINUA  ********************
+!
+!
+!     ******** NITROGEN COLLISION INDUCED PURE ROTATION BAND  ********
+!
+!        Model used:
+!         Borysow, A, and L. Frommhold, "Collision-induced
+!            rototranslational absorption spectra of N2-N2
+!            pairs for temperatures from 50 to 300 K", The
+!            Astrophysical Journal, 311, 1043-1057, 1986.
+!
+!     Uodated 2004/09/22 based on:
+!
+!      Boissoles, J., C. Boulet, R.H. Tipping, A. Brown and Q. Ma,
+!         Theoretical Calculations of the Translation-Rotation
+!         Collision-Induced Absorption in N2-N2, O2-O2 and N2-O2 Pairs,
+!         J.Quant. Spec. Rad. Transfer, 82,505 (2003).
+!
+!         The temperature dependence between the two reference
+!         temperatures has been assumed the same as that for the
 !         original continuum.
-!                                                                       
-!        THIS NITROGEN CONTINUUM IS IN UNITS OF 1./(CM AMAGAT^2)        
-!                                                                       
-!        Only calculate if V2 > -10. cm-1 and V1 <  350. cm-1           
-!                                                                       
-         if ((V2.gt.-10.0).and.(V1.lt.350.).and. xn2cn.gt.0.) then      
+!
+!        THIS NITROGEN CONTINUUM IS IN UNITS OF 1./(CM AMAGAT^2)
+!
+!        Only calculate if V2 > -10. cm-1 and V1 <  350. cm-1
+!
+         if ((V2.gt.-10.0).and.(V1.lt.350.).and. xn2cn.gt.0.) then
             c0 = 0.
             c1 = 0.
-!                                                                       
-!           The following puts WXN2 units in 1./(CM AMAGAT)             
-!                                                                       
-!           c1(j) represents the relative broadening efficiency of o2   
-!     a_h2o represents the relative broadening efficiency of h2o        
-                                                                        
-            a_h2o = 1.                                                  
-                                                                        
-!     correct formulation for consistency with LBLRTM (per molec/cm^2)  
-!                                                                       
-            tau_fac =  xn2cn * (Wn2/xlosmt) * amagat                    
-!                                                                       
-            CALL xn2_r (V1C,V2C,DVC,NPTC,c0,c1,Tave)                    
-!                                                                       
-!           c1 is  ~ the ratio of alpha(n2-o2)/alpha(n2-n2)             
-!           Eq's 7 and 8 in the Boissoles paper.                        
-!                                                                       
-            DO 40 J = 1, NPTC                                           
-               VJ = V1C+DVC* REAL(J-1)                                  
-!                                                                       
+!
+!           The following puts WXN2 units in 1./(CM AMAGAT)
+!
+!           c1(j) represents the relative broadening efficiency of o2
+!     a_h2o represents the relative broadening efficiency of h2o
+
+            a_h2o = 1.
+
+!     correct formulation for consistency with LBLRTM (per molec/cm^2)
+!
+            tau_fac =  xn2cn * (Wn2/xlosmt) * amagat
+!
+            CALL xn2_r (V1C,V2C,DVC,NPTC,c0,c1,Tave)
+!
+!           c1 is  ~ the ratio of alpha(n2-o2)/alpha(n2-n2)
+!           Eq's 7 and 8 in the Boissoles paper.
+!
+            DO 40 J = 1, NPTC
+               VJ = V1C+DVC* REAL(J-1)
+!
                C(J) = tau_fac * c0(J) *                                 &
-     &             (x_vmr_n2 + c1(j)*x_vmr_o2 + a_h2o*x_vmr_h2o)        
-!                                                                       
-!              Radiation field                                          
-!                                                                       
-                                                                        
-               IF (JRAD.EQ.1) C(J) = C(J)*RADFN(VJ,XKT)                 
-                                                                        
-   40       CONTINUE                                                    
-                                                                        
-            CALL XINT (V1C,V2C,DVC,C,1.0,V1ABS,DVABS,ABSRB,1,NPTABS)    
-                                                                        
-         endif                                                          
-!                                                                       
-!                                                                       
-!        ********    NITROGEN COLLISION INDUCED FUNDAMENTAL ********    
-!                                                                       
-!        version_1 of the Nitrogen Collision Induced Fundamental        
-!                                                                       
-!        Lafferty, W.J., A.M. Solodov,A. Weber, W.B. Olson and          
-!        J._M. Hartmann, Infrared collision-induced absorption by       
-!        N2 near 4.3 microns for atmospheric applications:              
-!        Measurements and emprirical modeling, Appl. Optics, 35,        
-!        5911-5917, (1996).                                             
-!                                                                       
-!        Only calculate if V2 > 2001.77 cm-1 and V1 < 2897.59 cm-1.         
-!        Bounds for original implmentation were from Lafferty (2085- 
+     &             (x_vmr_n2 + c1(j)*x_vmr_o2 + a_h2o*x_vmr_h2o)
+!
+!              Radiation field
+!
+
+               IF (JRAD.EQ.1) C(J) = C(J)*RADFN(VJ,XKT)
+
+   40       CONTINUE
+
+            CALL XINT (V1C,V2C,DVC,C,1.0,V1ABS,DVABS,ABSRB,1,NPTABS)
+
+         endif
+!
+!
+!        ********    NITROGEN COLLISION INDUCED FUNDAMENTAL ********
+!
+!        version_1 of the Nitrogen Collision Induced Fundamental
+!
+!        Lafferty, W.J., A.M. Solodov,A. Weber, W.B. Olson and
+!        J._M. Hartmann, Infrared collision-induced absorption by
+!        N2 near 4.3 microns for atmospheric applications:
+!        Measurements and emprirical modeling, Appl. Optics, 35,
+!        5911-5917, (1996).
+!
+!        Only calculate if V2 > 2001.77 cm-1 and V1 < 2897.59 cm-1.
+!        Bounds for original implmentation were from Lafferty (2085-
 !        2670 cm-1).  N2-N2 coefficients were analytically extended
 !        to 2000-2900 cm-1 to allow implementation of N2-H2O, which
-!        has been assumed to have a wider spectral shape to allow 
-!        agreement with  Baranov and Lafferty (2012).       
-!                                                                       
-         if ((V2.gt.2001.77).and.(V1.lt.2897.59).and.xn2cn.gt.0.) then    
+!        has been assumed to have a wider spectral shape to allow
+!        agreement with  Baranov and Lafferty (2012).
+!
+         if ((V2.gt.2001.77).and.(V1.lt.2897.59).and.xn2cn.gt.0.) then
             cn0 = 0.
             cn1 = 0.
             cn2 = 0.
-!                                                                       
+!
 !           The absorption coefficients from the Lafferty et al.
-!           reference are for pure nitrogen (absorber and broadener).              
-!                                                                       
-!     correct formulation for consistency with LBLRTM (per molec/cm^2)  
-!                                                                       
-            tau_fac =  xn2cn* (Wn2/xlosmt) * amagat 
-!                                                                       
-!           Wn2 is in units of molec/cm2                                
-!           amagat is in units of amagats (air)                         
-!                                                                       
+!           reference are for pure nitrogen (absorber and broadener).
+!
+!     correct formulation for consistency with LBLRTM (per molec/cm^2)
+!
+            tau_fac =  xn2cn* (Wn2/xlosmt) * amagat
+!
+!           Wn2 is in units of molec/cm2
+!           amagat is in units of amagats (air)
+!
 !           The temperature correction of the absorption coefficient and the
-!           adjustments for relative broadening efficiency are done in 
-!           subroutine n2_ver_1:                                
-!                                                                       
-            call n2_ver_1 (v1c,v2c,dvc,nptc,cn0,cn1,cn2,tave)                    
-!                                                                       
-!           cn0 are the nitrogen absorption coefficients at              
-!           temperature tave                                            
-!              - these absorption coefficients are in units of          
-!                   [(cm^2/molec) 10^20)]/(cm-1  amagat)                
-!              - cm-1 in the denominator arises through the removal     
-!                   of the radiation field                              
-!              - for this case, an amagat is interpreted as one         
-!                   loschmidt of air (273K)                             
+!           adjustments for relative broadening efficiency are done in
+!           subroutine n2_ver_1:
+!
+            call n2_ver_1 (v1c,v2c,dvc,nptc,cn0,cn1,cn2,tave)
+!
+!           cn0 are the nitrogen absorption coefficients at
+!           temperature tave
+!              - these absorption coefficients are in units of
+!                   [(cm^2/molec) 10^20)]/(cm-1  amagat)
+!              - cm-1 in the denominator arises through the removal
+!                   of the radiation field
+!              - for this case, an amagat is interpreted as one
+!                   loschmidt of air (273K)
 !           cn1 are N2 absorption coefficents with collision partner O2
 !           cn2 are N2 absorption coefficents with collision partner H2O
-!                                                                       
-           DO 45 J = 1, NPTC                                            
-               VJ = V1C+DVC* REAL(J-1)                                  
-               C(J) = tau_fac * (x_vmr_n2*cn0(J) + x_vmr_o2*cn1(j) +    & 
-     &             x_vmr_h2o*cn2(j))                      
-!              Radiation field                                          
-!                                                                       
-               IF (JRAD.EQ.1) C(J) = C(J)*RADFN(VJ,XKT)                 
-                                                                        
-   45       CONTINUE                                                    
-!                                                                       
-            CALL XINT (V1C,V2C,DVC,C,1.0,V1ABS,DVABS,ABSRB,1,NPTABS)    
-                                                                        
-         endif 
-        
-                                                 
+!
+           DO 45 J = 1, NPTC
+               VJ = V1C+DVC* REAL(J-1)
+               C(J) = tau_fac * (x_vmr_n2*cn0(J) + x_vmr_o2*cn1(j) +    &
+     &             x_vmr_h2o*cn2(j))
+!              Radiation field
+!
+               IF (JRAD.EQ.1) C(J) = C(J)*RADFN(VJ,XKT)
+
+   45       CONTINUE
+!
+            CALL XINT (V1C,V2C,DVC,C,1.0,V1ABS,DVABS,ABSRB,1,NPTABS)
+
+         endif
+
+
 !        ********  NITROGEN COLLISION INDUCED FIRST OVERTONE
-!                                                                       
+!
 !        version_1 of the Nitrogen Collision Induced First Overtone
-!                                                                       
+!
 !        Shapiro and Gush (1966) modified by Mlawer and Gombos (2015)
 !        based on comparisons with measurements from SGP solar FTS
-!        (TCCON network). 
-!                                                                       
-!        Only calculate if V2 > 4340. cm-1 and V1 <  4910. cm-1.         
-!                                                                       
-         if ((V2.gt.4340.0).and.(V1.lt.4910.).and. xn2cn.gt.0.) then    
+!        (TCCON network).
+!
+!        Only calculate if V2 > 4340. cm-1 and V1 <  4910. cm-1.
+!
+         if ((V2.gt.4340.0).and.(V1.lt.4910.).and. xn2cn.gt.0.) then
             c0 = 0.
-!                                                                       
-!        All species are assumed to have the same broadening efficiency.                                                            
-!           a_o2  represents the relative broadening efficiency of o2   
-!           a_h2o represents the relative broadening efficiency of h2o  
-                                                                        
+!
+!        All species are assumed to have the same broadening efficiency.
+!           a_o2  represents the relative broadening efficiency of o2
+!           a_h2o represents the relative broadening efficiency of h2o
+
             a_o2  = 1.
-            a_h2o = 1.                                                  
-                                                                        
-!     correct formulation for consistency with LBLRTM (per molec/cm^2)  
-!                                                                       
+            a_h2o = 1.
+
+!     correct formulation for consistency with LBLRTM (per molec/cm^2)
+!
             tau_fac =  xn2cn* (Wn2/xlosmt) *                            &
-     &           amagat * (x_vmr_n2+a_o2*x_vmr_o2+a_h2o*x_vmr_h2o)      
-                                                                        
-!                                                                       
-!           Wn2 is in units of molec/cm2                                
-!           amagat is in units of amagats (air)                         
-!                                                                       
-!           The absorption coefficients are assumed to have no 
-!           temperature dependence. 
-!                                                                       
-            call n2_overtone1 (v1c,v2c,dvc,nptc,c0)                    
-!                                                                       
+     &           amagat * (x_vmr_n2+a_o2*x_vmr_o2+a_h2o*x_vmr_h2o)
+
+!
+!           Wn2 is in units of molec/cm2
+!           amagat is in units of amagats (air)
+!
+!           The absorption coefficients are assumed to have no
+!           temperature dependence.
+!
+            call n2_overtone1 (v1c,v2c,dvc,nptc,c0)
+!
 !           c0 are the nitrogen absorption coefficients
-!              - these absorption coefficients are in units of          
-!                   [(cm^2/molec) 10^20)]/(cm-1  amagat)                
-!              - cm-1 in the denominator arises through the removal     
-!                   of the radiation field                              
-!              - for this case, an amagat is interpreted as one         
-!                   loschmidt of air (273K)                             
-!                                                                       
-           DO 48 J = 1, NPTC                                            
-               VJ = V1C+DVC* REAL(J-1)                                  
-               C(J) = tau_fac * c0(J)                                   
-!              Radiation field                                          
-!                                                                       
-               IF (JRAD.EQ.1) C(J) = C(J)*RADFN(VJ,XKT)                 
-                                                                        
-   48       CONTINUE                                                    
-!                                                                       
-            CALL XINT (V1C,V2C,DVC,C,1.0,V1ABS,DVABS,ABSRB,1,NPTABS)    
-                                                                        
-         endif                                                          
-!                                                                       
-!     ********** Rayleigh Scattering calculation **********             
-!     (sac)                                                                  
-!     The effects of Rayleigh scattering are also included in module 
-!     lbllow.f with the aerosol/cloud properties.  In the case that     
-!     that lbllow.f is selected (iaersl .ne. 0), the decision has been  
-!     made to include this effect with the scattering processes,        
-!     even though it is molecular in nature.  Otherwise the effects     
-!     of Rayleigh scattering are included here.                         
-!                                                                       
-!     The formulation, adopted from MODTRAN_3.5 (using approximation    
-!     of Shettle et al., (Appl Opt, 2873-4, 1980) with depolarization   
-!     = 0.0279, output in km-1 for T=273K & P=1 ATM) is as follows:     
-!                                                                       
-!     The rayleigh extinction coefficient (scattering out of the direct 
-!     beam), ray_ext, can be defined as                                 
-!                                                                       
-!         ray_ext = (vrayleigh**4/(9.38076E18-1.08426E09*vrayleigh**2)) 
-!     *        *wmol_tot*conv_cm2mol                                    
-!                                                                       
-!     where vrayleigh is the wavenumber value, wmol_tot is the total    
-!     molecular amount in the layer, and conv_cm2mol is the conversion  
-!     factor derived by multiplying air density (2.68675E19 mol/cm3)    
-!     at 273 K with the number of km per cm (1.e-5 km/cm).              
-!                                                                       
-!     The total layer amount of all molecules is calculated above as    
-!     WTOT. For numerical purposes a factor of 1.e-20  has been         
-!     included in conv_cm2mol and the same factor has been included     
-!     in the air density in the denominator as well.                    
-!     In addition, a factor of 10,000 (cm-1) has been                   
-!     divided out of vrayleigh. Finally, the radiation field is         
-!     excluded, so xvrayleigh**4 is replaced by xvrayleigh**3. When     
-!     JRAD=1, the radiation field is put in by multiplying the          
-!     absorption by xvrayleigh.                                         
-!                                                                       
-!     Rayleigh scattering in the direct beam is only calculated for     
-!     model runs > 3100 cm-1.                                           
-!                                                                       
+!              - these absorption coefficients are in units of
+!                   [(cm^2/molec) 10^20)]/(cm-1  amagat)
+!              - cm-1 in the denominator arises through the removal
+!                   of the radiation field
+!              - for this case, an amagat is interpreted as one
+!                   loschmidt of air (273K)
+!
+           DO 48 J = 1, NPTC
+               VJ = V1C+DVC* REAL(J-1)
+               C(J) = tau_fac * c0(J)
+!              Radiation field
+!
+               IF (JRAD.EQ.1) C(J) = C(J)*RADFN(VJ,XKT)
+
+   48       CONTINUE
+!
+            CALL XINT (V1C,V2C,DVC,C,1.0,V1ABS,DVABS,ABSRB,1,NPTABS)
+
+         endif
+!
+!     ********** Rayleigh Scattering calculation **********
+!     (sac)
+!     The effects of Rayleigh scattering are also included in module
+!     lbllow.f with the aerosol/cloud properties.  In the case that
+!     that lbllow.f is selected (iaersl .ne. 0), the decision has been
+!     made to include this effect with the scattering processes,
+!     even though it is molecular in nature.  Otherwise the effects
+!     of Rayleigh scattering are included here.
+!
+!     The formulation, adopted from MODTRAN_3.5 (using approximation
+!     of Shettle et al., (Appl Opt, 2873-4, 1980) with depolarization
+!     = 0.0279, output in km-1 for T=273K & P=1 ATM) is as follows:
+!
+!     The rayleigh extinction coefficient (scattering out of the direct
+!     beam), ray_ext, can be defined as
+!
+!         ray_ext = (vrayleigh**4/(9.38076E18-1.08426E09*vrayleigh**2))
+!     *        *wmol_tot*conv_cm2mol
+!
+!     where vrayleigh is the wavenumber value, wmol_tot is the total
+!     molecular amount in the layer, and conv_cm2mol is the conversion
+!     factor derived by multiplying air density (2.68675E19 mol/cm3)
+!     at 273 K with the number of km per cm (1.e-5 km/cm).
+!
+!     The total layer amount of all molecules is calculated above as
+!     WTOT. For numerical purposes a factor of 1.e-20  has been
+!     included in conv_cm2mol and the same factor has been included
+!     in the air density in the denominator as well.
+!     In addition, a factor of 10,000 (cm-1) has been
+!     divided out of vrayleigh. Finally, the radiation field is
+!     excluded, so xvrayleigh**4 is replaced by xvrayleigh**3. When
+!     JRAD=1, the radiation field is put in by multiplying the
+!     absorption by xvrayleigh.
+!
+!     Rayleigh scattering in the direct beam is only calculated for
+!     model runs > 3100 cm-1.
+!
          If ((iaersl.eq.0 .or. iaersl.eq.5).and. v2.ge.3100.            &
-     &       .and. xrayl.gt.0.) then                                    
-!                                                                       
-!        Thus the current formulation is                                
-                                                                        
-            conv_cm2mol = xrayl*1.E-20/(2.68675e-1*1.e5)                
-!                                                                       
-            do 95 i=1,nptabs                                            
-               vrayleigh = v1abs+(i-1)*dvabs                            
-               xvrayleigh = vrayleigh/1.e4                              
+     &       .and. xrayl.gt.0.) then
+!
+!        Thus the current formulation is
+
+            conv_cm2mol = xrayl*1.E-20/(2.68675e-1*1.e5)
+!
+            do 95 i=1,nptabs
+               vrayleigh = v1abs+(i-1)*dvabs
+               xvrayleigh = vrayleigh/1.e4
            ray_ext = (xvrayleigh**3/(9.38076E2-10.8426*xvrayleigh**2))  &
-     &                 *(wtot*conv_cm2mol)                              
-                                                                        
-!           Radiation field                                             
-                                                                        
-               IF (JRAD.EQ.1) ray_ext = ray_ext*xvrayleigh              
-                                                                        
-            absrb(i) = absrb(i)+ray_ext                                 
-   95    continue                                                       
-!                                                                       
-      endif                                                             
-!                                                                       
-  100 continue                                                          
-                                                                        
-      RETURN                                                            
-!                                                                       
+     &                 *(wtot*conv_cm2mol)
+
+!           Radiation field
+
+               IF (JRAD.EQ.1) ray_ext = ray_ext*xvrayleigh
+
+            absrb(i) = absrb(i)+ray_ext
+   95    continue
+!
+      endif
+!
+  100 continue
+
+      RETURN
+!
   900 FORMAT (/,'0    *********************************************',/, &
      &          '     *      BYPASS O2 CONTINUUM TO HERZBERG      *',/, &
      &          '     *       AS A RESULT of TAVE > 350. K        *',/, &
-     &          '     *********************************************',/) 
-!                                                                       
-      END                                           
-!                                                                       
-!     --------------------------------------------------------------    
-!                                                                       
-!                                                                       
-      SUBROUTINE PRCNTM 
-!                                                                       
-!     THIS SUBROUTINE PRINTS THE CONTINUUM INFORMATION TO FILE IPR      
-!                                                                       
+     &          '     *********************************************',/)
+!
+      END
+!
+!     --------------------------------------------------------------
+!
+!
+      SUBROUTINE PRCNTM
+!
+!     THIS SUBROUTINE PRINTS THE CONTINUUM INFORMATION TO FILE IPR
+!
       COMMON /IFIL/ IRD,IPR,IPU,NOPR,NFHDRF,NPHDRF,NFHDRL,NPHDRL,       &
      &              NLNGTH,KFILE,KPANEL,LINFIL,NDFLE,IAFIL,IEXFIL,      &
-     &              NLTEFL,LNFIL4,LNGTH4                                
-!                                                                       
-      COMMON /CNTPR/ CINFO1,CINFO2,cnam3,CINFO3,cnam4,CINFO4,CHEADING 
-!                                                                       
-      CHARACTER*18 cnam3(9),cnam4(35) 
-      CHARACTER*51 CINFO1(2,12),CINFO2(2,12),CINFO3(2,9),CINFO4(2,35) 
-      CHARACTER*40 CHEADING(3,2) 
-!                                                                       
-      WRITE (IPR,910) ((CINFO1(I,J),I=1,2),J=1,12) 
-      WRITE (IPR,910) ((CINFO2(I,J),I=1,2),J=1,12) 
-      WRITE (IPR,918) ((CHEADING(I,J),I=1,3),J=1,2) 
-      WRITE (IPR,915) (cnam3(j),(CINFO3(I,J),I=1,2),J=1,9) 
-      WRITE (IPR,915) (cnam4(j),(CINFO4(I,J),I=1,2),J=1,35) 
-!                                                                       
-      RETURN 
-!                                                                       
-  910 FORMAT (18x,2A51) 
-  915 FORMAT (a18,2A51) 
-  918 FORMAT (3A40) 
-!                                                                       
-                                                                        
-      END                                           
-!                                                                       
-!     --------------------------------------------------------------    
-      BLOCK DATA CNTINF 
-!                                                                       
-!     Continuum information for output to TAPE6 in SUBROUTINE PRCNTM    
-!                                                                       
-      COMMON /CNTPR/ CINFO1,CINFO2,CNAM3,CINFO3,CNAM4,CINFO4,CHEADING 
-      CHARACTER*18 cnam3(9),cnam4(35) 
-      CHARACTER*51 CINFO1(2,12),CINFO2(2,12),CINFO3(2,9),CINFO4(2,35) 
-      CHARACTER*40 CHEADING(3,2) 
-!                                                                       
+     &              NLTEFL,LNFIL4,LNGTH4
+!
+      COMMON /CNTPR/ CINFO1,CINFO2,cnam3,CINFO3,cnam4,CINFO4,CHEADING
+!
+      CHARACTER*18 cnam3(9),cnam4(35)
+      CHARACTER*51 CINFO1(2,12),CINFO2(2,12),CINFO3(2,9),CINFO4(2,35)
+      CHARACTER*40 CHEADING(3,2)
+!
+      WRITE (IPR,910) ((CINFO1(I,J),I=1,2),J=1,12)
+      WRITE (IPR,910) ((CINFO2(I,J),I=1,2),J=1,12)
+      WRITE (IPR,918) ((CHEADING(I,J),I=1,3),J=1,2)
+      WRITE (IPR,915) (cnam3(j),(CINFO3(I,J),I=1,2),J=1,9)
+      WRITE (IPR,915) (cnam4(j),(CINFO4(I,J),I=1,2),J=1,35)
+!
+      RETURN
+!
+  910 FORMAT (18x,2A51)
+  915 FORMAT (a18,2A51)
+  918 FORMAT (3A40)
+!
+
+      END
+!
+!     --------------------------------------------------------------
+      BLOCK DATA CNTINF
+!
+!     Continuum information for output to TAPE6 in SUBROUTINE PRCNTM
+!
+      COMMON /CNTPR/ CINFO1,CINFO2,CNAM3,CINFO3,CNAM4,CINFO4,CHEADING
+      CHARACTER*18 cnam3(9),cnam4(35)
+      CHARACTER*51 CINFO1(2,12),CINFO2(2,12),CINFO3(2,9),CINFO4(2,35)
+      CHARACTER*40 CHEADING(3,2)
+!
       DATA cnam3/                                                       &
      &     '                  ',                                        &
      &     '                  ',                                        &
@@ -1201,9 +1201,9 @@ SUBROUTINE CONTNM(JRAD)
      &     ' ckd_2.1      3.3 ',                                        &
      &     '     "            ',                                        &
      &     ' ckd_2.2      3.7 ',                                        &
-     &     '     "            '/                                        
-!           123456789-123456789-123456789-123456789-123456789-1         
-!                                                                       
+     &     '     "            '/
+!           123456789-123456789-123456789-123456789-123456789-1
+!
       DATA cnam4/                                                       &
      &     '     "            ',                                        &
      &     ' ckd_2.2.2    3.12',                                        &
@@ -1239,9 +1239,9 @@ SUBROUTINE CONTNM(JRAD)
      &     ' mt_ckd_2.8   12.5',                                        &
      &     ' mt_ckd_3.0   12.6',                                        &
      &     '                  ',                                        &
-     &     '                  '/                                        
-!           123456789-123456789-123456789-123456789-123456789-1         
-!                                                                       
+     &     '                  '/
+!           123456789-123456789-123456789-123456789-123456789-1
+!
       DATA CINFO1/                                                      &
      &     '                                                   ',       &
      &     '                                                   ',       &
@@ -1264,11 +1264,11 @@ SUBROUTINE CONTNM(JRAD)
      &     '            AIR   (T)     0 -   350 CM-1           ',       &
      &     '   mt_ckd_2.1 - incl. O2 rel. efficiency (Sep 2004)',       &
      &     '            AIR   (T)  1993 -  2905 CM-1           ',       &
-     &     '   mt_ckd_2.8 - N2-H2O Mlawer/Alvarado   (Mar 2016)',       &      
+     &     '   mt_ckd_2.8 - N2-H2O Mlawer/Alvarado   (Mar 2016)',       &
      &     '            AIR        4340 -  4910 CM-1           ',       &
-     &     '   mt_ckd_2.7 - Mlawer and Gombos        (May 2015)' /      
-!           123456789-123456789-123456789-123456789-123456789-1         
-!                                                                       
+     &     '   mt_ckd_2.7 - Mlawer and Gombos        (May 2015)' /
+!           123456789-123456789-123456789-123456789-123456789-1
+!
       DATA CINFO2/                                                      &
      &     '       O2   AIR   (T)  1340 -  1850 CM-1 ',                 &
      &     '   ckd_2.4.1  - Thibault et al.          (Mar 1998)',       &
@@ -1286,15 +1286,15 @@ SUBROUTINE CONTNM(JRAD)
      &     '   ckd_0                     ',                             &
      &     '                      40800 - 54000 CM-1 HARTL/HUGG',       &
      &     '   ckd_0                        ',                          &
-     &     8*'                                                 '/       
-!                                                                       
+     &     8*'                                                 '/
+!
       DATA CHEADING/                                                    &
      &     'Continuum    LBL_n                      ',                  &
      &     'Description of Modification             ',                  &
      &     '                               Date     ',                  &
      &     '---------    -----                    --',                  &
      &     '-----------------------------           ',                  &
-     &     '                               ----     '/                  
+     &     '                               ----     '/
       DATA CINFO3/                                                      &
      &     '  H2O SELF HAS BEEN REDUCED IN THE 800-1200 CM-1 RE',       &
      &     'GION                                  (01 SEP 1985)',       &
@@ -1313,8 +1313,8 @@ SUBROUTINE CONTNM(JRAD)
      &     '  H2O SELF HAS BEEN INCREASED 30% IN THE MICROWAVE ',       &
      &     'REGION                                (09 FEB 1996)',       &
      &     '  N2 COLLISION INDUCED PURE ROTATION BAND ADDED    ',       &
-     &     '                                      (09 FEB 1996)'/       
-                                                                        
+     &     '                                      (09 FEB 1996)'/
+
       DATA CINFO4/                                                      &
      &     '  O3 CHAPPUIS CHANGED TO VALUES FROM MODTRAN3      ',       &
      &     '                                      (09 FEB 1996)',       &
@@ -1362,7 +1362,7 @@ SUBROUTINE CONTNM(JRAD)
      &     'ive result depends on starting wavenumber(Aug 2008)',       &
      &     '  H2O: modification to self and foreign continuum (',       &
      &     'microwave and IR ARM data 0-600 cm-1)    (Nov 2008)',       &
-     &     '  CO2: modification from 2000-3200 cm-1 (AERI(ARM), ',      &
+     &     ' CO2: modification from 2000-3200 cm-1 (AERI(ARM), ',       &
      &     'IASI AIRS measurements); Temp. dep. added(Jan 2010)',       &
      &     '  H2O: modification to self cont. 2000-3000 cm-1   ',       &
      &     '(IASI data, fit to near-IR results of              ',       &
@@ -1383,59 +1383,59 @@ SUBROUTINE CONTNM(JRAD)
      &     '  H2O: foreign/self 0-700/0-100 cm-1; RHUBC-II/-I; ',       &
      &     'REFIR,AERI,SAO-FTS; Mlawer,Turner,Paine  (Nov 2016)',       &
      &     '  -------------------------------------------------',       &
-     &     '---------------------------------------------------',       & 
+     &     '---------------------------------------------------',       &
      &     '  -------------------------------------------------',       &
-     &     '---------------------------------------------------'/       
-!                                                                       
-      END                                                               
-!                                                                       
-!                                                                       
-      SUBROUTINE SL296 (V1C,V2C,DVC,NPTC,C)                             
-!                                                                       
-      Use params, ONLY: n_absrb 
-      IMPLICIT REAL*8           (V)                                     
-!                                                                       
-      COMMON /ABSORB/ V1ABS,V2ABS,DVABS,NPTABS,ABSRB(n_absrb)           
-      COMMON /SH2O/ V1S,V2S,DVS,NPTS,S(2003)                            
-      DIMENSION C(*)                                                    
-!                                                                       
-      DVC = DVS                                                         
-      V1C = V1ABS-DVC                                                   
-      V2C = V2ABS+DVC                                                   
-!                                                                       
-      IF (V1C.LT.V1S) then                                              
-         I1 = -1 
-         else 
-         I1 = (V1C-V1S)/DVS + 0.01 
-         end if 
-!                                                                       
-         V1C = V1S + DVS*REAL(I1-1) 
-         I2 = (V2C-V1S)/DVS + 0.01 
-         NPTC = I2-I1+3 
-         IF (NPTC.GT.NPTS) NPTC=NPTS+4 
-         V2C = V1C + DVS*REAL(NPTC-1) 
-!                                                                       
-         DO 10 J = 1, NPTC 
-            I = I1+(J-1) 
-            C(J) = 0. 
-            IF ((I.LT.1).OR.(I.GT.NPTS)) GO TO 10 
-            C(J) = S(I) 
-                                                                        
-   10    END DO 
-!                                                                       
-         RETURN 
-!                                                                       
-      END                                           
-!                                                                       
-!     --------------------------------------------------------------    
-!                                                                       
-      BLOCK DATA BS296 
-!                                                                       
-      IMPLICIT REAL*8           (V) 
-!                                                                       
-!               11/18/02                                                
-!               UNITS OF (CM**3/MOL)*1.E-20                             
-!                                                                       
+     &     '---------------------------------------------------'/
+!
+      END
+!
+!
+      SUBROUTINE SL296 (V1C,V2C,DVC,NPTC,C)
+!
+      Use params, ONLY: n_absrb
+      IMPLICIT REAL*8           (V)
+!
+      COMMON /ABSORB/ V1ABS,V2ABS,DVABS,NPTABS,ABSRB(n_absrb)
+      COMMON /SH2O/ V1S,V2S,DVS,NPTS,S(2003)
+      DIMENSION C(*)
+!
+      DVC = DVS
+      V1C = V1ABS-DVC
+      V2C = V2ABS+DVC
+!
+      IF (V1C.LT.V1S) then
+         I1 = -1
+         else
+         I1 = (V1C-V1S)/DVS + 0.01
+         end if
+!
+         V1C = V1S + DVS*REAL(I1-1)
+         I2 = (V2C-V1S)/DVS + 0.01
+         NPTC = I2-I1+3
+         IF (NPTC.GT.NPTS) NPTC=NPTS+4
+         V2C = V1C + DVS*REAL(NPTC-1)
+!
+         DO 10 J = 1, NPTC
+            I = I1+(J-1)
+            C(J) = 0.
+            IF ((I.LT.1).OR.(I.GT.NPTS)) GO TO 10
+            C(J) = S(I)
+
+   10    END DO
+!
+         RETURN
+!
+      END
+!
+!     --------------------------------------------------------------
+!
+      BLOCK DATA BS296
+!
+      IMPLICIT REAL*8           (V)
+!
+!               11/18/02
+!               UNITS OF (CM**3/MOL)*1.E-20
+!
       COMMON /SH2O/ V1,V2,DV,NPT,                                       &
      &              S0000( 2),S0001(50),S0051(50),S0101(50),S0151(50),  &
      &              S0201(50),S0251(50),S0301(50),S0351(50),S0401(50),  &
@@ -1445,12 +1445,12 @@ SUBROUTINE CONTNM(JRAD)
      &              S1201(50),S1251(50),S1301(50),S1351(50),S1401(50),  &
      &              S1451(50),S1501(50),S1551(50),S1601(50),S1651(50),  &
      &              S1701(50),S1751(50),S1801(50),S1851(50),S1901(50),  &
-     &              S1951(50), S2001(1)                                 
-!                                                                       
-       DATA V1,V2,DV,NPT / -20.0, 20000.0, 10.0, 2003/ 
-!                                                                       
+     &              S1951(50), S2001(1)
+!
+       DATA V1,V2,DV,NPT / -20.0, 20000.0, 10.0, 2003/
+!
       DATA S0000/                                                       &
-     &      1.720e-01, 1.695e-01/                                       
+     &      1.720e-01, 1.695e-01/
       DATA S0001/                                                       &
      &  1.700e-01,  1.695e-01,  1.720e-01,  1.680e-01,  1.687e-01,      &
      &  1.624e-01,  1.606e-01,  1.508e-01,  1.447e-01,  1.344e-01,      &
@@ -1461,7 +1461,7 @@ SUBROUTINE CONTNM(JRAD)
      &  1.080e-02,  9.647e-03,  8.424e-03,  7.519e-03,  6.555e-03,      &
      &  5.880e-03,  5.136e-03,  4.511e-03,  3.989e-03,  3.509e-03,      &
      &  3.114e-03,  2.740e-03,  2.446e-03,  2.144e-03,  1.895e-03,      &
-     &  1.676e-03,  1.486e-03,  1.312e-03,  1.164e-03,  1.031e-03/      
+     &  1.676e-03,  1.486e-03,  1.312e-03,  1.164e-03,  1.031e-03/
       DATA S0051/                                                       &
      &  9.129e-04,  8.106e-04,  7.213e-04,  6.400e-04,  5.687e-04,      &
      &  5.063e-04,  4.511e-04,  4.029e-04,  3.596e-04,  3.220e-04,      &
@@ -1472,7 +1472,7 @@ SUBROUTINE CONTNM(JRAD)
      &  5.283e-05,  4.963e-05,  4.669e-05,  4.398e-05,  4.148e-05,      &
      &  3.917e-05,  3.702e-05,  3.502e-05,  3.316e-05,  3.142e-05,      &
      &  2.978e-05,  2.825e-05,  2.681e-05,  2.546e-05,  2.419e-05,      &
-     &  2.299e-05,  2.186e-05,  2.079e-05,  1.979e-05,  1.884e-05/      
+     &  2.299e-05,  2.186e-05,  2.079e-05,  1.979e-05,  1.884e-05/
       DATA S0101/                                                       &
      &  1.795e-05,  1.711e-05,  1.633e-05,  1.559e-05,  1.490e-05,      &
      &  1.426e-05,  1.367e-05,  1.312e-05,  1.263e-05,  1.218e-05,      &
@@ -1483,7 +1483,7 @@ SUBROUTINE CONTNM(JRAD)
      &  2.123e-05,  2.346e-05,  2.647e-05,  2.930e-05,  3.279e-05,      &
      &  3.745e-05,  4.152e-05,  4.813e-05,  5.477e-05,  6.203e-05,      &
      &  7.331e-05,  8.056e-05,  9.882e-05,  1.050e-04,  1.210e-04,      &
-     &  1.341e-04,  1.572e-04,  1.698e-04,  1.968e-04,  2.175e-04/      
+     &  1.341e-04,  1.572e-04,  1.698e-04,  1.968e-04,  2.175e-04/
       DATA S0151/                                                       &
      &  2.431e-04,  2.735e-04,  2.867e-04,  3.190e-04,  3.371e-04,      &
      &  3.554e-04,  3.726e-04,  3.837e-04,  3.878e-04,  3.864e-04,      &
@@ -1494,7 +1494,7 @@ SUBROUTINE CONTNM(JRAD)
      &  9.237e-05,  7.909e-05,  7.006e-05,  6.112e-05,  5.401e-05,      &
      &  4.914e-05,  4.266e-05,  3.963e-05,  3.316e-05,  3.037e-05,      &
      &  2.598e-05,  2.294e-05,  2.066e-05,  1.813e-05,  1.583e-05,      &
-     &  1.423e-05,  1.247e-05,  1.116e-05,  9.760e-06,  8.596e-06/      
+     &  1.423e-05,  1.247e-05,  1.116e-05,  9.760e-06,  8.596e-06/
       DATA S0201/                                                       &
      &  7.720e-06,  6.825e-06,  6.108e-06,  5.366e-06,  4.733e-06,      &
      &  4.229e-06,  3.731e-06,  3.346e-06,  2.972e-06,  2.628e-06,      &
@@ -1505,7 +1505,7 @@ SUBROUTINE CONTNM(JRAD)
      &  3.314e-07,  3.071e-07,  2.852e-07,  2.654e-07,  2.474e-07,      &
      &  2.311e-07,  2.162e-07,  2.026e-07,  1.902e-07,  1.788e-07,      &
      &  1.683e-07,  1.587e-07,  1.497e-07,  1.415e-07,  1.338e-07,      &
-     &  1.266e-07,  1.200e-07,  1.138e-07,  1.080e-07,  1.027e-07/      
+     &  1.266e-07,  1.200e-07,  1.138e-07,  1.080e-07,  1.027e-07/
       DATA S0251/                                                       &
      &  9.764e-08,  9.296e-08,  8.862e-08,  8.458e-08,  8.087e-08,      &
      &  7.744e-08,  7.429e-08,  7.145e-08,  6.893e-08,  6.664e-08,      &
@@ -1516,7 +1516,7 @@ SUBROUTINE CONTNM(JRAD)
      &  5.725e-08,  5.858e-08,  6.037e-08,  6.249e-08,  6.535e-08,      &
      &  6.899e-08,  7.356e-08,  7.918e-08,  8.618e-08,  9.385e-08,      &
      &  1.039e-07,  1.158e-07,  1.290e-07,  1.437e-07,  1.650e-07,      &
-     &  1.871e-07,  2.121e-07,  2.427e-07,  2.773e-07,  3.247e-07/      
+     &  1.871e-07,  2.121e-07,  2.427e-07,  2.773e-07,  3.247e-07/
       DATA S0301/                                                       &
      &  3.677e-07,  4.037e-07,  4.776e-07,  5.101e-07,  6.214e-07,      &
      &  6.936e-07,  7.581e-07,  8.486e-07,  9.355e-07,  9.942e-07,      &
@@ -1527,7 +1527,7 @@ SUBROUTINE CONTNM(JRAD)
      &  1.415e-06,  1.462e-06,  1.526e-06,  1.619e-06,  1.735e-06,      &
      &  1.863e-06,  2.034e-06,  2.265e-06,  2.482e-06,  2.756e-06,      &
      &  3.103e-06,  3.466e-06,  3.832e-06,  4.378e-06,  4.913e-06,      &
-     &  5.651e-06,  6.311e-06,  7.169e-06,  8.057e-06,  9.253e-06/      
+     &  5.651e-06,  6.311e-06,  7.169e-06,  8.057e-06,  9.253e-06/
       DATA S0351/                                                       &
      &  1.047e-05,  1.212e-05,  1.360e-05,  1.569e-05,  1.776e-05,      &
      &  2.020e-05,  2.281e-05,  2.683e-05,  2.994e-05,  3.488e-05,      &
@@ -1538,7 +1538,7 @@ SUBROUTINE CONTNM(JRAD)
      &  1.241e-04,  1.228e-04,  1.148e-04,  1.086e-04,  1.018e-04,      &
      &  8.890e-05,  8.316e-05,  7.292e-05,  6.452e-05,  5.625e-05,      &
      &  5.045e-05,  4.380e-05,  3.762e-05,  3.290e-05,  2.836e-05,      &
-     &  2.485e-05,  2.168e-05,  1.895e-05,  1.659e-05,  1.453e-05/      
+     &  2.485e-05,  2.168e-05,  1.895e-05,  1.659e-05,  1.453e-05/
       DATA S0401/                                                       &
      &  1.282e-05,  1.132e-05,  1.001e-05,  8.836e-06,  7.804e-06,      &
      &  6.922e-06,  6.116e-06,  5.429e-06,  4.824e-06,  4.278e-06,      &
@@ -1549,7 +1549,7 @@ SUBROUTINE CONTNM(JRAD)
      &  3.694e-07,  3.318e-07,  2.985e-07,  2.690e-07,  2.428e-07,      &
      &  2.197e-07,  1.992e-07,  1.810e-07,  1.649e-07,  1.506e-07,      &
      &  1.378e-07,  1.265e-07,  1.163e-07,  1.073e-07,  9.918e-08,      &
-     &  9.191e-08,  8.538e-08,  7.949e-08,  7.419e-08,  6.940e-08/      
+     &  9.191e-08,  8.538e-08,  7.949e-08,  7.419e-08,  6.940e-08/
       DATA S0451/                                                       &
      &  6.508e-08,  6.114e-08,  5.761e-08,  5.437e-08,  5.146e-08,      &
      &  4.890e-08,  4.636e-08,  4.406e-08,  4.201e-08,  4.015e-08,      &
@@ -1560,7 +1560,7 @@ SUBROUTINE CONTNM(JRAD)
      &  3.125e-08,  3.318e-08,  3.565e-08,  3.850e-08,  4.191e-08,      &
      &  4.590e-08,  5.059e-08,  5.607e-08,  6.239e-08,  6.958e-08,      &
      &  7.796e-08,  8.773e-08,  9.880e-08,  1.114e-07,  1.258e-07,      &
-     &  1.422e-07,  1.610e-07,  1.822e-07,  2.060e-07,  2.337e-07/      
+     &  1.422e-07,  1.610e-07,  1.822e-07,  2.060e-07,  2.337e-07/
       DATA S0501/                                                       &
      &  2.645e-07,  2.996e-07,  3.393e-07,  3.843e-07,  4.363e-07,      &
      &  4.935e-07,  5.607e-07,  6.363e-07,  7.242e-07,  8.230e-07,      &
@@ -1571,7 +1571,7 @@ SUBROUTINE CONTNM(JRAD)
      &  9.431e-06,  9.952e-06,  1.026e-05,  1.055e-05,  1.095e-05,      &
      &  1.095e-05,  1.087e-05,  1.056e-05,  1.026e-05,  9.715e-06,      &
      &  9.252e-06,  8.452e-06,  7.958e-06,  7.268e-06,  6.295e-06,      &
-     &  6.003e-06,  5.000e-06,  4.591e-06,  3.983e-06,  3.479e-06/      
+     &  6.003e-06,  5.000e-06,  4.591e-06,  3.983e-06,  3.479e-06/
       DATA S0551/                                                       &
      &  3.058e-06,  2.667e-06,  2.293e-06,  1.995e-06,  1.747e-06,      &
      &  1.517e-06,  1.335e-06,  1.165e-06,  1.028e-06,  9.007e-07,      &
@@ -1582,7 +1582,7 @@ SUBROUTINE CONTNM(JRAD)
      &  7.294e-08,  6.516e-08,  5.787e-08,  5.163e-08,  4.612e-08,      &
      &  4.119e-08,  3.695e-08,  3.308e-08,  2.976e-08,  2.670e-08,      &
      &  2.407e-08,  2.171e-08,  1.965e-08,  1.780e-08,  1.617e-08,      &
-     &  1.470e-08,  1.341e-08,  1.227e-08,  1.125e-08,  1.033e-08/      
+     &  1.470e-08,  1.341e-08,  1.227e-08,  1.125e-08,  1.033e-08/
       DATA S0601/                                                       &
      &  9.524e-09,  8.797e-09,  8.162e-09,  7.565e-09,  7.040e-09,      &
      &  6.560e-09,  6.129e-09,  5.733e-09,  5.376e-09,  5.043e-09,      &
@@ -1593,7 +1593,7 @@ SUBROUTINE CONTNM(JRAD)
      &  1.946e-09,  1.927e-09,  1.916e-09,  1.916e-09,  1.933e-09,      &
      &  1.966e-09,  2.018e-09,  2.090e-09,  2.182e-09,  2.299e-09,      &
      &  2.442e-09,  2.623e-09,  2.832e-09,  3.079e-09,  3.368e-09,      &
-     &  3.714e-09,  4.104e-09,  4.567e-09,  5.091e-09,  5.701e-09/      
+     &  3.714e-09,  4.104e-09,  4.567e-09,  5.091e-09,  5.701e-09/
       DATA S0651/                                                       &
      &  6.398e-09,  7.194e-09,  8.127e-09,  9.141e-09,  1.035e-08,      &
      &  1.177e-08,  1.338e-08,  1.508e-08,  1.711e-08,  1.955e-08,      &
@@ -1604,7 +1604,7 @@ SUBROUTINE CONTNM(JRAD)
      &  2.854e-07,  3.026e-07,  3.278e-07,  3.474e-07,  3.693e-07,      &
      &  3.930e-07,  4.104e-07,  4.220e-07,  4.439e-07,  4.545e-07,      &
      &  4.778e-07,  4.812e-07,  5.018e-07,  4.899e-07,  5.075e-07,      &
-     &  5.073e-07,  5.171e-07,  5.131e-07,  5.250e-07,  5.617e-07/      
+     &  5.073e-07,  5.171e-07,  5.131e-07,  5.250e-07,  5.617e-07/
       DATA S0701/                                                       &
      &  5.846e-07,  6.239e-07,  6.696e-07,  7.398e-07,  8.073e-07,      &
      &  9.150e-07,  1.009e-06,  1.116e-06,  1.264e-06,  1.439e-06,      &
@@ -1615,7 +1615,7 @@ SUBROUTINE CONTNM(JRAD)
      &  5.171e-06,  4.843e-06,  4.615e-06,  4.385e-06,  3.970e-06,      &
      &  3.693e-06,  3.231e-06,  2.915e-06,  2.495e-06,  2.144e-06,      &
      &  1.910e-06,  1.639e-06,  1.417e-06,  1.226e-06,  1.065e-06,      &
-     &  9.290e-07,  8.142e-07,  7.161e-07,  6.318e-07,  5.581e-07/      
+     &  9.290e-07,  8.142e-07,  7.161e-07,  6.318e-07,  5.581e-07/
       DATA S0751/                                                       &
      &  4.943e-07,  4.376e-07,  3.884e-07,  3.449e-07,  3.060e-07,      &
      &  2.712e-07,  2.412e-07,  2.139e-07,  1.903e-07,  1.689e-07,      &
@@ -1626,7 +1626,7 @@ SUBROUTINE CONTNM(JRAD)
      &  1.516e-08,  1.366e-08,  1.234e-08,  1.114e-08,  1.012e-08,      &
      &  9.182e-09,  8.362e-09,  7.634e-09,  6.981e-09,  6.406e-09,      &
      &  5.888e-09,  5.428e-09,  5.021e-09,  4.650e-09,  4.326e-09,      &
-     &  4.033e-09,  3.770e-09,  3.536e-09,  3.327e-09,  3.141e-09/      
+     &  4.033e-09,  3.770e-09,  3.536e-09,  3.327e-09,  3.141e-09/
       DATA S0801/                                                       &
      &  2.974e-09,  2.825e-09,  2.697e-09,  2.584e-09,  2.488e-09,      &
      &  2.406e-09,  2.340e-09,  2.292e-09,  2.259e-09,  2.244e-09,      &
@@ -1637,7 +1637,7 @@ SUBROUTINE CONTNM(JRAD)
      &  7.218e-09,  7.746e-09,  7.988e-09,  8.627e-09,  8.999e-09,      &
      &  9.442e-09,  9.820e-09,  1.015e-08,  1.060e-08,  1.079e-08,      &
      &  1.109e-08,  1.137e-08,  1.186e-08,  1.180e-08,  1.187e-08,      &
-     &  1.194e-08,  1.192e-08,  1.224e-08,  1.245e-08,  1.246e-08/      
+     &  1.194e-08,  1.192e-08,  1.224e-08,  1.245e-08,  1.246e-08/
       DATA S0851/                                                       &
      &  1.318e-08,  1.377e-08,  1.471e-08,  1.582e-08,  1.713e-08,      &
      &  1.853e-08,  2.063e-08,  2.270e-08,  2.567e-08,  2.891e-08,      &
@@ -1648,7 +1648,7 @@ SUBROUTINE CONTNM(JRAD)
      &  2.439e-07,  2.464e-07,  2.611e-07,  2.617e-07,  2.582e-07,      &
      &  2.453e-07,  2.401e-07,  2.349e-07,  2.203e-07,  2.066e-07,      &
      &  1.939e-07,  1.780e-07,  1.558e-07,  1.391e-07,  1.203e-07,      &
-     &  1.048e-07,  9.464e-08,  8.306e-08,  7.239e-08,  6.317e-08/      
+     &  1.048e-07,  9.464e-08,  8.306e-08,  7.239e-08,  6.317e-08/
       DATA S0901/                                                       &
      &  5.520e-08,  4.847e-08,  4.282e-08,  3.796e-08,  3.377e-08,      &
      &  2.996e-08,  2.678e-08,  2.400e-08,  2.134e-08,  1.904e-08,      &
@@ -1659,7 +1659,7 @@ SUBROUTINE CONTNM(JRAD)
      &  1.640e-09,  1.470e-09,  1.310e-09,  1.176e-09,  1.049e-09,      &
      &  9.377e-10,  8.462e-10,  7.616e-10,  6.854e-10,  6.191e-10,      &
      &  5.596e-10,  5.078e-10,  4.611e-10,  4.197e-10,  3.830e-10,      &
-     &  3.505e-10,  3.215e-10,  2.956e-10,  2.726e-10,  2.521e-10/      
+     &  3.505e-10,  3.215e-10,  2.956e-10,  2.726e-10,  2.521e-10/
       DATA S0951/                                                       &
      &  2.338e-10,  2.173e-10,  2.026e-10,  1.895e-10,  1.777e-10,      &
      &  1.672e-10,  1.579e-10,  1.496e-10,  1.423e-10,  1.358e-10,      &
@@ -1670,7 +1670,7 @@ SUBROUTINE CONTNM(JRAD)
      &  2.172e-10,  2.317e-10,  2.389e-10,  2.503e-10,  2.585e-10,      &
      &  2.686e-10,  2.800e-10,  2.895e-10,  3.019e-10,  3.037e-10,      &
      &  3.076e-10,  3.146e-10,  3.198e-10,  3.332e-10,  3.397e-10,      &
-     &  3.540e-10,  3.667e-10,  3.895e-10,  4.071e-10,  4.565e-10/      
+     &  3.540e-10,  3.667e-10,  3.895e-10,  4.071e-10,  4.565e-10/
       DATA S1001/                                                       &
      &  4.983e-10,  5.439e-10,  5.968e-10,  6.676e-10,  7.456e-10,      &
      &  8.405e-10,  9.478e-10,  1.064e-09,  1.218e-09,  1.386e-09,      &
@@ -1681,7 +1681,7 @@ SUBROUTINE CONTNM(JRAD)
      &  1.672e-08,  1.793e-08,  1.906e-08,  2.036e-08,  2.144e-08,      &
      &  2.292e-08,  2.371e-08,  2.493e-08,  2.606e-08,  2.706e-08,      &
      &  2.866e-08,  3.036e-08,  3.136e-08,  3.405e-08,  3.665e-08,      &
-     &  3.837e-08,  4.229e-08,  4.748e-08,  5.320e-08,  5.763e-08/      
+     &  3.837e-08,  4.229e-08,  4.748e-08,  5.320e-08,  5.763e-08/
       DATA S1051/                                                       &
      &  6.677e-08,  7.216e-08,  7.716e-08,  8.958e-08,  9.419e-08,      &
      &  1.036e-07,  1.108e-07,  1.189e-07,  1.246e-07,  1.348e-07,      &
@@ -1692,7 +1692,7 @@ SUBROUTINE CONTNM(JRAD)
      &  2.929e-08,  2.633e-08,  2.391e-08,  2.192e-08,  2.021e-08,      &
      &  1.890e-08,  1.772e-08,  1.667e-08,  1.603e-08,  1.547e-08,      &
      &  1.537e-08,  1.492e-08,  1.515e-08,  1.479e-08,  1.450e-08,      &
-     &  1.513e-08,  1.495e-08,  1.529e-08,  1.565e-08,  1.564e-08/      
+     &  1.513e-08,  1.495e-08,  1.529e-08,  1.565e-08,  1.564e-08/
       DATA S1101/                                                       &
      &  1.553e-08,  1.569e-08,  1.584e-08,  1.570e-08,  1.538e-08,      &
      &  1.513e-08,  1.472e-08,  1.425e-08,  1.349e-08,  1.328e-08,      &
@@ -1703,7 +1703,7 @@ SUBROUTINE CONTNM(JRAD)
      &  1.053e-09,  9.367e-10,  8.306e-10,  7.419e-10,  6.630e-10,      &
      &  5.918e-10,  5.277e-10,  4.717e-10,  4.222e-10,  3.783e-10,      &
      &  3.390e-10,  3.036e-10,  2.729e-10,  2.455e-10,  2.211e-10,      &
-     &  1.995e-10,  1.804e-10,  1.635e-10,  1.485e-10,  1.355e-10/      
+     &  1.995e-10,  1.804e-10,  1.635e-10,  1.485e-10,  1.355e-10/
       DATA S1151/                                                       &
      &  1.240e-10,  1.139e-10,  1.051e-10,  9.757e-11,  9.114e-11,      &
      &  8.577e-11,  8.139e-11,  7.792e-11,  7.520e-11,  7.390e-11,      &
@@ -1714,7 +1714,7 @@ SUBROUTINE CONTNM(JRAD)
      &  3.128e-10,  3.361e-10,  3.641e-10,  3.910e-10,  4.196e-10,      &
      &  4.501e-10,  4.932e-10,  5.258e-10,  5.755e-10,  6.253e-10,      &
      &  6.664e-10,  7.344e-10,  7.985e-10,  8.877e-10,  1.005e-09,      &
-     &  1.118e-09,  1.251e-09,  1.428e-09,  1.610e-09,  1.888e-09/      
+     &  1.118e-09,  1.251e-09,  1.428e-09,  1.610e-09,  1.888e-09/
       DATA S1201/                                                       &
      &  2.077e-09,  2.331e-09,  2.751e-09,  3.061e-09,  3.522e-09,      &
      &  3.805e-09,  4.181e-09,  4.575e-09,  5.167e-09,  5.634e-09,      &
@@ -1725,7 +1725,7 @@ SUBROUTINE CONTNM(JRAD)
      &  2.848e-09,  2.510e-09,  2.194e-09,  1.946e-09,  1.750e-09,      &
      &  1.567e-09,  1.426e-09,  1.302e-09,  1.197e-09,  1.109e-09,      &
      &  1.035e-09,  9.719e-10,  9.207e-10,  8.957e-10,  8.578e-10,      &
-     &  8.262e-10,  8.117e-10,  7.987e-10,  7.875e-10,  7.741e-10/      
+     &  8.262e-10,  8.117e-10,  7.987e-10,  7.875e-10,  7.741e-10/
       DATA S1251/                                                       &
      &  7.762e-10,  7.537e-10,  7.424e-10,  7.474e-10,  7.294e-10,      &
      &  7.216e-10,  7.233e-10,  7.075e-10,  6.892e-10,  6.618e-10,      &
@@ -1736,7 +1736,7 @@ SUBROUTINE CONTNM(JRAD)
      &  6.836e-11,  6.053e-11,  5.384e-11,  4.789e-11,  4.267e-11,      &
      &  3.804e-11,  3.398e-11,  3.034e-11,  2.710e-11,  2.425e-11,      &
      &  2.173e-11,  1.950e-11,  1.752e-11,  1.574e-11,  1.418e-11,      &
-     &  1.278e-11,  1.154e-11,  1.044e-11,  9.463e-12,  8.602e-12/      
+     &  1.278e-11,  1.154e-11,  1.044e-11,  9.463e-12,  8.602e-12/
       DATA S1301/                                                       &
      &  7.841e-12,  7.171e-12,  6.584e-12,  6.073e-12,  5.631e-12,      &
      &  5.254e-12,  4.937e-12,  4.679e-12,  4.476e-12,  4.328e-12,      &
@@ -1747,7 +1747,7 @@ SUBROUTINE CONTNM(JRAD)
      &  2.316e-11,  2.622e-11,  2.962e-11,  3.369e-11,  3.819e-11,      &
      &  4.329e-11,  4.932e-11,  5.589e-11,  6.364e-11,  7.284e-11,      &
      &  8.236e-11,  9.447e-11,  1.078e-10,  1.229e-10,  1.417e-10,      &
-     &  1.614e-10,  1.843e-10,  2.107e-10,  2.406e-10,  2.728e-10/      
+     &  1.614e-10,  1.843e-10,  2.107e-10,  2.406e-10,  2.728e-10/
       DATA S1351/                                                       &
      &  3.195e-10,  3.595e-10,  4.153e-10,  4.736e-10,  5.410e-10,      &
      &  6.088e-10,  6.769e-10,  7.691e-10,  8.545e-10,  9.621e-10,      &
@@ -1758,7 +1758,7 @@ SUBROUTINE CONTNM(JRAD)
      &  5.541e-09,  5.864e-09,  5.997e-09,  5.997e-09,  6.061e-09,      &
      &  5.944e-09,  5.855e-09,  5.661e-09,  5.523e-09,  5.374e-09,      &
      &  4.940e-09,  4.688e-09,  4.170e-09,  3.913e-09,  3.423e-09,      &
-     &  2.997e-09,  2.598e-09,  2.253e-09,  1.946e-09,  1.710e-09/      
+     &  2.997e-09,  2.598e-09,  2.253e-09,  1.946e-09,  1.710e-09/
       DATA S1401/                                                       &
      &  1.507e-09,  1.336e-09,  1.190e-09,  1.068e-09,  9.623e-10,      &
      &  8.772e-10,  8.007e-10,  7.420e-10,  6.884e-10,  6.483e-10,      &
@@ -1769,7 +1769,7 @@ SUBROUTINE CONTNM(JRAD)
      &  1.054e-09,  1.092e-09,  1.079e-09,  1.064e-09,  1.043e-09,      &
      &  1.020e-09,  9.687e-10,  9.273e-10,  9.208e-10,  9.068e-10,      &
      &  7.687e-10,  7.385e-10,  6.595e-10,  5.870e-10,  5.144e-10,      &
-     &  4.417e-10,  3.804e-10,  3.301e-10,  2.866e-10,  2.509e-10/      
+     &  4.417e-10,  3.804e-10,  3.301e-10,  2.866e-10,  2.509e-10/
       DATA S1451/                                                       &
      &  2.202e-10,  1.947e-10,  1.719e-10,  1.525e-10,  1.361e-10,      &
      &  1.210e-10,  1.084e-10,  9.800e-11,  8.801e-11,  7.954e-11,      &
@@ -1780,7 +1780,7 @@ SUBROUTINE CONTNM(JRAD)
      &  8.206e-12,  7.602e-12,  7.100e-12,  6.694e-12,  6.378e-12,      &
      &  6.149e-12,  6.004e-12,  5.941e-12,  5.962e-12,  6.069e-12,      &
      &  6.265e-12,  6.551e-12,  6.935e-12,  7.457e-12,  8.074e-12,      &
-     &  8.811e-12,  9.852e-12,  1.086e-11,  1.207e-11,  1.361e-11/      
+     &  8.811e-12,  9.852e-12,  1.086e-11,  1.207e-11,  1.361e-11/
       DATA S1501/                                                       &
      &  1.553e-11,  1.737e-11,  1.930e-11,  2.175e-11,  2.410e-11,      &
      &  2.706e-11,  3.023e-11,  3.313e-11,  3.657e-11,  4.118e-11,      &
@@ -1791,7 +1791,7 @@ SUBROUTINE CONTNM(JRAD)
      &  3.579e-10,  3.858e-10,  4.046e-10,  4.196e-10,  4.166e-10,      &
      &  4.457e-10,  4.466e-10,  4.404e-10,  4.337e-10,  4.150e-10,      &
      &  4.083e-10,  3.910e-10,  3.723e-10,  3.514e-10,  3.303e-10,      &
-     &  2.847e-10,  2.546e-10,  2.230e-10,  1.994e-10,  1.733e-10/      
+     &  2.847e-10,  2.546e-10,  2.230e-10,  1.994e-10,  1.733e-10/
       DATA S1551/                                                       &
      &  1.488e-10,  1.297e-10,  1.144e-10,  1.004e-10,  8.741e-11,      &
      &  7.928e-11,  7.034e-11,  6.323e-11,  5.754e-11,  5.250e-11,      &
@@ -1802,7 +1802,7 @@ SUBROUTINE CONTNM(JRAD)
      &  7.415e-11,  7.827e-11,  8.037e-11,  8.120e-11,  8.071e-11,      &
      &  8.008e-11,  7.851e-11,  7.544e-11,  7.377e-11,  7.173e-11,      &
      &  6.801e-11,  6.267e-11,  5.727e-11,  5.288e-11,  4.853e-11,      &
-     &  4.082e-11,  3.645e-11,  3.136e-11,  2.672e-11,  2.304e-11/      
+     &  4.082e-11,  3.645e-11,  3.136e-11,  2.672e-11,  2.304e-11/
       DATA S1601/                                                       &
      &  1.986e-11,  1.725e-11,  1.503e-11,  1.315e-11,  1.153e-11,      &
      &  1.014e-11,  8.942e-12,  7.901e-12,  6.993e-12,  6.199e-12,      &
@@ -1813,7 +1813,7 @@ SUBROUTINE CONTNM(JRAD)
      &  1.189e-12,  1.234e-12,  1.300e-12,  1.389e-12,  1.503e-12,      &
      &  1.644e-12,  1.814e-12,  2.017e-12,  2.255e-12,  2.534e-12,      &
      &  2.858e-12,  3.231e-12,  3.661e-12,  4.153e-12,  4.717e-12,      &
-     &  5.360e-12,  6.094e-12,  6.930e-12,  7.882e-12,  8.966e-12/      
+     &  5.360e-12,  6.094e-12,  6.930e-12,  7.882e-12,  8.966e-12/
       DATA S1651/                                                       &
      &  1.020e-11,  1.162e-11,  1.324e-11,  1.510e-11,  1.720e-11,      &
      &  1.965e-11,  2.237e-11,  2.560e-11,  2.927e-11,  3.371e-11,      &
@@ -1824,7 +1824,7 @@ SUBROUTINE CONTNM(JRAD)
      &  4.319e-10,  4.527e-10,  5.001e-10,  5.448e-10,  5.611e-10,      &
      &  5.760e-10,  5.965e-10,  6.079e-10,  6.207e-10,  6.276e-10,      &
      &  6.222e-10,  6.137e-10,  6.000e-10,  5.814e-10,  5.393e-10,      &
-     &  5.350e-10,  4.947e-10,  4.629e-10,  4.117e-10,  3.712e-10/      
+     &  5.350e-10,  4.947e-10,  4.629e-10,  4.117e-10,  3.712e-10/
       DATA S1701/                                                       &
      &  3.372e-10,  2.923e-10,  2.550e-10,  2.232e-10,  1.929e-10,      &
      &  1.679e-10,  1.460e-10,  1.289e-10,  1.130e-10,  9.953e-11,      &
@@ -1835,7 +1835,7 @@ SUBROUTINE CONTNM(JRAD)
      &  3.009e-11,  3.178e-11,  3.389e-11,  3.587e-11,  3.819e-11,      &
      &  4.054e-11,  4.417e-11,  4.703e-11,  5.137e-11,  5.460e-11,      &
      &  6.055e-11,  6.333e-11,  6.773e-11,  7.219e-11,  7.717e-11,      &
-     &  8.131e-11,  8.491e-11,  8.574e-11,  9.010e-11,  9.017e-11/      
+     &  8.131e-11,  8.491e-11,  8.574e-11,  9.010e-11,  9.017e-11/
       DATA S1751/                                                       &
      &  8.999e-11,  8.959e-11,  8.838e-11,  8.579e-11,  8.162e-11,      &
      &  8.098e-11,  7.472e-11,  7.108e-11,  6.559e-11,  5.994e-11,      &
@@ -1846,7 +1846,7 @@ SUBROUTINE CONTNM(JRAD)
      &  4.086e-12,  3.639e-12,  3.247e-12,  2.904e-12,  2.604e-12,      &
      &  2.341e-12,  2.112e-12,  1.914e-12,  1.744e-12,  1.598e-12,      &
      &  1.476e-12,  1.374e-12,  1.293e-12,  1.230e-12,  1.185e-12,      &
-     &  1.158e-12,  1.147e-12,  1.154e-12,  1.177e-12,  1.219e-12/      
+     &  1.158e-12,  1.147e-12,  1.154e-12,  1.177e-12,  1.219e-12/
       DATA S1801/                                                       &
      &  1.280e-12,  1.360e-12,  1.463e-12,  1.591e-12,  1.750e-12,      &
      &  1.940e-12,  2.156e-12,  2.430e-12,  2.748e-12,  3.052e-12,      &
@@ -1857,7 +1857,7 @@ SUBROUTINE CONTNM(JRAD)
      &  3.115e-11,  3.356e-11,  3.592e-11,  3.818e-11,  3.936e-11,      &
      &  4.061e-11,  4.149e-11,  4.299e-11,  4.223e-11,  4.251e-11,      &
      &  4.287e-11,  4.177e-11,  4.094e-11,  3.942e-11,  3.772e-11,      &
-     &  3.614e-11,  3.394e-11,  3.222e-11,  2.791e-11,  2.665e-11/      
+     &  3.614e-11,  3.394e-11,  3.222e-11,  2.791e-11,  2.665e-11/
       DATA S1851/                                                       &
      &  2.309e-11,  2.032e-11,  1.740e-11,  1.535e-11,  1.323e-11,      &
      &  1.151e-11,  9.803e-12,  8.650e-12,  7.540e-12,  6.619e-12,      &
@@ -1868,7 +1868,7 @@ SUBROUTINE CONTNM(JRAD)
      &  1.128e-12,  1.169e-12,  1.233e-12,  1.307e-12,  1.359e-12,      &
      &  1.543e-12,  1.686e-12,  1.794e-12,  2.028e-12,  2.210e-12,      &
      &  2.441e-12,  2.653e-12,  2.828e-12,  3.093e-12,  3.280e-12,      &
-     &  3.551e-12,  3.677e-12,  3.803e-12,  3.844e-12,  4.068e-12/      
+     &  3.551e-12,  3.677e-12,  3.803e-12,  3.844e-12,  4.068e-12/
       DATA S1901/                                                       &
      &  4.093e-12,  4.002e-12,  3.904e-12,  3.624e-12,  3.633e-12,      &
      &  3.622e-12,  3.443e-12,  3.184e-12,  2.934e-12,  2.476e-12,      &
@@ -1879,7 +1879,7 @@ SUBROUTINE CONTNM(JRAD)
      &  4.365e-13,  4.606e-13,  4.925e-13,  5.326e-13,  5.818e-13,      &
      &  6.407e-13,  7.104e-13,  7.920e-13,  8.868e-13,  9.964e-13,      &
      &  1.123e-12,  1.268e-12,  1.434e-12,  1.626e-12,  1.848e-12,      &
-     &  2.107e-12,  2.422e-12,  2.772e-12,  3.145e-12,  3.704e-12/      
+     &  2.107e-12,  2.422e-12,  2.772e-12,  3.145e-12,  3.704e-12/
       DATA S1951/                                                       &
      &  4.270e-12,  4.721e-12,  5.361e-12,  6.083e-12,  7.095e-12,      &
      &  7.968e-12,  9.228e-12,  1.048e-11,  1.187e-11,  1.336e-11,      &
@@ -1890,60 +1890,60 @@ SUBROUTINE CONTNM(JRAD)
      &  7.954e-11,  7.849e-11,  7.518e-11,  7.462e-11,  6.926e-11,      &
      &  6.531e-11,  6.197e-11,  5.421e-11,  4.777e-11,  4.111e-11,      &
      &  3.679e-11,  3.166e-11,  2.786e-11,  2.436e-11,  2.144e-11,      &
-     &  1.859e-11,  1.628e-11,  1.414e-11,  1.237e-11,  1.093e-11/      
+     &  1.859e-11,  1.628e-11,  1.414e-11,  1.237e-11,  1.093e-11/
       DATA S2001/                                                       &
-     &  9.558e-12/                                                      
-!                                                                       
-      END                                           
-!                                                                       
-!     --------------------------------------------------------------    
-!                                                                       
-      SUBROUTINE SL260 (V1C,V2C,DVC,NPTC,C) 
-                                                                        
-      Use params, ONLY: n_absrb 
-!                                                                       
-      IMPLICIT REAL*8           (V) 
-!                                                                       
-      COMMON /ABSORB/ V1ABS,V2ABS,DVABS,NPTABS,ABSRB(n_absrb) 
-      COMMON /S260/ V1S,V2S,DVS,NPTS,S(2003) 
-      DIMENSION C(*) 
-!                                                                       
-      DVC = DVS 
-      V1C = V1ABS-DVC 
-      V2C = V2ABS+DVC 
-!                                                                       
-      IF (V1C.LT.V1S) then 
-         I1 = -1 
-         else 
-         I1 = (V1C-V1S)/DVS + 0.01 
-         end if 
-!                                                                       
-         V1C = V1S + DVS*REAL(I1-1) 
-         I2 = (V2C-V1S)/DVS + 0.01 
-         NPTC = I2-I1+3 
-         IF (NPTC.GT.NPTS) NPTC=NPTS+4 
-         V2C = V1C + DVS*REAL(NPTC-1) 
-!                                                                       
-         DO 10 J = 1, NPTC 
-            I = I1+(J-1) 
-            C(J) = 0. 
-            IF ((I.LT.1).OR.(I.GT.NPTS)) GO TO 10 
-            C(J) = S(I) 
-   10    END DO 
-!                                                                       
-         RETURN 
-!                                                                       
-      END                                           
-!                                                                       
-!     --------------------------------------------------------------    
-!                                                                       
-      BLOCK DATA BS260 
-!                                                                       
-      IMPLICIT REAL*8           (V) 
-!                                                                       
-!               11/18/02                                                
-!               UNITS OF (CM**3/MOL)*1.E-20                             
-!                                                                       
+     &  9.558e-12/
+!
+      END
+!
+!     --------------------------------------------------------------
+!
+      SUBROUTINE SL260 (V1C,V2C,DVC,NPTC,C)
+
+      Use params, ONLY: n_absrb
+!
+      IMPLICIT REAL*8           (V)
+!
+      COMMON /ABSORB/ V1ABS,V2ABS,DVABS,NPTABS,ABSRB(n_absrb)
+      COMMON /S260/ V1S,V2S,DVS,NPTS,S(2003)
+      DIMENSION C(*)
+!
+      DVC = DVS
+      V1C = V1ABS-DVC
+      V2C = V2ABS+DVC
+!
+      IF (V1C.LT.V1S) then
+         I1 = -1
+         else
+         I1 = (V1C-V1S)/DVS + 0.01
+         end if
+!
+         V1C = V1S + DVS*REAL(I1-1)
+         I2 = (V2C-V1S)/DVS + 0.01
+         NPTC = I2-I1+3
+         IF (NPTC.GT.NPTS) NPTC=NPTS+4
+         V2C = V1C + DVS*REAL(NPTC-1)
+!
+         DO 10 J = 1, NPTC
+            I = I1+(J-1)
+            C(J) = 0.
+            IF ((I.LT.1).OR.(I.GT.NPTS)) GO TO 10
+            C(J) = S(I)
+   10    END DO
+!
+         RETURN
+!
+      END
+!
+!     --------------------------------------------------------------
+!
+      BLOCK DATA BS260
+!
+      IMPLICIT REAL*8           (V)
+!
+!               11/18/02
+!               UNITS OF (CM**3/MOL)*1.E-20
+!
       COMMON /S260/ V1,V2,DV,NPT,                                       &
      &              S0000( 2),S0001(50),S0051(50),S0101(50),S0151(50),  &
      &              S0201(50),S0251(50),S0301(50),S0351(50),S0401(50),  &
@@ -1953,12 +1953,12 @@ SUBROUTINE CONTNM(JRAD)
      &              S1201(50),S1251(50),S1301(50),S1351(50),S1401(50),  &
      &              S1451(50),S1501(50),S1551(50),S1601(50),S1651(50),  &
      &              S1701(50),S1751(50),S1801(50),S1851(50),S1901(50),  &
-     &              S1951(50), S2001(1)                                 
-!                                                                       
-       DATA V1,V2,DV,NPT / -20.0, 20000.0, 10.0, 2003/ 
-!                                                                       
+     &              S1951(50), S2001(1)
+!
+       DATA V1,V2,DV,NPT / -20.0, 20000.0, 10.0, 2003/
+!
       DATA S0000/                                                       &
-     &      2.749e-01, 2.732e-01/                                       
+     &      2.749e-01, 2.732e-01/
       DATA S0001/                                                       &
      &  2.752e-01,  2.732e-01,  2.749e-01,  2.676e-01,  2.667e-01,      &
      &  2.545e-01,  2.497e-01,  2.327e-01,  2.218e-01,  2.036e-01,      &
@@ -1969,7 +1969,7 @@ SUBROUTINE CONTNM(JRAD)
      &  1.405e-02,  1.255e-02,  1.098e-02,  9.797e-03,  8.646e-03,      &
      &  7.779e-03,  6.898e-03,  6.099e-03,  5.453e-03,  4.909e-03,      &
      &  4.413e-03,  3.959e-03,  3.581e-03,  3.199e-03,  2.871e-03,      &
-     &  2.583e-03,  2.330e-03,  2.086e-03,  1.874e-03,  1.684e-03/      
+     &  2.583e-03,  2.330e-03,  2.086e-03,  1.874e-03,  1.684e-03/
       DATA S0051/                                                       &
      &  1.512e-03,  1.361e-03,  1.225e-03,  1.100e-03,  9.890e-04,      &
      &  8.916e-04,  8.039e-04,  7.256e-04,  6.545e-04,  5.918e-04,      &
@@ -1980,7 +1980,7 @@ SUBROUTINE CONTNM(JRAD)
      &  1.119e-04,  1.053e-04,  9.922e-05,  9.355e-05,  8.831e-05,      &
      &  8.339e-05,  7.878e-05,  7.449e-05,  7.043e-05,  6.664e-05,      &
      &  6.307e-05,  5.969e-05,  5.654e-05,  5.357e-05,  5.075e-05,      &
-     &  4.810e-05,  4.560e-05,  4.322e-05,  4.102e-05,  3.892e-05/      
+     &  4.810e-05,  4.560e-05,  4.322e-05,  4.102e-05,  3.892e-05/
       DATA S0101/                                                       &
      &  3.696e-05,  3.511e-05,  3.339e-05,  3.177e-05,  3.026e-05,      &
      &  2.886e-05,  2.756e-05,  2.636e-05,  2.527e-05,  2.427e-05,      &
@@ -1991,7 +1991,7 @@ SUBROUTINE CONTNM(JRAD)
      &  3.144e-05,  3.359e-05,  3.695e-05,  4.002e-05,  4.374e-05,      &
      &  4.947e-05,  5.431e-05,  6.281e-05,  7.169e-05,  8.157e-05,      &
      &  9.728e-05,  1.079e-04,  1.337e-04,  1.442e-04,  1.683e-04,      &
-     &  1.879e-04,  2.223e-04,  2.425e-04,  2.838e-04,  3.143e-04/      
+     &  1.879e-04,  2.223e-04,  2.425e-04,  2.838e-04,  3.143e-04/
       DATA S0151/                                                       &
      &  3.527e-04,  4.012e-04,  4.237e-04,  4.747e-04,  5.057e-04,      &
      &  5.409e-04,  5.734e-04,  5.944e-04,  6.077e-04,  6.175e-04,      &
@@ -2002,7 +2002,7 @@ SUBROUTINE CONTNM(JRAD)
      &  1.358e-04,  1.156e-04,  1.021e-04,  8.887e-05,  7.842e-05,      &
      &  7.120e-05,  6.186e-05,  5.730e-05,  4.792e-05,  4.364e-05,      &
      &  3.720e-05,  3.280e-05,  2.946e-05,  2.591e-05,  2.261e-05,      &
-     &  2.048e-05,  1.813e-05,  1.630e-05,  1.447e-05,  1.282e-05/      
+     &  2.048e-05,  1.813e-05,  1.630e-05,  1.447e-05,  1.282e-05/
       DATA S0201/                                                       &
      &  1.167e-05,  1.041e-05,  9.449e-06,  8.510e-06,  7.596e-06,      &
      &  6.961e-06,  6.272e-06,  5.728e-06,  5.198e-06,  4.667e-06,      &
@@ -2013,7 +2013,7 @@ SUBROUTINE CONTNM(JRAD)
      &  7.973e-07,  7.466e-07,  6.999e-07,  6.574e-07,  6.180e-07,      &
      &  5.821e-07,  5.487e-07,  5.180e-07,  4.896e-07,  4.631e-07,      &
      &  4.386e-07,  4.160e-07,  3.945e-07,  3.748e-07,  3.562e-07,      &
-     &  3.385e-07,  3.222e-07,  3.068e-07,  2.922e-07,  2.788e-07/      
+     &  3.385e-07,  3.222e-07,  3.068e-07,  2.922e-07,  2.788e-07/
       DATA S0251/                                                       &
      &  2.659e-07,  2.539e-07,  2.425e-07,  2.318e-07,  2.219e-07,      &
      &  2.127e-07,  2.039e-07,  1.958e-07,  1.885e-07,  1.818e-07,      &
@@ -2024,7 +2024,7 @@ SUBROUTINE CONTNM(JRAD)
      &  1.425e-07,  1.445e-07,  1.477e-07,  1.515e-07,  1.567e-07,      &
      &  1.634e-07,  1.712e-07,  1.802e-07,  1.914e-07,  2.024e-07,      &
      &  2.159e-07,  2.295e-07,  2.461e-07,  2.621e-07,  2.868e-07,      &
-     &  3.102e-07,  3.394e-07,  3.784e-07,  4.223e-07,  4.864e-07/      
+     &  3.102e-07,  3.394e-07,  3.784e-07,  4.223e-07,  4.864e-07/
       DATA S0301/                                                       &
      &  5.501e-07,  6.039e-07,  7.193e-07,  7.728e-07,  9.514e-07,      &
      &  1.073e-06,  1.180e-06,  1.333e-06,  1.472e-06,  1.566e-06,      &
@@ -2035,7 +2035,7 @@ SUBROUTINE CONTNM(JRAD)
      &  2.142e-06,  2.181e-06,  2.257e-06,  2.362e-06,  2.500e-06,      &
      &  2.664e-06,  2.884e-06,  3.189e-06,  3.480e-06,  3.847e-06,      &
      &  4.313e-06,  4.790e-06,  5.250e-06,  5.989e-06,  6.692e-06,      &
-     &  7.668e-06,  8.520e-06,  9.606e-06,  1.073e-05,  1.225e-05/      
+     &  7.668e-06,  8.520e-06,  9.606e-06,  1.073e-05,  1.225e-05/
       DATA S0351/                                                       &
      &  1.377e-05,  1.582e-05,  1.761e-05,  2.029e-05,  2.284e-05,      &
      &  2.602e-05,  2.940e-05,  3.483e-05,  3.928e-05,  4.618e-05,      &
@@ -2046,7 +2046,7 @@ SUBROUTINE CONTNM(JRAD)
      &  2.015e-04,  1.988e-04,  1.847e-04,  1.729e-04,  1.597e-04,      &
      &  1.373e-04,  1.262e-04,  1.087e-04,  9.439e-05,  8.061e-05,      &
      &  7.093e-05,  6.049e-05,  5.120e-05,  4.435e-05,  3.817e-05,      &
-     &  3.340e-05,  2.927e-05,  2.573e-05,  2.291e-05,  2.040e-05/      
+     &  3.340e-05,  2.927e-05,  2.573e-05,  2.291e-05,  2.040e-05/
       DATA S0401/                                                       &
      &  1.827e-05,  1.636e-05,  1.463e-05,  1.309e-05,  1.170e-05,      &
      &  1.047e-05,  9.315e-06,  8.328e-06,  7.458e-06,  6.665e-06,      &
@@ -2057,7 +2057,7 @@ SUBROUTINE CONTNM(JRAD)
      &  7.118e-07,  6.460e-07,  5.871e-07,  5.340e-07,  4.868e-07,      &
      &  4.447e-07,  4.068e-07,  3.729e-07,  3.423e-07,  3.151e-07,      &
      &  2.905e-07,  2.686e-07,  2.484e-07,  2.306e-07,  2.142e-07,      &
-     &  1.995e-07,  1.860e-07,  1.738e-07,  1.626e-07,  1.522e-07/      
+     &  1.995e-07,  1.860e-07,  1.738e-07,  1.626e-07,  1.522e-07/
       DATA S0451/                                                       &
      &  1.427e-07,  1.338e-07,  1.258e-07,  1.183e-07,  1.116e-07,      &
      &  1.056e-07,  9.972e-08,  9.460e-08,  9.007e-08,  8.592e-08,      &
@@ -2068,7 +2068,7 @@ SUBROUTINE CONTNM(JRAD)
      &  6.003e-08,  6.311e-08,  6.713e-08,  7.173e-08,  7.724e-08,      &
      &  8.368e-08,  9.121e-08,  9.986e-08,  1.097e-07,  1.209e-07,      &
      &  1.338e-07,  1.486e-07,  1.651e-07,  1.837e-07,  2.048e-07,      &
-     &  2.289e-07,  2.557e-07,  2.857e-07,  3.195e-07,  3.587e-07/      
+     &  2.289e-07,  2.557e-07,  2.857e-07,  3.195e-07,  3.587e-07/
       DATA S0501/                                                       &
      &  4.015e-07,  4.497e-07,  5.049e-07,  5.665e-07,  6.366e-07,      &
      &  7.121e-07,  7.996e-07,  8.946e-07,  1.002e-06,  1.117e-06,      &
@@ -2079,7 +2079,7 @@ SUBROUTINE CONTNM(JRAD)
      &  1.504e-05,  1.583e-05,  1.617e-05,  1.652e-05,  1.713e-05,      &
      &  1.724e-05,  1.715e-05,  1.668e-05,  1.629e-05,  1.552e-05,      &
      &  1.478e-05,  1.340e-05,  1.245e-05,  1.121e-05,  9.575e-06,      &
-     &  8.956e-06,  7.345e-06,  6.597e-06,  5.612e-06,  4.818e-06/      
+     &  8.956e-06,  7.345e-06,  6.597e-06,  5.612e-06,  4.818e-06/
       DATA S0551/                                                       &
      &  4.165e-06,  3.579e-06,  3.041e-06,  2.623e-06,  2.290e-06,      &
      &  1.984e-06,  1.748e-06,  1.534e-06,  1.369e-06,  1.219e-06,      &
@@ -2090,7 +2090,7 @@ SUBROUTINE CONTNM(JRAD)
      &  1.233e-07,  1.114e-07,  9.988e-08,  9.004e-08,  8.149e-08,      &
      &  7.352e-08,  6.662e-08,  6.030e-08,  5.479e-08,  4.974e-08,      &
      &  4.532e-08,  4.129e-08,  3.781e-08,  3.462e-08,  3.176e-08,      &
-     &  2.919e-08,  2.687e-08,  2.481e-08,  2.292e-08,  2.119e-08/      
+     &  2.919e-08,  2.687e-08,  2.481e-08,  2.292e-08,  2.119e-08/
       DATA S0601/                                                       &
      &  1.967e-08,  1.828e-08,  1.706e-08,  1.589e-08,  1.487e-08,      &
      &  1.393e-08,  1.307e-08,  1.228e-08,  1.156e-08,  1.089e-08,      &
@@ -2101,7 +2101,7 @@ SUBROUTINE CONTNM(JRAD)
      &  4.017e-09,  3.962e-09,  3.924e-09,  3.905e-09,  3.922e-09,      &
      &  3.967e-09,  4.046e-09,  4.165e-09,  4.320e-09,  4.522e-09,      &
      &  4.769e-09,  5.083e-09,  5.443e-09,  5.872e-09,  6.366e-09,      &
-     &  6.949e-09,  7.601e-09,  8.371e-09,  9.220e-09,  1.020e-08/      
+     &  6.949e-09,  7.601e-09,  8.371e-09,  9.220e-09,  1.020e-08/
       DATA S0651/                                                       &
      &  1.129e-08,  1.251e-08,  1.393e-08,  1.542e-08,  1.720e-08,      &
      &  1.926e-08,  2.152e-08,  2.392e-08,  2.678e-08,  3.028e-08,      &
@@ -2112,7 +2112,7 @@ SUBROUTINE CONTNM(JRAD)
      &  4.355e-07,  4.672e-07,  5.110e-07,  5.461e-07,  5.828e-07,      &
      &  6.233e-07,  6.509e-07,  6.672e-07,  6.969e-07,  7.104e-07,      &
      &  7.439e-07,  7.463e-07,  7.708e-07,  7.466e-07,  7.668e-07,      &
-     &  7.549e-07,  7.586e-07,  7.384e-07,  7.439e-07,  7.785e-07/      
+     &  7.549e-07,  7.586e-07,  7.384e-07,  7.439e-07,  7.785e-07/
       DATA S0701/                                                       &
      &  7.915e-07,  8.310e-07,  8.745e-07,  9.558e-07,  1.038e-06,      &
      &  1.173e-06,  1.304e-06,  1.452e-06,  1.671e-06,  1.931e-06,      &
@@ -2123,7 +2123,7 @@ SUBROUTINE CONTNM(JRAD)
      &  8.336e-06,  7.739e-06,  7.301e-06,  6.827e-06,  6.078e-06,      &
      &  5.551e-06,  4.762e-06,  4.224e-06,  3.538e-06,  2.984e-06,      &
      &  2.619e-06,  2.227e-06,  1.923e-06,  1.669e-06,  1.462e-06,      &
-     &  1.294e-06,  1.155e-06,  1.033e-06,  9.231e-07,  8.238e-07/      
+     &  1.294e-06,  1.155e-06,  1.033e-06,  9.231e-07,  8.238e-07/
       DATA S0751/                                                       &
      &  7.360e-07,  6.564e-07,  5.869e-07,  5.236e-07,  4.673e-07,      &
      &  4.174e-07,  3.736e-07,  3.330e-07,  2.976e-07,  2.657e-07,      &
@@ -2134,7 +2134,7 @@ SUBROUTINE CONTNM(JRAD)
      &  2.862e-08,  2.604e-08,  2.375e-08,  2.162e-08,  1.981e-08,      &
      &  1.817e-08,  1.670e-08,  1.537e-08,  1.417e-08,  1.310e-08,      &
      &  1.215e-08,  1.128e-08,  1.050e-08,  9.793e-09,  9.158e-09,      &
-     &  8.586e-09,  8.068e-09,  7.595e-09,  7.166e-09,  6.778e-09/      
+     &  8.586e-09,  8.068e-09,  7.595e-09,  7.166e-09,  6.778e-09/
       DATA S0801/                                                       &
      &  6.427e-09,  6.108e-09,  5.826e-09,  5.571e-09,  5.347e-09,      &
      &  5.144e-09,  4.968e-09,  4.822e-09,  4.692e-09,  4.589e-09,      &
@@ -2145,7 +2145,7 @@ SUBROUTINE CONTNM(JRAD)
      &  1.158e-08,  1.253e-08,  1.300e-08,  1.409e-08,  1.470e-08,      &
      &  1.548e-08,  1.612e-08,  1.666e-08,  1.736e-08,  1.763e-08,      &
      &  1.812e-08,  1.852e-08,  1.923e-08,  1.897e-08,  1.893e-08,      &
-     &  1.888e-08,  1.868e-08,  1.895e-08,  1.899e-08,  1.876e-08/      
+     &  1.888e-08,  1.868e-08,  1.895e-08,  1.899e-08,  1.876e-08/
       DATA S0851/                                                       &
      &  1.960e-08,  2.020e-08,  2.121e-08,  2.239e-08,  2.379e-08,      &
      &  2.526e-08,  2.766e-08,  2.994e-08,  3.332e-08,  3.703e-08,      &
@@ -2156,7 +2156,7 @@ SUBROUTINE CONTNM(JRAD)
      &  3.793e-07,  3.839e-07,  4.081e-07,  4.117e-07,  4.085e-07,      &
      &  3.920e-07,  3.851e-07,  3.754e-07,  3.490e-07,  3.229e-07,      &
      &  2.978e-07,  2.691e-07,  2.312e-07,  2.029e-07,  1.721e-07,      &
-     &  1.472e-07,  1.308e-07,  1.132e-07,  9.736e-08,  8.458e-08/      
+     &  1.472e-07,  1.308e-07,  1.132e-07,  9.736e-08,  8.458e-08/
       DATA S0901/                                                       &
      &  7.402e-08,  6.534e-08,  5.811e-08,  5.235e-08,  4.762e-08,      &
      &  4.293e-08,  3.896e-08,  3.526e-08,  3.165e-08,  2.833e-08,      &
@@ -2167,7 +2167,7 @@ SUBROUTINE CONTNM(JRAD)
      &  2.553e-09,  2.311e-09,  2.087e-09,  1.886e-09,  1.716e-09,      &
      &  1.556e-09,  1.432e-09,  1.311e-09,  1.202e-09,  1.104e-09,      &
      &  1.013e-09,  9.293e-10,  8.493e-10,  7.790e-10,  7.185e-10,      &
-     &  6.642e-10,  6.141e-10,  5.684e-10,  5.346e-10,  5.032e-10/      
+     &  6.642e-10,  6.141e-10,  5.684e-10,  5.346e-10,  5.032e-10/
       DATA S0951/                                                       &
      &  4.725e-10,  4.439e-10,  4.176e-10,  3.930e-10,  3.714e-10,      &
      &  3.515e-10,  3.332e-10,  3.167e-10,  3.020e-10,  2.887e-10,      &
@@ -2178,7 +2178,7 @@ SUBROUTINE CONTNM(JRAD)
      &  3.829e-10,  4.115e-10,  4.264e-10,  4.473e-10,  4.630e-10,      &
      &  4.808e-10,  4.995e-10,  5.142e-10,  5.313e-10,  5.318e-10,      &
      &  5.358e-10,  5.452e-10,  5.507e-10,  5.698e-10,  5.782e-10,      &
-     &  5.983e-10,  6.164e-10,  6.532e-10,  6.811e-10,  7.624e-10/      
+     &  5.983e-10,  6.164e-10,  6.532e-10,  6.811e-10,  7.624e-10/
       DATA S1001/                                                       &
      &  8.302e-10,  9.067e-10,  9.937e-10,  1.104e-09,  1.221e-09,      &
      &  1.361e-09,  1.516e-09,  1.675e-09,  1.883e-09,  2.101e-09,      &
@@ -2189,7 +2189,7 @@ SUBROUTINE CONTNM(JRAD)
      &  2.556e-08,  2.729e-08,  2.880e-08,  3.046e-08,  3.167e-08,      &
      &  3.367e-08,  3.457e-08,  3.590e-08,  3.711e-08,  3.826e-08,      &
      &  4.001e-08,  4.211e-08,  4.315e-08,  4.661e-08,  5.010e-08,      &
-     &  5.249e-08,  5.840e-08,  6.628e-08,  7.512e-08,  8.253e-08/      
+     &  5.249e-08,  5.840e-08,  6.628e-08,  7.512e-08,  8.253e-08/
       DATA S1051/                                                       &
      &  9.722e-08,  1.067e-07,  1.153e-07,  1.347e-07,  1.428e-07,      &
      &  1.577e-07,  1.694e-07,  1.833e-07,  1.938e-07,  2.108e-07,      &
@@ -2200,7 +2200,7 @@ SUBROUTINE CONTNM(JRAD)
      &  4.147e-08,  3.773e-08,  3.460e-08,  3.194e-08,  2.953e-08,      &
      &  2.759e-08,  2.594e-08,  2.442e-08,  2.355e-08,  2.283e-08,      &
      &  2.279e-08,  2.231e-08,  2.279e-08,  2.239e-08,  2.210e-08,      &
-     &  2.309e-08,  2.293e-08,  2.352e-08,  2.415e-08,  2.430e-08/      
+     &  2.309e-08,  2.293e-08,  2.352e-08,  2.415e-08,  2.430e-08/
       DATA S1101/                                                       &
      &  2.426e-08,  2.465e-08,  2.500e-08,  2.496e-08,  2.465e-08,      &
      &  2.445e-08,  2.383e-08,  2.299e-08,  2.165e-08,  2.113e-08,      &
@@ -2211,7 +2211,7 @@ SUBROUTINE CONTNM(JRAD)
      &  1.703e-09,  1.525e-09,  1.365e-09,  1.229e-09,  1.107e-09,      &
      &  9.960e-10,  8.945e-10,  8.080e-10,  7.308e-10,  6.616e-10,      &
      &  5.994e-10,  5.422e-10,  4.929e-10,  4.478e-10,  4.070e-10,      &
-     &  3.707e-10,  3.379e-10,  3.087e-10,  2.823e-10,  2.592e-10/      
+     &  3.707e-10,  3.379e-10,  3.087e-10,  2.823e-10,  2.592e-10/
       DATA S1151/                                                       &
      &  2.385e-10,  2.201e-10,  2.038e-10,  1.897e-10,  1.774e-10,      &
      &  1.667e-10,  1.577e-10,  1.502e-10,  1.437e-10,  1.394e-10,      &
@@ -2222,7 +2222,7 @@ SUBROUTINE CONTNM(JRAD)
      &  5.030e-10,  5.381e-10,  5.793e-10,  6.190e-10,  6.596e-10,      &
      &  7.004e-10,  7.561e-10,  7.934e-10,  8.552e-10,  9.142e-10,      &
      &  9.570e-10,  1.027e-09,  1.097e-09,  1.193e-09,  1.334e-09,      &
-     &  1.470e-09,  1.636e-09,  1.871e-09,  2.122e-09,  2.519e-09/      
+     &  1.470e-09,  1.636e-09,  1.871e-09,  2.122e-09,  2.519e-09/
       DATA S1201/                                                       &
      &  2.806e-09,  3.203e-09,  3.846e-09,  4.362e-09,  5.114e-09,      &
      &  5.643e-09,  6.305e-09,  6.981e-09,  7.983e-09,  8.783e-09,      &
@@ -2233,7 +2233,7 @@ SUBROUTINE CONTNM(JRAD)
      &  3.913e-09,  3.414e-09,  2.975e-09,  2.650e-09,  2.406e-09,      &
      &  2.173e-09,  2.009e-09,  1.861e-09,  1.727e-09,  1.612e-09,      &
      &  1.514e-09,  1.430e-09,  1.362e-09,  1.333e-09,  1.288e-09,      &
-     &  1.249e-09,  1.238e-09,  1.228e-09,  1.217e-09,  1.202e-09/      
+     &  1.249e-09,  1.238e-09,  1.228e-09,  1.217e-09,  1.202e-09/
       DATA S1251/                                                       &
      &  1.209e-09,  1.177e-09,  1.157e-09,  1.165e-09,  1.142e-09,      &
      &  1.131e-09,  1.138e-09,  1.117e-09,  1.100e-09,  1.069e-09,      &
@@ -2244,7 +2244,7 @@ SUBROUTINE CONTNM(JRAD)
      &  1.108e-10,  9.933e-11,  8.932e-11,  8.022e-11,  7.224e-11,      &
      &  6.520e-11,  5.896e-11,  5.328e-11,  4.813e-11,  4.365e-11,      &
      &  3.961e-11,  3.594e-11,  3.266e-11,  2.967e-11,  2.701e-11,      &
-     &  2.464e-11,  2.248e-11,  2.054e-11,  1.878e-11,  1.721e-11/      
+     &  2.464e-11,  2.248e-11,  2.054e-11,  1.878e-11,  1.721e-11/
       DATA S1301/                                                       &
      &  1.579e-11,  1.453e-11,  1.341e-11,  1.241e-11,  1.154e-11,      &
      &  1.078e-11,  1.014e-11,  9.601e-12,  9.167e-12,  8.838e-12,      &
@@ -2255,7 +2255,7 @@ SUBROUTINE CONTNM(JRAD)
      &  3.821e-11,  4.261e-11,  4.748e-11,  5.323e-11,  5.935e-11,      &
      &  6.619e-11,  7.418e-11,  8.294e-11,  9.260e-11,  1.039e-10,      &
      &  1.156e-10,  1.297e-10,  1.460e-10,  1.641e-10,  1.858e-10,      &
-     &  2.100e-10,  2.383e-10,  2.724e-10,  3.116e-10,  3.538e-10/      
+     &  2.100e-10,  2.383e-10,  2.724e-10,  3.116e-10,  3.538e-10/
       DATA S1351/                                                       &
      &  4.173e-10,  4.727e-10,  5.503e-10,  6.337e-10,  7.320e-10,      &
      &  8.298e-10,  9.328e-10,  1.059e-09,  1.176e-09,  1.328e-09,      &
@@ -2266,7 +2266,7 @@ SUBROUTINE CONTNM(JRAD)
      &  8.605e-09,  9.165e-09,  9.415e-09,  9.511e-09,  9.704e-09,      &
      &  9.588e-09,  9.450e-09,  9.086e-09,  8.798e-09,  8.469e-09,      &
      &  7.697e-09,  7.168e-09,  6.255e-09,  5.772e-09,  4.970e-09,      &
-     &  4.271e-09,  3.653e-09,  3.154e-09,  2.742e-09,  2.435e-09/      
+     &  4.271e-09,  3.653e-09,  3.154e-09,  2.742e-09,  2.435e-09/
       DATA S1401/                                                       &
      &  2.166e-09,  1.936e-09,  1.731e-09,  1.556e-09,  1.399e-09,      &
      &  1.272e-09,  1.157e-09,  1.066e-09,  9.844e-10,  9.258e-10,      &
@@ -2277,7 +2277,7 @@ SUBROUTINE CONTNM(JRAD)
      &  1.678e-09,  1.746e-09,  1.742e-09,  1.728e-09,  1.699e-09,      &
      &  1.655e-09,  1.561e-09,  1.480e-09,  1.451e-09,  1.411e-09,      &
      &  1.171e-09,  1.106e-09,  9.714e-10,  8.523e-10,  7.346e-10,      &
-     &  6.241e-10,  5.371e-10,  4.704e-10,  4.144e-10,  3.683e-10/      
+     &  6.241e-10,  5.371e-10,  4.704e-10,  4.144e-10,  3.683e-10/
       DATA S1451/                                                       &
      &  3.292e-10,  2.942e-10,  2.620e-10,  2.341e-10,  2.104e-10,      &
      &  1.884e-10,  1.700e-10,  1.546e-10,  1.394e-10,  1.265e-10,      &
@@ -2288,7 +2288,7 @@ SUBROUTINE CONTNM(JRAD)
      &  1.539e-11,  1.434e-11,  1.344e-11,  1.269e-11,  1.209e-11,      &
      &  1.162e-11,  1.129e-11,  1.108e-11,  1.099e-11,  1.103e-11,      &
      &  1.119e-11,  1.148e-11,  1.193e-11,  1.252e-11,  1.329e-11,      &
-     &  1.421e-11,  1.555e-11,  1.685e-11,  1.839e-11,  2.054e-11/      
+     &  1.421e-11,  1.555e-11,  1.685e-11,  1.839e-11,  2.054e-11/
       DATA S1501/                                                       &
      &  2.317e-11,  2.571e-11,  2.839e-11,  3.171e-11,  3.490e-11,      &
      &  3.886e-11,  4.287e-11,  4.645e-11,  5.047e-11,  5.592e-11,      &
@@ -2299,7 +2299,7 @@ SUBROUTINE CONTNM(JRAD)
      &  5.605e-10,  6.018e-10,  6.328e-10,  6.579e-10,  6.541e-10,      &
      &  7.024e-10,  7.074e-10,  7.068e-10,  7.009e-10,  6.698e-10,      &
      &  6.545e-10,  6.209e-10,  5.834e-10,  5.412e-10,  5.001e-10,      &
-     &  4.231e-10,  3.727e-10,  3.211e-10,  2.833e-10,  2.447e-10/      
+     &  4.231e-10,  3.727e-10,  3.211e-10,  2.833e-10,  2.447e-10/
       DATA S1551/                                                       &
      &  2.097e-10,  1.843e-10,  1.639e-10,  1.449e-10,  1.270e-10,      &
      &  1.161e-10,  1.033e-10,  9.282e-11,  8.407e-11,  7.639e-11,      &
@@ -2310,7 +2310,7 @@ SUBROUTINE CONTNM(JRAD)
      &  1.176e-10,  1.244e-10,  1.279e-10,  1.298e-10,  1.302e-10,      &
      &  1.312e-10,  1.295e-10,  1.244e-10,  1.211e-10,  1.167e-10,      &
      &  1.098e-10,  9.927e-11,  8.854e-11,  8.011e-11,  7.182e-11,      &
-     &  5.923e-11,  5.212e-11,  4.453e-11,  3.832e-11,  3.371e-11/      
+     &  5.923e-11,  5.212e-11,  4.453e-11,  3.832e-11,  3.371e-11/
       DATA S1601/                                                       &
      &  2.987e-11,  2.651e-11,  2.354e-11,  2.093e-11,  1.863e-11,      &
      &  1.662e-11,  1.486e-11,  1.331e-11,  1.193e-11,  1.071e-11,      &
@@ -2321,7 +2321,7 @@ SUBROUTINE CONTNM(JRAD)
      &  2.223e-12,  2.288e-12,  2.387e-12,  2.525e-12,  2.704e-12,      &
      &  2.925e-12,  3.191e-12,  3.508e-12,  3.876e-12,  4.303e-12,      &
      &  4.793e-12,  5.347e-12,  5.978e-12,  6.682e-12,  7.467e-12,      &
-     &  8.340e-12,  9.293e-12,  1.035e-11,  1.152e-11,  1.285e-11/      
+     &  8.340e-12,  9.293e-12,  1.035e-11,  1.152e-11,  1.285e-11/
       DATA S1651/                                                       &
      &  1.428e-11,  1.586e-11,  1.764e-11,  1.972e-11,  2.214e-11,      &
      &  2.478e-11,  2.776e-11,  3.151e-11,  3.591e-11,  4.103e-11,      &
@@ -2332,7 +2332,7 @@ SUBROUTINE CONTNM(JRAD)
      &  6.535e-10,  6.899e-10,  7.687e-10,  8.444e-10,  8.798e-10,      &
      &  9.135e-10,  9.532e-10,  9.757e-10,  9.968e-10,  1.006e-09,      &
      &  9.949e-10,  9.789e-10,  9.564e-10,  9.215e-10,  8.510e-10,      &
-     &  8.394e-10,  7.707e-10,  7.152e-10,  6.274e-10,  5.598e-10/      
+     &  8.394e-10,  7.707e-10,  7.152e-10,  6.274e-10,  5.598e-10/
       DATA S1701/                                                       &
      &  5.028e-10,  4.300e-10,  3.710e-10,  3.245e-10,  2.809e-10,      &
      &  2.461e-10,  2.154e-10,  1.910e-10,  1.685e-10,  1.487e-10,      &
@@ -2343,7 +2343,7 @@ SUBROUTINE CONTNM(JRAD)
      &  4.240e-11,  4.487e-11,  4.806e-11,  5.133e-11,  5.518e-11,      &
      &  5.919e-11,  6.533e-11,  7.031e-11,  7.762e-11,  8.305e-11,      &
      &  9.252e-11,  9.727e-11,  1.045e-10,  1.117e-10,  1.200e-10,      &
-     &  1.275e-10,  1.341e-10,  1.362e-10,  1.438e-10,  1.450e-10/      
+     &  1.275e-10,  1.341e-10,  1.362e-10,  1.438e-10,  1.450e-10/
       DATA S1751/                                                       &
      &  1.455e-10,  1.455e-10,  1.434e-10,  1.381e-10,  1.301e-10,      &
      &  1.276e-10,  1.163e-10,  1.089e-10,  9.911e-11,  8.943e-11,      &
@@ -2354,7 +2354,7 @@ SUBROUTINE CONTNM(JRAD)
      &  6.705e-12,  5.993e-12,  5.371e-12,  4.815e-12,  4.338e-12,      &
      &  3.921e-12,  3.567e-12,  3.265e-12,  3.010e-12,  2.795e-12,      &
      &  2.613e-12,  2.464e-12,  2.346e-12,  2.256e-12,  2.195e-12,      &
-     &  2.165e-12,  2.166e-12,  2.198e-12,  2.262e-12,  2.364e-12/      
+     &  2.165e-12,  2.166e-12,  2.198e-12,  2.262e-12,  2.364e-12/
       DATA S1801/                                                       &
      &  2.502e-12,  2.682e-12,  2.908e-12,  3.187e-12,  3.533e-12,      &
      &  3.946e-12,  4.418e-12,  5.013e-12,  5.708e-12,  6.379e-12,      &
@@ -2365,7 +2365,7 @@ SUBROUTINE CONTNM(JRAD)
      &  6.915e-11,  7.450e-11,  7.971e-11,  8.468e-11,  8.726e-11,      &
      &  8.995e-11,  9.182e-11,  9.509e-11,  9.333e-11,  9.386e-11,      &
      &  9.457e-11,  9.210e-11,  9.019e-11,  8.680e-11,  8.298e-11,      &
-     &  7.947e-11,  7.460e-11,  7.082e-11,  6.132e-11,  5.855e-11/      
+     &  7.947e-11,  7.460e-11,  7.082e-11,  6.132e-11,  5.855e-11/
       DATA S1851/                                                       &
      &  5.073e-11,  4.464e-11,  3.825e-11,  3.375e-11,  2.911e-11,      &
      &  2.535e-11,  2.160e-11,  1.907e-11,  1.665e-11,  1.463e-11,      &
@@ -2376,7 +2376,7 @@ SUBROUTINE CONTNM(JRAD)
      &  2.614e-12,  2.717e-12,  2.874e-12,  3.056e-12,  3.187e-12,      &
      &  3.631e-12,  3.979e-12,  4.248e-12,  4.817e-12,  5.266e-12,      &
      &  5.836e-12,  6.365e-12,  6.807e-12,  7.470e-12,  7.951e-12,      &
-     &  8.636e-12,  8.972e-12,  9.314e-12,  9.445e-12,  1.003e-11/      
+     &  8.636e-12,  8.972e-12,  9.314e-12,  9.445e-12,  1.003e-11/
       DATA S1901/                                                       &
      &  1.013e-11,  9.937e-12,  9.729e-12,  9.064e-12,  9.119e-12,      &
      &  9.124e-12,  8.704e-12,  8.078e-12,  7.470e-12,  6.329e-12,      &
@@ -2387,7 +2387,7 @@ SUBROUTINE CONTNM(JRAD)
      &  1.207e-12,  1.278e-12,  1.372e-12,  1.490e-12,  1.633e-12,      &
      &  1.805e-12,  2.010e-12,  2.249e-12,  2.528e-12,  2.852e-12,      &
      &  3.228e-12,  3.658e-12,  4.153e-12,  4.728e-12,  5.394e-12,      &
-     &  6.176e-12,  7.126e-12,  8.188e-12,  9.328e-12,  1.103e-11/      
+     &  6.176e-12,  7.126e-12,  8.188e-12,  9.328e-12,  1.103e-11/
       DATA S1951/                                                       &
      &  1.276e-11,  1.417e-11,  1.615e-11,  1.840e-11,  2.155e-11,      &
      &  2.429e-11,  2.826e-11,  3.222e-11,  3.664e-11,  4.140e-11,      &
@@ -2398,60 +2398,60 @@ SUBROUTINE CONTNM(JRAD)
      &  2.686e-10,  2.662e-10,  2.560e-10,  2.552e-10,  2.378e-10,      &
      &  2.252e-10,  2.146e-10,  1.885e-10,  1.668e-10,  1.441e-10,      &
      &  1.295e-10,  1.119e-10,  9.893e-11,  8.687e-11,  7.678e-11,      &
-     &  6.685e-11,  5.879e-11,  5.127e-11,  4.505e-11,  3.997e-11/      
+     &  6.685e-11,  5.879e-11,  5.127e-11,  4.505e-11,  3.997e-11/
       DATA S2001/                                                       &
-     &  3.511e-11/                                                      
-!                                                                       
-      END                                           
-!                                                                       
-!     --------------------------------------------------------------    
-!                                                                       
-      SUBROUTINE FRN296 (V1C,V2C,DVC,NPTC,C) 
-!                                                                       
-      Use params, ONLY: n_absrb 
-      IMPLICIT REAL*8           (V) 
-!                                                                       
-      COMMON /ABSORB/ V1ABS,V2ABS,DVABS,NPTABS,ABSRB(n_absrb) 
-      COMMON /FH2O/ V1S,V2S,DVS,NPTS,S(2003) 
-      DIMENSION C(*) 
-!                                                                       
-      DVC = DVS 
-      V1C = V1ABS-DVC 
-      V2C = V2ABS+DVC 
-!                                                                       
-      IF (V1C.LT.V1S) then 
-         I1 = -1 
-         else 
-         I1 = (V1C-V1S)/DVS + 0.01 
-         end if 
-!                                                                       
-         V1C = V1S + DVS*REAL(I1-1) 
-         I2 = (V2C-V1S)/DVS + 0.01 
-         NPTC = I2-I1+3 
-         IF (NPTC.GT.NPTS) NPTC=NPTS+4 
-         V2C = V1C + DVS*REAL(NPTC-1) 
-!                                                                       
-         DO 10 J = 1, NPTC 
-            I = I1+(J-1) 
-            C(J) = 0. 
-            IF ((I.GE.1).AND.(I.LE.NPTS)) THEN 
-               C(J) = S(I) 
-            ENDIF 
-   10    END DO 
-!                                                                       
-         RETURN 
-!                                                                       
-      END                                           
-!                                                                       
-!     --------------------------------------------------------------    
-!                                                                       
-      BLOCK DATA BFH2O 
-!                                                                       
-      IMPLICIT REAL*8           (V) 
-!                                                                       
-!               11/18/02                                                
-!               UNITS OF (CM**3/MOL)*1.E-20                             
-!                                                                       
+     &  3.511e-11/
+!
+      END
+!
+!     --------------------------------------------------------------
+!
+      SUBROUTINE FRN296 (V1C,V2C,DVC,NPTC,C)
+!
+      Use params, ONLY: n_absrb
+      IMPLICIT REAL*8           (V)
+!
+      COMMON /ABSORB/ V1ABS,V2ABS,DVABS,NPTABS,ABSRB(n_absrb)
+      COMMON /FH2O/ V1S,V2S,DVS,NPTS,S(2003)
+      DIMENSION C(*)
+!
+      DVC = DVS
+      V1C = V1ABS-DVC
+      V2C = V2ABS+DVC
+!
+      IF (V1C.LT.V1S) then
+         I1 = -1
+         else
+         I1 = (V1C-V1S)/DVS + 0.01
+         end if
+!
+         V1C = V1S + DVS*REAL(I1-1)
+         I2 = (V2C-V1S)/DVS + 0.01
+         NPTC = I2-I1+3
+         IF (NPTC.GT.NPTS) NPTC=NPTS+4
+         V2C = V1C + DVS*REAL(NPTC-1)
+!
+         DO 10 J = 1, NPTC
+            I = I1+(J-1)
+            C(J) = 0.
+            IF ((I.GE.1).AND.(I.LE.NPTS)) THEN
+               C(J) = S(I)
+            ENDIF
+   10    END DO
+!
+         RETURN
+!
+      END
+!
+!     --------------------------------------------------------------
+!
+      BLOCK DATA BFH2O
+!
+      IMPLICIT REAL*8           (V)
+!
+!               11/18/02
+!               UNITS OF (CM**3/MOL)*1.E-20
+!
       COMMON /FH2O/ V1,V2,DV,NPT,                                       &
      &              F0000( 2),F0001(50),F0051(50),F0101(50),F0151(50),  &
      &              F0201(50),F0251(50),F0301(50),F0351(50),F0401(50),  &
@@ -2461,12 +2461,12 @@ SUBROUTINE CONTNM(JRAD)
      &              F1201(50),F1251(50),F1301(50),F1351(50),F1401(50),  &
      &              F1451(50),F1501(50),F1551(50),F1601(50),F1651(50),  &
      &              F1701(50),F1751(50),F1801(50),F1851(50),F1901(50),  &
-     &              F1951(50), F2001(1)                                 
-!                                                                       
-       DATA V1,V2,DV,NPT / -20.0, 20000.0, 10.0, 2003/ 
-!                                                                       
+     &              F1951(50), F2001(1)
+!
+       DATA V1,V2,DV,NPT / -20.0, 20000.0, 10.0, 2003/
+!
       DATA F0000/                                                       &
-     &      1.205e-02, 1.126e-02/                                       
+     &      1.205e-02, 1.126e-02/
       DATA F0001/                                                       &
      &  1.095e-02,  1.126e-02,  1.205e-02,  1.322e-02,  1.430e-02,      &
      &  1.506e-02,  1.548e-02,  1.534e-02,  1.486e-02,  1.373e-02,      &
@@ -2477,7 +2477,7 @@ SUBROUTINE CONTNM(JRAD)
      &  2.477e-04,  1.997e-04,  1.596e-04,  1.331e-04,  1.061e-04,      &
      &  8.942e-05,  7.168e-05,  5.887e-05,  4.848e-05,  3.817e-05,      &
      &  3.170e-05,  2.579e-05,  2.162e-05,  1.768e-05,  1.490e-05,      &
-     &  1.231e-05,  1.013e-05,  8.555e-06,  7.328e-06,  6.148e-06/      
+     &  1.231e-05,  1.013e-05,  8.555e-06,  7.328e-06,  6.148e-06/
       DATA F0051/                                                       &
      &  5.207e-06,  4.387e-06,  3.741e-06,  3.220e-06,  2.753e-06,      &
      &  2.346e-06,  1.985e-06,  1.716e-06,  1.475e-06,  1.286e-06,      &
@@ -2488,7 +2488,7 @@ SUBROUTINE CONTNM(JRAD)
      &  6.441e-08,  5.643e-08,  4.940e-08,  4.276e-08,  3.703e-08,      &
      &  3.227e-08,  2.825e-08,  2.478e-08,  2.174e-08,  1.898e-08,      &
      &  1.664e-08,  1.458e-08,  1.278e-08,  1.126e-08,  9.891e-09,      &
-     &  8.709e-09,  7.652e-09,  6.759e-09,  5.975e-09,  5.310e-09/      
+     &  8.709e-09,  7.652e-09,  6.759e-09,  5.975e-09,  5.310e-09/
       DATA F0101/                                                       &
      &  4.728e-09,  4.214e-09,  3.792e-09,  3.463e-09,  3.226e-09,      &
      &  2.992e-09,  2.813e-09,  2.749e-09,  2.809e-09,  2.913e-09,      &
@@ -2499,7 +2499,7 @@ SUBROUTINE CONTNM(JRAD)
      &  1.889e-07,  2.589e-07,  3.590e-07,  4.971e-07,  7.156e-07,      &
      &  9.983e-07,  1.381e-06,  1.929e-06,  2.591e-06,  3.453e-06,      &
      &  4.570e-06,  5.930e-06,  7.552e-06,  9.556e-06,  1.183e-05,      &
-     &  1.425e-05,  1.681e-05,  1.978e-05,  2.335e-05,  2.668e-05/      
+     &  1.425e-05,  1.681e-05,  1.978e-05,  2.335e-05,  2.668e-05/
    DATA F0151/                                                          &
      &  3.022e-05,  3.371e-05,  3.715e-05,  3.967e-05,  4.060e-05,      &
      &  4.010e-05,  3.809e-05,  3.491e-05,  3.155e-05,  2.848e-05,      &
@@ -2510,7 +2510,7 @@ SUBROUTINE CONTNM(JRAD)
      &  6.110E-06,  5.040E-06,  4.230E-06,  3.456E-06,  2.903E-06,      &
      &  2.486E-06,  2.039E-06,  1.672E-06,  1.285E-06,  1.054E-06,      &
      &  8.302E-07,  6.667E-07,  5.503E-07,  4.562E-07,  3.948E-07,      &
-     &  3.198E-07,  2.586E-07,  2.225E-07,  1.807E-07,  1.530E-07/      
+     &  3.198E-07,  2.586E-07,  2.225E-07,  1.807E-07,  1.530E-07/
       DATA F0201/                                                       &
      &  1.294E-07,  1.126E-07,  9.604E-08,  7.850E-08,  6.813E-08,      &
      &  5.583E-08,  4.690E-08,  3.996E-08,  3.373E-08,  2.930E-08,      &
@@ -2521,7 +2521,7 @@ SUBROUTINE CONTNM(JRAD)
      &  1.201E-09,  1.027E-09,  8.807E-10,  7.521E-10,  6.436E-10,      &
      &  5.509E-10,  4.729E-10,  4.055E-10,  3.490E-10,  3.006E-10,      &
      &  2.599E-10,  2.246E-10,  1.942E-10,  1.685E-10,  1.464E-10,      &
-     &  1.273E-10,  1.115E-10,  9.794E-11,  8.729E-11,  7.893E-11/      
+     &  1.273E-10,  1.115E-10,  9.794E-11,  8.729E-11,  7.893E-11/
       DATA F0251/                                                       &
      &  7.313E-11,  7.069E-11,  7.190E-11,  7.828E-11,  9.295E-11,      &
      &  1.174E-10,  1.578E-10,  2.184E-10,  3.053E-10,  4.212E-10,      &
@@ -2543,7 +2543,7 @@ SUBROUTINE CONTNM(JRAD)
      &  6.438E-08,  5.706E-08,  5.132E-08,  4.815E-08,  4.736E-08,      &
      &  4.709E-08,  4.918E-08,  5.227E-08,  5.603E-08,  6.023E-08,      &
      &  6.567E-08,  7.403E-08,  8.695E-08,  9.929E-08,  1.163E-07,      &
-     &  1.379E-07,  1.658E-07,  2.010E-07,  2.425E-07,  2.920E-07/      
+     &  1.379E-07,  1.658E-07,  2.010E-07,  2.425E-07,  2.920E-07/
       DATA F0351/                                                       &
      &  3.562E-07,  4.274E-07,  5.173E-07,  6.285E-07,  7.787E-07,      &
      &  9.563E-07,  1.194E-06,  1.517E-06,  1.934E-06,  2.511E-06,      &
@@ -2565,7 +2565,7 @@ SUBROUTINE CONTNM(JRAD)
      &  4.560E-09,  3.940E-09,  3.400E-09,  2.930E-09,  2.510E-09,      &
      &  2.150E-09,  1.840E-09,  1.570E-09,  1.340E-09,  1.140E-09,      &
      &  9.660E-10,  8.190E-10,  6.930E-10,  5.860E-10,  4.950E-10,      &
-     &  4.190E-10,  3.560E-10,  3.060E-10,  2.670E-10,  2.410E-10/ 
+     &  4.190E-10,  3.560E-10,  3.060E-10,  2.670E-10,  2.410E-10/
       DATA F0451/                                                       &
      &  2.260E-10,  2.250E-10,  2.360E-10,  2.570E-10,  2.840E-10,      &
      &  3.180E-10,  3.490E-10,  3.710E-10,  3.810E-10,  3.840E-10,      &
@@ -2576,7 +2576,7 @@ SUBROUTINE CONTNM(JRAD)
      &  2.690E-10,  2.790E-10,  2.950E-10,  3.130E-10,  3.340E-10,      &
      &  3.570E-10,  3.840E-10,  4.200E-10,  4.660E-10,  5.210E-10,      &
      &  5.960E-10,  6.890E-10,  8.010E-10,  9.320E-10,  1.080E-09,      &
-     &  1.240E-09,  1.450E-09,  1.710E-09,  2.010E-09,  2.360E-09/ 
+     &  1.240E-09,  1.450E-09,  1.710E-09,  2.010E-09,  2.360E-09/
       DATA F0501/                                                       &
      &  2.820E-09,  3.380E-09,  4.010E-09,  4.790E-09,  5.740E-09,      &
      &  6.920E-09,  8.338E-09,  1.015E-08,  1.246E-08,  1.512E-08,      &
@@ -2587,7 +2587,7 @@ SUBROUTINE CONTNM(JRAD)
      &  7.530E-07,  7.940E-07,  8.460E-07,  8.950E-07,  9.360E-07,      &
      &  9.840E-07,  1.020E-06,  1.050E-06,  1.060E-06,  1.070E-06,      &
      &  1.070E-06,  1.040E-06,  9.790E-07,  8.800E-07,  7.660E-07,      &
-     &  6.380E-07,  5.142E-07,  3.982E-07,  2.940E-07,  2.177E-07/ 
+     &  6.380E-07,  5.142E-07,  3.982E-07,  2.940E-07,  2.177E-07/
       DATA F0551/                                                       &
      &  1.612E-07,  1.185E-07,  8.966E-08,  6.735E-08,  5.219E-08,      &
      &  4.140E-08,  3.403E-08,  2.811E-08,  2.358E-08,  1.969E-08,      &
@@ -2598,7 +2598,7 @@ SUBROUTINE CONTNM(JRAD)
      &  1.330E-09,  1.160E-09,  1.030E-09,  9.010E-10,  7.860E-10,      &
      &  6.880E-10,  6.020E-10,  5.250E-10,  4.570E-10,  3.960E-10,      &
      &  3.440E-10,  2.980E-10,  2.570E-10,  2.210E-10,  1.900E-10,      &
-     &  1.630E-10,  1.400E-10,  1.210E-10,  1.040E-10,  9.090E-11/ 
+     &  1.630E-10,  1.400E-10,  1.210E-10,  1.040E-10,  9.090E-11/
       DATA F0601/                                                       &
      &  7.960E-11,  7.050E-11,  6.300E-11,  5.670E-11,  5.090E-11,      &
      &  4.550E-11,  4.040E-11,  3.550E-11,  3.090E-11,  2.640E-11,      &
@@ -2609,7 +2609,7 @@ SUBROUTINE CONTNM(JRAD)
      &  8.300E-12,  7.890E-12,  7.590E-12,  7.500E-12,  7.630E-12,      &
      &  8.060E-12,  8.890E-12,  1.000E-11,  1.140E-11,  1.280E-11,      &
      &  1.450E-11,  1.640E-11,  1.870E-11,  2.120E-11,  2.440E-11,      &
-     &  2.850E-11,  3.310E-11,  3.830E-11,  4.460E-11,  5.230E-11/ 
+     &  2.850E-11,  3.310E-11,  3.830E-11,  4.460E-11,  5.230E-11/
       DATA F0651/                                                       &
      &  6.150E-11,  7.350E-11,  8.840E-11,  1.070E-10,  1.290E-10,      &
      &  1.590E-10,  1.990E-10,  2.490E-10,  3.120E-10,  3.910E-10,      &
@@ -2620,7 +2620,7 @@ SUBROUTINE CONTNM(JRAD)
      &  2.770E-08,  2.850E-08,  2.860E-08,  2.780E-08,  2.720E-08,      &
      &  2.740E-08,  2.830E-08,  3.010E-08,  3.220E-08,  3.520E-08,      &
      &  3.780E-08,  4.030E-08,  4.210E-08,  4.330E-08,  4.390E-08,      &
-     &  4.340E-08,  4.250E-08,  4.070E-08,  3.880E-08,  3.670E-08/ 
+     &  4.340E-08,  4.250E-08,  4.070E-08,  3.880E-08,  3.670E-08/
       DATA F0701/                                                       &
      &  3.560E-08,  3.520E-08,  3.670E-08,  4.020E-08,  4.640E-08,      &
      &  5.630E-08,  6.890E-08,  8.820E-08,  1.110E-07,  1.410E-07,      &
@@ -2631,7 +2631,7 @@ SUBROUTINE CONTNM(JRAD)
      &  5.900E-07,  6.120E-07,  6.150E-07,  5.810E-07,  5.210E-07,      &
      &  4.510E-07,  3.690E-07,  2.890E-07,  2.140E-07,  1.550E-07,      &
      &  1.110E-07,  7.780E-08,  5.460E-08,  3.930E-08,  2.930E-08,      &
-     &  2.260E-08,  1.820E-08,  1.520E-08,  1.310E-08,  1.150E-08/ 
+     &  2.260E-08,  1.820E-08,  1.520E-08,  1.310E-08,  1.150E-08/
       DATA F0751/                                                       &
      &  1.020E-08,  9.010E-09,  7.950E-09,  7.040E-09,  6.200E-09,      &
      &  5.490E-09,  4.860E-09,  4.340E-09,  3.880E-09,  3.460E-09,      &
@@ -2642,7 +2642,7 @@ SUBROUTINE CONTNM(JRAD)
      &  1.920E-10,  1.660E-10,  1.430E-10,  1.240E-10,  1.060E-10,      &
      &  9.100E-11,  7.790E-11,  6.650E-11,  5.680E-11,  4.840E-11,      &
      &  4.110E-11,  3.510E-11,  2.990E-11,  2.540E-11,  2.170E-11,      &
-     &  1.860E-11,  1.590E-11,  1.370E-11,  1.180E-11,  1.040E-11/ 
+     &  1.860E-11,  1.590E-11,  1.370E-11,  1.180E-11,  1.040E-11/
       DATA F0801/                                                       &
      &  9.240E-12,  8.390E-12,  7.860E-12,  7.700E-12,  7.850E-12,      &
      &  8.410E-12,  9.620E-12,  1.160E-11,  1.470E-11,  1.940E-11,      &
@@ -2653,7 +2653,7 @@ SUBROUTINE CONTNM(JRAD)
      &  6.250E-10,  6.650E-10,  6.910E-10,  6.980E-10,  6.830E-10,      &
      &  6.670E-10,  6.570E-10,  6.600E-10,  6.840E-10,  7.390E-10,      &
      &  8.040E-10,  8.730E-10,  9.440E-10,  9.950E-10,  1.030E-09,      &
-     &  1.010E-09,  9.800E-10,  9.320E-10,  8.670E-10,  7.990E-10/ 
+     &  1.010E-09,  9.800E-10,  9.320E-10,  8.670E-10,  7.990E-10/
       DATA F0851/                                                       &
      &  7.290E-10,  6.670E-10,  6.140E-10,  5.780E-10,  5.650E-10,      &
      &  5.650E-10,  5.880E-10,  6.430E-10,  7.500E-10,  9.160E-10,      &
@@ -2664,7 +2664,7 @@ SUBROUTINE CONTNM(JRAD)
      &  2.340E-08,  2.440E-08,  2.550E-08,  2.670E-08,  2.760E-08,      &
      &  2.810E-08,  2.900E-08,  2.940E-08,  2.910E-08,  2.770E-08,      &
      &  2.520E-08,  2.210E-08,  1.840E-08,  1.490E-08,  1.150E-08,      &
-     &  8.640E-09,  6.440E-09,  4.790E-09,  3.640E-09,  2.750E-09/ 
+     &  8.640E-09,  6.440E-09,  4.790E-09,  3.640E-09,  2.750E-09/
       DATA F0901/                                                       &
      &  2.140E-09,  1.750E-09,  1.480E-09,  1.300E-09,  1.160E-09,      &
      &  1.050E-09,  9.460E-10,  8.550E-10,  7.660E-10,  6.790E-10,      &
@@ -2675,7 +2675,7 @@ SUBROUTINE CONTNM(JRAD)
      &  3.540E-11,  3.040E-11,  2.620E-11,  2.300E-11,  1.970E-11,      &
      &  1.710E-11,  1.480E-11,  1.280E-11,  1.100E-11,  9.440E-12,      &
      &  8.080E-12,  6.940E-12,  5.930E-12,  5.060E-12,  4.310E-12,      &
-     &  3.660E-12,  3.120E-12,  2.670E-12,  2.280E-12,  1.950E-12/ 
+     &  3.660E-12,  3.120E-12,  2.670E-12,  2.280E-12,  1.950E-12/
       DATA F0951/                                                       &
      &  1.670E-12,  1.430E-12,  1.220E-12,  1.050E-12,  9.060E-13,      &
      &  7.860E-13,  6.870E-13,  6.090E-13,  5.500E-13,  5.070E-13,      &
@@ -2686,7 +2686,7 @@ SUBROUTINE CONTNM(JRAD)
      &  1.450E-11,  1.420E-11,  1.400E-11,  1.410E-11,  1.430E-11,      &
      &  1.510E-11,  1.650E-11,  1.830E-11,  2.070E-11,  2.250E-11,      &
      &  2.380E-11,  2.420E-11,  2.380E-11,  2.270E-11,  2.100E-11,      &
-     &  1.980E-11,  1.890E-11,  1.790E-11,  1.720E-11,  1.620E-11/ 
+     &  1.980E-11,  1.890E-11,  1.790E-11,  1.720E-11,  1.620E-11/
       DATA F1001/                                                       &
      &  1.540E-11,  1.430E-11,  1.350E-11,  1.350E-11,  1.420E-11,      &
      &  1.570E-11,  1.770E-11,  2.060E-11,  2.420E-11,  2.850E-11,      &
@@ -2697,7 +2697,7 @@ SUBROUTINE CONTNM(JRAD)
      &  1.070E-09,  1.120E-09,  1.210E-09,  1.330E-09,  1.480E-09,      &
      &  1.640E-09,  1.790E-09,  1.940E-09,  2.050E-09,  2.170E-09,      &
      &  2.280E-09,  2.400E-09,  2.530E-09,  2.740E-09,  3.030E-09,      &
-     &  3.420E-09,  3.870E-09,  4.470E-09,  5.190E-09,  5.910E-09/ 
+     &  3.420E-09,  3.870E-09,  4.470E-09,  5.190E-09,  5.910E-09/
       DATA F1051/                                                       &
      &  6.770E-09,  7.500E-09,  8.280E-09,  8.830E-09,  9.360E-09,      &
      &  9.910E-09,  1.030E-08,  1.090E-08,  1.140E-08,  1.170E-08,      &
@@ -2708,7 +2708,7 @@ SUBROUTINE CONTNM(JRAD)
      &  8.720E-10,  7.510E-10,  6.760E-10,  6.270E-10,  6.000E-10,      &
      &  5.990E-10,  6.260E-10,  6.860E-10,  7.580E-10,  8.490E-10,      &
      &  9.530E-10,  1.050E-09,  1.140E-09,  1.200E-09,  1.250E-09,      &
-     &  1.280E-09,  1.300E-09,  1.310E-09,  1.320E-09,  1.330E-09/ 
+     &  1.280E-09,  1.300E-09,  1.310E-09,  1.320E-09,  1.330E-09/
       DATA F1101/                                                       &
      &  1.330E-09,  1.310E-09,  1.270E-09,  1.230E-09,  1.190E-09,      &
      &  1.200E-09,  1.250E-09,  1.330E-09,  1.420E-09,  1.480E-09,      &
@@ -2719,7 +2719,7 @@ SUBROUTINE CONTNM(JRAD)
      &  1.820E-11,  1.590E-11,  1.360E-11,  1.180E-11,  1.030E-11,      &
      &  9.010E-12,  7.940E-12,  6.900E-12,  6.020E-12,  5.260E-12,      &
      &  4.620E-12,  4.060E-12,  3.550E-12,  3.130E-12,  2.760E-12,      &
-     &  2.430E-12,  2.150E-12,  1.900E-12,  1.680E-12,  1.490E-12/ 
+     &  2.430E-12,  2.150E-12,  1.900E-12,  1.680E-12,  1.490E-12/
       DATA F1151/                                                       &
      &  1.320E-12,  1.170E-12,  1.040E-12,  9.350E-13,  8.470E-13,      &
      &  7.790E-13,  7.300E-13,  6.960E-13,  6.880E-13,  7.110E-13,      &
@@ -2730,7 +2730,7 @@ SUBROUTINE CONTNM(JRAD)
      &  1.410E-11,  1.490E-11,  1.640E-11,  1.860E-11,  2.110E-11,      &
      &  2.380E-11,  2.650E-11,  2.890E-11,  3.040E-11,  3.140E-11,      &
      &  3.290E-11,  3.430E-11,  3.600E-11,  3.910E-11,  4.440E-11,      &
-     &  5.210E-11,  6.430E-11,  8.180E-11,  1.060E-10,  1.400E-10/ 
+     &  5.210E-11,  6.430E-11,  8.180E-11,  1.060E-10,  1.400E-10/
       DATA F1201/                                                       &
      &  1.780E-10,  2.240E-10,  2.770E-10,  3.350E-10,  3.950E-10,      &
      &  4.470E-10,  4.920E-10,  5.200E-10,  5.390E-10,  5.460E-10,      &
@@ -2741,7 +2741,7 @@ SUBROUTINE CONTNM(JRAD)
      &  1.790E-10,  1.360E-10,  1.050E-10,  8.320E-11,  6.890E-11,      &
      &  5.890E-11,  5.140E-11,  4.600E-11,  4.190E-11,  3.940E-11,      &
      &  3.900E-11,  4.070E-11,  4.390E-11,  4.820E-11,  5.290E-11,      &
-     &  5.750E-11,  6.090E-11,  6.280E-11,  6.310E-11,  6.190E-11/ 
+     &  5.750E-11,  6.090E-11,  6.280E-11,  6.310E-11,  6.190E-11/
       DATA F1251/                                                       &
      &  6.040E-11,  5.850E-11,  5.710E-11,  5.680E-11,  5.680E-11,      &
      &  5.640E-11,  5.580E-11,  5.510E-11,  5.480E-11,  5.450E-11,      &
@@ -2752,7 +2752,7 @@ SUBROUTINE CONTNM(JRAD)
      &  1.110E-12,  9.580E-13,  8.320E-13,  7.310E-13,  6.430E-13,      &
      &  5.620E-13,  4.890E-13,  4.270E-13,  3.730E-13,  3.250E-13,      &
      &  2.840E-13,  2.500E-13,  2.210E-13,  1.950E-13,  1.720E-13,      &
-     &  1.520E-13,  1.340E-13,  1.180E-13,  1.050E-13,  9.260E-14/ 
+     &  1.520E-13,  1.340E-13,  1.180E-13,  1.050E-13,  9.260E-14/
       DATA F1301/                                                       &
      &  8.210E-14,  7.290E-14,  6.480E-14,  5.770E-14,  5.150E-14,      &
      &  4.620E-14,  4.170E-14,  3.790E-14,  3.490E-14,  3.260E-14,      &
@@ -2763,7 +2763,7 @@ SUBROUTINE CONTNM(JRAD)
      &  4.940E-13,  5.480E-13,  6.110E-13,  6.770E-13,  7.560E-13,      &
      &  8.490E-13,  9.590E-13,  1.090E-12,  1.270E-12,  1.480E-12,      &
      &  1.730E-12,  2.080E-12,  2.480E-12,  3.030E-12,  3.880E-12,      &
-     &  4.860E-12,  6.250E-12,  8.050E-12,  1.040E-11,  1.370E-11/ 
+     &  4.860E-12,  6.250E-12,  8.050E-12,  1.040E-11,  1.370E-11/
       DATA F1351/                                                       &
      &  1.750E-11,  2.200E-11,  2.750E-11,  3.350E-11,  4.080E-11,      &
      &  4.790E-11,  5.440E-11,  5.990E-11,  6.460E-11,  6.820E-11,      &
@@ -2774,7 +2774,7 @@ SUBROUTINE CONTNM(JRAD)
      &  5.290E-10,  5.300E-10,  5.220E-10,  5.160E-10,  5.180E-10,      &
      &  5.350E-10,  5.680E-10,  6.070E-10,  6.420E-10,  6.600E-10,      &
      &  6.390E-10,  5.830E-10,  5.030E-10,  4.110E-10,  3.200E-10,      &
-     &  2.350E-10,  1.700E-10,  1.200E-10,  8.540E-11,  6.310E-11/ 
+     &  2.350E-10,  1.700E-10,  1.200E-10,  8.540E-11,  6.310E-11/
       DATA F1401/                                                       &
      &  4.920E-11,  4.010E-11,  3.380E-11,  2.970E-11,  2.710E-11,      &
      &  2.550E-11,  2.450E-11,  2.420E-11,  2.430E-11,  2.490E-11,      &
@@ -2785,7 +2785,7 @@ SUBROUTINE CONTNM(JRAD)
      &  9.390E-11,  9.140E-11,  8.950E-11,  8.970E-11,  9.300E-11,      &
      &  9.910E-11,  1.060E-10,  1.120E-10,  1.140E-10,  1.100E-10,      &
      &  1.000E-10,  8.680E-11,  7.140E-11,  5.610E-11,  4.170E-11,      &
-     &  3.050E-11,  2.180E-11,  1.550E-11,  1.110E-11,  8.290E-12/ 
+     &  3.050E-11,  2.180E-11,  1.550E-11,  1.110E-11,  8.290E-12/
       DATA F1451/                                                       &
      &  6.380E-12,  5.070E-12,  4.200E-12,  3.640E-12,  3.280E-12,      &
      &  3.030E-12,  2.900E-12,  2.780E-12,  2.670E-12,  2.520E-12,      &
@@ -2796,7 +2796,7 @@ SUBROUTINE CONTNM(JRAD)
      &  9.310E-14,  8.350E-14,  7.550E-14,  6.890E-14,  6.360E-14,      &
      &  5.960E-14,  5.690E-14,  5.560E-14,  5.600E-14,  5.860E-14,      &
      &  6.420E-14,  7.330E-14,  8.850E-14,  1.140E-13,  1.490E-13,      &
-     &  1.970E-13,  2.690E-13,  3.610E-13,  4.790E-13,  6.040E-13/ 
+     &  1.970E-13,  2.690E-13,  3.610E-13,  4.790E-13,  6.040E-13/
       DATA F1501/                                                       &
      &  7.510E-13,  9.200E-13,  1.090E-12,  1.260E-12,  1.390E-12,      &
      &  1.530E-12,  1.640E-12,  1.710E-12,  1.770E-12,  1.880E-12,      &
@@ -2807,7 +2807,7 @@ SUBROUTINE CONTNM(JRAD)
      &  3.370E-11,  3.490E-11,  3.690E-11,  3.820E-11,  3.920E-11,      &
      &  4.050E-11,  4.170E-11,  4.300E-11,  4.420E-11,  4.610E-11,      &
      &  4.780E-11,  4.830E-11,  4.690E-11,  4.310E-11,  3.810E-11,      &
-     &  3.210E-11,  2.610E-11,  2.040E-11,  1.560E-11,  1.200E-11/ 
+     &  3.210E-11,  2.610E-11,  2.040E-11,  1.560E-11,  1.200E-11/
       DATA F1551/                                                       &
      &  9.200E-12,  7.100E-12,  5.650E-12,  4.630E-12,  3.860E-12,      &
      &  3.270E-12,  2.830E-12,  2.480E-12,  2.220E-12,  2.030E-12,      &
@@ -2818,7 +2818,7 @@ SUBROUTINE CONTNM(JRAD)
      &  6.710E-12,  6.930E-12,  7.030E-12,  7.050E-12,  7.050E-12,      &
      &  7.160E-12,  7.370E-12,  7.790E-12,  8.300E-12,  8.650E-12,      &
      &  8.760E-12,  8.320E-12,  7.510E-12,  6.480E-12,  5.310E-12,      &
-     &  4.180E-12,  3.070E-12,  2.220E-12,  1.570E-12,  1.090E-12/ 
+     &  4.180E-12,  3.070E-12,  2.220E-12,  1.570E-12,  1.090E-12/
       DATA F1601/                                                       &
      &  7.390E-13,  5.110E-13,  3.660E-13,  2.680E-13,  2.000E-13,      &
      &  1.560E-13,  1.270E-13,  1.060E-13,  9.050E-14,  7.850E-14,      &
@@ -2829,7 +2829,7 @@ SUBROUTINE CONTNM(JRAD)
      &  1.150E-14,  1.160E-14,  1.190E-14,  1.250E-14,  1.340E-14,      &
      &  1.450E-14,  1.600E-14,  1.780E-14,  2.010E-14,  2.270E-14,      &
      &  2.590E-14,  2.960E-14,  3.400E-14,  3.920E-14,  4.530E-14,      &
-     &  5.240E-14,  6.080E-14,  7.090E-14,  8.310E-14,  9.810E-14/ 
+     &  5.240E-14,  6.080E-14,  7.090E-14,  8.310E-14,  9.810E-14/
       DATA F1651/                                                       &
      &  1.170E-13,  1.420E-13,  1.780E-13,  2.250E-13,  2.790E-13,      &
      &  3.500E-13,  4.400E-13,  5.530E-13,  6.920E-13,  8.920E-13,      &
@@ -2840,7 +2840,7 @@ SUBROUTINE CONTNM(JRAD)
      &  4.750E-11,  5.110E-11,  5.370E-11,  5.560E-11,  5.610E-11,      &
      &  5.670E-11,  5.680E-11,  5.780E-11,  5.860E-11,  5.910E-11,      &
      &  5.930E-11,  5.910E-11,  5.920E-11,  5.930E-11,  5.940E-11,      &
-     &  5.870E-11,  5.650E-11,  5.210E-11,  4.540E-11,  3.820E-11/ 
+     &  5.870E-11,  5.650E-11,  5.210E-11,  4.540E-11,  3.820E-11/
       DATA F1701/                                                       &
      &  3.070E-11,  2.370E-11,  1.780E-11,  1.320E-11,  9.820E-12,      &
      &  7.340E-12,  5.590E-12,  4.330E-12,  3.420E-12,  2.740E-12,      &
@@ -2851,7 +2851,7 @@ SUBROUTINE CONTNM(JRAD)
      &  1.860E-12,  2.170E-12,  2.520E-12,  2.920E-12,  3.360E-12,      &
      &  3.830E-12,  4.300E-12,  4.830E-12,  5.370E-12,  5.810E-12,      &
      &  6.230E-12,  6.480E-12,  6.770E-12,  6.990E-12,  7.170E-12,      &
-     &  7.470E-12,  7.660E-12,  7.770E-12,  7.770E-12,  7.720E-12/ 
+     &  7.470E-12,  7.660E-12,  7.770E-12,  7.770E-12,  7.720E-12/
       DATA F1751/                                                       &
      &  7.770E-12,  7.970E-12,  8.400E-12,  8.900E-12,  9.420E-12,      &
      &  9.710E-12,  9.550E-12,  8.850E-12,  7.680E-12,  6.390E-12,      &
@@ -2862,7 +2862,7 @@ SUBROUTINE CONTNM(JRAD)
      &  6.060E-14,  5.020E-14,  4.220E-14,  3.610E-14,  3.130E-14,      &
      &  2.750E-14,  2.450E-14,  2.190E-14,  1.970E-14,  1.790E-14,      &
      &  1.630E-14,  1.490E-14,  1.380E-14,  1.290E-14,  1.220E-14,      &
-     &  1.170E-14,  1.140E-14,  1.140E-14,  1.180E-14,  1.260E-14/ 
+     &  1.170E-14,  1.140E-14,  1.140E-14,  1.180E-14,  1.260E-14/
       DATA F1801/                                                       &
      &  1.410E-14,  1.650E-14,  2.040E-14,  2.650E-14,  3.590E-14,      &
      &  4.870E-14,  6.410E-14,  8.470E-14,  1.070E-13,  1.320E-13,      &
@@ -2873,7 +2873,7 @@ SUBROUTINE CONTNM(JRAD)
      &  3.990E-12,  4.220E-12,  4.360E-12,  4.350E-12,  4.250E-12,      &
      &  4.100E-12,  3.990E-12,  3.950E-12,  3.870E-12,  3.830E-12,      &
      &  3.820E-12,  3.890E-12,  3.980E-12,  4.060E-12,  4.190E-12,      &
-     &  4.220E-12,  4.170E-12,  3.900E-12,  3.500E-12,  3.030E-12/ 
+     &  4.220E-12,  4.170E-12,  3.900E-12,  3.500E-12,  3.030E-12/
       DATA F1851/                                                       &
      &  2.490E-12,  1.990E-12,  1.510E-12,  1.150E-12,  8.680E-13,      &
      &  6.530E-13,  4.890E-13,  3.780E-13,  2.920E-13,  2.250E-13,      &
@@ -2884,7 +2884,7 @@ SUBROUTINE CONTNM(JRAD)
      &  4.860E-14,  6.250E-14,  8.150E-14,  1.010E-13,  1.240E-13,      &
      &  1.490E-13,  1.730E-13,  1.990E-13,  2.220E-13,  2.440E-13,      &
      &  2.610E-13,  2.720E-13,  2.850E-13,  2.940E-13,  3.100E-13,      &
-     &  3.290E-13,  3.500E-13,  3.620E-13,  3.660E-13,  3.700E-13/ 
+     &  3.290E-13,  3.500E-13,  3.620E-13,  3.660E-13,  3.700E-13/
       DATA F1901/                                                       &
      &  3.720E-13,  3.830E-13,  4.010E-13,  4.260E-13,  4.510E-13,      &
      &  4.640E-13,  4.490E-13,  4.050E-13,  3.450E-13,  2.790E-13,      &
@@ -2895,7 +2895,7 @@ SUBROUTINE CONTNM(JRAD)
      &  4.810E-15,  5.060E-15,  5.410E-15,  5.870E-15,  6.440E-15,      &
      &  7.150E-15,  8.020E-15,  9.100E-15,  1.050E-14,  1.220E-14,      &
      &  1.460E-14,  1.800E-14,  2.280E-14,  2.980E-14,  4.020E-14,      &
-     &  5.530E-14,  7.810E-14,  1.040E-13,  1.310E-13,  1.580E-13/ 
+     &  5.530E-14,  7.810E-14,  1.040E-13,  1.310E-13,  1.580E-13/
       DATA F1951/                                                       &
      &  1.890E-13,  2.200E-13,  2.540E-13,  3.010E-13,  3.670E-13,      &
      &  4.430E-13,  5.420E-13,  6.850E-13,  8.440E-13,  1.040E-12,      &
@@ -2906,80 +2906,80 @@ SUBROUTINE CONTNM(JRAD)
      &  7.540E-12,  8.060E-12,  8.620E-12,  8.890E-12,  8.680E-12,      &
      &  8.040E-12,  7.000E-12,  5.830E-12,  4.580E-12,  3.490E-12,      &
      &  2.710E-12,  2.100E-12,  1.650E-12,  1.310E-12,  1.060E-12,      &
-     &  8.350E-13,  6.450E-13,  5.020E-13,  3.940E-13,  3.090E-13/ 
+     &  8.350E-13,  6.450E-13,  5.020E-13,  3.940E-13,  3.090E-13/
       DATA F2001/                                                       &
      &  2.460E-13/
-!                                                                       
-      END                                           
-!                                                                       
-!     --------------------------------------------------------------    
-!                                                                       
-      SUBROUTINE FRNCO2 (V1C,V2C,DVC,NPTC,C,tave) 
-!                                                                       
-      Use params, ONLY: n_absrb 
-      IMPLICIT REAL*8           (V) 
-!                                                                       
-      dimension tdep_bandhead(1196:1220) 
-                                                                        
-!     Temparature dependence coefficients for wavenumbers between 2386  
-!     and 2434. Computed based on (line-coupled) continuum coefficients 
-!     at 250K and 296K, set to unity at T_eff (determined by invariance 
-!     of calculations in this region for IASI low PWV cases).           
+!
+      END
+!
+!     --------------------------------------------------------------
+!
+      SUBROUTINE FRNCO2 (V1C,V2C,DVC,NPTC,C,tave)
+!
+      Use params, ONLY: n_absrb
+      IMPLICIT REAL*8           (V)
+!
+      dimension tdep_bandhead(1196:1220)
+
+!     Temparature dependence coefficients for wavenumbers between 2386
+!     and 2434. Computed based on (line-coupled) continuum coefficients
+!     at 250K and 296K, set to unity at T_eff (determined by invariance
+!     of calculations in this region for IASI low PWV cases).
       data (tdep_bandhead(i),i=1196,1220)/                              &
      &    1.44E-01,3.61E-01,5.71E-01,7.63E-01,8.95E-01,                 &
      &    9.33E-01,8.75E-01,7.30E-01,5.47E-01,3.79E-01,                 &
      &    2.55E-01,1.78E-01,1.34E-01,1.07E-01,9.06E-02,                 &
      &    7.83E-02,6.83E-02,6.00E-02,5.30E-02,4.72E-02,                 &
-     &    4.24E-02,3.83E-02,3.50E-02,3.23E-02,3.01E-02/                 
-      data t_eff/246./ 
-                                                                        
-      COMMON /ABSORB/ V1ABS,V2ABS,DVABS,NPTABS,ABSRB(n_absrb) 
-      COMMON /FCO2/ V1S,V2S,DVS,NPTS,S(5003) 
-      DIMENSION C(*) 
-!                                                                       
-      trat = tave/t_eff 
-                                                                        
-      DVC = DVS 
-      V1C = V1ABS-DVC 
-      V2C = V2ABS+DVC 
-!                                                                       
-      IF (V1C.LT.V1S) then 
-         I1 = -1 
-         else 
-         I1 = (V1C-V1S)/DVS + 0.01 
-         end if 
-!                                                                       
-         V1C = V1S + DVS*REAL(I1-1) 
-         I2 = (V2C-V1S)/DVS + 0.01 
-         NPTC = I2-I1+3 
-         IF (NPTC.GT.NPTS) NPTC=NPTS+4 
-         V2C = V1C + DVS*REAL(NPTC-1) 
-!                                                                       
-         DO 10 J = 1, NPTC 
-            I = I1+(J-1) 
-            C(J) = 0. 
-            IF ((I.GE.1).AND.(I.LE.NPTS)) THEN 
-               tcor = 1. 
+     &    4.24E-02,3.83E-02,3.50E-02,3.23E-02,3.01E-02/
+      data t_eff/246./
+
+      COMMON /ABSORB/ V1ABS,V2ABS,DVABS,NPTABS,ABSRB(n_absrb)
+      COMMON /FCO2/ V1S,V2S,DVS,NPTS,S(5003)
+      DIMENSION C(*)
+!
+      trat = tave/t_eff
+
+      DVC = DVS
+      V1C = V1ABS-DVC
+      V2C = V2ABS+DVC
+!
+      IF (V1C.LT.V1S) then
+         I1 = -1
+         else
+         I1 = (V1C-V1S)/DVS + 0.01
+         end if
+!
+         V1C = V1S + DVS*REAL(I1-1)
+         I2 = (V2C-V1S)/DVS + 0.01
+         NPTC = I2-I1+3
+         IF (NPTC.GT.NPTS) NPTC=NPTS+4
+         V2C = V1C + DVS*REAL(NPTC-1)
+!
+         DO 10 J = 1, NPTC
+            I = I1+(J-1)
+            C(J) = 0.
+            IF ((I.GE.1).AND.(I.LE.NPTS)) THEN
+               tcor = 1.
                if (i .ge. 1196 .and. i .le. 1220) tcor = (trat)**       &
-               tdep_bandhead(i)                                         
-               C(J) = tcor * S(I) 
-            ENDIF 
-   10    END DO 
-!                                                                       
-         RETURN 
-!                                                                       
-      END                                           
-!                                                                       
-!     --------------------------------------------------------------    
-!                                                                       
-      BLOCK DATA BFCO2 
-!                                                                       
-      IMPLICIT REAL*8           (V) 
-!                                                                       
-!               09/14/07     Hartmann line coupling: isotopes 1 and 2   
-!                                                                       
-!               UNITS OF (CM**3/MOL)*1.E-20                             
-!                                                                       
+               tdep_bandhead(i)
+               C(J) = tcor * S(I)
+            ENDIF
+   10    END DO
+!
+         RETURN
+!
+      END
+!
+!     --------------------------------------------------------------
+!
+      BLOCK DATA BFCO2
+!
+      IMPLICIT REAL*8           (V)
+!
+!               09/14/07     Hartmann line coupling: isotopes 1 and 2
+!
+!               UNITS OF (CM**3/MOL)*1.E-20
+!
       COMMON /FCO2/ V1,V2,DV,NPT,                                       &
      &              F0000( 2),F0001(50),F0051(50),F0101(50),F0151(50),  &
      &              F0201(50),F0251(50),F0301(50),F0351(50),F0401(50),  &
@@ -3001,12 +3001,12 @@ SUBROUTINE CONTNM(JRAD)
      &              F4201(50),F4251(50),F4301(50),F4351(50),F4401(50),  &
      &              F4451(50),F4501(50),F4551(50),F4601(50),F4651(50),  &
      &              F4701(50),F4751(50),F4801(50),F4851(50),F4901(50),  &
-     &              F4951(50), F5001(1)                                 
-!                                                                       
-       DATA V1,V2,DV,NPT / -4.0, 10000.0, 2.0, 5003/ 
-!                                                                       
+     &              F4951(50), F5001(1)
+!
+       DATA V1,V2,DV,NPT / -4.0, 10000.0, 2.0, 5003/
+!
       DATA F0000/                                                       &
-     &  8.391e-13,  8.359e-13/                                          
+     &  8.391e-13,  8.359e-13/
       DATA F0001/                                                       &
      &  8.345e-13,  8.359e-13,  8.391e-13,  8.439e-13,  8.500e-13,      &
      &  8.573e-13,  8.655e-13,  8.750e-13,  8.859e-13,  8.981e-13,      &
@@ -3017,7 +3017,7 @@ SUBROUTINE CONTNM(JRAD)
      &  1.525e-12,  1.574e-12,  1.625e-12,  1.678e-12,  1.734e-12,      &
      &  1.791e-12,  1.850e-12,  1.912e-12,  1.976e-12,  2.042e-12,      &
      &  2.110e-12,  2.181e-12,  2.254e-12,  2.329e-12,  2.408e-12,      &
-     &  2.488e-12,  2.572e-12,  2.658e-12,  2.746e-12,  2.838e-12/      
+     &  2.488e-12,  2.572e-12,  2.658e-12,  2.746e-12,  2.838e-12/
       DATA F0051/                                                       &
      &  2.933e-12,  3.030e-12,  3.130e-12,  3.234e-12,  3.341e-12,      &
      &  3.451e-12,  3.564e-12,  3.681e-12,  3.801e-12,  3.925e-12,      &
@@ -3028,7 +3028,7 @@ SUBROUTINE CONTNM(JRAD)
      &  7.560e-12,  7.793e-12,  8.034e-12,  8.281e-12,  8.535e-12,      &
      &  8.797e-12,  9.067e-12,  9.344e-12,  9.629e-12,  9.923e-12,      &
      &  1.023e-11,  1.054e-11,  1.086e-11,  1.119e-11,  1.152e-11,      &
-     &  1.187e-11,  1.223e-11,  1.260e-11,  1.298e-11,  1.338e-11/      
+     &  1.187e-11,  1.223e-11,  1.260e-11,  1.298e-11,  1.338e-11/
       DATA F0101/                                                       &
      &  1.378e-11,  1.419e-11,  1.462e-11,  1.506e-11,  1.552e-11,      &
      &  1.598e-11,  1.646e-11,  1.696e-11,  1.747e-11,  1.799e-11,      &
@@ -3039,7 +3039,7 @@ SUBROUTINE CONTNM(JRAD)
      &  3.363e-11,  3.466e-11,  3.572e-11,  3.681e-11,  3.794e-11,      &
      &  3.910e-11,  4.031e-11,  4.155e-11,  4.283e-11,  4.416e-11,      &
      &  4.552e-11,  4.694e-11,  4.840e-11,  4.991e-11,  5.147e-11,      &
-     &  5.308e-11,  5.474e-11,  5.646e-11,  5.824e-11,  6.008e-11/      
+     &  5.308e-11,  5.474e-11,  5.646e-11,  5.824e-11,  6.008e-11/
       DATA F0151/                                                       &
      &  6.199e-11,  6.395e-11,  6.599e-11,  6.809e-11,  7.027e-11,      &
      &  7.253e-11,  7.486e-11,  7.728e-11,  7.978e-11,  8.237e-11,      &
@@ -3050,7 +3050,7 @@ SUBROUTINE CONTNM(JRAD)
      &  1.652e-10,  1.710e-10,  1.770e-10,  1.833e-10,  1.899e-10,      &
      &  1.966e-10,  2.037e-10,  2.111e-10,  2.187e-10,  2.267e-10,      &
      &  2.350e-10,  2.437e-10,  2.527e-10,  2.621e-10,  2.719e-10,      &
-     &  2.821e-10,  2.928e-10,  3.039e-10,  3.155e-10,  3.276e-10/      
+     &  2.821e-10,  2.928e-10,  3.039e-10,  3.155e-10,  3.276e-10/
       DATA F0201/                                                       &
      &  3.403e-10,  3.535e-10,  3.674e-10,  3.818e-10,  3.969e-10,      &
      &  4.127e-10,  4.293e-10,  4.466e-10,  4.647e-10,  4.837e-10,      &
@@ -3061,7 +3061,7 @@ SUBROUTINE CONTNM(JRAD)
      &  1.226e-09,  1.286e-09,  1.350e-09,  1.417e-09,  1.488e-09,      &
      &  1.564e-09,  1.643e-09,  1.728e-09,  1.818e-09,  1.914e-09,      &
      &  2.016e-09,  2.126e-09,  2.244e-09,  2.378e-09,  2.522e-09,      &
-     &  2.677e-09,  2.843e-09,  3.024e-09,  3.220e-09,  3.437e-09/      
+     &  2.677e-09,  2.843e-09,  3.024e-09,  3.220e-09,  3.437e-09/
       DATA F0251/                                                       &
      &  3.676e-09,  3.941e-09,  4.236e-09,  4.565e-09,  4.931e-09,      &
      &  5.336e-09,  5.784e-09,  6.276e-09,  6.817e-09,  7.410e-09,      &
@@ -3072,7 +3072,7 @@ SUBROUTINE CONTNM(JRAD)
      &  5.160e-08,  5.909e-08,  6.836e-08,  7.995e-08,  9.457e-08,      &
      &  1.130e-07,  1.366e-07,  1.731e-07,  2.156e-07,  2.655e-07,      &
      &  3.241e-07,  3.927e-07,  4.723e-07,  5.639e-07,  6.685e-07,      &
-     &  7.872e-07,  9.510e-07,  1.199e-06,  1.528e-06,  1.847e-06/      
+     &  7.872e-07,  9.510e-07,  1.199e-06,  1.528e-06,  1.847e-06/
       DATA F0301/                                                       &
      &  2.155e-06,  2.453e-06,  2.742e-06,  3.026e-06,  3.308e-06,      &
      &  3.594e-06,  3.895e-06,  4.227e-06,  4.609e-06,  5.073e-06,      &
@@ -3083,7 +3083,7 @@ SUBROUTINE CONTNM(JRAD)
      &  1.488e-04,  1.561e-04,  1.616e-04,  1.653e-04,  1.670e-04,      &
      &  1.666e-04,  1.642e-04,  1.599e-04,  1.538e-04,  1.460e-04,      &
      &  1.365e-04,  1.256e-04,  1.132e-04,  9.969e-05,  8.499e-05,      &
-     &  6.925e-05,  5.260e-05,  4.198e-05,  3.475e-05,  2.933e-05/      
+     &  6.925e-05,  5.260e-05,  4.198e-05,  3.475e-05,  2.933e-05/
       DATA F0351/                                                       &
      &  2.457e-05,  2.043e-05,  1.690e-05,  1.394e-05,  1.151e-05,      &
      &  9.559e-06,  8.021e-06,  6.826e-06,  5.920e-06,  5.232e-06,      &
@@ -3094,7 +3094,7 @@ SUBROUTINE CONTNM(JRAD)
      &  2.996e-07,  2.465e-07,  2.012e-07,  1.633e-07,  1.370e-07,      &
      &  1.172e-07,  1.015e-07,  8.892e-08,  7.876e-08,  7.053e-08,      &
      &  6.378e-08,  5.817e-08,  5.367e-08,  4.988e-08,  4.660e-08,      &
-     &  4.372e-08,  4.113e-08,  3.874e-08,  3.651e-08,  3.439e-08/      
+     &  4.372e-08,  4.113e-08,  3.874e-08,  3.651e-08,  3.439e-08/
       DATA F0401/                                                       &
      &  3.234e-08,  3.033e-08,  2.836e-08,  2.641e-08,  2.448e-08,      &
      &  2.255e-08,  2.062e-08,  1.869e-08,  1.677e-08,  1.532e-08,      &
@@ -3105,7 +3105,7 @@ SUBROUTINE CONTNM(JRAD)
      &  4.756e-09,  4.571e-09,  4.396e-09,  4.232e-09,  4.077e-09,      &
      &  3.930e-09,  3.792e-09,  3.662e-09,  3.541e-09,  3.426e-09,      &
      &  3.320e-09,  3.221e-09,  3.129e-09,  3.045e-09,  2.967e-09,      &
-     &  2.898e-09,  2.839e-09,  2.788e-09,  2.743e-09,  2.706e-09/      
+     &  2.898e-09,  2.839e-09,  2.788e-09,  2.743e-09,  2.706e-09/
       DATA F0451/                                                       &
      &  2.676e-09,  2.653e-09,  2.638e-09,  2.633e-09,  2.640e-09,      &
      &  2.661e-09,  2.700e-09,  2.760e-09,  2.844e-09,  2.953e-09,      &
@@ -3116,7 +3116,7 @@ SUBROUTINE CONTNM(JRAD)
      &  7.280e-09,  7.252e-09,  7.159e-09,  7.007e-09,  6.799e-09,      &
      &  6.547e-09,  6.260e-09,  5.948e-09,  5.618e-09,  5.279e-09,      &
      &  4.935e-09,  4.584e-09,  4.224e-09,  3.849e-09,  3.457e-09,      &
-     &  3.055e-09,  2.658e-09,  2.285e-09,  1.948e-09,  1.661e-09/      
+     &  3.055e-09,  2.658e-09,  2.285e-09,  1.948e-09,  1.661e-09/
       DATA F0501/                                                       &
      &  1.429e-09,  1.254e-09,  1.133e-09,  1.060e-09,  1.031e-09,      &
      &  1.038e-09,  1.079e-09,  1.151e-09,  1.254e-09,  1.391e-09,      &
@@ -3127,7 +3127,7 @@ SUBROUTINE CONTNM(JRAD)
      &  9.211e-09,  9.419e-09,  9.536e-09,  9.554e-09,  9.473e-09,      &
      &  9.300e-09,  9.043e-09,  8.715e-09,  8.330e-09,  7.904e-09,      &
      &  7.447e-09,  6.968e-09,  6.471e-09,  5.955e-09,  5.414e-09,      &
-     &  4.843e-09,  4.246e-09,  3.644e-09,  3.054e-09,  2.504e-09/      
+     &  4.843e-09,  4.246e-09,  3.644e-09,  3.054e-09,  2.504e-09/
       DATA F0551/                                                       &
      &  2.010e-09,  1.584e-09,  1.234e-09,  9.578e-10,  7.490e-10,      &
      &  5.962e-10,  4.887e-10,  4.149e-10,  3.652e-10,  3.309e-10,      &
@@ -3138,7 +3138,7 @@ SUBROUTINE CONTNM(JRAD)
      &  1.857e-10,  1.831e-10,  1.805e-10,  1.781e-10,  1.757e-10,      &
      &  1.734e-10,  1.712e-10,  1.691e-10,  1.670e-10,  1.649e-10,      &
      &  1.629e-10,  1.610e-10,  1.591e-10,  1.573e-10,  1.555e-10,      &
-     &  1.537e-10,  1.520e-10,  1.503e-10,  1.487e-10,  1.471e-10/      
+     &  1.537e-10,  1.520e-10,  1.503e-10,  1.487e-10,  1.471e-10/
       DATA F0601/                                                       &
      &  1.455e-10,  1.440e-10,  1.425e-10,  1.410e-10,  1.396e-10,      &
      &  1.381e-10,  1.368e-10,  1.354e-10,  1.341e-10,  1.328e-10,      &
@@ -3149,7 +3149,7 @@ SUBROUTINE CONTNM(JRAD)
      &  1.106e-10,  1.098e-10,  1.089e-10,  1.081e-10,  1.073e-10,      &
      &  1.065e-10,  1.058e-10,  1.050e-10,  1.043e-10,  1.036e-10,      &
      &  1.028e-10,  1.022e-10,  1.015e-10,  1.008e-10,  1.001e-10,      &
-     &  9.950e-11,  9.887e-11,  9.825e-11,  9.765e-11,  9.705e-11/      
+     &  9.950e-11,  9.887e-11,  9.825e-11,  9.765e-11,  9.705e-11/
       DATA F0651/                                                       &
      &  9.647e-11,  9.591e-11,  9.535e-11,  9.480e-11,  9.427e-11,      &
      &  9.375e-11,  9.324e-11,  9.274e-11,  9.225e-11,  9.177e-11,      &
@@ -3160,7 +3160,7 @@ SUBROUTINE CONTNM(JRAD)
      &  8.405e-11,  8.378e-11,  8.352e-11,  8.327e-11,  8.303e-11,      &
      &  8.280e-11,  8.257e-11,  8.236e-11,  8.215e-11,  8.195e-11,      &
      &  8.176e-11,  8.158e-11,  8.140e-11,  8.123e-11,  8.107e-11,      &
-     &  8.092e-11,  8.078e-11,  8.064e-11,  8.051e-11,  8.039e-11/      
+     &  8.092e-11,  8.078e-11,  8.064e-11,  8.051e-11,  8.039e-11/
       DATA F0701/                                                       &
      &  8.028e-11,  8.018e-11,  8.008e-11,  7.999e-11,  7.991e-11,      &
      &  7.983e-11,  7.976e-11,  7.971e-11,  7.965e-11,  7.961e-11,      &
@@ -3171,7 +3171,7 @@ SUBROUTINE CONTNM(JRAD)
      &  8.040e-11,  8.052e-11,  8.065e-11,  8.079e-11,  8.093e-11,      &
      &  8.108e-11,  8.124e-11,  8.141e-11,  8.158e-11,  8.176e-11,      &
      &  8.195e-11,  8.215e-11,  8.235e-11,  8.257e-11,  8.279e-11,      &
-     &  8.302e-11,  8.326e-11,  8.350e-11,  8.376e-11,  8.402e-11/      
+     &  8.302e-11,  8.326e-11,  8.350e-11,  8.376e-11,  8.402e-11/
       DATA F0751/                                                       &
      &  8.429e-11,  8.457e-11,  8.486e-11,  8.515e-11,  8.546e-11,      &
      &  8.577e-11,  8.609e-11,  8.642e-11,  8.676e-11,  8.711e-11,      &
@@ -3182,7 +3182,7 @@ SUBROUTINE CONTNM(JRAD)
      &  9.662e-11,  9.719e-11,  9.776e-11,  9.835e-11,  9.895e-11,      &
      &  9.956e-11,  1.002e-10,  1.008e-10,  1.015e-10,  1.021e-10,      &
      &  1.028e-10,  1.035e-10,  1.042e-10,  1.049e-10,  1.056e-10,      &
-     &  1.063e-10,  1.071e-10,  1.079e-10,  1.086e-10,  1.094e-10/      
+     &  1.063e-10,  1.071e-10,  1.079e-10,  1.086e-10,  1.094e-10/
       DATA F0801/                                                       &
      &  1.102e-10,  1.111e-10,  1.119e-10,  1.127e-10,  1.136e-10,      &
      &  1.145e-10,  1.154e-10,  1.163e-10,  1.172e-10,  1.181e-10,      &
@@ -3193,7 +3193,7 @@ SUBROUTINE CONTNM(JRAD)
      &  1.421e-10,  1.435e-10,  1.448e-10,  1.463e-10,  1.477e-10,      &
      &  1.492e-10,  1.506e-10,  1.522e-10,  1.537e-10,  1.553e-10,      &
      &  1.568e-10,  1.585e-10,  1.601e-10,  1.618e-10,  1.635e-10,      &
-     &  1.652e-10,  1.670e-10,  1.688e-10,  1.706e-10,  1.725e-10/      
+     &  1.652e-10,  1.670e-10,  1.688e-10,  1.706e-10,  1.725e-10/
       DATA F0851/                                                       &
      &  1.744e-10,  1.763e-10,  1.782e-10,  1.802e-10,  1.823e-10,      &
      &  1.843e-10,  1.864e-10,  1.886e-10,  1.907e-10,  1.929e-10,      &
@@ -3204,7 +3204,7 @@ SUBROUTINE CONTNM(JRAD)
      &  2.503e-10,  2.536e-10,  2.570e-10,  2.605e-10,  2.641e-10,      &
      &  2.677e-10,  2.714e-10,  2.752e-10,  2.791e-10,  2.831e-10,      &
      &  2.871e-10,  2.913e-10,  2.955e-10,  2.999e-10,  3.043e-10,      &
-     &  3.089e-10,  3.136e-10,  3.184e-10,  3.234e-10,  3.285e-10/      
+     &  3.089e-10,  3.136e-10,  3.184e-10,  3.234e-10,  3.285e-10/
       DATA F0901/                                                       &
      &  3.337e-10,  3.391e-10,  3.447e-10,  3.505e-10,  3.564e-10,      &
      &  3.626e-10,  3.689e-10,  3.754e-10,  3.822e-10,  3.892e-10,      &
@@ -3215,7 +3215,7 @@ SUBROUTINE CONTNM(JRAD)
      &  6.606e-10,  6.834e-10,  7.080e-10,  7.348e-10,  7.643e-10,      &
      &  7.974e-10,  8.351e-10,  8.791e-10,  9.301e-10,  9.894e-10,      &
      &  1.059e-09,  1.140e-09,  1.235e-09,  1.346e-09,  1.472e-09,      &
-     &  1.616e-09,  1.777e-09,  1.954e-09,  2.147e-09,  2.347e-09/      
+     &  1.616e-09,  1.777e-09,  1.954e-09,  2.147e-09,  2.347e-09/
       DATA F0951/                                                       &
      &  2.549e-09,  2.747e-09,  2.941e-09,  3.126e-09,  3.309e-09,      &
      &  3.589e-09,  3.848e-09,  4.066e-09,  4.238e-09,  4.365e-09,      &
@@ -3226,7 +3226,7 @@ SUBROUTINE CONTNM(JRAD)
      &  1.635e-09,  1.630e-09,  1.634e-09,  1.642e-09,  1.654e-09,      &
      &  1.668e-09,  1.685e-09,  1.705e-09,  1.728e-09,  1.754e-09,      &
      &  1.785e-09,  1.819e-09,  1.859e-09,  1.903e-09,  1.952e-09,      &
-     &  2.007e-09,  2.068e-09,  2.134e-09,  2.207e-09,  2.287e-09/      
+     &  2.007e-09,  2.068e-09,  2.134e-09,  2.207e-09,  2.287e-09/
       DATA F1001/                                                       &
      &  2.374e-09,  2.469e-09,  2.573e-09,  2.686e-09,  2.810e-09,      &
      &  2.947e-09,  3.098e-09,  3.285e-09,  3.494e-09,  3.729e-09,      &
@@ -3237,7 +3237,7 @@ SUBROUTINE CONTNM(JRAD)
      &  2.977e-08,  3.157e-08,  3.303e-08,  3.411e-08,  3.479e-08,      &
      &  3.524e-08,  3.533e-08,  3.506e-08,  3.445e-08,  3.353e-08,      &
      &  3.236e-08,  3.096e-08,  2.939e-08,  2.769e-08,  2.589e-08,      &
-     &  2.404e-08,  2.215e-08,  2.024e-08,  1.832e-08,  1.640e-08/      
+     &  2.404e-08,  2.215e-08,  2.024e-08,  1.832e-08,  1.640e-08/
       DATA F1051/                                                       &
      &  1.449e-08,  1.261e-08,  1.203e-08,  1.188e-08,  1.185e-08,      &
      &  1.188e-08,  1.195e-08,  1.205e-08,  1.216e-08,  1.228e-08,      &
@@ -3248,7 +3248,7 @@ SUBROUTINE CONTNM(JRAD)
      &  2.313e-08,  2.420e-08,  2.534e-08,  2.656e-08,  2.785e-08,      &
      &  2.923e-08,  3.070e-08,  3.228e-08,  3.396e-08,  3.577e-08,      &
      &  3.772e-08,  3.981e-08,  4.207e-08,  4.451e-08,  4.715e-08,      &
-     &  5.001e-08,  5.313e-08,  5.654e-08,  6.027e-08,  6.438e-08/      
+     &  5.001e-08,  5.313e-08,  5.654e-08,  6.027e-08,  6.438e-08/
       DATA F1101/                                                       &
      &  6.891e-08,  7.395e-08,  7.959e-08,  8.594e-08,  9.315e-08,      &
      &  1.014e-07,  1.109e-07,  1.220e-07,  1.351e-07,  1.506e-07,      &
@@ -3259,7 +3259,7 @@ SUBROUTINE CONTNM(JRAD)
      &  3.100e-06,  3.386e-06,  3.683e-06,  3.999e-06,  4.343e-06,      &
      &  4.721e-06,  5.140e-06,  5.603e-06,  6.119e-06,  6.699e-06,      &
      &  7.361e-06,  8.132e-06,  9.049e-06,  1.017e-05,  1.155e-05,      &
-     &  1.329e-05,  1.549e-05,  1.827e-05,  2.178e-05,  2.619e-05/      
+     &  1.329e-05,  1.549e-05,  1.827e-05,  2.178e-05,  2.619e-05/
       DATA F1151/                                                       &
      &  3.169e-05,  3.845e-05,  4.668e-05,  5.656e-05,  6.822e-05,      &
      &  8.175e-05,  9.719e-05,  1.145e-04,  1.334e-04,  1.537e-04,      &
@@ -3270,7 +3270,7 @@ SUBROUTINE CONTNM(JRAD)
      &  3.538e-04,  3.348e-04,  3.143e-04,  2.928e-04,  2.707e-04,      &
      &  2.481e-04,  2.250e-04,  2.010e-04,  1.760e-04,  1.504e-04,      &
      &  1.250e-04,  1.010e-04,  7.907e-05,  6.005e-05,  4.430e-05,      &
-     &  3.180e-05,  2.231e-05,  1.544e-05,  1.069e-05,  7.481e-06/      
+     &  3.180e-05,  2.231e-05,  1.544e-05,  1.069e-05,  7.481e-06/
       DATA F1201/                                                       &
      &  5.397e-06,  4.055e-06,  3.178e-06,  2.581e-06,  2.153e-06,      &
      &  1.827e-06,  1.568e-06,  1.357e-06,  1.182e-06,  1.035e-06,      &
@@ -3281,7 +3281,7 @@ SUBROUTINE CONTNM(JRAD)
      &  1.356e-07,  1.259e-07,  1.171e-07,  1.090e-07,  1.017e-07,      &
      &  9.489e-08,  8.868e-08,  8.297e-08,  7.772e-08,  7.288e-08,      &
      &  6.841e-08,  6.428e-08,  6.045e-08,  5.691e-08,  5.362e-08,      &
-     &  5.057e-08,  4.773e-08,  4.508e-08,  4.262e-08,  4.032e-08/      
+     &  5.057e-08,  4.773e-08,  4.508e-08,  4.262e-08,  4.032e-08/
       DATA F1251/                                                       &
      &  3.818e-08,  3.617e-08,  3.430e-08,  3.255e-08,  3.090e-08,      &
      &  2.936e-08,  2.791e-08,  2.655e-08,  2.527e-08,  2.407e-08,      &
@@ -3292,7 +3292,7 @@ SUBROUTINE CONTNM(JRAD)
      &  9.691e-09,  9.322e-09,  8.971e-09,  8.636e-09,  8.316e-09,      &
      &  8.011e-09,  7.720e-09,  7.441e-09,  7.175e-09,  6.921e-09,      &
      &  6.677e-09,  6.444e-09,  6.221e-09,  6.008e-09,  5.803e-09,      &
-     &  5.607e-09,  5.419e-09,  5.239e-09,  5.066e-09,  4.900e-09/      
+     &  5.607e-09,  5.419e-09,  5.239e-09,  5.066e-09,  4.900e-09/
       DATA F1301/                                                       &
      &  4.740e-09,  4.587e-09,  4.440e-09,  4.299e-09,  4.163e-09,      &
      &  4.033e-09,  3.907e-09,  3.787e-09,  3.671e-09,  3.559e-09,      &
@@ -3303,7 +3303,7 @@ SUBROUTINE CONTNM(JRAD)
      &  1.945e-09,  1.893e-09,  1.843e-09,  1.795e-09,  1.748e-09,      &
      &  1.703e-09,  1.659e-09,  1.617e-09,  1.576e-09,  1.536e-09,      &
      &  1.497e-09,  1.460e-09,  1.424e-09,  1.388e-09,  1.354e-09,      &
-     &  1.321e-09,  1.289e-09,  1.258e-09,  1.227e-09,  1.198e-09/      
+     &  1.321e-09,  1.289e-09,  1.258e-09,  1.227e-09,  1.198e-09/
       DATA F1351/                                                       &
      &  1.169e-09,  1.142e-09,  1.115e-09,  1.088e-09,  1.063e-09,      &
      &  1.038e-09,  1.014e-09,  9.908e-10,  9.681e-10,  9.460e-10,      &
@@ -3314,7 +3314,7 @@ SUBROUTINE CONTNM(JRAD)
      &  5.970e-10,  5.847e-10,  5.727e-10,  5.610e-10,  5.495e-10,      &
      &  5.384e-10,  5.275e-10,  5.169e-10,  5.065e-10,  4.964e-10,      &
      &  4.865e-10,  4.769e-10,  4.675e-10,  4.583e-10,  4.493e-10,      &
-     &  4.406e-10,  4.320e-10,  4.236e-10,  4.155e-10,  4.075e-10/      
+     &  4.406e-10,  4.320e-10,  4.236e-10,  4.155e-10,  4.075e-10/
       DATA F1401/                                                       &
      &  3.997e-10,  3.921e-10,  3.846e-10,  3.774e-10,  3.703e-10,      &
      &  3.633e-10,  3.565e-10,  3.499e-10,  3.434e-10,  3.370e-10,      &
@@ -3325,7 +3325,7 @@ SUBROUTINE CONTNM(JRAD)
      &  2.312e-10,  2.272e-10,  2.233e-10,  2.195e-10,  2.158e-10,      &
      &  2.121e-10,  2.086e-10,  2.051e-10,  2.016e-10,  1.983e-10,      &
      &  1.950e-10,  1.917e-10,  1.886e-10,  1.855e-10,  1.824e-10,      &
-     &  1.794e-10,  1.765e-10,  1.736e-10,  1.708e-10,  1.680e-10/      
+     &  1.794e-10,  1.765e-10,  1.736e-10,  1.708e-10,  1.680e-10/
       DATA F1451/                                                       &
      &  1.653e-10,  1.627e-10,  1.601e-10,  1.575e-10,  1.550e-10,      &
      &  1.525e-10,  1.501e-10,  1.478e-10,  1.454e-10,  1.431e-10,      &
@@ -3336,7 +3336,7 @@ SUBROUTINE CONTNM(JRAD)
      &  1.039e-10,  1.023e-10,  1.008e-10,  9.937e-11,  9.793e-11,      &
      &  9.651e-11,  9.512e-11,  9.375e-11,  9.241e-11,  9.109e-11,      &
      &  8.979e-11,  8.852e-11,  8.726e-11,  8.603e-11,  8.483e-11,      &
-     &  8.364e-11,  8.247e-11,  8.132e-11,  8.020e-11,  7.909e-11/      
+     &  8.364e-11,  8.247e-11,  8.132e-11,  8.020e-11,  7.909e-11/
       DATA F1501/                                                       &
      &  7.800e-11,  7.693e-11,  7.588e-11,  7.485e-11,  7.384e-11,      &
      &  7.284e-11,  7.186e-11,  7.090e-11,  6.995e-11,  6.902e-11,      &
@@ -3347,7 +3347,7 @@ SUBROUTINE CONTNM(JRAD)
      &  5.286e-11,  5.224e-11,  5.163e-11,  5.103e-11,  5.045e-11,      &
      &  4.989e-11,  4.934e-11,  4.881e-11,  4.830e-11,  4.781e-11,      &
      &  4.734e-11,  4.689e-11,  4.646e-11,  4.605e-11,  4.565e-11,      &
-     &  4.527e-11,  4.489e-11,  4.453e-11,  4.417e-11,  4.381e-11/      
+     &  4.527e-11,  4.489e-11,  4.453e-11,  4.417e-11,  4.381e-11/
       DATA F1551/                                                       &
      &  4.346e-11,  4.312e-11,  4.279e-11,  4.247e-11,  4.216e-11,      &
      &  4.187e-11,  4.160e-11,  4.136e-11,  4.114e-11,  4.097e-11,      &
@@ -3358,7 +3358,7 @@ SUBROUTINE CONTNM(JRAD)
      &  4.924e-11,  4.936e-11,  4.940e-11,  4.939e-11,  4.937e-11,      &
      &  4.935e-11,  4.938e-11,  4.946e-11,  4.963e-11,  4.987e-11,      &
      &  5.018e-11,  5.057e-11,  5.100e-11,  5.147e-11,  5.195e-11,      &
-     &  5.242e-11,  5.285e-11,  5.321e-11,  5.346e-11,  5.358e-11/      
+     &  5.242e-11,  5.285e-11,  5.321e-11,  5.346e-11,  5.358e-11/
       DATA F1601/                                                       &
      &  5.352e-11,  5.327e-11,  5.283e-11,  5.217e-11,  5.133e-11,      &
      &  5.034e-11,  4.918e-11,  4.786e-11,  4.643e-11,  4.492e-11,      &
@@ -3369,7 +3369,7 @@ SUBROUTINE CONTNM(JRAD)
      &  3.718e-11,  3.798e-11,  3.886e-11,  3.982e-11,  4.088e-11,      &
      &  4.204e-11,  4.331e-11,  4.471e-11,  4.626e-11,  4.800e-11,      &
      &  4.996e-11,  5.219e-11,  5.475e-11,  5.769e-11,  6.108e-11,      &
-     &  6.494e-11,  6.930e-11,  7.414e-11,  7.941e-11,  8.501e-11/      
+     &  6.494e-11,  6.930e-11,  7.414e-11,  7.941e-11,  8.501e-11/
       DATA F1651/                                                       &
      &  9.086e-11,  9.693e-11,  1.029e-10,  1.087e-10,  1.142e-10,      &
      &  1.193e-10,  1.240e-10,  1.282e-10,  1.342e-10,  1.412e-10,      &
@@ -3380,7 +3380,7 @@ SUBROUTINE CONTNM(JRAD)
      &  3.260e-10,  3.195e-10,  3.101e-10,  3.000e-10,  2.891e-10,      &
      &  2.769e-10,  2.635e-10,  2.493e-10,  2.347e-10,  2.204e-10,      &
      &  2.068e-10,  1.944e-10,  1.836e-10,  1.746e-10,  1.675e-10,      &
-     &  1.622e-10,  1.586e-10,  1.565e-10,  1.559e-10,  1.564e-10/      
+     &  1.622e-10,  1.586e-10,  1.565e-10,  1.559e-10,  1.564e-10/
       DATA F1701/                                                       &
      &  1.579e-10,  1.604e-10,  1.636e-10,  1.675e-10,  1.721e-10,      &
      &  1.774e-10,  1.833e-10,  1.899e-10,  1.973e-10,  2.055e-10,      &
@@ -3391,7 +3391,7 @@ SUBROUTINE CONTNM(JRAD)
      &  1.066e-09,  1.203e-09,  1.360e-09,  1.535e-09,  1.730e-09,      &
      &  1.945e-09,  2.179e-09,  2.436e-09,  2.721e-09,  3.044e-09,      &
      &  3.417e-09,  3.853e-09,  4.362e-09,  4.955e-09,  5.639e-09,      &
-     &  6.417e-09,  7.287e-09,  8.241e-09,  9.269e-09,  1.035e-08/      
+     &  6.417e-09,  7.287e-09,  8.241e-09,  9.269e-09,  1.035e-08/
       DATA F1751/                                                       &
      &  1.145e-08,  1.256e-08,  1.365e-08,  1.475e-08,  1.589e-08,      &
      &  1.710e-08,  1.842e-08,  1.988e-08,  2.149e-08,  2.326e-08,      &
@@ -3402,7 +3402,7 @@ SUBROUTINE CONTNM(JRAD)
      &  2.371e-07,  2.706e-07,  3.111e-07,  3.601e-07,  4.190e-07,      &
      &  4.892e-07,  5.717e-07,  6.668e-07,  7.748e-07,  8.947e-07,      &
      &  1.025e-06,  1.162e-06,  1.301e-06,  1.439e-06,  1.570e-06,      &
-     &  1.692e-06,  1.808e-06,  1.920e-06,  2.034e-06,  2.150e-06/      
+     &  1.692e-06,  1.808e-06,  1.920e-06,  2.034e-06,  2.150e-06/
       DATA F1801/                                                       &
      &  2.269e-06,  2.386e-06,  2.499e-06,  2.600e-06,  2.684e-06,      &
      &  2.746e-06,  2.781e-06,  2.788e-06,  2.768e-06,  2.720e-06,      &
@@ -3413,7 +3413,7 @@ SUBROUTINE CONTNM(JRAD)
      &  2.206e-07,  2.235e-07,  2.429e-07,  2.784e-07,  3.302e-07,      &
      &  3.995e-07,  4.880e-07,  5.968e-07,  7.277e-07,  8.811e-07,      &
      &  1.056e-06,  1.251e-06,  1.461e-06,  1.680e-06,  1.901e-06,      &
-     &  2.116e-06,  2.321e-06,  2.519e-06,  2.715e-06,  2.913e-06/      
+     &  2.116e-06,  2.321e-06,  2.519e-06,  2.715e-06,  2.913e-06/
       DATA F1851/                                                       &
      &  3.115e-06,  3.321e-06,  3.526e-06,  3.724e-06,  3.905e-06,      &
      &  4.059e-06,  4.181e-06,  4.261e-06,  4.295e-06,  4.283e-06,      &
@@ -3424,7 +3424,7 @@ SUBROUTINE CONTNM(JRAD)
      &  1.988e-07,  1.398e-07,  9.915e-08,  7.137e-08,  5.280e-08,      &
      &  4.038e-08,  3.192e-08,  2.601e-08,  2.164e-08,  1.836e-08,      &
      &  1.578e-08,  1.371e-08,  1.199e-08,  1.056e-08,  9.353e-09,      &
-     &  8.321e-09,  7.436e-09,  6.672e-09,  6.010e-09,  5.433e-09/      
+     &  8.321e-09,  7.436e-09,  6.672e-09,  6.010e-09,  5.433e-09/
       DATA F1901/                                                       &
      &  4.929e-09,  4.487e-09,  4.098e-09,  3.754e-09,  3.448e-09,      &
      &  3.174e-09,  2.929e-09,  2.708e-09,  2.507e-09,  2.325e-09,      &
@@ -3435,7 +3435,7 @@ SUBROUTINE CONTNM(JRAD)
      &  5.641e-10,  5.335e-10,  5.053e-10,  4.791e-10,  4.548e-10,      &
      &  4.321e-10,  4.109e-10,  3.909e-10,  3.722e-10,  3.546e-10,      &
      &  3.380e-10,  3.224e-10,  3.076e-10,  2.936e-10,  2.804e-10,      &
-     &  2.680e-10,  2.562e-10,  2.451e-10,  2.346e-10,  2.246e-10/      
+     &  2.680e-10,  2.562e-10,  2.451e-10,  2.346e-10,  2.246e-10/
       DATA F1951/                                                       &
      &  2.153e-10,  2.064e-10,  1.981e-10,  1.901e-10,  1.826e-10,      &
      &  1.755e-10,  1.687e-10,  1.623e-10,  1.562e-10,  1.503e-10,      &
@@ -3446,7 +3446,7 @@ SUBROUTINE CONTNM(JRAD)
      &  7.442e-11,  7.234e-11,  7.035e-11,  6.844e-11,  6.661e-11,      &
      &  6.486e-11,  6.316e-11,  6.154e-11,  5.998e-11,  5.850e-11,      &
      &  5.710e-11,  5.582e-11,  5.460e-11,  5.344e-11,  5.234e-11,      &
-     &  5.132e-11,  5.040e-11,  4.961e-11,  4.896e-11,  4.845e-11/      
+     &  5.132e-11,  5.040e-11,  4.961e-11,  4.896e-11,  4.845e-11/
       DATA F2001/                                                       &
      &  4.806e-11,  4.774e-11,  4.742e-11,  4.702e-11,  4.652e-11,      &
      &  4.594e-11,  4.527e-11,  4.451e-11,  4.366e-11,  4.274e-11,      &
@@ -3457,7 +3457,7 @@ SUBROUTINE CONTNM(JRAD)
      &  1.980e-11,  1.930e-11,  1.882e-11,  1.836e-11,  1.792e-11,      &
      &  1.749e-11,  1.708e-11,  1.669e-11,  1.630e-11,  1.593e-11,      &
      &  1.557e-11,  1.522e-11,  1.488e-11,  1.456e-11,  1.424e-11,      &
-     &  1.392e-11,  1.362e-11,  1.333e-11,  1.304e-11,  1.276e-11/      
+     &  1.392e-11,  1.362e-11,  1.333e-11,  1.304e-11,  1.276e-11/
       DATA F2051/                                                       &
      &  1.249e-11,  1.223e-11,  1.197e-11,  1.172e-11,  1.147e-11,      &
      &  1.124e-11,  1.100e-11,  1.078e-11,  1.056e-11,  1.034e-11,      &
@@ -3468,7 +3468,7 @@ SUBROUTINE CONTNM(JRAD)
      &  6.807e-12,  6.677e-12,  6.550e-12,  6.426e-12,  6.304e-12,      &
      &  6.185e-12,  6.068e-12,  5.954e-12,  5.842e-12,  5.732e-12,      &
      &  5.625e-12,  5.520e-12,  5.417e-12,  5.316e-12,  5.217e-12,      &
-     &  5.121e-12,  5.026e-12,  4.933e-12,  4.842e-12,  4.753e-12/      
+     &  5.121e-12,  5.026e-12,  4.933e-12,  4.842e-12,  4.753e-12/
       DATA F2101/                                                       &
      &  4.665e-12,  4.580e-12,  4.496e-12,  4.414e-12,  4.333e-12,      &
      &  4.254e-12,  4.176e-12,  4.100e-12,  4.025e-12,  3.952e-12,      &
@@ -3479,7 +3479,7 @@ SUBROUTINE CONTNM(JRAD)
      &  2.696e-12,  2.648e-12,  2.600e-12,  2.554e-12,  2.508e-12,      &
      &  2.463e-12,  2.418e-12,  2.375e-12,  2.332e-12,  2.290e-12,      &
      &  2.249e-12,  2.208e-12,  2.168e-12,  2.129e-12,  2.090e-12,      &
-     &  2.053e-12,  2.015e-12,  1.979e-12,  1.943e-12,  1.908e-12/      
+     &  2.053e-12,  2.015e-12,  1.979e-12,  1.943e-12,  1.908e-12/
       DATA F2151/                                                       &
      &  1.873e-12,  1.839e-12,  1.805e-12,  1.772e-12,  1.740e-12,      &
      &  1.708e-12,  1.677e-12,  1.646e-12,  1.616e-12,  1.586e-12,      &
@@ -3490,7 +3490,7 @@ SUBROUTINE CONTNM(JRAD)
      &  1.064e-12,  1.043e-12,  1.023e-12,  1.003e-12,  9.835e-13,      &
      &  9.643e-13,  9.453e-13,  9.267e-13,  9.084e-13,  8.904e-13,      &
      &  8.727e-13,  8.553e-13,  8.382e-13,  8.213e-13,  8.048e-13,      &
-     &  7.885e-13,  7.725e-13,  7.568e-13,  7.414e-13,  7.262e-13/      
+     &  7.885e-13,  7.725e-13,  7.568e-13,  7.414e-13,  7.262e-13/
       DATA F2201/                                                       &
      &  7.113e-13,  6.966e-13,  6.822e-13,  6.680e-13,  6.541e-13,      &
      &  6.404e-13,  6.270e-13,  6.138e-13,  6.009e-13,  5.882e-13,      &
@@ -3501,7 +3501,7 @@ SUBROUTINE CONTNM(JRAD)
      &  3.720e-13,  3.640e-13,  3.562e-13,  3.487e-13,  3.414e-13,      &
      &  3.342e-13,  3.274e-13,  3.207e-13,  3.142e-13,  3.080e-13,      &
      &  3.020e-13,  2.963e-13,  2.908e-13,  2.856e-13,  2.806e-13,      &
-     &  2.759e-13,  2.715e-13,  2.673e-13,  2.635e-13,  2.600e-13/      
+     &  2.759e-13,  2.715e-13,  2.673e-13,  2.635e-13,  2.600e-13/
       DATA F2251/                                                       &
      &  2.569e-13,  2.542e-13,  2.519e-13,  2.500e-13,  2.487e-13,      &
      &  2.479e-13,  2.477e-13,  2.483e-13,  2.498e-13,  2.524e-13,      &
@@ -3512,7 +3512,7 @@ SUBROUTINE CONTNM(JRAD)
      &  1.186e-12,  1.257e-12,  1.322e-12,  1.377e-12,  1.473e-12,      &
      &  1.580e-12,  1.690e-12,  1.806e-12,  1.930e-12,  2.066e-12,      &
      &  2.217e-12,  2.386e-12,  2.572e-12,  2.771e-12,  2.983e-12,      &
-     &  3.199e-12,  3.414e-12,  3.619e-12,  3.810e-12,  3.980e-12/      
+     &  3.199e-12,  3.414e-12,  3.619e-12,  3.810e-12,  3.980e-12/
       DATA F2301/                                                       &
      &  4.123e-12,  4.235e-12,  4.311e-12,  4.348e-12,  4.343e-12,      &
      &  4.296e-12,  4.204e-12,  4.069e-12,  3.891e-12,  3.711e-12,      &
@@ -3523,7 +3523,7 @@ SUBROUTINE CONTNM(JRAD)
      &  2.960e-12,  3.271e-12,  3.620e-12,  4.012e-12,  4.456e-12,      &
      &  4.958e-12,  5.520e-12,  6.142e-12,  6.818e-12,  7.538e-12,      &
      &  8.289e-12,  9.052e-12,  9.821e-12,  1.060e-11,  1.140e-11,      &
-     &  1.226e-11,  1.320e-11,  1.426e-11,  1.547e-11,  1.686e-11/      
+     &  1.226e-11,  1.320e-11,  1.426e-11,  1.547e-11,  1.686e-11/
       DATA F2351/                                                       &
      &  1.846e-11,  2.030e-11,  2.243e-11,  2.487e-11,  2.767e-11,      &
      &  3.089e-11,  3.452e-11,  3.858e-11,  4.305e-11,  4.791e-11,      &
@@ -3534,7 +3534,7 @@ SUBROUTINE CONTNM(JRAD)
      &  2.662e-10,  2.949e-10,  3.287e-10,  3.677e-10,  4.130e-10,      &
      &  4.648e-10,  5.232e-10,  5.877e-10,  6.574e-10,  7.307e-10,      &
      &  8.058e-10,  8.802e-10,  9.540e-10,  1.027e-09,  1.102e-09,      &
-     &  1.181e-09,  1.268e-09,  1.365e-09,  1.476e-09,  1.601e-09/      
+     &  1.181e-09,  1.268e-09,  1.365e-09,  1.476e-09,  1.601e-09/
       DATA F2401/                                                       &
      &  1.744e-09,  1.908e-09,  2.099e-09,  2.323e-09,  2.589e-09,      &
      &  2.904e-09,  3.278e-09,  3.721e-09,  4.237e-09,  4.828e-09,      &
@@ -3545,7 +3545,7 @@ SUBROUTINE CONTNM(JRAD)
      &  1.594e-08,  1.553e-08,  1.501e-08,  1.439e-08,  1.370e-08,      &
      &  1.296e-08,  1.219e-08,  1.139e-08,  1.055e-08,  9.668e-09,      &
      &  8.719e-09,  7.720e-09,  6.699e-09,  5.699e-09,  4.763e-09,      &
-     &  3.920e-09,  3.193e-09,  2.592e-09,  2.116e-09,  1.754e-09/      
+     &  3.920e-09,  3.193e-09,  2.592e-09,  2.116e-09,  1.754e-09/
       DATA F2451/                                                       &
      &  1.496e-09,  1.322e-09,  1.222e-09,  1.179e-09,  1.188e-09,      &
      &  1.242e-09,  1.341e-09,  1.488e-09,  1.691e-09,  1.963e-09,      &
@@ -3556,7 +3556,7 @@ SUBROUTINE CONTNM(JRAD)
      &  5.035e-08,  5.359e-08,  5.689e-08,  6.020e-08,  6.340e-08,      &
      &  6.637e-08,  6.892e-08,  7.091e-08,  7.222e-08,  7.275e-08,      &
      &  7.249e-08,  7.146e-08,  6.970e-08,  6.732e-08,  6.443e-08,      &
-     &  6.112e-08,  5.751e-08,  5.370e-08,  4.974e-08,  4.570e-08/      
+     &  6.112e-08,  5.751e-08,  5.370e-08,  4.974e-08,  4.570e-08/
       DATA F2501/                                                       &
      &  4.155e-08,  3.726e-08,  3.279e-08,  2.817e-08,  2.355e-08,      &
      &  1.910e-08,  1.501e-08,  1.141e-08,  8.412e-09,  6.023e-09,      &
@@ -3567,7 +3567,7 @@ SUBROUTINE CONTNM(JRAD)
      &  3.393e-09,  4.135e-09,  4.986e-09,  5.942e-09,  6.983e-09,      &
      &  8.082e-09,  9.200e-09,  1.030e-08,  1.135e-08,  1.236e-08,      &
      &  1.334e-08,  1.434e-08,  1.536e-08,  1.642e-08,  1.749e-08,      &
-     &  1.854e-08,  1.954e-08,  2.042e-08,  2.114e-08,  2.167e-08/      
+     &  1.854e-08,  1.954e-08,  2.042e-08,  2.114e-08,  2.167e-08/
       DATA F2551/                                                       &
      &  2.198e-08,  2.205e-08,  2.189e-08,  2.153e-08,  2.099e-08,      &
      &  2.030e-08,  1.949e-08,  1.859e-08,  1.763e-08,  1.662e-08,      &
@@ -3578,7 +3578,7 @@ SUBROUTINE CONTNM(JRAD)
      &  4.686e-10,  3.686e-10,  2.875e-10,  2.242e-10,  1.750e-10,      &
      &  1.380e-10,  1.104e-10,  8.948e-11,  7.378e-11,  6.180e-11,      &
      &  5.251e-11,  4.520e-11,  3.940e-11,  3.475e-11,  3.099e-11,      &
-     &  2.792e-11,  2.537e-11,  2.323e-11,  2.141e-11,  1.985e-11/      
+     &  2.792e-11,  2.537e-11,  2.323e-11,  2.141e-11,  1.985e-11/
       DATA F2601/                                                       &
      &  1.850e-11,  1.734e-11,  1.633e-11,  1.545e-11,  1.468e-11,      &
      &  1.399e-11,  1.338e-11,  1.281e-11,  1.228e-11,  1.179e-11,      &
@@ -3589,7 +3589,7 @@ SUBROUTINE CONTNM(JRAD)
      &  5.790e-12,  5.845e-12,  6.018e-12,  6.355e-12,  6.862e-12,      &
      &  7.521e-12,  8.372e-12,  9.455e-12,  1.076e-11,  1.231e-11,      &
      &  1.415e-11,  1.635e-11,  1.900e-11,  2.233e-11,  2.688e-11,      &
-     &  3.335e-11,  4.316e-11,  5.277e-11,  6.203e-11,  7.088e-11/      
+     &  3.335e-11,  4.316e-11,  5.277e-11,  6.203e-11,  7.088e-11/
       DATA F2651/                                                       &
      &  7.925e-11,  8.706e-11,  9.420e-11,  1.005e-10,  1.059e-10,      &
      &  1.101e-10,  1.130e-10,  1.145e-10,  1.146e-10,  1.132e-10,      &
@@ -3600,7 +3600,7 @@ SUBROUTINE CONTNM(JRAD)
      &  1.259e-12,  8.916e-13,  6.808e-13,  5.494e-13,  4.535e-13,      &
      &  3.758e-13,  3.113e-13,  2.571e-13,  2.110e-13,  1.714e-13,      &
      &  1.372e-13,  1.074e-13,  8.140e-14,  5.888e-14,  3.992e-14,      &
-     &  2.574e-14,  2.098e-14,  1.985e-14,  1.894e-14,  1.804e-14/      
+     &  2.574e-14,  2.098e-14,  1.985e-14,  1.894e-14,  1.804e-14/
       DATA F2701/                                                       &
      &  1.721e-14,  1.645e-14,  1.570e-14,  1.509e-14,  1.449e-14,      &
      &  1.389e-14,  1.336e-14,  1.291e-14,  1.238e-14,  1.200e-14,      &
@@ -3611,7 +3611,7 @@ SUBROUTINE CONTNM(JRAD)
      &  6.234e-15,  6.068e-15,  5.909e-15,  5.751e-15,  5.600e-15,      &
      &  5.457e-15,  5.321e-15,  5.185e-15,  5.057e-15,  4.928e-15,      &
      &  4.808e-15,  4.694e-15,  4.581e-15,  4.475e-15,  4.370e-15,      &
-     &  4.272e-15,  4.174e-15,  4.083e-15,  3.992e-15,  3.909e-15/      
+     &  4.272e-15,  4.174e-15,  4.083e-15,  3.992e-15,  3.909e-15/
       DATA F2751/                                                       &
      &  3.834e-15,  3.758e-15,  3.691e-15,  3.623e-15,  3.562e-15,      &
      &  3.509e-15,  3.464e-15,  3.426e-15,  3.396e-15,  3.374e-15,      &
@@ -3622,7 +3622,7 @@ SUBROUTINE CONTNM(JRAD)
      &  2.729e-13,  3.172e-13,  3.605e-13,  4.054e-13,  4.547e-13,      &
      &  5.102e-13,  5.724e-13,  6.399e-13,  7.079e-13,  7.639e-13,      &
      &  8.028e-13,  8.255e-13,  8.329e-13,  8.264e-13,  8.071e-13,      &
-     &  7.764e-13,  7.358e-13,  6.868e-13,  6.310e-13,  5.700e-13/      
+     &  7.764e-13,  7.358e-13,  6.868e-13,  6.310e-13,  5.700e-13/
       DATA F2801/                                                       &
      &  5.051e-13,  4.376e-13,  3.681e-13,  2.968e-13,  2.234e-13,      &
      &  1.473e-13,  6.888e-14,  3.200e-15,  3.147e-15,  3.087e-15,      &
@@ -3633,7 +3633,7 @@ SUBROUTINE CONTNM(JRAD)
      &  2.457e-13,  2.970e-13,  3.453e-13,  3.918e-13,  4.390e-13,      &
      &  4.899e-13,  5.472e-13,  6.123e-13,  6.845e-13,  7.615e-13,      &
      &  8.299e-13,  8.795e-13,  9.111e-13,  9.260e-13,  9.252e-13,      &
-     &  9.099e-13,  8.817e-13,  8.421e-13,  7.925e-13,  7.350e-13/      
+     &  9.099e-13,  8.817e-13,  8.421e-13,  7.925e-13,  7.350e-13/
       DATA F2851/                                                       &
      &  6.711e-13,  6.022e-13,  5.297e-13,  4.544e-13,  3.767e-13,      &
      &  2.965e-13,  2.132e-13,  1.265e-13,  3.808e-14,  2.408e-15,      &
@@ -3644,7 +3644,7 @@ SUBROUTINE CONTNM(JRAD)
      &  5.155e-16,  5.004e-16,  4.875e-16,  4.770e-16,  4.679e-16,      &
      &  4.604e-16,  4.528e-16,  4.475e-16,  4.430e-16,  4.408e-16,      &
      &  4.385e-16,  4.377e-16,  4.385e-16,  4.400e-16,  4.438e-16,      &
-     &  4.498e-16,  4.574e-16,  4.664e-16,  4.777e-16,  4.936e-16/      
+     &  4.498e-16,  4.574e-16,  4.664e-16,  4.777e-16,  4.936e-16/
       DATA F2901/                                                       &
      &  5.155e-16,  5.442e-16,  5.781e-16,  6.166e-16,  6.581e-16,      &
      &  7.011e-16,  7.479e-16,  8.000e-16,  8.528e-16,  9.057e-16,      &
@@ -3655,7 +3655,7 @@ SUBROUTINE CONTNM(JRAD)
      &  1.660e-15,  1.660e-15,  1.653e-15,  1.638e-15,  1.623e-15,      &
      &  1.608e-15,  1.585e-15,  1.555e-15,  1.532e-15,  1.502e-15,      &
      &  1.487e-15,  1.487e-15,  1.502e-15,  1.509e-15,  1.525e-15,      &
-     &  1.540e-15,  1.547e-15,  1.547e-15,  1.555e-15,  1.570e-15/      
+     &  1.540e-15,  1.547e-15,  1.547e-15,  1.555e-15,  1.570e-15/
       DATA F2951/                                                       &
      &  1.592e-15,  1.638e-15,  1.691e-15,  1.751e-15,  1.826e-15,      &
      &  1.917e-15,  2.015e-15,  2.136e-15,  2.264e-15,  2.408e-15,      &
@@ -3666,7 +3666,7 @@ SUBROUTINE CONTNM(JRAD)
      &  6.531e-13,  7.277e-13,  8.135e-13,  9.128e-13,  1.028e-12,      &
      &  1.163e-12,  1.320e-12,  1.506e-12,  1.723e-12,  1.983e-12,      &
      &  2.292e-12,  2.657e-12,  3.080e-12,  3.560e-12,  4.093e-12,      &
-     &  4.664e-12,  5.252e-12,  5.837e-12,  6.395e-12,  6.924e-12/      
+     &  4.664e-12,  5.252e-12,  5.837e-12,  6.395e-12,  6.924e-12/
       DATA F3001/                                                       &
      &  7.424e-12,  7.909e-12,  8.394e-12,  8.890e-12,  9.398e-12,      &
      &  9.911e-12,  1.042e-11,  1.092e-11,  1.140e-11,  1.184e-11,      &
@@ -3677,7 +3677,7 @@ SUBROUTINE CONTNM(JRAD)
      &  5.883e-11,  6.257e-11,  6.644e-11,  7.032e-11,  7.407e-11,      &
      &  7.751e-11,  8.044e-11,  8.273e-11,  8.424e-11,  8.491e-11,      &
      &  8.472e-11,  8.371e-11,  8.193e-11,  7.954e-11,  7.660e-11,      &
-     &  7.327e-11,  6.964e-11,  6.579e-11,  6.175e-11,  5.748e-11/      
+     &  7.327e-11,  6.964e-11,  6.579e-11,  6.175e-11,  5.748e-11/
       DATA F3051/                                                       &
      &  5.295e-11,  4.807e-11,  4.289e-11,  3.757e-11,  3.230e-11,      &
      &  2.731e-11,  2.278e-11,  1.881e-11,  1.546e-11,  1.273e-11,      &
@@ -3688,7 +3688,7 @@ SUBROUTINE CONTNM(JRAD)
      &  2.204e-11,  2.573e-11,  2.996e-11,  3.477e-11,  4.016e-11,      &
      &  4.617e-11,  5.289e-11,  6.051e-11,  6.933e-11,  7.972e-11,      &
      &  9.209e-11,  1.068e-10,  1.243e-10,  1.447e-10,  1.684e-10,      &
-     &  1.953e-10,  2.254e-10,  2.582e-10,  2.933e-10,  3.297e-10/      
+     &  1.953e-10,  2.254e-10,  2.582e-10,  2.933e-10,  3.297e-10/
       DATA F3101/                                                       &
      &  3.662e-10,  4.014e-10,  4.345e-10,  4.655e-10,  4.951e-10,      &
      &  5.248e-10,  5.554e-10,  5.872e-10,  6.200e-10,  6.526e-10,      &
@@ -3699,7 +3699,7 @@ SUBROUTINE CONTNM(JRAD)
      &  2.307e-10,  1.848e-10,  1.440e-10,  1.091e-10,  8.078e-11,      &
      &  5.881e-11,  4.268e-11,  3.141e-11,  2.402e-11,  1.953e-11,      &
      &  1.711e-11,  1.615e-11,  1.625e-11,  1.722e-11,  1.901e-11,      &
-     &  2.170e-11,  2.541e-11,  3.033e-11,  3.670e-11,  4.480e-11/      
+     &  2.170e-11,  2.541e-11,  3.033e-11,  3.670e-11,  4.480e-11/
       DATA F3151/                                                       &
      &  5.496e-11,  6.753e-11,  8.287e-11,  1.013e-10,  1.232e-10,      &
      &  1.486e-10,  1.776e-10,  2.100e-10,  2.453e-10,  2.826e-10,      &
@@ -3710,7 +3710,7 @@ SUBROUTINE CONTNM(JRAD)
      &  6.931e-10,  6.588e-10,  6.215e-10,  5.819e-10,  5.402e-10,      &
      &  4.966e-10,  4.506e-10,  4.017e-10,  3.503e-10,  2.981e-10,      &
      &  2.468e-10,  1.987e-10,  1.552e-10,  1.179e-10,  8.705e-11,      &
-     &  6.278e-11,  4.457e-11,  3.136e-11,  2.219e-11,  1.601e-11/      
+     &  6.278e-11,  4.457e-11,  3.136e-11,  2.219e-11,  1.601e-11/
       DATA F3201/                                                       &
      &  1.191e-11,  9.181e-12,  7.312e-12,  6.003e-12,  5.040e-12,      &
      &  4.304e-12,  3.722e-12,  3.250e-12,  2.861e-12,  2.533e-12,      &
@@ -3721,7 +3721,7 @@ SUBROUTINE CONTNM(JRAD)
      &  7.078e-12,  8.932e-12,  1.117e-11,  1.382e-11,  1.688e-11,      &
      &  2.031e-11,  2.403e-11,  2.792e-11,  3.188e-11,  3.573e-11,      &
      &  3.941e-11,  4.294e-11,  4.645e-11,  5.000e-11,  5.367e-11,      &
-     &  5.743e-11,  6.123e-11,  6.491e-11,  6.837e-11,  7.141e-11/      
+     &  5.743e-11,  6.123e-11,  6.491e-11,  6.837e-11,  7.141e-11/
       DATA F3251/                                                       &
      &  7.392e-11,  7.576e-11,  7.687e-11,  7.720e-11,  7.678e-11,      &
      &  7.567e-11,  7.396e-11,  7.187e-11,  6.938e-11,  6.665e-11,      &
@@ -3732,7 +3732,7 @@ SUBROUTINE CONTNM(JRAD)
      &  8.084e-12,  7.010e-12,  6.045e-12,  5.105e-12,  4.203e-12,      &
      &  3.363e-12,  2.610e-12,  1.964e-12,  1.429e-12,  1.009e-12,      &
      &  6.869e-13,  4.567e-13,  2.909e-13,  1.790e-13,  1.033e-13,      &
-     &  5.183e-14,  1.809e-14,  8.906e-15,  8.151e-15,  7.472e-15/      
+     &  5.183e-14,  1.809e-14,  8.906e-15,  8.151e-15,  7.472e-15/
       DATA F3301/                                                       &
      &  6.860e-15,  6.332e-15,  5.902e-15,  5.555e-15,  5.268e-15,      &
      &  5.019e-15,  4.808e-15,  4.657e-15,  4.551e-15,  4.483e-15,      &
@@ -3743,7 +3743,7 @@ SUBROUTINE CONTNM(JRAD)
      &  2.148e-12,  2.584e-12,  3.012e-12,  3.432e-12,  3.836e-12,      &
      &  4.219e-12,  4.571e-12,  4.879e-12,  5.133e-12,  5.322e-12,      &
      &  5.439e-12,  5.482e-12,  5.452e-12,  5.352e-12,  5.185e-12,      &
-     &  4.955e-12,  4.666e-12,  4.323e-12,  3.935e-12,  3.511e-12/      
+     &  4.955e-12,  4.666e-12,  4.323e-12,  3.935e-12,  3.511e-12/
       DATA F3351/                                                       &
      &  3.069e-12,  2.641e-12,  2.302e-12,  2.118e-12,  1.978e-12,      &
      &  1.874e-12,  1.809e-12,  1.787e-12,  1.812e-12,  1.888e-12,      &
@@ -3754,7 +3754,7 @@ SUBROUTINE CONTNM(JRAD)
      &  1.602e-11,  1.688e-11,  1.782e-11,  1.890e-11,  2.010e-11,      &
      &  2.139e-11,  2.268e-11,  2.375e-11,  2.445e-11,  2.481e-11,      &
      &  2.486e-11,  2.464e-11,  2.417e-11,  2.349e-11,  2.262e-11,      &
-     &  2.157e-11,  2.038e-11,  1.908e-11,  1.770e-11,  1.626e-11/      
+     &  2.157e-11,  2.038e-11,  1.908e-11,  1.770e-11,  1.626e-11/
       DATA F3401/                                                       &
      &  1.477e-11,  1.323e-11,  1.165e-11,  9.999e-12,  8.290e-12,      &
      &  6.576e-12,  4.935e-12,  3.475e-12,  2.280e-12,  1.419e-12,      &
@@ -3765,7 +3765,7 @@ SUBROUTINE CONTNM(JRAD)
      &  6.095e-12,  7.031e-12,  8.103e-12,  9.320e-12,  1.070e-11,      &
      &  1.225e-11,  1.400e-11,  1.600e-11,  1.825e-11,  2.082e-11,      &
      &  2.377e-11,  2.719e-11,  3.115e-11,  3.576e-11,  4.110e-11,      &
-     &  4.725e-11,  5.425e-11,  6.219e-11,  7.118e-11,  8.133e-11/      
+     &  4.725e-11,  5.425e-11,  6.219e-11,  7.118e-11,  8.133e-11/
       DATA F3451/                                                       &
      &  9.264e-11,  1.052e-10,  1.190e-10,  1.341e-10,  1.506e-10,      &
      &  1.684e-10,  1.879e-10,  2.094e-10,  2.339e-10,  2.624e-10,      &
@@ -3776,7 +3776,7 @@ SUBROUTINE CONTNM(JRAD)
      &  1.822e-09,  1.944e-09,  2.070e-09,  2.175e-09,  2.246e-09,      &
      &  2.287e-09,  2.298e-09,  2.285e-09,  2.248e-09,  2.190e-09,      &
      &  2.111e-09,  2.016e-09,  1.906e-09,  1.785e-09,  1.657e-09,      &
-     &  1.521e-09,  1.382e-09,  1.238e-09,  1.089e-09,  9.341e-10/      
+     &  1.521e-09,  1.382e-09,  1.238e-09,  1.089e-09,  9.341e-10/
       DATA F3501/                                                       &
      &  7.733e-10,  6.100e-10,  4.528e-10,  3.101e-10,  1.906e-10,      &
      &  1.028e-10,  4.896e-11,  2.904e-11,  2.392e-11,  1.984e-11,      &
@@ -3787,7 +3787,7 @@ SUBROUTINE CONTNM(JRAD)
      &  1.370e-12,  1.243e-12,  1.129e-12,  1.026e-12,  9.339e-13,      &
      &  8.504e-13,  7.748e-13,  7.063e-13,  6.440e-13,  5.872e-13,      &
      &  5.354e-13,  4.881e-13,  4.448e-13,  4.051e-13,  3.686e-13,      &
-     &  3.351e-13,  3.042e-13,  2.757e-13,  2.494e-13,  2.252e-13/      
+     &  3.351e-13,  3.042e-13,  2.757e-13,  2.494e-13,  2.252e-13/
       DATA F3551/                                                       &
      &  2.027e-13,  1.818e-13,  1.625e-13,  1.446e-13,  1.280e-13,      &
      &  1.125e-13,  9.815e-14,  8.481e-14,  7.242e-14,  6.095e-14,      &
@@ -3798,7 +3798,7 @@ SUBROUTINE CONTNM(JRAD)
      &  5.298e-15,  5.064e-15,  4.845e-15,  4.642e-15,  4.445e-15,      &
      &  4.257e-15,  4.075e-15,  3.909e-15,  3.743e-15,  3.592e-15,      &
      &  3.449e-15,  3.306e-15,  3.177e-15,  3.057e-15,  2.936e-15,      &
-     &  2.823e-15,  2.709e-15,  2.611e-15,  2.513e-15,  2.415e-15/      
+     &  2.823e-15,  2.709e-15,  2.611e-15,  2.513e-15,  2.415e-15/
       DATA F3601/                                                       &
      &  2.325e-15,  2.242e-15,  2.158e-15,  2.083e-15,  2.008e-15,      &
      &  1.940e-15,  1.872e-15,  1.804e-15,  1.743e-15,  1.691e-15,      &
@@ -3809,7 +3809,7 @@ SUBROUTINE CONTNM(JRAD)
      &  1.522e-13,  1.796e-13,  2.058e-13,  2.317e-13,  2.575e-13,      &
      &  2.833e-13,  3.087e-13,  3.328e-13,  3.550e-13,  3.742e-13,      &
      &  3.895e-13,  4.003e-13,  4.058e-13,  4.058e-13,  4.003e-13,      &
-     &  3.895e-13,  3.742e-13,  3.548e-13,  3.324e-13,  3.077e-13/      
+     &  3.895e-13,  3.742e-13,  3.548e-13,  3.324e-13,  3.077e-13/
       DATA F3651/                                                       &
      &  2.818e-13,  2.549e-13,  2.274e-13,  1.990e-13,  1.691e-13,      &
      &  1.374e-13,  1.040e-13,  6.996e-14,  3.648e-14,  5.560e-15,      &
@@ -3820,7 +3820,7 @@ SUBROUTINE CONTNM(JRAD)
      &  4.475e-16,  4.611e-16,  4.755e-16,  4.936e-16,  5.155e-16,      &
      &  5.426e-16,  5.736e-16,  6.060e-16,  6.453e-16,  6.928e-16,      &
      &  2.296e-14,  5.327e-14,  8.601e-14,  1.202e-13,  1.548e-13,      &
-     &  1.892e-13,  2.235e-13,  2.581e-13,  2.945e-13,  3.339e-13/      
+     &  1.892e-13,  2.235e-13,  2.581e-13,  2.945e-13,  3.339e-13/
       DATA F3701/                                                       &
      &  3.774e-13,  4.261e-13,  4.803e-13,  5.411e-13,  6.089e-13,      &
      &  6.851e-13,  7.711e-13,  8.691e-13,  9.818e-13,  1.112e-12,      &
@@ -3831,7 +3831,7 @@ SUBROUTINE CONTNM(JRAD)
      &  5.600e-12,  5.630e-12,  5.600e-12,  5.512e-12,  5.369e-12,      &
      &  5.181e-12,  4.955e-12,  4.699e-12,  4.424e-12,  4.134e-12,      &
      &  3.833e-12,  3.520e-12,  3.193e-12,  2.847e-12,  2.481e-12,      &
-     &  2.103e-12,  1.730e-12,  1.375e-12,  1.053e-12,  7.751e-13/      
+     &  2.103e-12,  1.730e-12,  1.375e-12,  1.053e-12,  7.751e-13/
       DATA F3751/                                                       &
      &  5.442e-13,  3.613e-13,  2.236e-13,  1.239e-13,  5.619e-14,      &
      &  1.470e-14,  4.747e-15,  4.483e-15,  4.279e-15,  4.158e-15,      &
@@ -3842,7 +3842,7 @@ SUBROUTINE CONTNM(JRAD)
      &  4.225e-12,  4.900e-12,  5.605e-12,  6.318e-12,  7.018e-12,      &
      &  7.688e-12,  8.326e-12,  8.949e-12,  9.578e-12,  1.023e-11,      &
      &  1.089e-11,  1.157e-11,  1.224e-11,  1.286e-11,  1.339e-11,      &
-     &  1.380e-11,  1.407e-11,  1.418e-11,  1.412e-11,  1.390e-11/      
+     &  1.380e-11,  1.407e-11,  1.418e-11,  1.412e-11,  1.390e-11/
       DATA F3801/                                                       &
      &  1.354e-11,  1.306e-11,  1.247e-11,  1.181e-11,  1.108e-11,      &
      &  1.032e-11,  9.520e-12,  8.700e-12,  7.857e-12,  6.985e-12,      &
@@ -3853,7 +3853,7 @@ SUBROUTINE CONTNM(JRAD)
      &  2.755e-15,  2.536e-15,  2.392e-15,  2.302e-15,  2.249e-15,      &
      &  2.219e-15,  2.226e-15,  2.264e-15,  2.340e-15,  2.445e-15,      &
      &  2.581e-15,  8.149e-15,  4.005e-14,  8.285e-14,  1.376e-13,      &
-     &  2.056e-13,  2.892e-13,  3.902e-13,  5.099e-13,  6.488e-13/      
+     &  2.056e-13,  2.892e-13,  3.902e-13,  5.099e-13,  6.488e-13/
       DATA F3851/                                                       &
      &  8.062e-13,  9.798e-13,  1.166e-12,  1.358e-12,  1.551e-12,      &
      &  1.737e-12,  1.915e-12,  2.088e-12,  2.261e-12,  2.440e-12,      &
@@ -3864,7 +3864,7 @@ SUBROUTINE CONTNM(JRAD)
      &  1.963e-12,  1.722e-12,  1.473e-12,  1.226e-12,  9.909e-13,      &
      &  7.778e-13,  5.938e-13,  4.407e-13,  3.182e-13,  2.235e-13,      &
      &  1.522e-13,  9.812e-14,  5.676e-14,  2.415e-14,  1.683e-15,      &
-     &  1.434e-15,  1.238e-15,  1.079e-15,  9.434e-16,  8.302e-16/      
+     &  1.434e-15,  1.238e-15,  1.079e-15,  9.434e-16,  8.302e-16/
       DATA F3901/                                                       &
      &  7.306e-16,  6.400e-16,  5.691e-16,  5.117e-16,  4.626e-16,      &
      &  4.166e-16,  3.743e-16,  3.411e-16,  3.132e-16,  2.891e-16,      &
@@ -3875,7 +3875,7 @@ SUBROUTINE CONTNM(JRAD)
      &  1.668e-16,  1.811e-16,  1.985e-16,  2.181e-16,  2.415e-16,      &
      &  2.664e-16,  2.966e-16,  3.313e-16,  3.675e-16,  4.030e-16,      &
      &  4.347e-16,  4.619e-16,  4.875e-16,  5.117e-16,  5.336e-16,      &
-     &  5.540e-16,  5.706e-16,  5.849e-16,  5.977e-16,  6.113e-16/      
+     &  5.540e-16,  5.706e-16,  5.849e-16,  5.977e-16,  6.113e-16/
       DATA F3951/                                                       &
      &  1.061e-14,  2.170e-14,  3.323e-14,  4.525e-14,  5.762e-14,      &
      &  7.011e-14,  8.221e-14,  9.352e-14,  1.034e-13,  1.115e-13,      &
@@ -3886,7 +3886,7 @@ SUBROUTINE CONTNM(JRAD)
      &  1.046e-13,  1.106e-13,  1.191e-13,  1.304e-13,  1.446e-13,      &
      &  1.611e-13,  1.789e-13,  1.960e-13,  2.106e-13,  2.203e-13,      &
      &  2.255e-13,  2.263e-13,  2.231e-13,  2.165e-13,  2.068e-13,      &
-     &  1.945e-13,  1.800e-13,  1.637e-13,  1.462e-13,  1.278e-13/      
+     &  1.945e-13,  1.800e-13,  1.637e-13,  1.462e-13,  1.278e-13/
       DATA F4001/                                                       &
      &  1.088e-13,  8.916e-14,  6.893e-14,  4.796e-14,  2.634e-14,      &
      &  4.974e-15,  8.151e-16,  8.302e-16,  8.453e-16,  8.679e-16,      &
@@ -3897,7 +3897,7 @@ SUBROUTINE CONTNM(JRAD)
      &  3.845e-13,  4.415e-13,  4.993e-13,  5.575e-13,  6.175e-13,      &
      &  6.813e-13,  7.524e-13,  8.335e-13,  9.256e-13,  1.029e-12,      &
      &  1.141e-12,  1.253e-12,  1.358e-12,  1.460e-12,  1.561e-12,      &
-     &  1.663e-12,  1.770e-12,  1.884e-12,  2.005e-12,  2.136e-12/      
+     &  1.663e-12,  1.770e-12,  1.884e-12,  2.005e-12,  2.136e-12/
       DATA F4051/                                                       &
      &  2.276e-12,  2.426e-12,  2.585e-12,  2.750e-12,  2.918e-12,      &
      &  3.082e-12,  3.243e-12,  3.398e-12,  3.558e-12,  3.735e-12,      &
@@ -3908,7 +3908,7 @@ SUBROUTINE CONTNM(JRAD)
      &  1.972e-11,  2.172e-11,  2.376e-11,  2.578e-11,  2.771e-11,      &
      &  2.956e-11,  3.140e-11,  3.336e-11,  3.556e-11,  3.809e-11,      &
      &  4.093e-11,  4.398e-11,  4.703e-11,  4.986e-11,  5.188e-11,      &
-     &  5.313e-11,  5.366e-11,  5.352e-11,  5.277e-11,  5.147e-11/      
+     &  5.313e-11,  5.366e-11,  5.352e-11,  5.277e-11,  5.147e-11/
       DATA F4101/                                                       &
      &  4.970e-11,  4.753e-11,  4.503e-11,  4.228e-11,  3.936e-11,      &
      &  3.631e-11,  3.316e-11,  2.993e-11,  2.661e-11,  2.317e-11,      &
@@ -3919,7 +3919,7 @@ SUBROUTINE CONTNM(JRAD)
      &  2.691e-11,  3.027e-11,  3.380e-11,  3.740e-11,  4.095e-11,      &
      &  4.430e-11,  4.743e-11,  5.043e-11,  5.352e-11,  5.687e-11,      &
      &  6.059e-11,  6.473e-11,  6.903e-11,  7.342e-11,  7.661e-11,      &
-     &  7.866e-11,  7.963e-11,  7.959e-11,  7.862e-11,  7.683e-11/      
+     &  7.866e-11,  7.963e-11,  7.959e-11,  7.862e-11,  7.683e-11/
       DATA F4151/                                                       &
      &  7.428e-11,  7.108e-11,  6.733e-11,  6.313e-11,  5.862e-11,      &
      &  5.389e-11,  4.904e-11,  4.412e-11,  3.915e-11,  3.410e-11,      &
@@ -3930,7 +3930,7 @@ SUBROUTINE CONTNM(JRAD)
      &  5.762e-14,  4.193e-14,  2.872e-14,  1.785e-14,  9.478e-15,      &
      &  6.702e-15,  6.045e-15,  5.502e-15,  5.034e-15,  4.611e-15,      &
      &  4.219e-15,  3.857e-15,  3.547e-15,  3.268e-15,  3.019e-15,      &
-     &  2.792e-15,  2.574e-15,  2.385e-15,  2.219e-15,  2.060e-15/      
+     &  2.792e-15,  2.574e-15,  2.385e-15,  2.219e-15,  2.060e-15/
       DATA F4201/                                                       &
      &  1.917e-15,  1.781e-15,  1.660e-15,  1.555e-15,  1.457e-15,      &
      &  1.358e-15,  1.268e-15,  1.192e-15,  1.117e-15,  1.049e-15,      &
@@ -3941,7 +3941,7 @@ SUBROUTINE CONTNM(JRAD)
      &  3.336e-16,  3.177e-16,  3.026e-16,  2.891e-16,  2.762e-16,      &
      &  2.634e-16,  2.513e-16,  2.400e-16,  2.302e-16,  2.196e-16,      &
      &  2.106e-16,  2.015e-16,  1.925e-16,  1.849e-16,  1.766e-16,      &
-     &  1.698e-16,  1.623e-16,  1.562e-16,  1.494e-16,  1.434e-16/      
+     &  1.698e-16,  1.623e-16,  1.562e-16,  1.494e-16,  1.434e-16/
       DATA F4251/                                                       &
      &  1.381e-16,  1.321e-16,  1.275e-16,  1.223e-16,  1.177e-16,      &
      &  1.132e-16,  1.087e-16,  1.049e-16,  1.004e-16,  9.660e-17,      &
@@ -3952,7 +3952,7 @@ SUBROUTINE CONTNM(JRAD)
      &  4.619e-17,  4.468e-17,  4.325e-17,  4.189e-17,  4.053e-17,      &
      &  3.925e-17,  3.804e-17,  3.683e-17,  3.570e-17,  3.457e-17,      &
      &  3.351e-17,  3.245e-17,  3.147e-17,  3.057e-17,  2.958e-17,      &
-     &  2.875e-17,  2.785e-17,  2.702e-17,  2.626e-17,  2.551e-17/      
+     &  2.875e-17,  2.785e-17,  2.702e-17,  2.626e-17,  2.551e-17/
       DATA F4301/                                                       &
      &  2.475e-17,  2.400e-17,  2.332e-17,  2.264e-17,  2.196e-17,      &
      &  2.136e-17,  2.075e-17,  2.015e-17,  1.962e-17,  1.902e-17,      &
@@ -3963,7 +3963,7 @@ SUBROUTINE CONTNM(JRAD)
      &  1.079e-17,  1.057e-17,  1.026e-17,  1.004e-17,  9.736e-18,      &
      &  9.509e-18,  9.283e-18,  9.057e-18,  8.830e-18,  8.604e-18,      &
      &  8.377e-18,  8.226e-18,  8.000e-18,  7.774e-18,  7.623e-18,      &
-     &  7.419e-18,  7.245e-18,  7.072e-18,  6.906e-18,  6.740e-18/      
+     &  7.419e-18,  7.245e-18,  7.072e-18,  6.906e-18,  6.740e-18/
       DATA F4351/                                                       &
      &  6.581e-18,  6.423e-18,  6.279e-18,  6.128e-18,  5.985e-18,      &
      &  5.849e-18,  5.713e-18,  5.585e-18,  5.457e-18,  5.328e-18,      &
@@ -3974,7 +3974,7 @@ SUBROUTINE CONTNM(JRAD)
      &  3.343e-18,  3.268e-18,  3.200e-18,  3.132e-18,  3.072e-18,      &
      &  3.004e-18,  2.943e-18,  2.883e-18,  2.823e-18,  2.762e-18,      &
      &  2.709e-18,  2.649e-18,  2.596e-18,  2.543e-18,  2.491e-18,      &
-     &  2.445e-18,  2.392e-18,  2.347e-18,  2.302e-18,  2.257e-18/      
+     &  2.445e-18,  2.392e-18,  2.347e-18,  2.302e-18,  2.257e-18/
       DATA F4401/                                                       &
      &  2.211e-18,  2.166e-18,  2.121e-18,  2.083e-18,  2.038e-18,      &
      &  2.000e-18,  1.962e-18,  1.925e-18,  1.887e-18,  1.849e-18,      &
@@ -3985,7 +3985,7 @@ SUBROUTINE CONTNM(JRAD)
      &  1.245e-18,  1.223e-18,  1.208e-18,  1.185e-18,  1.162e-18,      &
      &  1.140e-18,  1.125e-18,  1.102e-18,  1.087e-18,  1.064e-18,      &
      &  1.049e-18,  1.026e-18,  1.011e-18,  9.962e-19,  9.811e-19,      &
-     &  9.585e-19,  9.434e-19,  9.283e-19,  9.132e-19,  8.981e-19/      
+     &  9.585e-19,  9.434e-19,  9.283e-19,  9.132e-19,  8.981e-19/
       DATA F4451/                                                       &
      &  8.830e-19,  8.679e-19,  8.604e-19,  8.453e-19,  8.302e-19,      &
      &  8.151e-19,  8.075e-19,  7.925e-19,  7.774e-19,  7.698e-19,      &
@@ -3996,7 +3996,7 @@ SUBROUTINE CONTNM(JRAD)
      &  5.706e-19,  5.638e-19,  5.570e-19,  5.502e-19,  5.442e-19,      &
      &  5.374e-19,  5.313e-19,  5.253e-19,  5.200e-19,  5.140e-19,      &
      &  5.087e-19,  5.034e-19,  4.981e-19,  4.936e-19,  4.891e-19,      &
-     &  4.845e-19,  4.800e-19,  4.755e-19,  4.717e-19,  4.679e-19/      
+     &  4.845e-19,  4.800e-19,  4.755e-19,  4.717e-19,  4.679e-19/
       DATA F4501/                                                       &
      &  4.642e-19,  4.604e-19,  4.566e-19,  4.536e-19,  4.506e-19,      &
      &  4.475e-19,  4.445e-19,  4.423e-19,  4.400e-19,  4.370e-19,      &
@@ -4007,7 +4007,7 @@ SUBROUTINE CONTNM(JRAD)
      &  4.287e-19,  4.302e-19,  4.325e-19,  4.347e-19,  4.370e-19,      &
      &  4.392e-19,  4.423e-19,  4.453e-19,  4.483e-19,  4.521e-19,      &
      &  4.558e-19,  4.596e-19,  4.642e-19,  4.687e-19,  4.732e-19,      &
-     &  4.785e-19,  4.838e-19,  4.898e-19,  4.958e-19,  5.026e-19/      
+     &  4.785e-19,  4.838e-19,  4.898e-19,  4.958e-19,  5.026e-19/
       DATA F4551/                                                       &
      &  5.094e-19,  5.162e-19,  5.238e-19,  5.313e-19,  5.396e-19,      &
      &  5.487e-19,  5.577e-19,  5.668e-19,  5.774e-19,  5.872e-19,      &
@@ -4018,7 +4018,7 @@ SUBROUTINE CONTNM(JRAD)
      &  9.585e-19,  9.887e-19,  1.011e-18,  1.042e-18,  1.072e-18,      &
      &  1.109e-18,  1.140e-18,  1.177e-18,  1.215e-18,  1.253e-18,      &
      &  1.298e-18,  1.343e-18,  1.389e-18,  1.434e-18,  1.479e-18,      &
-     &  1.532e-18,  1.592e-18,  1.645e-18,  1.706e-18,  1.774e-18/      
+     &  1.532e-18,  1.592e-18,  1.645e-18,  1.706e-18,  1.774e-18/
       DATA F4601/                                                       &
      &  1.842e-18,  1.909e-18,  1.985e-18,  2.060e-18,  2.143e-18,      &
      &  2.226e-18,  2.325e-18,  2.423e-18,  2.521e-18,  2.634e-18,      &
@@ -4029,7 +4029,7 @@ SUBROUTINE CONTNM(JRAD)
      &  7.434e-18,  7.925e-18,  8.377e-18,  8.906e-18,  9.434e-18,      &
      &  1.004e-17,  1.072e-17,  1.147e-17,  1.223e-17,  1.306e-17,      &
      &  1.404e-17,  1.509e-17,  1.615e-17,  1.736e-17,  1.872e-17,      &
-     &  2.030e-17,  2.204e-17,  2.377e-17,  2.581e-17,  2.815e-17/      
+     &  2.030e-17,  2.204e-17,  2.377e-17,  2.581e-17,  2.815e-17/
       DATA F4651/                                                       &
      &  3.094e-17,  3.389e-17,  3.706e-17,  4.068e-17,  4.498e-17,      &
      &  5.042e-17,  5.638e-17,  6.279e-17,  7.019e-17,  7.925e-17,      &
@@ -4040,7 +4040,7 @@ SUBROUTINE CONTNM(JRAD)
      &  1.190e-13,  1.397e-13,  1.596e-13,  1.784e-13,  1.965e-13,      &
      &  2.147e-13,  2.340e-13,  2.551e-13,  2.783e-13,  3.032e-13,      &
      &  3.282e-13,  3.517e-13,  3.712e-13,  3.839e-13,  3.902e-13,      &
-     &  3.907e-13,  3.857e-13,  3.758e-13,  3.617e-13,  3.440e-13/      
+     &  3.907e-13,  3.857e-13,  3.758e-13,  3.617e-13,  3.440e-13/
       DATA F4701/                                                       &
      &  3.234e-13,  3.005e-13,  2.758e-13,  2.500e-13,  2.232e-13,      &
      &  1.957e-13,  1.672e-13,  1.376e-13,  1.068e-13,  7.534e-14,      &
@@ -4051,7 +4051,7 @@ SUBROUTINE CONTNM(JRAD)
      &  6.621e-14,  9.162e-14,  1.215e-13,  1.567e-13,  1.979e-13,      &
      &  2.458e-13,  3.012e-13,  3.647e-13,  4.369e-13,  5.184e-13,      &
      &  6.090e-13,  7.084e-13,  8.155e-13,  9.281e-13,  1.044e-12,      &
-     &  1.160e-12,  1.272e-12,  1.377e-12,  1.480e-12,  1.584e-12/      
+     &  1.160e-12,  1.272e-12,  1.377e-12,  1.480e-12,  1.584e-12/
       DATA F4751/                                                       &
      &  1.698e-12,  1.828e-12,  1.975e-12,  2.140e-12,  2.312e-12,      &
      &  2.455e-12,  2.557e-12,  2.620e-12,  2.647e-12,  2.640e-12,      &
@@ -4062,7 +4062,7 @@ SUBROUTINE CONTNM(JRAD)
      &  2.068e-15,  1.849e-15,  1.645e-15,  1.472e-15,  1.321e-15,      &
      &  1.208e-15,  1.132e-15,  1.094e-15,  1.079e-15,  4.198e-15,      &
      &  1.473e-14,  2.792e-14,  4.378e-14,  6.256e-14,  8.443e-14,      &
-     &  1.096e-13,  1.382e-13,  1.702e-13,  2.055e-13,  2.437e-13/      
+     &  1.096e-13,  1.382e-13,  1.702e-13,  2.055e-13,  2.437e-13/
       DATA F4801/                                                       &
      &  2.843e-13,  3.262e-13,  3.682e-13,  4.090e-13,  4.477e-13,      &
      &  4.847e-13,  5.220e-13,  5.617e-13,  6.059e-13,  6.555e-13,      &
@@ -4073,7 +4073,7 @@ SUBROUTINE CONTNM(JRAD)
      &  2.263e-13,  1.588e-13,  9.623e-14,  4.206e-14,  1.162e-15,      &
      &  1.064e-15,  9.509e-16,  8.226e-16,  6.913e-16,  5.683e-16,      &
      &  4.687e-16,  3.955e-16,  3.404e-16,  2.974e-16,  2.619e-16,      &
-     &  2.287e-16,  1.985e-16,  1.758e-16,  1.570e-16,  1.419e-16/      
+     &  2.287e-16,  1.985e-16,  1.758e-16,  1.570e-16,  1.419e-16/
       DATA F4851/                                                       &
      &  1.268e-16,  1.132e-16,  1.019e-16,  9.283e-17,  8.453e-17,      &
      &  7.698e-17,  6.966e-17,  6.362e-17,  5.842e-17,  5.381e-17,      &
@@ -4084,7 +4084,7 @@ SUBROUTINE CONTNM(JRAD)
      &  1.245e-17,  1.177e-17,  1.109e-17,  1.049e-17,  9.962e-18,      &
      &  9.434e-18,  8.906e-18,  8.453e-18,  8.000e-18,  7.623e-18,      &
      &  7.238e-18,  6.875e-18,  6.543e-18,  6.226e-18,  5.932e-18,      &
-     &  5.653e-18,  5.381e-18,  5.132e-18,  4.898e-18,  4.679e-18/      
+     &  5.653e-18,  5.381e-18,  5.132e-18,  4.898e-18,  4.679e-18/
       DATA F4901/                                                       &
      &  4.468e-18,  4.272e-18,  4.083e-18,  3.902e-18,  3.736e-18,      &
      &  3.577e-18,  3.426e-18,  3.283e-18,  3.147e-18,  3.019e-18,      &
@@ -4095,7 +4095,7 @@ SUBROUTINE CONTNM(JRAD)
      &  1.351e-18,  1.298e-18,  1.253e-18,  1.215e-18,  1.170e-18,      &
      &  1.132e-18,  1.094e-18,  1.057e-18,  1.026e-18,  9.887e-19,      &
      &  9.585e-19,  9.283e-19,  8.981e-19,  8.679e-19,  8.377e-19,      &
-     &  8.151e-19,  7.849e-19,  7.623e-19,  7.396e-19,  7.162e-19/      
+     &  8.151e-19,  7.849e-19,  7.623e-19,  7.396e-19,  7.162e-19/
       DATA F4951/                                                       &
      &  6.943e-19,  6.732e-19,  6.528e-19,  6.332e-19,  6.143e-19,      &
      &  5.955e-19,  5.781e-19,  5.608e-19,  5.442e-19,  5.283e-19,      &
@@ -4106,97 +4106,97 @@ SUBROUTINE CONTNM(JRAD)
      &  2.936e-19,  2.853e-19,  2.785e-19,  2.709e-19,  2.642e-19,      &
      &  2.574e-19,  2.506e-19,  2.438e-19,  2.377e-19,  2.317e-19,      &
      &  2.257e-19,  2.204e-19,  2.151e-19,  2.098e-19,  2.045e-19,      &
-     &  1.992e-19,  1.970e-19,  1.970e-19,  1.962e-19,  1.902e-19/      
+     &  1.992e-19,  1.970e-19,  1.970e-19,  1.962e-19,  1.902e-19/
       DATA F5001/                                                       &
-     &  1.887e-19/                                                      
-!                                                                       
-      END                                           
-!                                                                       
-!     --------------------------------------------------------------    
-!                                                                       
-      SUBROUTINE xn2_r (V1C,V2C,DVC,NPTC,C,fo2,Tave) 
-!                                                                       
-!     Model used:                                                       
-!      Borysow, A, and L. Frommhold, "Collision-induced                 
-!         rototranslational absorption spectra of N2-N2                 
-!         pairs for temperatures from 50 to 300 K", The                 
-!         Astrophysical Journal, 311, 1043-1057, 1986.                  
-!                                                                       
-!     Updated 2004/09/22 based on:                                      
-!                                                                       
-!      Boissoles, J., C. Boulet, R.H. Tipping, A. Brown and Q. Ma,      
-!         Theoretical CAlculations of the Translation-Rotation          
-!         Collision-Induced Absorption in N2-N2, O2-O2 and N2-O2 Pairs, 
-!         J.Quant. Spec. Rad. Transfer, 82,505 (2003).                  
-!                                                                       
-!     The scale factors are reported to account for the efect of o2-o2  
-!     and n2-o2 collision induced effects.                              
-!     The values for scale factor values (sf296) for 296K are based on  
-!     linear interpolation of Boissoles at al. values at 250K and 300K  
-!                                                                       
-      Use params, ONLY: n_absrb 
-      IMPLICIT REAL*8           (V) 
-!                                                                       
-      COMMON /ABSORB/  V1ABS,V2ABS,DVABS,NPTABS,ABSRB(n_absrb) 
-      COMMON /N2RT296/ V1S,V2S,DVS,NPTS,C_296(73),sf_296(73) 
-      COMMON /N2RT220/ V1b,V2b,DVb,NPTb,C_220(73),sf_220(73) 
-      DIMENSION C(*),fo2(*) 
-!                                                                       
-      data xo2 / 0.21/, xn2 / 0.79/, T_296 / 296./, T_220 / 220./ 
-                                                                        
-      tfac = (TAVE-T_296)/(T_220-T_296) 
-                                                                        
-      DVC = DVS 
-      V1C = V1ABS-DVC 
-      V2C = V2ABS+DVC 
-!                                                                       
-      IF (V1C.LT.V1S) then 
-         I1 = -1 
-         else 
-         I1 = (V1C-V1S)/DVS + 0.01 
-         end if 
-!                                                                       
-         V1C = V1S + DVS*REAL(I1-1) 
-         I2 = (V2C-V1S)/DVS + 0.01 
-         NPTC = I2-I1+3 
-         IF (NPTC.GT.NPTS) NPTC=NPTS+4 
-         V2C = V1C + DVS*REAL(NPTC-1) 
-!                                                                       
-!*******  ABSORPTION COEFFICIENT IN UNITS OF CM-1 AMAGAT-2              
-!                                                                       
-         DO 10 J = 1, NPTC 
-            I = I1+(J-1) 
-            C(J) = 0. 
-            IF ((I.LT.1).OR.(I.GT.NPTS)) GO TO 10 
-            C(J) = C_296(i)*(( C_220(i)/ C_296(i))**tfac) 
-            sf_T = sf_296(i)*((sf_220(i)/sf_296(i))**tfac) 
-                                                                        
-!        correct for incorporation of air mixing ratios in sf           
-!        fo2 is now ~ the ratio of alpha(n2-o2)/alpha(n2-n2)            
-!        Eq's 7 and 8 in the Boissoles paper.                           
-                                                                        
-!        fo2(i) = (sf_T - 1.)*(xn2**2)/(xn2*xo2)                        
-            fo2(j) = (sf_T - 1.)*(xn2)/(xo2) 
-                                                                        
-   10    END DO 
-!                                                                       
-         RETURN 
-!                                                                       
-      END                                           
-!                                                                       
-      BLOCK DATA BN2T296 
-!                                                                       
-      IMPLICIT REAL*8           (V) 
-!                                                                       
-!*******  ABSORPTION COEFFICIENT IN UNITS OF CM-1 AMAGAT-2              
-!                                                                       
-!           THESE DATA ARE FOR 296K                                     
-!                                                                       
-      COMMON /N2RT296/ V1N2CR,V2N2CR,DVN2CR,NPTN2C,CT296(73),sf_296(73) 
-!                                                                       
+     &  1.887e-19/
+!
+      END
+!
+!     --------------------------------------------------------------
+!
+      SUBROUTINE xn2_r (V1C,V2C,DVC,NPTC,C,fo2,Tave)
+!
+!     Model used:
+!      Borysow, A, and L. Frommhold, "Collision-induced
+!         rototranslational absorption spectra of N2-N2
+!         pairs for temperatures from 50 to 300 K", The
+!         Astrophysical Journal, 311, 1043-1057, 1986.
+!
+!     Updated 2004/09/22 based on:
+!
+!      Boissoles, J., C. Boulet, R.H. Tipping, A. Brown and Q. Ma,
+!         Theoretical CAlculations of the Translation-Rotation
+!         Collision-Induced Absorption in N2-N2, O2-O2 and N2-O2 Pairs,
+!         J.Quant. Spec. Rad. Transfer, 82,505 (2003).
+!
+!     The scale factors are reported to account for the efect of o2-o2
+!     and n2-o2 collision induced effects.
+!     The values for scale factor values (sf296) for 296K are based on
+!     linear interpolation of Boissoles at al. values at 250K and 300K
+!
+      Use params, ONLY: n_absrb
+      IMPLICIT REAL*8           (V)
+!
+      COMMON /ABSORB/  V1ABS,V2ABS,DVABS,NPTABS,ABSRB(n_absrb)
+      COMMON /N2RT296/ V1S,V2S,DVS,NPTS,C_296(73),sf_296(73)
+      COMMON /N2RT220/ V1b,V2b,DVb,NPTb,C_220(73),sf_220(73)
+      DIMENSION C(*),fo2(*)
+!
+      data xo2 / 0.21/, xn2 / 0.79/, T_296 / 296./, T_220 / 220./
+
+      tfac = (TAVE-T_296)/(T_220-T_296)
+
+      DVC = DVS
+      V1C = V1ABS-DVC
+      V2C = V2ABS+DVC
+!
+      IF (V1C.LT.V1S) then
+         I1 = -1
+         else
+         I1 = (V1C-V1S)/DVS + 0.01
+         end if
+!
+         V1C = V1S + DVS*REAL(I1-1)
+         I2 = (V2C-V1S)/DVS + 0.01
+         NPTC = I2-I1+3
+         IF (NPTC.GT.NPTS) NPTC=NPTS+4
+         V2C = V1C + DVS*REAL(NPTC-1)
+!
+!*******  ABSORPTION COEFFICIENT IN UNITS OF CM-1 AMAGAT-2
+!
+         DO 10 J = 1, NPTC
+            I = I1+(J-1)
+            C(J) = 0.
+            IF ((I.LT.1).OR.(I.GT.NPTS)) GO TO 10
+            C(J) = C_296(i)*(( C_220(i)/ C_296(i))**tfac)
+            sf_T = sf_296(i)*((sf_220(i)/sf_296(i))**tfac)
+
+!        correct for incorporation of air mixing ratios in sf
+!        fo2 is now ~ the ratio of alpha(n2-o2)/alpha(n2-n2)
+!        Eq's 7 and 8 in the Boissoles paper.
+
+!        fo2(i) = (sf_T - 1.)*(xn2**2)/(xn2*xo2)
+            fo2(j) = (sf_T - 1.)*(xn2)/(xo2)
+
+   10    END DO
+!
+         RETURN
+!
+      END
+!
+      BLOCK DATA BN2T296
+!
+      IMPLICIT REAL*8           (V)
+!
+!*******  ABSORPTION COEFFICIENT IN UNITS OF CM-1 AMAGAT-2
+!
+!           THESE DATA ARE FOR 296K
+!
+      COMMON /N2RT296/ V1N2CR,V2N2CR,DVN2CR,NPTN2C,CT296(73),sf_296(73)
+!
       DATA V1N2CR,V2N2CR,DVN2CR,NPTN2C /                                &
-     &      -10.,  350.,  5.0,   73 /                                   
-!                                                                       
+     &      -10.,  350.,  5.0,   73 /
+!
       DATA CT296/                                                       &
      &     0.4303E-06, 0.4850E-06, 0.4979E-06, 0.4850E-06, 0.4303E-06,  &
      &     0.3715E-06, 0.3292E-06, 0.3086E-06, 0.2920E-06, 0.2813E-06,  &
@@ -4212,8 +4212,8 @@ SUBROUTINE CONTNM(JRAD)
      &     0.1574E-08, 0.1387E-08, 0.1236E-08, 0.1098E-08, 0.9777E-09,  &
      &     0.8765E-09, 0.7833E-09, 0.7022E-09, 0.6317E-09, 0.5650E-09,  &
      &     0.5100E-09, 0.4572E-09, 0.4115E-09, 0.3721E-09, 0.3339E-09,  &
-     &     0.3005E-09, 0.2715E-09, 0.2428E-09/                          
-!                                                                       
+     &     0.3005E-09, 0.2715E-09, 0.2428E-09/
+!
       DATA sf_296/                                                      &
      &         1.3534,     1.3517,     1.3508,     1.3517,     1.3534,  &
      &         1.3558,     1.3584,     1.3607,     1.3623,     1.3632,  &
@@ -4229,22 +4229,22 @@ SUBROUTINE CONTNM(JRAD)
      &         1.5714,     1.5816,     1.5920,     1.6003,     1.6051,  &
      &         1.6072,     1.6097,     1.6157,     1.6157,     1.6157,  &
      &         1.6157,     1.6157,     1.6157,     1.6157,     1.6157,  &
-     &         1.6157,     1.6157,     1.6157/                          
-!                                                                       
-      END                                           
-!                                                                       
-      BLOCK DATA BN2T220 
-!                                                                       
-      IMPLICIT REAL*8           (V) 
-!                                                                       
-!*******  ABSORPTION COEFFICIENT IN UNITS OF CM-1 AMAGAT-2              
-!                                                                       
-!         THESE DATA ARE FOR 220K                                       
-!                                                                       
-      COMMON /N2RT220/ V1N2CR,V2N2CR,DVN2CR,NPTN2C,CT220(73),sf_220(73) 
-!                                                                       
-      DATA V1N2CR,V2N2CR,DVN2CR,NPTN2C / -10., 350., 5.0, 73 / 
-!                                                                       
+     &         1.6157,     1.6157,     1.6157/
+!
+      END
+!
+      BLOCK DATA BN2T220
+!
+      IMPLICIT REAL*8           (V)
+!
+!*******  ABSORPTION COEFFICIENT IN UNITS OF CM-1 AMAGAT-2
+!
+!         THESE DATA ARE FOR 220K
+!
+      COMMON /N2RT220/ V1N2CR,V2N2CR,DVN2CR,NPTN2C,CT220(73),sf_220(73)
+!
+      DATA V1N2CR,V2N2CR,DVN2CR,NPTN2C / -10., 350., 5.0, 73 /
+!
       DATA CT220/                                                       &
      &     0.4946E-06, 0.5756E-06, 0.5964E-06, 0.5756E-06, 0.4946E-06,  &
      &     0.4145E-06, 0.3641E-06, 0.3482E-06, 0.3340E-06, 0.3252E-06,  &
@@ -4260,8 +4260,8 @@ SUBROUTINE CONTNM(JRAD)
      &     0.7189E-09, 0.6314E-09, 0.5635E-09, 0.4976E-09, 0.4401E-09,  &
      &     0.3926E-09, 0.3477E-09, 0.3085E-09, 0.2745E-09, 0.2416E-09,  &
      &     0.2155E-09, 0.1895E-09, 0.1678E-09, 0.1493E-09, 0.1310E-09,  &
-     &     0.1154E-09, 0.1019E-09, 0.8855E-10/                          
-!                                                                       
+     &     0.1154E-09, 0.1019E-09, 0.8855E-10/
+!
       DATA sf_220/                                                      &
      &         1.3536,     1.3515,     1.3502,     1.3515,     1.3536,  &
      &         1.3565,     1.3592,     1.3612,     1.3623,     1.3626,  &
@@ -4277,108 +4277,108 @@ SUBROUTINE CONTNM(JRAD)
      &         1.6117,     1.6244,     1.6389,     1.6485,     1.6513,  &
      &         1.6468,     1.6438,     1.6523,     1.6523,     1.6523,  &
      &         1.6523,     1.6523,     1.6523,     1.6523,     1.6523,  &
-     &         1.6523,     1.6523,     1.6523/                          
-!                                                                       
-      END                                           
-!                                                                       
-!     --------------------------------------------------------------    
-!                                                                       
-      subroutine n2_ver_1 (v1c,v2c,dvc,nptc,c,c1,c2,T) 
-!                                                                       
-      Use params, ONLY: n_absrb 
-      IMPLICIT REAL*8 (v) 
-!                                                                       
-      COMMON /ABSORB/ V1ABS,V2ABS,DVABS,NPTABS,ABSRB(n_absrb) 
-!                                                                       
+     &         1.6523,     1.6523,     1.6523/
+!
+      END
+!
+!     --------------------------------------------------------------
+!
+      subroutine n2_ver_1 (v1c,v2c,dvc,nptc,c,c1,c2,T)
+!
+      Use params, ONLY: n_absrb
+      IMPLICIT REAL*8 (v)
+!
+      COMMON /ABSORB/ V1ABS,V2ABS,DVABS,NPTABS,ABSRB(n_absrb)
+!
       COMMON /n2_f/V1S,V2S,DVS,NPTS,xn2_272(230),xn2_228(230),a_h2o(230)
-!                                                                       
-      dimension c(*),c1(*),c2(*) 
-!                                                                       
-!     Nitrogen Collision Induced Fundamental                            
-                                                                        
-!     Lafferty, W.J., A.M. Solodov,A. Weber, W.B. Olson and J._M. 
-!        Hartmann, Infrared collision-induced absorption by N2 near 4.3 
-!        microns for atmospheric applications: measurements and 
-!         emprirical modeling, Appl. Optics, 35, 5911-5917, (1996).                          
-!                                                                  
-!     mt_ckd_2.8: Coefficients for N2-H2O relative efficiency determined  
+!
+      dimension c(*),c1(*),c2(*)
+!
+!     Nitrogen Collision Induced Fundamental
+
+!     Lafferty, W.J., A.M. Solodov,A. Weber, W.B. Olson and J._M.
+!        Hartmann, Infrared collision-induced absorption by N2 near 4.3
+!        microns for atmospheric applications: measurements and
+!         emprirical modeling, Appl. Optics, 35, 5911-5917, (1996).
+!
+!     mt_ckd_2.8: Coefficients for N2-H2O relative efficiency determined
 !     by Mlawer and Alvarado based primarily on measurements from
-!     Baranov and Lafferty (2012). These coefficients were derived 
-!     simultaneously with water vapor foreign and self continuum 
-!     coefficients from 1800-2600 cm-1 using IASI measurements as in 
+!     Baranov and Lafferty (2012). These coefficients were derived
+!     simultaneously with water vapor foreign and self continuum
+!     coefficients from 1800-2600 cm-1 using IASI measurements as in
 !     Alvarado et al. (2012).
-      DATA  T_272/ 272./, T_228/ 228./ 
-!                                                                       
-      xtfac  = ((1./T)-(1./T_272))/((1./T_228)-(1./T_272)) 
-      xt_lin = (T-T_272)/(T_228-T_272) 
-!                                                                       
-!     a_o2  represents the relative broadening efficiency of o2   
-      a_o2  = 1.294 - 0.4545*T/296.                            
+      DATA  T_272/ 272./, T_228/ 228./
+!
+      xtfac  = ((1./T)-(1./T_272))/((1./T_228)-(1./T_272))
+      xt_lin = (T-T_272)/(T_228-T_272)
+!
+!     a_o2  represents the relative broadening efficiency of o2
+      a_o2  = 1.294 - 0.4545*T/296.
 
-!     a_h2o represents the relative broadening efficiency of h2o.  It 
-!     has spectral dependence and is stored on same grid as xn2. 
+!     a_h2o represents the relative broadening efficiency of h2o.  It
+!     has spectral dependence and is stored on same grid as xn2.
 
-!     The absorption coefficients from the Lafferty et al. reference    
-!     are for pure nitrogen (absorber and broadener)                    
-!                                                                       
-      DVC = DVS 
-      V1C = V1ABS-DVC 
-      V2C = V2ABS+DVC 
-!                                                                       
-      IF (V1C.LT.V1S) then 
-         I1 = -1 
-      else 
-         I1 = (V1C-V1S)/DVS + 0.01 
+!     The absorption coefficients from the Lafferty et al. reference
+!     are for pure nitrogen (absorber and broadener)
+!
+      DVC = DVS
+      V1C = V1ABS-DVC
+      V2C = V2ABS+DVC
+!
+      IF (V1C.LT.V1S) then
+         I1 = -1
+      else
+         I1 = (V1C-V1S)/DVS + 0.01
       end if
-!                                                                       
-      V1C = V1S + DVS*REAL(I1-1) 
-      I2 = (V2C-V1S)/DVS + 0.01 
-      NPTC = I2-I1+3 
-      IF (NPTC.GT.NPTS) NPTC=NPTS+4 
-      V2C = V1C + DVS*REAL(NPTC-1) 
-!                                                                       
-      do 10 j=1,nptc 
-         i = i1+(j-1) 
-         C(J) = 0. 
-         IF ((I.LT.1).OR.(I.GT.NPTS)) GO TO 10 
-         VJ = V1C+DVC* REAL(J-1) 
-!                                                                       
-         if ((xn2_272(i).gt.0.) .and. (xn2_228(i) .gt. 0.)) then 
-!           logarithmic interpolation in reciprical of temperature      
-                                                                        
-            c(j) = xn2_272(i) *(xn2_228(i)/xn2_272(i))**xtfac 
-                                                                        
-         else 
+!
+      V1C = V1S + DVS*REAL(I1-1)
+      I2 = (V2C-V1S)/DVS + 0.01
+      NPTC = I2-I1+3
+      IF (NPTC.GT.NPTS) NPTC=NPTS+4
+      V2C = V1C + DVS*REAL(NPTC-1)
+!
+      do 10 j=1,nptc
+         i = i1+(j-1)
+         C(J) = 0.
+         IF ((I.LT.1).OR.(I.GT.NPTS)) GO TO 10
+         VJ = V1C+DVC* REAL(J-1)
+!
+         if ((xn2_272(i).gt.0.) .and. (xn2_228(i) .gt. 0.)) then
+!           logarithmic interpolation in reciprical of temperature
+
+            c(j) = xn2_272(i) *(xn2_228(i)/xn2_272(i))**xtfac
+
+         else
 !           linear interpolation  (xn2_272 or xn2_228 = 0 to get here)
-                                                                        
-            c(j) = xn2_272(i) + (xn2_228(i)-xn2_272(i))*xt_lin 
-                                                                        
-         endif 
-                                                                        
-!     the radiation field is removed with 1/vj                          
-                                                                        
-         c(j) = c(j)/vj 
+
+            c(j) = xn2_272(i) + (xn2_228(i)-xn2_272(i))*xt_lin
+
+         endif
+
+!     the radiation field is removed with 1/vj
+
+         c(j) = c(j)/vj
          c1(j) = a_o2 * c(j)
-!     the factor 9/7 is a modification to a preliminary formulation 
+!     the factor 9/7 is a modification to a preliminary formulation
 !     of n2-h2o absorption.
          c2(j) = (9./7.) * a_h2o(i) * c(j)
-!                                                                       
+!
  10   end do
-                                                                        
-      return 
-                                                                        
-      END                                           
-                                                                        
-      BLOCK DATA bn2f 
-                                                                        
-      IMPLICIT REAL*8 (v) 
-                                                                        
+
+      return
+
+      END
+
+      BLOCK DATA bn2f
+
+      IMPLICIT REAL*8 (v)
+
       COMMON /n2_f/ V1n2f,V2n2f,DVn2f,NPTn2f,                           &
-     &          xn2_272(230),xn2_228(230),a_h2o(230)                              
-!     &          xn2_272(179),xn2_228(179),a_h2o(179)                              
-                                                                        
+     &          xn2_272(230),xn2_228(230),a_h2o(230)
+!     &          xn2_272(179),xn2_228(179),a_h2o(179)
+
       DATA V1n2f,V2n2f,DVn2f,NPTn2f                                     &
-     &     /1993.803434, 2905.558123, 3.981461525, 230/                 
+     &     /1993.803434, 2905.558123, 3.981461525, 230/
       DATA xn2_272/                                                     &
      &      0.000E+00,  0.000E+00,                                      &
      &      4.691E-11,  5.960E-11,  7.230E-11,  9.435E-11,  1.171E-10,  &
@@ -4426,8 +4426,8 @@ SUBROUTINE CONTNM(JRAD)
      &      1.994E-10,  1.825E-10,  1.676E-10,  1.527E-10,  1.406E-10,  &
      &      1.287E-10,  1.178E-10,  1.082E-10,  9.859E-11,  9.076E-11,  &
      &      8.305E-11,  7.599E-11,  6.981E-11,  6.363E-11,  5.857E-11,  &
-     &      5.362E-11,  0.000E+00,  0.000E+00/                                                                        
-                                                                                                                                                
+     &      5.362E-11,  0.000E+00,  0.000E+00/
+
       DATA xn2_228/                                                     &
      &      0.000E+00,  0.000E+00,                                      &
      &      5.736E-11,  7.296E-11,  8.856E-11,  1.154E-10,  1.431E-10,  &
@@ -4525,71 +4525,71 @@ SUBROUTINE CONTNM(JRAD)
      &      598.70,  621.92,  646.40,  670.87,  697.63,                 &
      &      724.56,  752.63,  782.27,  811.91,  844.26,                 &
      &      876.88,  876.88,  876.88/
-                                                                        
-      END                                           
-!                                                                       
-!     --------------------------------------------------------------    
-!                                                                       
-      subroutine n2_overtone1 (v1c,v2c,dvc,nptc,c) 
-!                                                                       
-      Use params, ONLY: n_absrb 
-      IMPLICIT REAL*8 (v) 
-!                                                                       
-      COMMON /ABSORB/ V1ABS,V2ABS,DVABS,NPTABS,ABSRB(n_absrb) 
-!                                                                       
-      COMMON /n2_f1/ V1S,V2S,DVS,NPTS,xn2(201)
-!                                                                       
-      dimension c(*) 
-!                                                                       
-!     Nitrogen Collision Induced First Overtone
-                                                                        
-!     Shapiro and Gush (1966) modified by Mlawer and Gombos (2015).    
 
-!     The absorption coefficients are for pure nitrogen (absorber and 
+      END
+!
+!     --------------------------------------------------------------
+!
+      subroutine n2_overtone1 (v1c,v2c,dvc,nptc,c)
+!
+      Use params, ONLY: n_absrb
+      IMPLICIT REAL*8 (v)
+!
+      COMMON /ABSORB/ V1ABS,V2ABS,DVABS,NPTABS,ABSRB(n_absrb)
+!
+      COMMON /n2_f1/ V1S,V2S,DVS,NPTS,xn2(201)
+!
+      dimension c(*)
+!
+!     Nitrogen Collision Induced First Overtone
+
+!     Shapiro and Gush (1966) modified by Mlawer and Gombos (2015).
+
+!     The absorption coefficients are for pure nitrogen (absorber and
 !     broadener.
-!                                                                       
-      DVC = DVS 
-      V1C = V1ABS-DVC 
-      V2C = V2ABS+DVC 
-!                                                                       
-      IF (V1C.LT.V1S) then 
-         I1 = -1 
-      else 
-         I1 = (V1C-V1S)/DVS + 0.01 
+!
+      DVC = DVS
+      V1C = V1ABS-DVC
+      V2C = V2ABS+DVC
+!
+      IF (V1C.LT.V1S) then
+         I1 = -1
+      else
+         I1 = (V1C-V1S)/DVS + 0.01
       end if
-!                                                                       
-      V1C = V1S + DVS*REAL(I1-1) 
-      I2 = (V2C-V1S)/DVS + 0.01 
-      NPTC = I2-I1+3 
-      IF (NPTC.GT.NPTS) NPTC=NPTS+4 
-      V2C = V1C + DVS*REAL(NPTC-1) 
-!                                                                       
-      do 10 j=1,nptc 
-         i = i1+(j-1) 
-         C(J) = 0. 
-         IF ((I.LT.1).OR.(I.GT.NPTS)) GO TO 10 
-         VJ = V1C+DVC* REAL(J-1) 
-!                                                                       
+!
+      V1C = V1S + DVS*REAL(I1-1)
+      I2 = (V2C-V1S)/DVS + 0.01
+      NPTC = I2-I1+3
+      IF (NPTC.GT.NPTS) NPTC=NPTS+4
+      V2C = V1C + DVS*REAL(NPTC-1)
+!
+      do 10 j=1,nptc
+         i = i1+(j-1)
+         C(J) = 0.
+         IF ((I.LT.1).OR.(I.GT.NPTS)) GO TO 10
+         VJ = V1C+DVC* REAL(J-1)
+!
          c(j) = xn2(i)
-                                                                        
-!     the radiation field is removed with 1/vj                          
-                                                                        
-         c(j) = c(j)/vj 
-!                                                                       
- 10 end do 
-                                                                        
-         return 
-                                                                        
-      END                                           
-                                                                        
-      BLOCK DATA bn2f1 
-                                                                        
-      IMPLICIT REAL*8 (v) 
-                                                                        
-      COMMON /n2_f1/ V1n2f,V2n2f,DVn2f,NPTn2f,xn2(201)                               
-                                                                        
+
+!     the radiation field is removed with 1/vj
+
+         c(j) = c(j)/vj
+!
+ 10 end do
+
+         return
+
+      END
+
+      BLOCK DATA bn2f1
+
+      IMPLICIT REAL*8 (v)
+
+      COMMON /n2_f1/ V1n2f,V2n2f,DVn2f,NPTn2f,xn2(201)
+
       DATA V1n2f,V2n2f,DVn2f,NPTn2f                                     &
-     &     /4325.0, 4925.0, 3.0, 201/                 
+     &     /4325.0, 4925.0, 3.0, 201/
       DATA xn2/                                                     &
      &      0.000E+00, 0.000E+00, 0.000E+00, 0.000E+00, 0.000E+00, &
      &      0.000E+00, 3.709E-11, 7.418E-11, 1.113E-10, 1.484E-10, &
@@ -4631,88 +4631,88 @@ SUBROUTINE CONTNM(JRAD)
      &      2.409E-10, 2.099E-10, 1.788E-10, 1.478E-10, 1.225E-10, &
      &      1.021E-10, 8.165E-11, 6.123E-11, 4.082E-11, 2.041E-11, &
      &      0.000E+00, 0.000E+00, 0.000E+00, 0.000E+00, 0.000E+00, &
-     &      0.000E+00/                                                                        
-      END                                           
-!                                                                       
-!     --------------------------------------------------------------    
-!                                                                       
-      SUBROUTINE XO3CHP (V1C,V2C,DVC,NPTC,C0,C1,C2) 
-                                                                        
-      Use params, ONLY: n_absrb 
-!                                                                       
-      IMPLICIT REAL*8           (V) 
-!                                                                       
-      COMMON /ABSORB/ V1ABS,V2ABS,DVABS,NPTABS,ABSRB(n_absrb) 
-      COMMON /O3CHAP/ V1S,V2S,DVS,NPTS,X(3150),Y(3150),Z(3150) 
-      DIMENSION C0(*),C1(*),C2(*) 
-!                                                                       
-      DVC = DVS 
-      V1C = V1ABS-DVC 
-      V2C = V2ABS+DVC 
-!                                                                       
-      IF (V1C.LT.V1S) then 
-         I1 = -1 
-         else 
-         I1 = (V1C-V1S)/DVS + 0.01 
-         end if 
-!                                                                       
-         V1C = V1S + DVS*REAL(I1-1) 
-         I2 = (V2C-V1S)/DVS + 0.01 
-         NPTC = I2-I1+3 
-         IF (NPTC.GT.NPTS) NPTC=NPTS+4 
-         V2C = V1C + DVS*REAL(NPTC-1) 
-!                                                                       
-         DO 10 J = 1, NPTC 
-            I = I1+(J-1) 
-            IF ((I.LT.1).OR.(I.GT.NPTS)) THEN 
-               C0(J) = 0. 
-               C1(J)=0. 
-               C2(J)=0. 
-            ELSE 
-!                                                                       
-!            Remove radiation field from diffuse ozone                  
-!                                                                       
-               VJ = V1C+DVC* REAL(J-1) 
-               C0(J)=X(I)/VJ 
-               C1(J)=Y(I)/VJ 
-               C2(J)=Z(I)/VJ 
-            ENDIF 
-   10    END DO 
-!                                                                       
-         RETURN 
-!                                                                       
-      END                                           
-!                                                                       
-!     --------------------------------------------------------------    
-      BLOCK DATA O3CH 
-!                                                                       
-!     CHAPPUIS AND WULF BAND                                            
-!                                                                       
-!     BEGINNING AND ENDING FREQUENCIES FROM DATA (CM-1):                
-!                                                                       
-!                        9170.0 24565.0                                 
-!                                                                       
-!     Added points at beginning and end (X,Y,Z(1:50) and                
-!     X,Y,Z(3130:3150)).  Zeroed values of Y,Z(1:789) to eliminate      
+     &      0.000E+00/
+      END
+!
+!     --------------------------------------------------------------
+!
+      SUBROUTINE XO3CHP (V1C,V2C,DVC,NPTC,C0,C1,C2)
+
+      Use params, ONLY: n_absrb
+!
+      IMPLICIT REAL*8           (V)
+!
+      COMMON /ABSORB/ V1ABS,V2ABS,DVABS,NPTABS,ABSRB(n_absrb)
+      COMMON /O3CHAP/ V1S,V2S,DVS,NPTS,X(3150),Y(3150),Z(3150)
+      DIMENSION C0(*),C1(*),C2(*)
+!
+      DVC = DVS
+      V1C = V1ABS-DVC
+      V2C = V2ABS+DVC
+!
+      IF (V1C.LT.V1S) then
+         I1 = -1
+         else
+         I1 = (V1C-V1S)/DVS + 0.01
+         end if
+!
+         V1C = V1S + DVS*REAL(I1-1)
+         I2 = (V2C-V1S)/DVS + 0.01
+         NPTC = I2-I1+3
+         IF (NPTC.GT.NPTS) NPTC=NPTS+4
+         V2C = V1C + DVS*REAL(NPTC-1)
+!
+         DO 10 J = 1, NPTC
+            I = I1+(J-1)
+            IF ((I.LT.1).OR.(I.GT.NPTS)) THEN
+               C0(J) = 0.
+               C1(J)=0.
+               C2(J)=0.
+            ELSE
+!
+!            Remove radiation field from diffuse ozone
+!
+               VJ = V1C+DVC* REAL(J-1)
+               C0(J)=X(I)/VJ
+               C1(J)=Y(I)/VJ
+               C2(J)=Z(I)/VJ
+            ENDIF
+   10    END DO
+!
+         RETURN
+!
+      END
+!
+!     --------------------------------------------------------------
+      BLOCK DATA O3CH
+!
+!     CHAPPUIS AND WULF BAND
+!
+!     BEGINNING AND ENDING FREQUENCIES FROM DATA (CM-1):
+!
+!                        9170.0 24565.0
+!
+!     Added points at beginning and end (X,Y,Z(1:50) and
+!     X,Y,Z(3130:3150)).  Zeroed values of Y,Z(1:789) to eliminate
 !     ringing from interpolations done in MODTRAN.  Changed coefficients
 !     X(32:50,3130:3150) Y(821:841,3130:3150), & Z(821:841,3130:3150) to
-!     smooth coefficients to zero.                                      
-!     Smoothing coefficient frequencies (cm-1):                         
-!                                                                       
-!             9075.0 -  9165.0  and 24570.0 - 24665.0 for X             
-!            13020.0 - 13120.0  and 24570.0 - 24665.0 for Y             
-!            13020.0 - 13120.0  and 24570.0 - 24665.0 for Z             
-!                                                                       
-!                                                                       
-!                                                                       
-!     CROSS-SECTIONS IN CM^2 TIMES 1.0E20                               
-!     FORMULA FOR CROSS SECTION:  X+Y*DT+Z*DT*DT, DT=T-273.15           
-!     THE OUTPUT OF THIS ROUTINE IS C0=X, CT1=Y AND CT2=Z.              
-!                                                                       
-      IMPLICIT REAL*8           (V) 
-      COMMON /O3CHAP/VBEG,VEND,DVINCR,NMAX,X(3150),Y(3150),Z(3150) 
-!                                                                       
-      DATA VBEG, VEND, DVINCR, NMAX /8920.0, 24665.0, 5.0, 3150/ 
+!     smooth coefficients to zero.
+!     Smoothing coefficient frequencies (cm-1):
+!
+!             9075.0 -  9165.0  and 24570.0 - 24665.0 for X
+!            13020.0 - 13120.0  and 24570.0 - 24665.0 for Y
+!            13020.0 - 13120.0  and 24570.0 - 24665.0 for Z
+!
+!
+!
+!     CROSS-SECTIONS IN CM^2 TIMES 1.0E20
+!     FORMULA FOR CROSS SECTION:  X+Y*DT+Z*DT*DT, DT=T-273.15
+!     THE OUTPUT OF THIS ROUTINE IS C0=X, CT1=Y AND CT2=Z.
+!
+      IMPLICIT REAL*8           (V)
+      COMMON /O3CHAP/VBEG,VEND,DVINCR,NMAX,X(3150),Y(3150),Z(3150)
+!
+      DATA VBEG, VEND, DVINCR, NMAX /8920.0, 24665.0, 5.0, 3150/
       DATA (X(I),I=    1,  50)/                                         &
      &      0.00000  ,  0.00000  ,  0.00000  ,  0.00000  ,  0.00000  ,  &
      &      0.00000  ,  0.00000  ,  0.00000  ,  0.00000  ,  0.00000  ,  &
@@ -4723,7 +4723,7 @@ SUBROUTINE CONTNM(JRAD)
      &      0.00000  ,  0.075E-05,  0.150E-05,  0.225E-05,  0.300E-05,  &
      &      0.400E-05,  0.500E-05,  0.600E-05,  0.700E-05,  0.850E-05,  &
      &      1.000E-05,  1.200E-05,  1.430E-05,  1.680E-05,  1.980E-05,  &
-     &      2.280E-05,  2.630E-05,  2.980E-05,  3.376E-05,  3.826E-05/  
+     &      2.280E-05,  2.630E-05,  2.980E-05,  3.376E-05,  3.826E-05/
       DATA (X(I),I= 51, 100)/                                           &
      &      4.276E-05,  4.775E-05,  5.825E-05,  6.908E-05,  7.299E-05,  &
      &      7.116E-05,  7.388E-05,  7.965E-05,  7.689E-05,  6.900E-05,  &
@@ -4734,7 +4734,7 @@ SUBROUTINE CONTNM(JRAD)
      &      1.121E-04,  1.193E-04,  1.292E-04,  1.364E-04,  1.526E-04,  &
      &      1.658E-04,  1.808E-04,  1.861E-04,  1.786E-04,  1.804E-04,  &
      &      1.885E-04,  1.972E-04,  2.218E-04,  2.408E-04,  2.317E-04,  &
-     &      2.098E-04,  1.938E-04,  1.851E-04,  1.896E-04,  1.875E-04/  
+     &      2.098E-04,  1.938E-04,  1.851E-04,  1.896E-04,  1.875E-04/
       DATA (X(I),I=  101,  150)/                                        &
      &      1.708E-04,  1.710E-04,  1.796E-04,  1.865E-04,  1.943E-04,  &
      &      1.881E-04,  1.885E-04,  2.136E-04,  2.255E-04,  2.267E-04,  &
@@ -4745,7 +4745,7 @@ SUBROUTINE CONTNM(JRAD)
      &      5.140E-04,  4.161E-04,  3.620E-04,  3.264E-04,  3.004E-04,  &
      &      2.815E-04,  2.650E-04,  2.527E-04,  2.424E-04,  2.292E-04,  &
      &      2.155E-04,  2.072E-04,  1.992E-04,  1.943E-04,  1.914E-04,  &
-     &      1.855E-04,  1.813E-04,  1.724E-04,  1.687E-04,  1.676E-04/  
+     &      1.855E-04,  1.813E-04,  1.724E-04,  1.687E-04,  1.676E-04/
       DATA (X(I),I= 151, 200)/                                          &
      &      1.601E-04,  1.503E-04,  1.518E-04,  1.436E-04,  1.455E-04,  &
      &      1.448E-04,  1.410E-04,  1.406E-04,  1.425E-04,  1.407E-04,  &
@@ -4756,7 +4756,7 @@ SUBROUTINE CONTNM(JRAD)
      &      1.894E-04,  1.927E-04,  2.043E-04,  2.106E-04,  2.215E-04,  &
      &      2.268E-04,  2.249E-04,  2.230E-04,  2.302E-04,  2.408E-04,  &
      &      2.518E-04,  2.625E-04,  2.753E-04,  2.788E-04,  2.701E-04,  &
-     &      2.746E-04,  2.935E-04,  3.173E-04,  3.457E-04,  3.452E-04/  
+     &      2.746E-04,  2.935E-04,  3.173E-04,  3.457E-04,  3.452E-04/
       DATA (X(I),I=  201,  250)/                                        &
      &      3.329E-04,  3.443E-04,  3.706E-04,  4.079E-04,  4.403E-04,  &
      &      4.343E-04,  4.172E-04,  4.448E-04,  5.132E-04,  5.635E-04,  &
@@ -4767,7 +4767,7 @@ SUBROUTINE CONTNM(JRAD)
      &      2.199E-03,  2.336E-03,  2.666E-03,  3.076E-03,  3.075E-03,  &
      &      2.543E-03,  1.920E-03,  1.498E-03,  1.283E-03,  1.165E-03,  &
      &      1.070E-03,  9.833E-04,  9.018E-04,  8.207E-04,  7.451E-04,  &
-     &      6.811E-04,  6.178E-04,  5.661E-04,  5.199E-04,  4.868E-04/  
+     &      6.811E-04,  6.178E-04,  5.661E-04,  5.199E-04,  4.868E-04/
       DATA (X(I),I= 251, 300)/                                          &
      &      4.541E-04,  4.291E-04,  4.135E-04,  3.990E-04,  3.878E-04,  &
      &      3.815E-04,  3.722E-04,  3.691E-04,  3.726E-04,  3.711E-04,  &
@@ -4778,7 +4778,7 @@ SUBROUTINE CONTNM(JRAD)
      &      6.059E-04,  6.238E-04,  6.469E-04,  6.711E-04,  7.046E-04,  &
      &      7.448E-04,  7.794E-04,  8.054E-04,  8.222E-04,  8.371E-04,  &
      &      8.538E-04,  8.612E-04,  8.698E-04,  8.914E-04,  9.122E-04,  &
-     &      9.305E-04,  9.562E-04,  9.844E-04,  1.018E-03,  1.053E-03/  
+     &      9.305E-04,  9.562E-04,  9.844E-04,  1.018E-03,  1.053E-03/
       DATA (X(I),I=  301,  350)/                                        &
      &      1.091E-03,  1.136E-03,  1.187E-03,  1.233E-03,  1.289E-03,  &
      &      1.336E-03,  1.372E-03,  1.405E-03,  1.435E-03,  1.470E-03,  &
@@ -4789,7 +4789,7 @@ SUBROUTINE CONTNM(JRAD)
      &      3.822E-03,  3.923E-03,  3.997E-03,  4.042E-03,  4.061E-03,  &
      &      4.035E-03,  3.979E-03,  3.901E-03,  3.785E-03,  3.642E-03,  &
      &      3.494E-03,  3.339E-03,  3.173E-03,  3.004E-03,  2.849E-03,  &
-     &      2.703E-03,  2.556E-03,  2.432E-03,  2.310E-03,  2.191E-03/  
+     &      2.703E-03,  2.556E-03,  2.432E-03,  2.310E-03,  2.191E-03/
       DATA (X(I),I= 351, 400)/                                          &
      &      2.076E-03,  1.969E-03,  1.883E-03,  1.818E-03,  1.753E-03,  &
      &      1.705E-03,  1.672E-03,  1.643E-03,  1.617E-03,  1.616E-03,  &
@@ -4800,7 +4800,7 @@ SUBROUTINE CONTNM(JRAD)
      &      1.628E-03,  1.626E-03,  1.628E-03,  1.635E-03,  1.642E-03,  &
      &      1.649E-03,  1.653E-03,  1.656E-03,  1.660E-03,  1.669E-03,  &
      &      1.685E-03,  1.705E-03,  1.730E-03,  1.755E-03,  1.779E-03,  &
-     &      1.804E-03,  1.830E-03,  1.861E-03,  1.896E-03,  1.931E-03/  
+     &      1.804E-03,  1.830E-03,  1.861E-03,  1.896E-03,  1.931E-03/
       DATA (X(I),I=  401,  450)/                                        &
      &      1.962E-03,  1.991E-03,  2.024E-03,  2.068E-03,  2.131E-03,  &
      &      2.207E-03,  2.285E-03,  2.357E-03,  2.423E-03,  2.490E-03,  &
@@ -4811,7 +4811,7 @@ SUBROUTINE CONTNM(JRAD)
      &      4.961E-03,  5.088E-03,  5.218E-03,  5.348E-03,  5.471E-03,  &
      &      5.594E-03,  5.713E-03,  5.828E-03,  5.933E-03,  6.026E-03,  &
      &      6.100E-03,  6.152E-03,  6.186E-03,  6.193E-03,  6.182E-03,  &
-     &      6.149E-03,  6.093E-03,  6.011E-03,  5.914E-03,  5.799E-03/  
+     &      6.149E-03,  6.093E-03,  6.011E-03,  5.914E-03,  5.799E-03/
       DATA (X(I),I= 451, 500)/                                          &
      &      5.676E-03,  5.553E-03,  5.438E-03,  5.330E-03,  5.233E-03,  &
      &      5.151E-03,  5.080E-03,  5.025E-03,  4.987E-03,  4.972E-03,  &
@@ -4822,7 +4822,7 @@ SUBROUTINE CONTNM(JRAD)
      &      4.306E-03,  4.247E-03,  4.191E-03,  4.135E-03,  4.083E-03,  &
      &      4.035E-03,  3.997E-03,  3.968E-03,  3.945E-03,  3.923E-03,  &
      &      3.904E-03,  3.886E-03,  3.867E-03,  3.856E-03,  3.848E-03,  &
-     &      3.845E-03,  3.848E-03,  3.860E-03,  3.878E-03,  3.897E-03/  
+     &      3.845E-03,  3.848E-03,  3.860E-03,  3.878E-03,  3.897E-03/
       DATA (X(I),I=  501,  550)/                                        &
      &      3.915E-03,  3.941E-03,  3.971E-03,  4.008E-03,  4.057E-03,  &
      &      4.113E-03,  4.176E-03,  4.243E-03,  4.325E-03,  4.418E-03,  &
@@ -4833,7 +4833,7 @@ SUBROUTINE CONTNM(JRAD)
      &      7.507E-03,  7.768E-03,  8.036E-03,  8.304E-03,  8.579E-03,  &
      &      8.862E-03,  9.148E-03,  9.442E-03,  9.744E-03,  1.006E-02,  &
      &      1.038E-02,  1.071E-02,  1.104E-02,  1.137E-02,  1.168E-02,  &
-     &      1.195E-02,  1.220E-02,  1.242E-02,  1.264E-02,  1.283E-02/  
+     &      1.195E-02,  1.220E-02,  1.242E-02,  1.264E-02,  1.283E-02/
       DATA (X(I),I= 551, 600)/                                          &
      &      1.303E-02,  1.322E-02,  1.339E-02,  1.356E-02,  1.371E-02,  &
      &      1.385E-02,  1.398E-02,  1.408E-02,  1.415E-02,  1.417E-02,  &
@@ -4844,7 +4844,7 @@ SUBROUTINE CONTNM(JRAD)
      &      9.022E-03,  8.843E-03,  8.668E-03,  8.505E-03,  8.348E-03,  &
      &      8.207E-03,  8.088E-03,  7.987E-03,  7.909E-03,  7.842E-03,  &
      &      7.782E-03,  7.727E-03,  7.675E-03,  7.619E-03,  7.570E-03,  &
-     &      7.526E-03,  7.488E-03,  7.459E-03,  7.440E-03,  7.429E-03/  
+     &      7.526E-03,  7.488E-03,  7.459E-03,  7.440E-03,  7.429E-03/
       DATA (X(I),I=  601,  650)/                                        &
      &      7.429E-03,  7.429E-03,  7.440E-03,  7.455E-03,  7.474E-03,  &
      &      7.500E-03,  7.529E-03,  7.563E-03,  7.593E-03,  7.622E-03,  &
@@ -4855,7 +4855,7 @@ SUBROUTINE CONTNM(JRAD)
      &      1.034E-02,  1.059E-02,  1.085E-02,  1.113E-02,  1.143E-02,  &
      &      1.174E-02,  1.207E-02,  1.242E-02,  1.277E-02,  1.313E-02,  &
      &      1.350E-02,  1.388E-02,  1.425E-02,  1.464E-02,  1.503E-02,  &
-     &      1.544E-02,  1.586E-02,  1.628E-02,  1.670E-02,  1.713E-02/  
+     &      1.544E-02,  1.586E-02,  1.628E-02,  1.670E-02,  1.713E-02/
       DATA (X(I),I= 651, 700)/                                          &
      &      1.755E-02,  1.796E-02,  1.837E-02,  1.875E-02,  1.911E-02,  &
      &      1.945E-02,  1.975E-02,  2.002E-02,  2.028E-02,  2.050E-02,  &
@@ -4866,7 +4866,7 @@ SUBROUTINE CONTNM(JRAD)
      &      1.915E-02,  1.891E-02,  1.868E-02,  1.845E-02,  1.821E-02,  &
      &      1.798E-02,  1.773E-02,  1.746E-02,  1.719E-02,  1.692E-02,  &
      &      1.666E-02,  1.643E-02,  1.621E-02,  1.598E-02,  1.576E-02,  &
-     &      1.558E-02,  1.542E-02,  1.529E-02,  1.519E-02,  1.509E-02/  
+     &      1.558E-02,  1.542E-02,  1.529E-02,  1.519E-02,  1.509E-02/
       DATA (X(I),I=  701,  750)/                                        &
      &      1.501E-02,  1.493E-02,  1.484E-02,  1.477E-02,  1.473E-02,  &
      &      1.471E-02,  1.469E-02,  1.468E-02,  1.468E-02,  1.470E-02,  &
@@ -4877,7 +4877,7 @@ SUBROUTINE CONTNM(JRAD)
      &      1.614E-02,  1.625E-02,  1.637E-02,  1.654E-02,  1.676E-02,  &
      &      1.698E-02,  1.719E-02,  1.740E-02,  1.762E-02,  1.784E-02,  &
      &      1.805E-02,  1.827E-02,  1.852E-02,  1.878E-02,  1.906E-02,  &
-     &      1.935E-02,  1.962E-02,  1.985E-02,  2.005E-02,  2.024E-02/  
+     &      1.935E-02,  1.962E-02,  1.985E-02,  2.005E-02,  2.024E-02/
       DATA (X(I),I= 751, 800)/                                          &
      &      2.047E-02,  2.073E-02,  2.106E-02,  2.137E-02,  2.167E-02,  &
      &      2.194E-02,  2.223E-02,  2.256E-02,  2.287E-02,  2.316E-02,  &
@@ -4888,7 +4888,7 @@ SUBROUTINE CONTNM(JRAD)
      &      3.116E-02,  3.138E-02,  3.153E-02,  3.155E-02,  3.152E-02,  &
      &      3.146E-02,  3.144E-02,  3.138E-02,  3.126E-02,  3.110E-02,  &
      &      3.092E-02,  3.073E-02,  3.054E-02,  3.033E-02,  3.008E-02,  &
-     &      2.980E-02,  2.947E-02,  2.910E-02,  2.870E-02,  2.832E-02/  
+     &      2.980E-02,  2.947E-02,  2.910E-02,  2.870E-02,  2.832E-02/
       DATA (X(I),I=  801,  850)/                                        &
      &      2.795E-02,  2.765E-02,  2.735E-02,  2.706E-02,  2.680E-02,  &
      &      2.656E-02,  2.637E-02,  2.620E-02,  2.604E-02,  2.587E-02,  &
@@ -4899,7 +4899,7 @@ SUBROUTINE CONTNM(JRAD)
      &      2.550E-02,  2.558E-02,  2.568E-02,  2.578E-02,  2.587E-02,  &
      &      2.592E-02,  2.598E-02,  2.605E-02,  2.619E-02,  2.631E-02,  &
      &      2.621E-02,  2.617E-02,  2.629E-02,  2.642E-02,  2.654E-02,  &
-     &      2.669E-02,  2.685E-02,  2.700E-02,  2.716E-02,  2.734E-02/  
+     &      2.669E-02,  2.685E-02,  2.700E-02,  2.716E-02,  2.734E-02/
       DATA (X(I),I= 851, 900)/                                          &
      &      2.752E-02,  2.772E-02,  2.792E-02,  2.813E-02,  2.834E-02,  &
      &      2.858E-02,  2.885E-02,  2.913E-02,  2.941E-02,  2.973E-02,  &
@@ -4910,7 +4910,7 @@ SUBROUTINE CONTNM(JRAD)
      &      3.987E-02,  4.042E-02,  4.098E-02,  4.151E-02,  4.199E-02,  &
      &      4.243E-02,  4.287E-02,  4.316E-02,  4.344E-02,  4.369E-02,  &
      &      4.392E-02,  4.405E-02,  4.417E-02,  4.429E-02,  4.436E-02,  &
-     &      4.436E-02,  4.438E-02,  4.437E-02,  4.427E-02,  4.416E-02/  
+     &      4.436E-02,  4.438E-02,  4.437E-02,  4.427E-02,  4.416E-02/
       DATA (X(I),I=  901,  950)/                                        &
      &      4.405E-02,  4.394E-02,  4.383E-02,  4.372E-02,  4.359E-02,  &
      &      4.344E-02,  4.329E-02,  4.312E-02,  4.299E-02,  4.289E-02,  &
@@ -4921,7 +4921,7 @@ SUBROUTINE CONTNM(JRAD)
      &      4.207E-02,  4.214E-02,  4.219E-02,  4.226E-02,  4.232E-02,  &
      &      4.239E-02,  4.247E-02,  4.254E-02,  4.261E-02,  4.270E-02,  &
      &      4.279E-02,  4.287E-02,  4.298E-02,  4.311E-02,  4.323E-02,  &
-     &      4.338E-02,  4.357E-02,  4.375E-02,  4.393E-02,  4.413E-02/  
+     &      4.338E-02,  4.357E-02,  4.375E-02,  4.393E-02,  4.413E-02/
       DATA (X(I),I= 951, 1000)/                                         &
      &      4.433E-02,  4.454E-02,  4.475E-02,  4.499E-02,  4.525E-02,  &
      &      4.551E-02,  4.579E-02,  4.613E-02,  4.645E-02,  4.678E-02,  &
@@ -4932,7 +4932,7 @@ SUBROUTINE CONTNM(JRAD)
      &      5.391E-02,  5.430E-02,  5.471E-02,  5.510E-02,  5.548E-02,  &
      &      5.588E-02,  5.628E-02,  5.673E-02,  5.722E-02,  5.771E-02,  &
      &      5.821E-02,  5.874E-02,  5.927E-02,  5.980E-02,  6.034E-02,  &
-     &      6.088E-02,  6.144E-02,  6.197E-02,  6.250E-02,  6.303E-02/  
+     &      6.088E-02,  6.144E-02,  6.197E-02,  6.250E-02,  6.303E-02/
       DATA (X(I),I= 1001, 1050)/                                        &
      &      6.352E-02,  6.404E-02,  6.452E-02,  6.493E-02,  6.537E-02,  &
      &      6.578E-02,  6.617E-02,  6.653E-02,  6.688E-02,  6.722E-02,  &
@@ -4943,7 +4943,7 @@ SUBROUTINE CONTNM(JRAD)
      &      7.043E-02,  7.062E-02,  7.081E-02,  7.102E-02,  7.127E-02,  &
      &      7.151E-02,  7.175E-02,  7.199E-02,  7.225E-02,  7.248E-02,  &
      &      7.274E-02,  7.300E-02,  7.325E-02,  7.351E-02,  7.375E-02,  &
-     &      7.402E-02,  7.429E-02,  7.458E-02,  7.488E-02,  7.514E-02/  
+     &      7.402E-02,  7.429E-02,  7.458E-02,  7.488E-02,  7.514E-02/
       DATA (X(I),I= 1051, 1100)/                                        &
      &      7.546E-02,  7.575E-02,  7.605E-02,  7.634E-02,  7.667E-02,  &
      &      7.698E-02,  7.732E-02,  7.767E-02,  7.803E-02,  7.841E-02,  &
@@ -4954,7 +4954,7 @@ SUBROUTINE CONTNM(JRAD)
      &      8.779E-02,  8.831E-02,  8.887E-02,  8.945E-02,  9.003E-02,  &
      &      9.060E-02,  9.123E-02,  9.187E-02,  9.254E-02,  9.317E-02,  &
      &      9.382E-02,  9.444E-02,  9.506E-02,  9.570E-02,  9.634E-02,  &
-     &      9.702E-02,  9.769E-02,  9.838E-02,  9.904E-02,  9.968E-02/  
+     &      9.702E-02,  9.769E-02,  9.838E-02,  9.904E-02,  9.968E-02/
       DATA (X(I),I= 1101, 1150)/                                        &
      &      1.003E-01,  1.010E-01,  1.016E-01,  1.022E-01,  1.028E-01,  &
      &      1.033E-01,  1.039E-01,  1.046E-01,  1.053E-01,  1.060E-01,  &
@@ -4965,7 +4965,7 @@ SUBROUTINE CONTNM(JRAD)
      &      1.209E-01,  1.215E-01,  1.221E-01,  1.227E-01,  1.232E-01,  &
      &      1.238E-01,  1.244E-01,  1.249E-01,  1.254E-01,  1.259E-01,  &
      &      1.263E-01,  1.268E-01,  1.273E-01,  1.278E-01,  1.283E-01,  &
-     &      1.288E-01,  1.292E-01,  1.296E-01,  1.300E-01,  1.305E-01/  
+     &      1.288E-01,  1.292E-01,  1.296E-01,  1.300E-01,  1.305E-01/
       DATA (X(I),I= 1151, 1200)/                                        &
      &      1.309E-01,  1.314E-01,  1.319E-01,  1.324E-01,  1.329E-01,  &
      &      1.335E-01,  1.340E-01,  1.345E-01,  1.351E-01,  1.356E-01,  &
@@ -4976,7 +4976,7 @@ SUBROUTINE CONTNM(JRAD)
      &      1.502E-01,  1.509E-01,  1.516E-01,  1.523E-01,  1.530E-01,  &
      &      1.539E-01,  1.547E-01,  1.555E-01,  1.563E-01,  1.571E-01,  &
      &      1.580E-01,  1.588E-01,  1.596E-01,  1.605E-01,  1.614E-01,  &
-     &      1.623E-01,  1.632E-01,  1.641E-01,  1.649E-01,  1.658E-01/  
+     &      1.623E-01,  1.632E-01,  1.641E-01,  1.649E-01,  1.658E-01/
       DATA (X(I),I= 1201, 1250)/                                        &
      &      1.666E-01,  1.675E-01,  1.684E-01,  1.692E-01,  1.701E-01,  &
      &      1.710E-01,  1.719E-01,  1.728E-01,  1.737E-01,  1.746E-01,  &
@@ -4987,7 +4987,7 @@ SUBROUTINE CONTNM(JRAD)
      &      1.936E-01,  1.945E-01,  1.953E-01,  1.961E-01,  1.969E-01,  &
      &      1.978E-01,  1.986E-01,  1.994E-01,  2.002E-01,  2.010E-01,  &
      &      2.018E-01,  2.026E-01,  2.034E-01,  2.041E-01,  2.049E-01,  &
-     &      2.057E-01,  2.065E-01,  2.073E-01,  2.081E-01,  2.089E-01/  
+     &      2.057E-01,  2.065E-01,  2.073E-01,  2.081E-01,  2.089E-01/
       DATA (X(I),I= 1251, 1300)/                                        &
      &      2.097E-01,  2.105E-01,  2.113E-01,  2.121E-01,  2.129E-01,  &
      &      2.137E-01,  2.146E-01,  2.154E-01,  2.163E-01,  2.172E-01,  &
@@ -4998,7 +4998,7 @@ SUBROUTINE CONTNM(JRAD)
      &      2.355E-01,  2.364E-01,  2.372E-01,  2.381E-01,  2.390E-01,  &
      &      2.398E-01,  2.407E-01,  2.416E-01,  2.424E-01,  2.432E-01,  &
      &      2.440E-01,  2.448E-01,  2.456E-01,  2.464E-01,  2.473E-01,  &
-     &      2.482E-01,  2.491E-01,  2.500E-01,  2.509E-01,  2.517E-01/  
+     &      2.482E-01,  2.491E-01,  2.500E-01,  2.509E-01,  2.517E-01/
       DATA (X(I),I= 1301, 1350)/                                        &
      &      2.525E-01,  2.533E-01,  2.541E-01,  2.550E-01,  2.559E-01,  &
      &      2.568E-01,  2.577E-01,  2.587E-01,  2.597E-01,  2.607E-01,  &
@@ -5009,7 +5009,7 @@ SUBROUTINE CONTNM(JRAD)
      &      2.816E-01,  2.827E-01,  2.838E-01,  2.850E-01,  2.861E-01,  &
      &      2.872E-01,  2.884E-01,  2.895E-01,  2.907E-01,  2.918E-01,  &
      &      2.930E-01,  2.942E-01,  2.954E-01,  2.967E-01,  2.980E-01,  &
-     &      2.993E-01,  3.005E-01,  3.017E-01,  3.029E-01,  3.041E-01/  
+     &      2.993E-01,  3.005E-01,  3.017E-01,  3.029E-01,  3.041E-01/
       DATA (X(I),I= 1351, 1400)/                                        &
      &      3.052E-01,  3.064E-01,  3.076E-01,  3.088E-01,  3.100E-01,  &
      &      3.112E-01,  3.124E-01,  3.136E-01,  3.149E-01,  3.161E-01,  &
@@ -5020,7 +5020,7 @@ SUBROUTINE CONTNM(JRAD)
      &      3.400E-01,  3.410E-01,  3.421E-01,  3.431E-01,  3.441E-01,  &
      &      3.452E-01,  3.462E-01,  3.472E-01,  3.482E-01,  3.493E-01,  &
      &      3.503E-01,  3.513E-01,  3.524E-01,  3.534E-01,  3.545E-01,  &
-     &      3.555E-01,  3.566E-01,  3.577E-01,  3.588E-01,  3.599E-01/  
+     &      3.555E-01,  3.566E-01,  3.577E-01,  3.588E-01,  3.599E-01/
       DATA (X(I),I= 1401, 1450)/                                        &
      &      3.611E-01,  3.622E-01,  3.632E-01,  3.643E-01,  3.653E-01,  &
      &      3.664E-01,  3.674E-01,  3.683E-01,  3.692E-01,  3.702E-01,  &
@@ -5031,7 +5031,7 @@ SUBROUTINE CONTNM(JRAD)
      &      3.898E-01,  3.908E-01,  3.916E-01,  3.928E-01,  3.937E-01,  &
      &      3.946E-01,  3.957E-01,  3.967E-01,  3.976E-01,  3.983E-01,  &
      &      3.995E-01,  4.002E-01,  4.013E-01,  4.023E-01,  4.032E-01,  &
-     &      4.042E-01,  4.050E-01,  4.062E-01,  4.073E-01,  4.084E-01/  
+     &      4.042E-01,  4.050E-01,  4.062E-01,  4.073E-01,  4.084E-01/
       DATA (X(I),I= 1451, 1500)/                                        &
      &      4.095E-01,  4.106E-01,  4.117E-01,  4.130E-01,  4.144E-01,  &
      &      4.155E-01,  4.165E-01,  4.178E-01,  4.189E-01,  4.200E-01,  &
@@ -5042,7 +5042,7 @@ SUBROUTINE CONTNM(JRAD)
      &      4.495E-01,  4.510E-01,  4.524E-01,  4.540E-01,  4.555E-01,  &
      &      4.571E-01,  4.585E-01,  4.603E-01,  4.619E-01,  4.634E-01,  &
      &      4.652E-01,  4.668E-01,  4.683E-01,  4.700E-01,  4.716E-01,  &
-     &      4.734E-01,  4.750E-01,  4.764E-01,  4.782E-01,  4.797E-01/  
+     &      4.734E-01,  4.750E-01,  4.764E-01,  4.782E-01,  4.797E-01/
       DATA (X(I),I= 1501, 1550)/                                        &
      &      4.812E-01,  4.830E-01,  4.845E-01,  4.861E-01,  4.875E-01,  &
      &      4.893E-01,  4.908E-01,  4.920E-01,  4.935E-01,  4.950E-01,  &
@@ -5053,7 +5053,7 @@ SUBROUTINE CONTNM(JRAD)
      &      5.154E-01,  5.159E-01,  5.162E-01,  5.166E-01,  5.167E-01,  &
      &      5.168E-01,  5.170E-01,  5.171E-01,  5.171E-01,  5.169E-01,  &
      &      5.166E-01,  5.162E-01,  5.159E-01,  5.155E-01,  5.151E-01,  &
-     &      5.146E-01,  5.139E-01,  5.133E-01,  5.128E-01,  5.120E-01/  
+     &      5.146E-01,  5.139E-01,  5.133E-01,  5.128E-01,  5.120E-01/
       DATA (X(I),I= 1551, 1600)/                                        &
      &      5.113E-01,  5.103E-01,  5.092E-01,  5.080E-01,  5.070E-01,  &
      &      5.059E-01,  5.048E-01,  5.036E-01,  5.022E-01,  5.011E-01,  &
@@ -5064,7 +5064,7 @@ SUBROUTINE CONTNM(JRAD)
      &      4.688E-01,  4.673E-01,  4.658E-01,  4.643E-01,  4.630E-01,  &
      &      4.615E-01,  4.600E-01,  4.586E-01,  4.572E-01,  4.559E-01,  &
      &      4.548E-01,  4.536E-01,  4.524E-01,  4.512E-01,  4.501E-01,  &
-     &      4.491E-01,  4.483E-01,  4.475E-01,  4.468E-01,  4.459E-01/  
+     &      4.491E-01,  4.483E-01,  4.475E-01,  4.468E-01,  4.459E-01/
       DATA (X(I),I= 1601, 1650)/                                        &
      &      4.450E-01,  4.444E-01,  4.438E-01,  4.431E-01,  4.424E-01,  &
      &      4.416E-01,  4.412E-01,  4.409E-01,  4.405E-01,  4.401E-01,  &
@@ -5075,7 +5075,7 @@ SUBROUTINE CONTNM(JRAD)
      &      4.391E-01,  4.394E-01,  4.398E-01,  4.398E-01,  4.402E-01,  &
      &      4.406E-01,  4.410E-01,  4.413E-01,  4.417E-01,  4.421E-01,  &
      &      4.425E-01,  4.428E-01,  4.432E-01,  4.440E-01,  4.443E-01,  &
-     &      4.448E-01,  4.452E-01,  4.459E-01,  4.467E-01,  4.471E-01/  
+     &      4.448E-01,  4.452E-01,  4.459E-01,  4.467E-01,  4.471E-01/
       DATA (X(I),I= 1651, 1700)/                                        &
      &      4.479E-01,  4.486E-01,  4.491E-01,  4.498E-01,  4.505E-01,  &
      &      4.512E-01,  4.519E-01,  4.525E-01,  4.532E-01,  4.539E-01,  &
@@ -5086,7 +5086,7 @@ SUBROUTINE CONTNM(JRAD)
      &      4.689E-01,  4.697E-01,  4.701E-01,  4.708E-01,  4.712E-01,  &
      &      4.718E-01,  4.724E-01,  4.729E-01,  4.735E-01,  4.739E-01,  &
      &      4.742E-01,  4.745E-01,  4.748E-01,  4.751E-01,  4.753E-01,  &
-     &      4.755E-01,  4.757E-01,  4.757E-01,  4.757E-01,  4.756E-01/  
+     &      4.755E-01,  4.757E-01,  4.757E-01,  4.757E-01,  4.756E-01/
       DATA (X(I),I= 1701, 1750)/                                        &
      &      4.756E-01,  4.756E-01,  4.753E-01,  4.752E-01,  4.749E-01,  &
      &      4.747E-01,  4.744E-01,  4.741E-01,  4.737E-01,  4.734E-01,  &
@@ -5097,7 +5097,7 @@ SUBROUTINE CONTNM(JRAD)
      &      4.579E-01,  4.569E-01,  4.561E-01,  4.551E-01,  4.542E-01,  &
      &      4.532E-01,  4.524E-01,  4.513E-01,  4.506E-01,  4.498E-01,  &
      &      4.487E-01,  4.479E-01,  4.472E-01,  4.461E-01,  4.454E-01,  &
-     &      4.443E-01,  4.435E-01,  4.428E-01,  4.418E-01,  4.411E-01/  
+     &      4.443E-01,  4.435E-01,  4.428E-01,  4.418E-01,  4.411E-01/
       DATA (X(I),I= 1751, 1800)/                                        &
      &      4.400E-01,  4.388E-01,  4.380E-01,  4.368E-01,  4.357E-01,  &
      &      4.347E-01,  4.338E-01,  4.328E-01,  4.316E-01,  4.305E-01,  &
@@ -5108,7 +5108,7 @@ SUBROUTINE CONTNM(JRAD)
      &      4.028E-01,  4.014E-01,  3.998E-01,  3.982E-01,  3.967E-01,  &
      &      3.950E-01,  3.935E-01,  3.919E-01,  3.904E-01,  3.892E-01,  &
      &      3.878E-01,  3.863E-01,  3.848E-01,  3.833E-01,  3.818E-01,  &
-     &      3.803E-01,  3.789E-01,  3.775E-01,  3.761E-01,  3.746E-01/  
+     &      3.803E-01,  3.789E-01,  3.775E-01,  3.761E-01,  3.746E-01/
       DATA (X(I),I= 1801, 1850)/                                        &
      &      3.731E-01,  3.718E-01,  3.706E-01,  3.694E-01,  3.681E-01,  &
      &      3.669E-01,  3.657E-01,  3.646E-01,  3.635E-01,  3.624E-01,  &
@@ -5119,7 +5119,7 @@ SUBROUTINE CONTNM(JRAD)
      &      3.436E-01,  3.429E-01,  3.422E-01,  3.415E-01,  3.409E-01,  &
      &      3.403E-01,  3.398E-01,  3.392E-01,  3.386E-01,  3.380E-01,  &
      &      3.375E-01,  3.369E-01,  3.364E-01,  3.358E-01,  3.353E-01,  &
-     &      3.347E-01,  3.342E-01,  3.337E-01,  3.332E-01,  3.327E-01/  
+     &      3.347E-01,  3.342E-01,  3.337E-01,  3.332E-01,  3.327E-01/
       DATA (X(I),I= 1851, 1900)/                                        &
      &      3.323E-01,  3.318E-01,  3.313E-01,  3.308E-01,  3.304E-01,  &
      &      3.300E-01,  3.295E-01,  3.291E-01,  3.286E-01,  3.282E-01,  &
@@ -5130,7 +5130,7 @@ SUBROUTINE CONTNM(JRAD)
      &      3.179E-01,  3.174E-01,  3.169E-01,  3.163E-01,  3.158E-01,  &
      &      3.152E-01,  3.146E-01,  3.139E-01,  3.132E-01,  3.125E-01,  &
      &      3.117E-01,  3.110E-01,  3.102E-01,  3.095E-01,  3.087E-01,  &
-     &      3.079E-01,  3.071E-01,  3.063E-01,  3.055E-01,  3.048E-01/  
+     &      3.079E-01,  3.071E-01,  3.063E-01,  3.055E-01,  3.048E-01/
       DATA (X(I),I= 1901, 1950)/                                        &
      &      3.039E-01,  3.031E-01,  3.022E-01,  3.014E-01,  3.005E-01,  &
      &      2.996E-01,  2.988E-01,  2.979E-01,  2.970E-01,  2.961E-01,  &
@@ -5141,7 +5141,7 @@ SUBROUTINE CONTNM(JRAD)
      &      2.830E-01,  2.826E-01,  2.822E-01,  2.818E-01,  2.815E-01,  &
      &      2.813E-01,  2.811E-01,  2.809E-01,  2.807E-01,  2.805E-01,  &
      &      2.803E-01,  2.802E-01,  2.803E-01,  2.803E-01,  2.803E-01,  &
-     &      2.803E-01,  2.803E-01,  2.804E-01,  2.804E-01,  2.805E-01/  
+     &      2.803E-01,  2.803E-01,  2.804E-01,  2.804E-01,  2.805E-01/
       DATA (X(I),I= 1951, 2000)/                                        &
      &      2.806E-01,  2.807E-01,  2.808E-01,  2.809E-01,  2.810E-01,  &
      &      2.810E-01,  2.809E-01,  2.808E-01,  2.808E-01,  2.807E-01,  &
@@ -5152,7 +5152,7 @@ SUBROUTINE CONTNM(JRAD)
      &      2.718E-01,  2.710E-01,  2.703E-01,  2.694E-01,  2.684E-01,  &
      &      2.674E-01,  2.664E-01,  2.654E-01,  2.644E-01,  2.634E-01,  &
      &      2.624E-01,  2.612E-01,  2.601E-01,  2.589E-01,  2.578E-01,  &
-     &      2.566E-01,  2.555E-01,  2.543E-01,  2.530E-01,  2.517E-01/  
+     &      2.566E-01,  2.555E-01,  2.543E-01,  2.530E-01,  2.517E-01/
       DATA (X(I),I= 2001, 2050)/                                        &
      &      2.503E-01,  2.490E-01,  2.477E-01,  2.463E-01,  2.450E-01,  &
      &      2.436E-01,  2.423E-01,  2.410E-01,  2.396E-01,  2.383E-01,  &
@@ -5163,7 +5163,7 @@ SUBROUTINE CONTNM(JRAD)
      &      2.100E-01,  2.086E-01,  2.073E-01,  2.060E-01,  2.048E-01,  &
      &      2.036E-01,  2.025E-01,  2.013E-01,  2.001E-01,  1.989E-01,  &
      &      1.977E-01,  1.967E-01,  1.957E-01,  1.947E-01,  1.937E-01,  &
-     &      1.927E-01,  1.917E-01,  1.907E-01,  1.898E-01,  1.890E-01/  
+     &      1.927E-01,  1.917E-01,  1.907E-01,  1.898E-01,  1.890E-01/
       DATA (X(I),I= 2051, 2100)/                                        &
      &      1.883E-01,  1.875E-01,  1.867E-01,  1.859E-01,  1.851E-01,  &
      &      1.844E-01,  1.836E-01,  1.829E-01,  1.821E-01,  1.813E-01,  &
@@ -5174,7 +5174,7 @@ SUBROUTINE CONTNM(JRAD)
      &      1.710E-01,  1.706E-01,  1.703E-01,  1.698E-01,  1.695E-01,  &
      &      1.691E-01,  1.686E-01,  1.682E-01,  1.677E-01,  1.673E-01,  &
      &      1.668E-01,  1.664E-01,  1.660E-01,  1.655E-01,  1.650E-01,  &
-     &      1.646E-01,  1.642E-01,  1.637E-01,  1.633E-01,  1.628E-01/  
+     &      1.646E-01,  1.642E-01,  1.637E-01,  1.633E-01,  1.628E-01/
       DATA (X(I),I= 2101, 2150)/                                        &
      &      1.624E-01,  1.619E-01,  1.615E-01,  1.611E-01,  1.607E-01,  &
      &      1.602E-01,  1.598E-01,  1.593E-01,  1.588E-01,  1.583E-01,  &
@@ -5185,7 +5185,7 @@ SUBROUTINE CONTNM(JRAD)
      &      1.510E-01,  1.511E-01,  1.513E-01,  1.514E-01,  1.516E-01,  &
      &      1.518E-01,  1.519E-01,  1.521E-01,  1.523E-01,  1.526E-01,  &
      &      1.528E-01,  1.531E-01,  1.534E-01,  1.537E-01,  1.540E-01,  &
-     &      1.543E-01,  1.547E-01,  1.551E-01,  1.555E-01,  1.560E-01/  
+     &      1.543E-01,  1.547E-01,  1.551E-01,  1.555E-01,  1.560E-01/
       DATA (X(I),I= 2151, 2200)/                                        &
      &      1.564E-01,  1.568E-01,  1.572E-01,  1.575E-01,  1.579E-01,  &
      &      1.581E-01,  1.584E-01,  1.586E-01,  1.589E-01,  1.592E-01,  &
@@ -5196,7 +5196,7 @@ SUBROUTINE CONTNM(JRAD)
      &      1.568E-01,  1.562E-01,  1.555E-01,  1.549E-01,  1.543E-01,  &
      &      1.535E-01,  1.527E-01,  1.518E-01,  1.510E-01,  1.501E-01,  &
      &      1.493E-01,  1.484E-01,  1.475E-01,  1.464E-01,  1.453E-01,  &
-     &      1.442E-01,  1.431E-01,  1.420E-01,  1.409E-01,  1.398E-01/  
+     &      1.442E-01,  1.431E-01,  1.420E-01,  1.409E-01,  1.398E-01/
       DATA (X(I),I= 2201, 2250)/                                        &
      &      1.386E-01,  1.374E-01,  1.362E-01,  1.350E-01,  1.338E-01,  &
      &      1.326E-01,  1.314E-01,  1.302E-01,  1.290E-01,  1.278E-01,  &
@@ -5207,7 +5207,7 @@ SUBROUTINE CONTNM(JRAD)
      &      1.040E-01,  1.031E-01,  1.021E-01,  1.013E-01,  1.005E-01,  &
      &      9.973E-02,  9.897E-02,  9.820E-02,  9.743E-02,  9.664E-02,  &
      &      9.588E-02,  9.524E-02,  9.462E-02,  9.400E-02,  9.339E-02,  &
-     &      9.279E-02,  9.217E-02,  9.158E-02,  9.098E-02,  9.049E-02/  
+     &      9.279E-02,  9.217E-02,  9.158E-02,  9.098E-02,  9.049E-02/
       DATA (X(I),I= 2251, 2300)/                                        &
      &      9.002E-02,  8.958E-02,  8.913E-02,  8.869E-02,  8.827E-02,  &
      &      8.783E-02,  8.742E-02,  8.712E-02,  8.690E-02,  8.670E-02,  &
@@ -5218,7 +5218,7 @@ SUBROUTINE CONTNM(JRAD)
      &      8.316E-02,  8.305E-02,  8.288E-02,  8.269E-02,  8.251E-02,  &
      &      8.232E-02,  8.214E-02,  8.195E-02,  8.178E-02,  8.158E-02,  &
      &      8.133E-02,  8.108E-02,  8.083E-02,  8.057E-02,  8.031E-02,  &
-     &      8.003E-02,  7.976E-02,  7.949E-02,  7.917E-02,  7.874E-02/  
+     &      8.003E-02,  7.976E-02,  7.949E-02,  7.917E-02,  7.874E-02/
       DATA (X(I),I= 2301, 2350)/                                        &
      &      7.830E-02,  7.789E-02,  7.744E-02,  7.704E-02,  7.662E-02,  &
      &      7.620E-02,  7.579E-02,  7.549E-02,  7.519E-02,  7.490E-02,  &
@@ -5229,7 +5229,7 @@ SUBROUTINE CONTNM(JRAD)
      &      7.417E-02,  7.435E-02,  7.458E-02,  7.481E-02,  7.505E-02,  &
      &      7.529E-02,  7.556E-02,  7.582E-02,  7.607E-02,  7.634E-02,  &
      &      7.661E-02,  7.695E-02,  7.728E-02,  7.763E-02,  7.797E-02,  &
-     &      7.830E-02,  7.864E-02,  7.895E-02,  7.929E-02,  7.952E-02/  
+     &      7.830E-02,  7.864E-02,  7.895E-02,  7.929E-02,  7.952E-02/
       DATA (X(I),I= 2351, 2400)/                                        &
      &      7.975E-02,  7.996E-02,  8.018E-02,  8.039E-02,  8.061E-02,  &
      &      8.081E-02,  8.102E-02,  8.115E-02,  8.105E-02,  8.096E-02,  &
@@ -5240,7 +5240,7 @@ SUBROUTINE CONTNM(JRAD)
      &      7.328E-02,  7.271E-02,  7.214E-02,  7.149E-02,  7.072E-02,  &
      &      6.995E-02,  6.917E-02,  6.840E-02,  6.762E-02,  6.684E-02,  &
      &      6.605E-02,  6.527E-02,  6.453E-02,  6.382E-02,  6.311E-02,  &
-     &      6.240E-02,  6.169E-02,  6.099E-02,  6.027E-02,  5.956E-02/  
+     &      6.240E-02,  6.169E-02,  6.099E-02,  6.027E-02,  5.956E-02/
       DATA (X(I),I= 2401, 2450)/                                        &
      &      5.886E-02,  5.817E-02,  5.747E-02,  5.676E-02,  5.607E-02,  &
      &      5.537E-02,  5.469E-02,  5.400E-02,  5.331E-02,  5.265E-02,  &
@@ -5251,7 +5251,7 @@ SUBROUTINE CONTNM(JRAD)
      &      4.199E-02,  4.168E-02,  4.137E-02,  4.107E-02,  4.078E-02,  &
      &      4.047E-02,  4.029E-02,  4.016E-02,  4.004E-02,  3.991E-02,  &
      &      3.980E-02,  3.970E-02,  3.959E-02,  3.949E-02,  3.937E-02,  &
-     &      3.934E-02,  3.933E-02,  3.933E-02,  3.934E-02,  3.935E-02/  
+     &      3.934E-02,  3.933E-02,  3.933E-02,  3.934E-02,  3.935E-02/
       DATA (X(I),I= 2451, 2500)/                                        &
      &      3.935E-02,  3.936E-02,  3.936E-02,  3.936E-02,  3.931E-02,  &
      &      3.925E-02,  3.918E-02,  3.912E-02,  3.905E-02,  3.897E-02,  &
@@ -5262,7 +5262,7 @@ SUBROUTINE CONTNM(JRAD)
      &      3.601E-02,  3.581E-02,  3.561E-02,  3.542E-02,  3.522E-02,  &
      &      3.503E-02,  3.484E-02,  3.465E-02,  3.446E-02,  3.427E-02,  &
      &      3.407E-02,  3.386E-02,  3.364E-02,  3.343E-02,  3.322E-02,  &
-     &      3.301E-02,  3.280E-02,  3.259E-02,  3.238E-02,  3.221E-02/  
+     &      3.301E-02,  3.280E-02,  3.259E-02,  3.238E-02,  3.221E-02/
       DATA (X(I),I= 2501, 2550)/                                        &
      &      3.209E-02,  3.198E-02,  3.186E-02,  3.175E-02,  3.164E-02,  &
      &      3.153E-02,  3.143E-02,  3.132E-02,  3.126E-02,  3.136E-02,  &
@@ -5273,7 +5273,7 @@ SUBROUTINE CONTNM(JRAD)
      &      3.515E-02,  3.535E-02,  3.555E-02,  3.573E-02,  3.593E-02,  &
      &      3.612E-02,  3.625E-02,  3.628E-02,  3.631E-02,  3.634E-02,  &
      &      3.637E-02,  3.639E-02,  3.641E-02,  3.643E-02,  3.646E-02,  &
-     &      3.646E-02,  3.636E-02,  3.623E-02,  3.611E-02,  3.599E-02/  
+     &      3.646E-02,  3.636E-02,  3.623E-02,  3.611E-02,  3.599E-02/
       DATA (X(I),I= 2551, 2600)/                                        &
      &      3.586E-02,  3.572E-02,  3.559E-02,  3.545E-02,  3.531E-02,  &
      &      3.509E-02,  3.481E-02,  3.453E-02,  3.425E-02,  3.398E-02,  &
@@ -5284,7 +5284,7 @@ SUBROUTINE CONTNM(JRAD)
      &      2.660E-02,  2.622E-02,  2.585E-02,  2.549E-02,  2.512E-02,  &
      &      2.476E-02,  2.440E-02,  2.404E-02,  2.368E-02,  2.332E-02,  &
      &      2.297E-02,  2.261E-02,  2.225E-02,  2.193E-02,  2.164E-02,  &
-     &      2.135E-02,  2.106E-02,  2.076E-02,  2.048E-02,  2.019E-02/  
+     &      2.135E-02,  2.106E-02,  2.076E-02,  2.048E-02,  2.019E-02/
       DATA (X(I),I= 2601, 2650)/                                        &
      &      1.990E-02,  1.962E-02,  1.935E-02,  1.916E-02,  1.898E-02,  &
      &      1.881E-02,  1.863E-02,  1.846E-02,  1.828E-02,  1.811E-02,  &
@@ -5295,7 +5295,7 @@ SUBROUTINE CONTNM(JRAD)
      &      1.699E-02,  1.699E-02,  1.700E-02,  1.702E-02,  1.703E-02,  &
      &      1.704E-02,  1.706E-02,  1.707E-02,  1.708E-02,  1.709E-02,  &
      &      1.710E-02,  1.710E-02,  1.706E-02,  1.701E-02,  1.696E-02,  &
-     &      1.692E-02,  1.687E-02,  1.683E-02,  1.678E-02,  1.673E-02/  
+     &      1.692E-02,  1.687E-02,  1.683E-02,  1.678E-02,  1.673E-02/
       DATA (X(I),I= 2651, 2700)/                                        &
      &      1.668E-02,  1.661E-02,  1.651E-02,  1.642E-02,  1.632E-02,  &
      &      1.622E-02,  1.612E-02,  1.602E-02,  1.592E-02,  1.582E-02,  &
@@ -5306,7 +5306,7 @@ SUBROUTINE CONTNM(JRAD)
      &      1.318E-02,  1.313E-02,  1.310E-02,  1.308E-02,  1.305E-02,  &
      &      1.303E-02,  1.300E-02,  1.298E-02,  1.295E-02,  1.292E-02,  &
      &      1.290E-02,  1.293E-02,  1.297E-02,  1.302E-02,  1.307E-02,  &
-     &      1.311E-02,  1.316E-02,  1.320E-02,  1.325E-02,  1.330E-02/  
+     &      1.311E-02,  1.316E-02,  1.320E-02,  1.325E-02,  1.330E-02/
       DATA (X(I),I= 2701, 2750)/                                        &
      &      1.334E-02,  1.341E-02,  1.349E-02,  1.357E-02,  1.366E-02,  &
      &      1.374E-02,  1.382E-02,  1.390E-02,  1.398E-02,  1.406E-02,  &
@@ -5317,7 +5317,7 @@ SUBROUTINE CONTNM(JRAD)
      &      1.465E-02,  1.461E-02,  1.452E-02,  1.442E-02,  1.433E-02,  &
      &      1.423E-02,  1.414E-02,  1.405E-02,  1.395E-02,  1.386E-02,  &
      &      1.377E-02,  1.367E-02,  1.356E-02,  1.344E-02,  1.333E-02,  &
-     &      1.321E-02,  1.310E-02,  1.298E-02,  1.287E-02,  1.275E-02/  
+     &      1.321E-02,  1.310E-02,  1.298E-02,  1.287E-02,  1.275E-02/
       DATA (X(I),I= 2751, 2800)/                                        &
      &      1.264E-02,  1.252E-02,  1.236E-02,  1.220E-02,  1.204E-02,  &
      &      1.187E-02,  1.171E-02,  1.155E-02,  1.138E-02,  1.122E-02,  &
@@ -5328,7 +5328,7 @@ SUBROUTINE CONTNM(JRAD)
      &      7.977E-03,  7.847E-03,  7.717E-03,  7.622E-03,  7.540E-03,  &
      &      7.457E-03,  7.373E-03,  7.291E-03,  7.209E-03,  7.126E-03,  &
      &      7.041E-03,  6.961E-03,  6.878E-03,  6.813E-03,  6.782E-03,  &
-     &      6.751E-03,  6.721E-03,  6.690E-03,  6.658E-03,  6.628E-03/  
+     &      6.751E-03,  6.721E-03,  6.690E-03,  6.658E-03,  6.628E-03/
       DATA (X(I),I= 2801, 2850)/                                        &
      &      6.599E-03,  6.567E-03,  6.536E-03,  6.508E-03,  6.499E-03,  &
      &      6.495E-03,  6.493E-03,  6.490E-03,  6.488E-03,  6.484E-03,  &
@@ -5339,7 +5339,7 @@ SUBROUTINE CONTNM(JRAD)
      &      6.381E-03,  6.359E-03,  6.337E-03,  6.316E-03,  6.294E-03,  &
      &      6.266E-03,  6.203E-03,  6.135E-03,  6.067E-03,  6.002E-03,  &
      &      5.932E-03,  5.867E-03,  5.797E-03,  5.732E-03,  5.664E-03,  &
-     &      5.596E-03,  5.528E-03,  5.457E-03,  5.388E-03,  5.318E-03/  
+     &      5.596E-03,  5.528E-03,  5.457E-03,  5.388E-03,  5.318E-03/
       DATA (X(I),I= 2851, 2900)/                                        &
      &      5.248E-03,  5.177E-03,  5.107E-03,  5.036E-03,  4.966E-03,  &
      &      4.895E-03,  4.825E-03,  4.781E-03,  4.755E-03,  4.729E-03,  &
@@ -5350,7 +5350,7 @@ SUBROUTINE CONTNM(JRAD)
      &      4.588E-03,  4.609E-03,  4.628E-03,  4.649E-03,  4.669E-03,  &
      &      4.689E-03,  4.710E-03,  4.731E-03,  4.750E-03,  4.771E-03,  &
      &      4.796E-03,  4.822E-03,  4.847E-03,  4.869E-03,  4.896E-03,  &
-     &      4.921E-03,  4.945E-03,  4.970E-03,  4.995E-03,  5.020E-03/  
+     &      4.921E-03,  4.945E-03,  4.970E-03,  4.995E-03,  5.020E-03/
       DATA (X(I),I= 2901, 2950)/                                        &
      &      5.038E-03,  5.040E-03,  5.038E-03,  5.037E-03,  5.036E-03,  &
      &      5.036E-03,  5.034E-03,  5.034E-03,  5.031E-03,  5.031E-03,  &
@@ -5361,7 +5361,7 @@ SUBROUTINE CONTNM(JRAD)
      &      3.990E-03,  3.922E-03,  3.852E-03,  3.782E-03,  3.715E-03,  &
      &      3.646E-03,  3.577E-03,  3.508E-03,  3.439E-03,  3.370E-03,  &
      &      3.301E-03,  3.232E-03,  3.163E-03,  3.094E-03,  3.026E-03,  &
-     &      2.971E-03,  2.919E-03,  2.868E-03,  2.816E-03,  2.764E-03/  
+     &      2.971E-03,  2.919E-03,  2.868E-03,  2.816E-03,  2.764E-03/
       DATA (X(I),I= 2951, 3000)/                                        &
      &      2.712E-03,  2.661E-03,  2.609E-03,  2.557E-03,  2.505E-03,  &
      &      2.454E-03,  2.416E-03,  2.386E-03,  2.356E-03,  2.326E-03,  &
@@ -5372,7 +5372,7 @@ SUBROUTINE CONTNM(JRAD)
      &      2.001E-03,  2.002E-03,  2.003E-03,  2.004E-03,  2.005E-03,  &
      &      2.006E-03,  2.007E-03,  2.007E-03,  2.008E-03,  2.009E-03,  &
      &      2.008E-03,  2.006E-03,  2.003E-03,  2.001E-03,  1.999E-03,  &
-     &      1.997E-03,  1.994E-03,  1.992E-03,  1.990E-03,  1.988E-03/  
+     &      1.997E-03,  1.994E-03,  1.992E-03,  1.990E-03,  1.988E-03/
       DATA (X(I),I= 3001, 3050)/                                        &
      &      1.985E-03,  1.980E-03,  1.968E-03,  1.956E-03,  1.944E-03,  &
      &      1.932E-03,  1.919E-03,  1.907E-03,  1.895E-03,  1.883E-03,  &
@@ -5383,7 +5383,7 @@ SUBROUTINE CONTNM(JRAD)
      &      1.416E-03,  1.388E-03,  1.359E-03,  1.331E-03,  1.303E-03,  &
      &      1.275E-03,  1.251E-03,  1.228E-03,  1.206E-03,  1.183E-03,  &
      &      1.161E-03,  1.139E-03,  1.116E-03,  1.094E-03,  1.072E-03,  &
-     &      1.049E-03,  1.027E-03,  1.007E-03,  1.003E-03,  9.991E-04/  
+     &      1.049E-03,  1.027E-03,  1.007E-03,  1.003E-03,  9.991E-04/
       DATA (X(I),I= 3051, 3100)/                                        &
      &      9.959E-04,  9.926E-04,  9.891E-04,  9.857E-04,  9.826E-04,  &
      &      9.790E-04,  9.758E-04,  9.725E-04,  9.692E-04,  9.720E-04,  &
@@ -5394,7 +5394,7 @@ SUBROUTINE CONTNM(JRAD)
      &      1.186E-03,  1.193E-03,  1.200E-03,  1.194E-03,  1.185E-03,  &
      &      1.176E-03,  1.166E-03,  1.157E-03,  1.148E-03,  1.138E-03,  &
      &      1.129E-03,  1.120E-03,  1.110E-03,  1.101E-03,  1.091E-03,  &
-     &      1.076E-03,  1.060E-03,  1.044E-03,  1.028E-03,  1.012E-03/  
+     &      1.076E-03,  1.060E-03,  1.044E-03,  1.028E-03,  1.012E-03/
       DATA (X(I),I= 3101, 3150)/                                        &
      &      9.955E-04,  9.794E-04,  9.632E-04,  9.473E-04,  9.310E-04,  &
      &      9.151E-04,  8.982E-04,  8.770E-04,  8.556E-04,  8.339E-04,  &
@@ -5405,8 +5405,8 @@ SUBROUTINE CONTNM(JRAD)
      &      2.750E-04,  2.500E-04,  2.250E-04,  2.000E-04,  1.850E-04,  &
      &      1.700E-04,  1.550E-04,  1.400E-04,  1.250E-04,  1.100E-04,  &
      &      0.950E-04,  0.825E-04,  0.700E-04,  0.575E-04,  0.400E-04,  &
-     &      0.275E-04,  0.175E-04,  0.100E-04,  0.040E-04,  0.00000  /  
-!                                                                       
+     &      0.275E-04,  0.175E-04,  0.100E-04,  0.040E-04,  0.00000  /
+!
       DATA (Y(I),I=    1,   50)/                                        &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
@@ -5417,7 +5417,7 @@ SUBROUTINE CONTNM(JRAD)
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
-     &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    /  
+     &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    /
       DATA (Y(I),I= 51, 100)/                                           &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
@@ -5428,7 +5428,7 @@ SUBROUTINE CONTNM(JRAD)
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
-     &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    /  
+     &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    /
       DATA (Y(I),I=  101,  150)/                                        &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
@@ -5439,7 +5439,7 @@ SUBROUTINE CONTNM(JRAD)
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
-     &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    /  
+     &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    /
       DATA (Y(I),I= 151, 200)/                                          &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
@@ -5450,7 +5450,7 @@ SUBROUTINE CONTNM(JRAD)
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
-     &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    /  
+     &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    /
       DATA (Y(I),I=  201,  250)/                                        &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
@@ -5461,7 +5461,7 @@ SUBROUTINE CONTNM(JRAD)
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
-     &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    /  
+     &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    /
       DATA (Y(I),I= 251, 300)/                                          &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
@@ -5472,7 +5472,7 @@ SUBROUTINE CONTNM(JRAD)
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
-     &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    /  
+     &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    /
       DATA (Y(I),I=  301,  350)/                                        &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
@@ -5483,7 +5483,7 @@ SUBROUTINE CONTNM(JRAD)
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
-     &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    /  
+     &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    /
       DATA (Y(I),I= 351, 400)/                                          &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
@@ -5494,7 +5494,7 @@ SUBROUTINE CONTNM(JRAD)
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
-     &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    /  
+     &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    /
       DATA (Y(I),I=  401,  450)/                                        &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
@@ -5505,7 +5505,7 @@ SUBROUTINE CONTNM(JRAD)
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
-     &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    /  
+     &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    /
       DATA (Y(I),I= 451, 500)/                                          &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
@@ -5516,7 +5516,7 @@ SUBROUTINE CONTNM(JRAD)
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
-     &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    /  
+     &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    /
       DATA (Y(I),I=  501,  550)/                                        &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
@@ -5527,7 +5527,7 @@ SUBROUTINE CONTNM(JRAD)
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
-     &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    /  
+     &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    /
       DATA (Y(I),I= 551, 600)/                                          &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
@@ -5538,7 +5538,7 @@ SUBROUTINE CONTNM(JRAD)
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
-     &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    /  
+     &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    /
       DATA (Y(I),I=  601,  650)/                                        &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
@@ -5549,7 +5549,7 @@ SUBROUTINE CONTNM(JRAD)
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
-     &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    /  
+     &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    /
       DATA (Y(I),I= 651, 700)/                                          &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
@@ -5560,7 +5560,7 @@ SUBROUTINE CONTNM(JRAD)
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
-     &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    /  
+     &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    /
       DATA (Y(I),I=  701,  750)/                                        &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
@@ -5571,7 +5571,7 @@ SUBROUTINE CONTNM(JRAD)
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
-     &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    /  
+     &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    /
       DATA (Y(I),I= 751, 800)/                                          &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
@@ -5582,7 +5582,7 @@ SUBROUTINE CONTNM(JRAD)
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
-     &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    /  
+     &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    /
       DATA (Y(I),I=  801,  850)/                                        &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
@@ -5593,7 +5593,7 @@ SUBROUTINE CONTNM(JRAD)
      &      0.350e-05,  0.400e-05,  0.500e-05,  0.650e-05,  0.800e-05,  &
      &      1.100e-05,  1.400e-05,  1.800e-05,  2.250e-05,  2.650e-05,  &
      &      3.000e-05,  3.104E-05,  3.136E-05,  3.152E-05,  3.186E-05,  &
-     &      3.213E-05,  3.229E-05,  3.206E-05,  3.156E-05,  3.063E-05/  
+     &      3.213E-05,  3.229E-05,  3.206E-05,  3.156E-05,  3.063E-05/
       DATA (Y(I),I= 851, 900)/                                          &
      &      3.098E-05,  3.197E-05,  3.271E-05,  3.315E-05,  3.262E-05,  &
      &      3.201E-05,  3.129E-05,  3.148E-05,  3.206E-05,  3.175E-05,  &
@@ -5604,7 +5604,7 @@ SUBROUTINE CONTNM(JRAD)
      &      2.449E-05,  2.450E-05,  2.454E-05,  2.414E-05,  2.488E-05,  &
      &      2.413E-05,  2.297E-05,  2.298E-05,  2.335E-05,  2.259E-05,  &
      &      2.142E-05,  2.257E-05,  2.259E-05,  2.220E-05,  2.259E-05,  &
-     &      2.336E-05,  2.299E-05,  2.262E-05,  2.298E-05,  2.298E-05/  
+     &      2.336E-05,  2.299E-05,  2.262E-05,  2.298E-05,  2.298E-05/
       DATA (Y(I),I=  901,  950)/                                        &
      &      2.298E-05,  2.337E-05,  2.414E-05,  2.491E-05,  2.570E-05,  &
      &      2.492E-05,  2.531E-05,  2.567E-05,  2.647E-05,  2.839E-05,  &
@@ -5615,7 +5615,7 @@ SUBROUTINE CONTNM(JRAD)
      &      3.843E-05,  3.882E-05,  3.920E-05,  3.959E-05,  3.998E-05,  &
      &      4.037E-05,  4.036E-05,  4.074E-05,  4.074E-05,  4.036E-05,  &
      &      4.115E-05,  4.192E-05,  4.192E-05,  4.269E-05,  4.270E-05,  &
-     &      4.346E-05,  4.346E-05,  4.346E-05,  4.463E-05,  4.423E-05/  
+     &      4.346E-05,  4.346E-05,  4.346E-05,  4.463E-05,  4.423E-05/
       DATA (Y(I),I= 951, 1000)/                                         &
      &      4.502E-05,  4.539E-05,  4.501E-05,  4.465E-05,  4.388E-05,  &
      &      4.503E-05,  4.578E-05,  4.617E-05,  4.657E-05,  4.657E-05,  &
@@ -5626,7 +5626,7 @@ SUBROUTINE CONTNM(JRAD)
      &      4.845E-05,  4.885E-05,  4.886E-05,  4.848E-05,  4.810E-05,  &
      &      4.848E-05,  4.769E-05,  4.773E-05,  4.656E-05,  4.690E-05,  &
      &      4.770E-05,  4.730E-05,  4.690E-05,  4.728E-05,  4.687E-05,  &
-     &      4.728E-05,  4.649E-05,  4.730E-05,  4.690E-05,  4.766E-05/  
+     &      4.728E-05,  4.649E-05,  4.730E-05,  4.690E-05,  4.766E-05/
       DATA (Y(I),I= 1001, 1050)/                                        &
      &      4.804E-05,  4.727E-05,  4.649E-05,  4.727E-05,  4.647E-05,  &
      &      4.723E-05,  4.760E-05,  4.800E-05,  4.836E-05,  4.762E-05,  &
@@ -5637,7 +5637,7 @@ SUBROUTINE CONTNM(JRAD)
      &      5.532E-05,  5.531E-05,  5.608E-05,  5.762E-05,  5.799E-05,  &
      &      5.877E-05,  5.837E-05,  5.839E-05,  5.878E-05,  5.916E-05,  &
      &      6.032E-05,  6.109E-05,  6.226E-05,  6.342E-05,  6.305E-05,  &
-     &      6.305E-05,  6.265E-05,  6.226E-05,  6.298E-05,  6.452E-05/  
+     &      6.305E-05,  6.265E-05,  6.226E-05,  6.298E-05,  6.452E-05/
       DATA (Y(I),I= 1051, 1100)/                                        &
      &      6.531E-05,  6.572E-05,  6.572E-05,  6.614E-05,  6.611E-05,  &
      &      6.574E-05,  6.690E-05,  6.648E-05,  6.688E-05,  6.688E-05,  &
@@ -5648,7 +5648,7 @@ SUBROUTINE CONTNM(JRAD)
      &      7.179E-05,  7.257E-05,  7.180E-05,  7.142E-05,  7.181E-05,  &
      &      7.217E-05,  7.256E-05,  7.217E-05,  7.217E-05,  7.219E-05,  &
      &      7.256E-05,  7.180E-05,  7.178E-05,  7.255E-05,  7.216E-05,  &
-     &      7.175E-05,  7.175E-05,  7.137E-05,  7.177E-05,  7.214E-05/  
+     &      7.175E-05,  7.175E-05,  7.137E-05,  7.177E-05,  7.214E-05/
       DATA (Y(I),I= 1101, 1150)/                                        &
      &      7.175E-05,  7.134E-05,  7.094E-05,  7.014E-05,  7.014E-05,  &
      &      7.016E-05,  7.013E-05,  6.937E-05,  6.938E-05,  6.900E-05,  &
@@ -5659,7 +5659,7 @@ SUBROUTINE CONTNM(JRAD)
      &      6.471E-05,  6.469E-05,  6.391E-05,  6.433E-05,  6.475E-05,  &
      &      6.513E-05,  6.554E-05,  6.552E-05,  6.592E-05,  6.552E-05,  &
      &      6.553E-05,  6.476E-05,  6.440E-05,  6.483E-05,  6.443E-05,  &
-     &      6.443E-05,  6.522E-05,  6.522E-05,  6.599E-05,  6.599E-05/  
+     &      6.443E-05,  6.522E-05,  6.522E-05,  6.599E-05,  6.599E-05/
       DATA (Y(I),I= 1151, 1200)/                                        &
      &      6.560E-05,  6.520E-05,  6.521E-05,  6.558E-05,  6.556E-05,  &
      &      6.557E-05,  6.596E-05,  6.596E-05,  6.596E-05,  6.634E-05,  &
@@ -5670,7 +5670,7 @@ SUBROUTINE CONTNM(JRAD)
      &      6.472E-05,  6.510E-05,  6.509E-05,  6.508E-05,  6.511E-05,  &
      &      6.434E-05,  6.357E-05,  6.356E-05,  6.356E-05,  6.278E-05,  &
      &      6.239E-05,  6.161E-05,  6.199E-05,  6.163E-05,  6.161E-05,  &
-     &      6.161E-05,  6.085E-05,  5.931E-05,  5.888E-05,  5.888E-05/  
+     &      6.161E-05,  6.085E-05,  5.931E-05,  5.888E-05,  5.888E-05/
       DATA (Y(I),I= 1201, 1250)/                                        &
      &      5.846E-05,  5.805E-05,  5.809E-05,  5.890E-05,  5.892E-05,  &
      &      5.896E-05,  5.823E-05,  5.746E-05,  5.709E-05,  5.708E-05,  &
@@ -5681,7 +5681,7 @@ SUBROUTINE CONTNM(JRAD)
      &      5.668E-05,  5.507E-05,  5.429E-05,  5.311E-05,  5.279E-05,  &
      &      5.281E-05,  5.402E-05,  5.406E-05,  5.485E-05,  5.562E-05,  &
      &      5.562E-05,  5.481E-05,  5.484E-05,  5.483E-05,  5.443E-05,  &
-     &      5.404E-05,  5.365E-05,  5.442E-05,  5.444E-05,  5.521E-05/  
+     &      5.404E-05,  5.365E-05,  5.442E-05,  5.444E-05,  5.521E-05/
       DATA (Y(I),I= 1251, 1300)/                                        &
      &      5.481E-05,  5.443E-05,  5.363E-05,  5.286E-05,  5.283E-05,  &
      &      5.358E-05,  5.356E-05,  5.317E-05,  5.240E-05,  5.279E-05,  &
@@ -5692,7 +5692,7 @@ SUBROUTINE CONTNM(JRAD)
      &      5.054E-05,  4.934E-05,  4.815E-05,  4.733E-05,  4.735E-05,  &
      &      4.777E-05,  4.819E-05,  4.784E-05,  4.825E-05,  4.790E-05,  &
      &      4.830E-05,  4.793E-05,  4.873E-05,  4.874E-05,  4.790E-05,  &
-     &      4.709E-05,  4.627E-05,  4.467E-05,  4.427E-05,  4.469E-05/  
+     &      4.709E-05,  4.627E-05,  4.467E-05,  4.427E-05,  4.469E-05/
       DATA (Y(I),I= 1301, 1350)/                                        &
      &      4.434E-05,  4.431E-05,  4.473E-05,  4.477E-05,  4.365E-05,  &
      &      4.369E-05,  4.527E-05,  4.528E-05,  4.603E-05,  4.641E-05,  &
@@ -5703,7 +5703,7 @@ SUBROUTINE CONTNM(JRAD)
      &      3.999E-05,  4.118E-05,  4.039E-05,  3.997E-05,  3.880E-05,  &
      &      3.762E-05,  3.645E-05,  3.493E-05,  3.337E-05,  3.222E-05,  &
      &      3.296E-05,  3.412E-05,  3.255E-05,  3.257E-05,  3.103E-05,  &
-     &      3.029E-05,  2.876E-05,  2.878E-05,  2.800E-05,  2.883E-05/  
+     &      3.029E-05,  2.876E-05,  2.878E-05,  2.800E-05,  2.883E-05/
       DATA (Y(I),I= 1351, 1400)/                                        &
      &      2.881E-05,  2.806E-05,  2.729E-05,  2.650E-05,  2.574E-05,  &
      &      2.380E-05,  2.262E-05,  2.108E-05,  2.031E-05,  1.842E-05,  &
@@ -5714,7 +5714,7 @@ SUBROUTINE CONTNM(JRAD)
      &     -2.450E-06, -3.996E-06, -5.582E-06, -6.779E-06, -7.956E-06,  &
      &     -9.542E-06, -1.072E-05, -1.150E-05, -1.227E-05, -1.305E-05,  &
      &     -1.382E-05, -1.500E-05, -1.580E-05, -1.738E-05, -1.779E-05,  &
-     &     -1.823E-05, -1.900E-05, -2.050E-05, -2.086E-05, -2.159E-05/  
+     &     -1.823E-05, -1.900E-05, -2.050E-05, -2.086E-05, -2.159E-05/
       DATA (Y(I),I= 1401, 1450)/                                        &
      &     -2.191E-05, -2.268E-05, -2.308E-05, -2.276E-05, -2.393E-05,  &
      &     -2.551E-05, -2.669E-05, -2.709E-05, -2.632E-05, -2.709E-05,  &
@@ -5725,7 +5725,7 @@ SUBROUTINE CONTNM(JRAD)
      &     -2.685E-05, -3.453E-05, -2.684E-05, -2.685E-05, -3.065E-05,  &
      &     -2.684E-05, -2.684E-05, -3.065E-05, -2.685E-05, -2.685E-05,  &
      &     -2.685E-05, -2.684E-05, -2.684E-05, -3.065E-05, -2.685E-05,  &
-     &     -3.453E-05, -2.685E-05, -2.685E-05, -2.684E-05, -2.685E-05/  
+     &     -3.453E-05, -2.685E-05, -2.685E-05, -2.684E-05, -2.685E-05/
       DATA (Y(I),I= 1451, 1500)/                                        &
      &     -2.684E-05, -2.684E-05, -2.685E-05, -3.086E-05, -3.466E-05,  &
      &     -3.467E-05, -3.453E-05, -3.854E-05, -3.854E-05, -3.072E-05,  &
@@ -5736,7 +5736,7 @@ SUBROUTINE CONTNM(JRAD)
      &     -3.834E-05, -4.601E-05, -4.601E-05, -3.833E-05, -3.833E-05,  &
      &     -4.221E-05, -4.221E-05, -4.601E-05, -4.221E-05, -4.221E-05,  &
      &     -4.221E-05, -4.626E-05, -4.625E-05, -4.650E-05, -5.054E-05,  &
-     &     -4.650E-05, -5.054E-05, -5.040E-05, -4.650E-05, -5.041E-05/  
+     &     -4.650E-05, -5.054E-05, -5.040E-05, -4.650E-05, -5.041E-05/
       DATA (Y(I),I= 1501, 1550)/                                        &
      &     -5.027E-05, -4.637E-05, -4.636E-05, -5.041E-05, -5.026E-05,  &
      &     -5.405E-05, -5.404E-05, -5.027E-05, -5.041E-05, -5.041E-05,  &
@@ -5747,7 +5747,7 @@ SUBROUTINE CONTNM(JRAD)
      &     -5.834E-05, -6.235E-05, -6.222E-05, -6.221E-05, -5.429E-05,  &
      &     -5.819E-05, -5.452E-05, -5.429E-05, -5.429E-05, -6.220E-05,  &
      &     -5.453E-05, -5.453E-05, -5.452E-05, -5.453E-05, -5.453E-05,  &
-     &     -6.246E-05, -5.477E-05, -5.845E-05, -5.477E-05, -5.477E-05/  
+     &     -6.246E-05, -5.477E-05, -5.845E-05, -5.477E-05, -5.477E-05/
       DATA (Y(I),I= 1551, 1600)/                                        &
      &     -5.478E-05, -5.453E-05, -4.671E-05, -4.672E-05, -4.633E-05,  &
      &     -4.633E-05, -4.647E-05, -4.671E-05, -4.633E-05, -4.647E-05,  &
@@ -5758,7 +5758,7 @@ SUBROUTINE CONTNM(JRAD)
      &     -2.720E-05, -2.719E-05, -2.720E-05, -2.719E-05, -3.121E-05,  &
      &     -3.120E-05, -3.121E-05, -2.353E-05, -2.755E-05, -1.961E-05,  &
      &     -2.730E-05, -2.730E-05, -2.328E-05, -1.156E-05, -1.169E-05,  &
-     &     -1.561E-05, -1.170E-05, -1.938E-05, -1.951E-05, -1.975E-05/  
+     &     -1.561E-05, -1.170E-05, -1.938E-05, -1.951E-05, -1.975E-05/
       DATA (Y(I),I= 1601, 1650)/                                        &
      &     -1.574E-05, -1.975E-05, -1.951E-05, -1.951E-05, -1.183E-05,  &
      &     -1.183E-05, -7.924E-06, -7.916E-06, -7.921E-06, -7.921E-06,  &
@@ -5769,7 +5769,7 @@ SUBROUTINE CONTNM(JRAD)
      &     -3.765E-06, -1.145E-05, -7.543E-06, -3.772E-06, -3.772E-06,  &
      &     -3.768E-06, -3.769E-06, -3.769E-06, -3.769E-06, -3.767E-06,  &
      &     -3.766E-06, -3.769E-06, -3.772E-06, -1.159E-05, -1.145E-05,  &
-     &     -7.817E-06, -7.815E-06, -7.816E-06, -1.563E-05, -7.577E-06/  
+     &     -7.817E-06, -7.815E-06, -7.816E-06, -1.563E-05, -7.577E-06/
       DATA (Y(I),I= 1651, 1700)/                                        &
      &     -7.570E-06, -1.525E-05, -7.328E-06, -7.572E-06, -7.574E-06,  &
      &     -1.525E-05, -1.120E-05, -1.145E-05, -1.145E-05, -1.145E-05,  &
@@ -5780,7 +5780,7 @@ SUBROUTINE CONTNM(JRAD)
      &     -2.692E-05, -2.692E-05, -1.924E-05, -2.691E-05, -1.923E-05,  &
      &     -2.716E-05, -2.328E-05, -2.716E-05, -3.096E-05, -3.096E-05,  &
      &     -3.096E-05, -3.120E-05, -3.120E-05, -3.107E-05, -2.301E-05,  &
-     &     -3.107E-05, -2.315E-05, -2.315E-05, -2.315E-05, -2.301E-05/  
+     &     -3.107E-05, -2.315E-05, -2.315E-05, -2.315E-05, -2.301E-05/
       DATA (Y(I),I= 1701, 1750)/                                        &
      &     -2.301E-05, -3.069E-05, -2.301E-05, -3.069E-05, -2.301E-05,  &
      &     -3.093E-05, -3.055E-05, -3.056E-05, -2.287E-05, -2.301E-05,  &
@@ -5791,7 +5791,7 @@ SUBROUTINE CONTNM(JRAD)
      &     -2.706E-05, -1.913E-05, -2.682E-05, -1.914E-05, -2.277E-05,  &
      &     -1.913E-05, -1.522E-05, -1.509E-05, -1.522E-05, -2.290E-05,  &
      &     -1.509E-05, -2.290E-05, -2.290E-05, -1.522E-05, -1.522E-05,  &
-     &     -1.910E-05, -1.522E-05, -1.522E-05, -1.155E-05, -1.155E-05/  
+     &     -1.910E-05, -1.522E-05, -1.522E-05, -1.155E-05, -1.155E-05/
       DATA (Y(I),I= 1751, 1800)/                                        &
      &     -1.156E-05, -1.142E-05, -7.541E-06, -7.536E-06, -7.544E-06,  &
      &     -1.142E-05, -1.522E-05, -7.542E-06, -7.538E-06, -7.539E-06,  &
@@ -5802,7 +5802,7 @@ SUBROUTINE CONTNM(JRAD)
      &      2.437E-07,  2.431E-07,  4.155E-06, -3.766E-06, -3.771E-06,  &
      &      2.430E-07,  2.438E-07,  3.915E-06,  3.909E-06,  7.824E-06,  &
      &      3.913E-06,  3.911E-06,  3.913E-06,  3.909E-06,  3.910E-06,  &
-     &      3.910E-06,  3.914E-06,  4.150E-06,  1.184E-05,  1.184E-05/  
+     &      3.910E-06,  3.914E-06,  4.150E-06,  1.184E-05,  1.184E-05/
       DATA (Y(I),I= 1801, 1850)/                                        &
      &      1.183E-05,  1.108E-05,  1.031E-05,  9.561E-06,  9.950E-06,  &
      &      1.227E-05,  1.420E-05,  1.534E-05,  1.572E-05,  1.571E-05,  &
@@ -5813,7 +5813,7 @@ SUBROUTINE CONTNM(JRAD)
      &      1.982E-05,  2.058E-05,  2.095E-05,  2.098E-05,  1.979E-05,  &
      &      1.860E-05,  1.782E-05,  1.934E-05,  1.972E-05,  2.083E-05,  &
      &      2.201E-05,  2.281E-05,  2.476E-05,  2.480E-05,  2.480E-05,  &
-     &      2.407E-05,  2.371E-05,  2.295E-05,  2.218E-05,  2.141E-05/  
+     &      2.407E-05,  2.371E-05,  2.295E-05,  2.218E-05,  2.141E-05/
       DATA (Y(I),I= 1851, 1900)/                                        &
      &      2.218E-05,  2.294E-05,  2.371E-05,  2.369E-05,  2.328E-05,  &
      &      2.287E-05,  2.169E-05,  2.128E-05,  2.126E-05,  2.004E-05,  &
@@ -5824,7 +5824,7 @@ SUBROUTINE CONTNM(JRAD)
      &      2.087E-05,  2.244E-05,  2.283E-05,  2.322E-05,  2.327E-05,  &
      &      2.291E-05,  2.329E-05,  2.482E-05,  2.558E-05,  2.593E-05,  &
      &      2.514E-05,  2.436E-05,  2.279E-05,  2.282E-05,  2.363E-05,  &
-     &      2.441E-05,  2.524E-05,  2.599E-05,  2.759E-05,  2.874E-05/  
+     &      2.441E-05,  2.524E-05,  2.599E-05,  2.759E-05,  2.874E-05/
       DATA (Y(I),I= 1901, 1950)/                                        &
      &      2.954E-05,  3.028E-05,  3.064E-05,  3.063E-05,  3.021E-05,  &
      &      2.866E-05,  2.788E-05,  2.788E-05,  2.749E-05,  2.711E-05,  &
@@ -5835,7 +5835,7 @@ SUBROUTINE CONTNM(JRAD)
      &      3.848E-05,  4.004E-05,  4.161E-05,  4.350E-05,  4.426E-05,  &
      &      4.386E-05,  4.305E-05,  4.344E-05,  4.457E-05,  4.570E-05,  &
      &      4.685E-05,  4.567E-05,  4.450E-05,  4.337E-05,  4.297E-05,  &
-     &      4.414E-05,  4.527E-05,  4.644E-05,  4.721E-05,  4.798E-05/  
+     &      4.414E-05,  4.527E-05,  4.644E-05,  4.721E-05,  4.798E-05/
       DATA (Y(I),I= 1951, 2000)/                                        &
      &      4.873E-05,  4.952E-05,  4.797E-05,  4.798E-05,  4.681E-05,  &
      &      4.721E-05,  4.760E-05,  4.724E-05,  4.802E-05,  4.805E-05,  &
@@ -5846,7 +5846,7 @@ SUBROUTINE CONTNM(JRAD)
      &      3.829E-05,  3.714E-05,  3.481E-05,  3.365E-05,  3.438E-05,  &
      &      3.478E-05,  3.474E-05,  3.395E-05,  3.277E-05,  3.085E-05,  &
      &      2.966E-05,  3.045E-05,  3.044E-05,  3.123E-05,  3.042E-05,  &
-     &      2.965E-05,  2.969E-05,  2.966E-05,  3.082E-05,  3.273E-05/  
+     &      2.965E-05,  2.969E-05,  2.966E-05,  3.082E-05,  3.273E-05/
       DATA (Y(I),I= 2001, 2050)/                                        &
      &      3.388E-05,  3.310E-05,  3.195E-05,  3.196E-05,  3.080E-05,  &
      &      3.004E-05,  3.004E-05,  2.927E-05,  2.927E-05,  3.044E-05,  &
@@ -5857,7 +5857,7 @@ SUBROUTINE CONTNM(JRAD)
      &      3.426E-05,  3.541E-05,  3.618E-05,  3.697E-05,  3.697E-05,  &
      &      3.696E-05,  3.737E-05,  3.737E-05,  3.736E-05,  3.854E-05,  &
      &      3.893E-05,  3.738E-05,  3.624E-05,  3.395E-05,  3.318E-05,  &
-     &      3.550E-05,  3.819E-05,  4.092E-05,  4.204E-05,  4.245E-05/  
+     &      3.550E-05,  3.819E-05,  4.092E-05,  4.204E-05,  4.245E-05/
       DATA (Y(I),I= 2051, 2100)/                                        &
      &      4.284E-05,  4.325E-05,  4.324E-05,  4.363E-05,  4.403E-05,  &
      &      4.442E-05,  4.365E-05,  4.284E-05,  4.246E-05,  4.244E-05,  &
@@ -5868,7 +5868,7 @@ SUBROUTINE CONTNM(JRAD)
      &      4.583E-05,  4.503E-05,  4.582E-05,  4.541E-05,  4.578E-05,  &
      &      4.577E-05,  4.655E-05,  4.691E-05,  4.769E-05,  4.693E-05,  &
      &      4.693E-05,  4.539E-05,  4.462E-05,  4.462E-05,  4.425E-05,  &
-     &      4.351E-05,  4.391E-05,  4.468E-05,  4.588E-05,  4.741E-05/  
+     &      4.351E-05,  4.391E-05,  4.468E-05,  4.588E-05,  4.741E-05/
       DATA (Y(I),I= 2101, 2150)/                                        &
      &      4.818E-05,  5.011E-05,  5.046E-05,  5.198E-05,  5.124E-05,  &
      &      5.086E-05,  4.931E-05,  4.776E-05,  4.700E-05,  4.623E-05,  &
@@ -5879,7 +5879,7 @@ SUBROUTINE CONTNM(JRAD)
      &      6.132E-05,  6.251E-05,  6.253E-05,  6.293E-05,  6.371E-05,  &
      &      6.489E-05,  6.606E-05,  6.608E-05,  6.644E-05,  6.453E-05,  &
      &      6.336E-05,  6.178E-05,  6.177E-05,  6.327E-05,  6.557E-05,  &
-     &      6.711E-05,  6.864E-05,  6.901E-05,  6.937E-05,  6.975E-05/  
+     &      6.711E-05,  6.864E-05,  6.901E-05,  6.937E-05,  6.975E-05/
       DATA (Y(I),I= 2151, 2200)/                                        &
      &      6.821E-05,  6.704E-05,  6.554E-05,  6.438E-05,  6.398E-05,  &
      &      6.318E-05,  6.319E-05,  6.280E-05,  6.048E-05,  5.933E-05,  &
@@ -5890,7 +5890,7 @@ SUBROUTINE CONTNM(JRAD)
      &      4.137E-05,  3.944E-05,  3.674E-05,  3.368E-05,  3.139E-05,  &
      &      3.100E-05,  3.139E-05,  3.212E-05,  3.251E-05,  3.135E-05,  &
      &      2.904E-05,  2.633E-05,  2.441E-05,  2.478E-05,  2.480E-05,  &
-     &      2.557E-05,  2.594E-05,  2.477E-05,  2.404E-05,  2.404E-05/  
+     &      2.557E-05,  2.594E-05,  2.477E-05,  2.404E-05,  2.404E-05/
       DATA (Y(I),I= 2201, 2250)/                                        &
      &      2.325E-05,  2.365E-05,  2.286E-05,  2.365E-05,  2.442E-05,  &
      &      2.404E-05,  2.406E-05,  2.401E-05,  2.403E-05,  2.480E-05,  &
@@ -5901,7 +5901,7 @@ SUBROUTINE CONTNM(JRAD)
      &      3.417E-05,  3.532E-05,  3.686E-05,  3.684E-05,  3.606E-05,  &
      &      3.568E-05,  3.493E-05,  3.645E-05,  3.797E-05,  4.030E-05,  &
      &      4.144E-05,  4.221E-05,  4.181E-05,  4.184E-05,  4.142E-05,  &
-     &      4.181E-05,  4.257E-05,  4.372E-05,  4.412E-05,  4.334E-05/  
+     &      4.181E-05,  4.257E-05,  4.372E-05,  4.412E-05,  4.334E-05/
       DATA (Y(I),I= 2251, 2300)/                                        &
      &      4.220E-05,  4.146E-05,  3.991E-05,  4.067E-05,  4.223E-05,  &
      &      4.377E-05,  4.608E-05,  4.609E-05,  4.608E-05,  4.571E-05,  &
@@ -5912,7 +5912,7 @@ SUBROUTINE CONTNM(JRAD)
      &      4.577E-05,  4.538E-05,  4.619E-05,  4.696E-05,  4.696E-05,  &
      &      4.696E-05,  4.655E-05,  4.657E-05,  4.540E-05,  4.537E-05,  &
      &      4.618E-05,  4.770E-05,  4.847E-05,  5.041E-05,  5.041E-05,  &
-     &      4.928E-05,  4.773E-05,  4.619E-05,  4.502E-05,  4.582E-05/  
+     &      4.928E-05,  4.773E-05,  4.619E-05,  4.502E-05,  4.582E-05/
       DATA (Y(I),I= 2301, 2350)/                                        &
      &      4.658E-05,  4.581E-05,  4.658E-05,  4.734E-05,  4.813E-05,  &
      &      4.809E-05,  4.927E-05,  4.848E-05,  4.814E-05,  4.813E-05,  &
@@ -5923,7 +5923,7 @@ SUBROUTINE CONTNM(JRAD)
      &      5.823E-05,  5.862E-05,  5.745E-05,  5.706E-05,  5.593E-05,  &
      &      5.513E-05,  5.512E-05,  5.512E-05,  5.586E-05,  5.663E-05,  &
      &      5.701E-05,  5.662E-05,  5.619E-05,  5.657E-05,  5.618E-05,  &
-     &      5.502E-05,  5.385E-05,  5.307E-05,  5.191E-05,  5.113E-05/  
+     &      5.502E-05,  5.385E-05,  5.307E-05,  5.191E-05,  5.113E-05/
       DATA (Y(I),I= 2351, 2400)/                                        &
      &      5.074E-05,  5.033E-05,  5.036E-05,  4.994E-05,  4.801E-05,  &
      &      4.723E-05,  4.609E-05,  4.531E-05,  4.724E-05,  4.992E-05,  &
@@ -5934,7 +5934,7 @@ SUBROUTINE CONTNM(JRAD)
      &      3.375E-05,  3.221E-05,  3.068E-05,  3.031E-05,  2.992E-05,  &
      &      3.029E-05,  3.029E-05,  3.108E-05,  3.108E-05,  3.031E-05,  &
      &      3.031E-05,  3.031E-05,  3.031E-05,  3.031E-05,  3.070E-05,  &
-     &      2.994E-05,  3.111E-05,  3.109E-05,  3.184E-05,  3.300E-05/  
+     &      2.994E-05,  3.111E-05,  3.109E-05,  3.184E-05,  3.300E-05/
       DATA (Y(I),I= 2401, 2450)/                                        &
      &      3.377E-05,  3.379E-05,  3.378E-05,  3.378E-05,  3.380E-05,  &
      &      3.456E-05,  3.535E-05,  3.572E-05,  3.651E-05,  3.650E-05,  &
@@ -5945,7 +5945,7 @@ SUBROUTINE CONTNM(JRAD)
      &      4.113E-05,  4.152E-05,  4.189E-05,  4.189E-05,  4.265E-05,  &
      &      4.304E-05,  4.227E-05,  4.189E-05,  4.035E-05,  3.921E-05,  &
      &      3.844E-05,  3.920E-05,  3.996E-05,  4.072E-05,  4.265E-05,  &
-     &      4.265E-05,  4.265E-05,  4.189E-05,  4.148E-05,  4.151E-05/  
+     &      4.265E-05,  4.265E-05,  4.189E-05,  4.148E-05,  4.151E-05/
       DATA (Y(I),I= 2451, 2500)/                                        &
      &      4.151E-05,  4.188E-05,  4.188E-05,  4.188E-05,  4.306E-05,  &
      &      4.226E-05,  4.304E-05,  4.385E-05,  4.357E-05,  4.342E-05,  &
@@ -5956,7 +5956,7 @@ SUBROUTINE CONTNM(JRAD)
      &      4.084E-05,  4.065E-05,  4.062E-05,  4.052E-05,  4.045E-05,  &
      &      4.053E-05,  4.100E-05,  4.151E-05,  4.206E-05,  4.260E-05,  &
      &      4.292E-05,  4.304E-05,  4.320E-05,  4.333E-05,  4.345E-05,  &
-     &      4.377E-05,  4.404E-05,  4.432E-05,  4.460E-05,  4.453E-05/  
+     &      4.377E-05,  4.404E-05,  4.432E-05,  4.460E-05,  4.453E-05/
       DATA (Y(I),I= 2501, 2550)/                                        &
      &      4.380E-05,  4.316E-05,  4.239E-05,  4.170E-05,  4.214E-05,  &
      &      4.302E-05,  4.387E-05,  4.472E-05,  4.523E-05,  4.454E-05,  &
@@ -5967,7 +5967,7 @@ SUBROUTINE CONTNM(JRAD)
      &      4.626E-05,  4.628E-05,  4.530E-05,  4.413E-05,  4.292E-05,  &
      &      4.171E-05,  4.101E-05,  4.133E-05,  4.153E-05,  4.180E-05,  &
      &      4.208E-05,  4.158E-05,  4.078E-05,  4.003E-05,  3.923E-05,  &
-     &      3.854E-05,  3.888E-05,  3.936E-05,  3.993E-05,  4.038E-05/  
+     &      3.854E-05,  3.888E-05,  3.936E-05,  3.993E-05,  4.038E-05/
       DATA (Y(I),I= 2551, 2600)/                                        &
      &      4.018E-05,  3.852E-05,  3.686E-05,  3.515E-05,  3.349E-05,  &
      &      3.280E-05,  3.284E-05,  3.285E-05,  3.277E-05,  3.273E-05,  &
@@ -5978,7 +5978,7 @@ SUBROUTINE CONTNM(JRAD)
      &      2.681E-05,  2.674E-05,  2.667E-05,  2.651E-05,  2.628E-05,  &
      &      2.602E-05,  2.575E-05,  2.552E-05,  2.544E-05,  2.567E-05,  &
      &      2.591E-05,  2.614E-05,  2.633E-05,  2.610E-05,  2.557E-05,  &
-     &      2.511E-05,  2.457E-05,  2.416E-05,  2.450E-05,  2.512E-05/  
+     &      2.511E-05,  2.457E-05,  2.416E-05,  2.450E-05,  2.512E-05/
       DATA (Y(I),I= 2601, 2650)/                                        &
      &      2.578E-05,  2.635E-05,  2.678E-05,  2.655E-05,  2.628E-05,  &
      &      2.594E-05,  2.563E-05,  2.548E-05,  2.606E-05,  2.667E-05,  &
@@ -5989,7 +5989,7 @@ SUBROUTINE CONTNM(JRAD)
      &      2.978E-05,  2.990E-05,  2.997E-05,  3.001E-05,  3.004E-05,  &
      &      3.004E-05,  3.000E-05,  2.981E-05,  2.957E-05,  2.938E-05,  &
      &      2.918E-05,  2.903E-05,  2.918E-05,  2.930E-05,  2.937E-05,  &
-     &      2.948E-05,  2.944E-05,  2.898E-05,  2.848E-05,  2.806E-05/  
+     &      2.948E-05,  2.944E-05,  2.898E-05,  2.848E-05,  2.806E-05/
       DATA (Y(I),I= 2651, 2700)/                                        &
      &      2.756E-05,  2.733E-05,  2.744E-05,  2.751E-05,  2.763E-05,  &
      &      2.767E-05,  2.751E-05,  2.716E-05,  2.682E-05,  2.635E-05,  &
@@ -6000,7 +6000,7 @@ SUBROUTINE CONTNM(JRAD)
      &      2.601E-05,  2.617E-05,  2.641E-05,  2.656E-05,  2.671E-05,  &
      &      2.695E-05,  2.710E-05,  2.730E-05,  2.746E-05,  2.769E-05,  &
      &      2.785E-05,  2.800E-05,  2.812E-05,  2.831E-05,  2.842E-05,  &
-     &      2.858E-05,  2.878E-05,  2.889E-05,  2.908E-05,  2.920E-05/  
+     &      2.858E-05,  2.878E-05,  2.889E-05,  2.908E-05,  2.920E-05/
       DATA (Y(I),I= 2701, 2750)/                                        &
      &      2.939E-05,  2.935E-05,  2.935E-05,  2.931E-05,  2.923E-05,  &
      &      2.927E-05,  2.919E-05,  2.915E-05,  2.915E-05,  2.911E-05,  &
@@ -6011,7 +6011,7 @@ SUBROUTINE CONTNM(JRAD)
      &      2.391E-05,  2.360E-05,  2.336E-05,  2.313E-05,  2.293E-05,  &
      &      2.266E-05,  2.247E-05,  2.227E-05,  2.196E-05,  2.177E-05,  &
      &      2.157E-05,  2.130E-05,  2.118E-05,  2.107E-05,  2.095E-05,  &
-     &      2.075E-05,  2.063E-05,  2.044E-05,  2.036E-05,  2.017E-05/  
+     &      2.075E-05,  2.063E-05,  2.044E-05,  2.036E-05,  2.017E-05/
       DATA (Y(I),I= 2751, 2800)/                                        &
      &      2.005E-05,  1.994E-05,  1.982E-05,  1.971E-05,  1.959E-05,  &
      &      1.944E-05,  1.933E-05,  1.925E-05,  1.906E-05,  1.898E-05,  &
@@ -6022,7 +6022,7 @@ SUBROUTINE CONTNM(JRAD)
      &      1.736E-05,  1.728E-05,  1.725E-05,  1.721E-05,  1.717E-05,  &
      &      1.712E-05,  1.712E-05,  1.709E-05,  1.704E-05,  1.693E-05,  &
      &      1.693E-05,  1.685E-05,  1.685E-05,  1.680E-05,  1.680E-05,  &
-     &      1.672E-05,  1.672E-05,  1.672E-05,  1.672E-05,  1.668E-05/  
+     &      1.672E-05,  1.672E-05,  1.672E-05,  1.672E-05,  1.668E-05/
       DATA (Y(I),I= 2801, 2850)/                                        &
      &      1.660E-05,  1.659E-05,  1.659E-05,  1.651E-05,  1.655E-05,  &
      &      1.655E-05,  1.655E-05,  1.651E-05,  1.647E-05,  1.647E-05,  &
@@ -6033,7 +6033,7 @@ SUBROUTINE CONTNM(JRAD)
      &      1.611E-05,  1.611E-05,  1.607E-05,  1.604E-05,  1.600E-05,  &
      &      1.596E-05,  1.589E-05,  1.573E-05,  1.562E-05,  1.550E-05,  &
      &      1.538E-05,  1.531E-05,  1.519E-05,  1.499E-05,  1.496E-05,  &
-     &      1.480E-05,  1.469E-05,  1.461E-05,  1.445E-05,  1.437E-05/  
+     &      1.480E-05,  1.469E-05,  1.461E-05,  1.445E-05,  1.437E-05/
       DATA (Y(I),I= 2851, 2900)/                                        &
      &      1.422E-05,  1.418E-05,  1.403E-05,  1.399E-05,  1.383E-05,  &
      &      1.375E-05,  1.360E-05,  1.356E-05,  1.356E-05,  1.360E-05,  &
@@ -6044,7 +6044,7 @@ SUBROUTINE CONTNM(JRAD)
      &      1.431E-05,  1.427E-05,  1.435E-05,  1.439E-05,  1.439E-05,  &
      &      1.443E-05,  1.451E-05,  1.454E-05,  1.454E-05,  1.458E-05,  &
      &      1.458E-05,  1.450E-05,  1.450E-05,  1.446E-05,  1.446E-05,  &
-     &      1.446E-05,  1.438E-05,  1.442E-05,  1.441E-05,  1.433E-05/  
+     &      1.446E-05,  1.438E-05,  1.442E-05,  1.441E-05,  1.433E-05/
       DATA (Y(I),I= 2901, 2950)/                                        &
      &      1.429E-05,  1.422E-05,  1.418E-05,  1.406E-05,  1.398E-05,  &
      &      1.387E-05,  1.379E-05,  1.367E-05,  1.360E-05,  1.352E-05,  &
@@ -6055,7 +6055,7 @@ SUBROUTINE CONTNM(JRAD)
      &      1.081E-05,  1.073E-05,  1.055E-05,  1.046E-05,  1.035E-05,  &
      &      1.025E-05,  1.013E-05,  1.003E-05,  9.912E-06,  9.800E-06,  &
      &      9.691E-06,  9.582E-06,  9.470E-06,  9.362E-06,  9.253E-06,  &
-     &      9.175E-06,  9.097E-06,  9.027E-06,  8.950E-06,  8.883E-06/  
+     &      9.175E-06,  9.097E-06,  9.027E-06,  8.950E-06,  8.883E-06/
       DATA (Y(I),I= 2951, 3000)/                                        &
      &      8.802E-06,  8.732E-06,  8.658E-06,  8.588E-06,  8.510E-06,  &
      &      8.440E-06,  8.385E-06,  8.342E-06,  8.307E-06,  8.267E-06,  &
@@ -6066,7 +6066,7 @@ SUBROUTINE CONTNM(JRAD)
      &      7.853E-06,  7.850E-06,  7.853E-06,  7.849E-06,  7.853E-06,  &
      &      7.849E-06,  7.845E-06,  7.852E-06,  7.848E-06,  7.844E-06,  &
      &      7.836E-06,  7.825E-06,  7.810E-06,  7.798E-06,  7.787E-06,  &
-     &      7.776E-06,  7.753E-06,  7.741E-06,  7.726E-06,  7.715E-06/  
+     &      7.776E-06,  7.753E-06,  7.741E-06,  7.726E-06,  7.715E-06/
       DATA (Y(I),I= 3001, 3050)/                                        &
      &      7.703E-06,  7.684E-06,  7.642E-06,  7.604E-06,  7.565E-06,  &
      &      7.527E-06,  7.492E-06,  7.454E-06,  7.416E-06,  7.370E-06,  &
@@ -6077,7 +6077,7 @@ SUBROUTINE CONTNM(JRAD)
      &      5.977E-06,  5.897E-06,  5.816E-06,  5.723E-06,  5.643E-06,  &
      &      5.558E-06,  5.493E-06,  5.420E-06,  5.358E-06,  5.285E-06,  &
      &      5.212E-06,  5.150E-06,  5.073E-06,  5.004E-06,  4.939E-06,  &
-     &      4.866E-06,  4.804E-06,  4.743E-06,  4.731E-06,  4.727E-06/  
+     &      4.866E-06,  4.804E-06,  4.743E-06,  4.731E-06,  4.727E-06/
       DATA (Y(I),I= 3051, 3100)/                                        &
      &      4.723E-06,  4.719E-06,  4.715E-06,  4.707E-06,  4.699E-06,  &
      &      4.699E-06,  4.695E-06,  4.691E-06,  4.680E-06,  4.695E-06,  &
@@ -6088,7 +6088,7 @@ SUBROUTINE CONTNM(JRAD)
      &      5.370E-06,  5.381E-06,  5.389E-06,  5.347E-06,  5.297E-06,  &
      &      5.231E-06,  5.181E-06,  5.127E-06,  5.065E-06,  5.011E-06,  &
      &      4.950E-06,  4.896E-06,  4.838E-06,  4.780E-06,  4.726E-06,  &
-     &      4.661E-06,  4.595E-06,  4.525E-06,  4.456E-06,  4.390E-06/  
+     &      4.661E-06,  4.595E-06,  4.525E-06,  4.456E-06,  4.390E-06/
       DATA (Y(I),I= 3101, 3150)/                                        &
      &      4.328E-06,  4.255E-06,  4.193E-06,  4.127E-06,  4.058E-06,  &
      &      3.988E-06,  3.926E-06,  3.849E-06,  3.760E-06,  3.679E-06,  &
@@ -6099,8 +6099,8 @@ SUBROUTINE CONTNM(JRAD)
      &      1.300E-06,  1.100E-06,  0.910E-06,  0.725E-06,  0.575E-06,  &
      &      0.450E-06,  0.370E-06,  0.295E-06,  0.225E-06,  0.160E-06,  &
      &      0.100E-06,  0.055E-06,  0.035E-06,  0.025E-06,  0.020E-06,  &
-     &      0.015E-06,  0.010E-06,  0.006E-06,  0.003E-06,  0.00000  /  
-!                                                                       
+     &      0.015E-06,  0.010E-06,  0.006E-06,  0.003E-06,  0.00000  /
+!
       DATA (Z(I),I=    1,   50)/                                        &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
@@ -6111,7 +6111,7 @@ SUBROUTINE CONTNM(JRAD)
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
-     &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    /  
+     &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    /
       DATA (Z(I),I= 51, 100)/                                           &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
@@ -6122,7 +6122,7 @@ SUBROUTINE CONTNM(JRAD)
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
-     &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    /  
+     &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    /
       DATA (Z(I),I=  101,  150)/                                        &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
@@ -6133,7 +6133,7 @@ SUBROUTINE CONTNM(JRAD)
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
-     &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    /  
+     &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    /
       DATA (Z(I),I= 151, 200)/                                          &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
@@ -6144,7 +6144,7 @@ SUBROUTINE CONTNM(JRAD)
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
-     &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    /  
+     &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    /
       DATA (Z(I),I=  201,  250)/                                        &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
@@ -6155,7 +6155,7 @@ SUBROUTINE CONTNM(JRAD)
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
-     &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    /  
+     &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    /
       DATA (Z(I),I= 251, 300)/                                          &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
@@ -6166,7 +6166,7 @@ SUBROUTINE CONTNM(JRAD)
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
-     &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    /  
+     &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    /
       DATA (Z(I),I=  301,  350)/                                        &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
@@ -6177,7 +6177,7 @@ SUBROUTINE CONTNM(JRAD)
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
-     &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    /  
+     &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    /
       DATA (Z(I),I= 351, 400)/                                          &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
@@ -6188,7 +6188,7 @@ SUBROUTINE CONTNM(JRAD)
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
-     &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    /  
+     &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    /
       DATA (Z(I),I=  401,  450)/                                        &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
@@ -6199,7 +6199,7 @@ SUBROUTINE CONTNM(JRAD)
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
-     &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    /  
+     &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    /
       DATA (Z(I),I= 451, 500)/                                          &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
@@ -6210,7 +6210,7 @@ SUBROUTINE CONTNM(JRAD)
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
-     &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    /  
+     &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    /
       DATA (Z(I),I=  501,  550)/                                        &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
@@ -6221,7 +6221,7 @@ SUBROUTINE CONTNM(JRAD)
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
-     &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    /  
+     &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    /
       DATA (Z(I),I= 551, 600)/                                          &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
@@ -6232,7 +6232,7 @@ SUBROUTINE CONTNM(JRAD)
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
-     &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    /  
+     &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    /
       DATA (Z(I),I=  601,  650)/                                        &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
@@ -6243,7 +6243,7 @@ SUBROUTINE CONTNM(JRAD)
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
-     &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    /  
+     &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    /
       DATA (Z(I),I= 651, 700)/                                          &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
@@ -6254,7 +6254,7 @@ SUBROUTINE CONTNM(JRAD)
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
-     &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    /  
+     &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    /
       DATA (Z(I),I=  701,  750)/                                        &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
@@ -6265,7 +6265,7 @@ SUBROUTINE CONTNM(JRAD)
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
-     &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    /  
+     &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    /
       DATA (Z(I),I= 751, 800)/                                          &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
@@ -6276,7 +6276,7 @@ SUBROUTINE CONTNM(JRAD)
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
-     &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    /  
+     &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    /
       DATA (Z(I),I=  801,  850)/                                        &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
      &      0.000    ,  0.000    ,  0.000    ,  0.000    ,  0.000    ,  &
@@ -6287,7 +6287,7 @@ SUBROUTINE CONTNM(JRAD)
      &     -3.200e-08, -4.100e-08, -5.000e-08, -6.000e-08, -7.000e-08,  &
      &     -8.000e-08, -9.500e-08, -1.200e-07, -2.400e-07, -3.300e-07,  &
      &     -3.400e-07, -3.476E-07, -3.507E-07, -3.498E-07, -3.441E-07,  &
-     &     -3.405E-07, -3.384E-07, -3.439E-07, -3.538E-07, -3.699E-07/  
+     &     -3.405E-07, -3.384E-07, -3.439E-07, -3.538E-07, -3.699E-07/
       DATA (Z(I),I= 851, 900)/                                          &
      &     -3.651E-07, -3.462E-07, -3.292E-07, -3.177E-07, -3.239E-07,  &
      &     -3.321E-07, -3.447E-07, -3.404E-07, -3.284E-07, -3.301E-07,  &
@@ -6298,7 +6298,7 @@ SUBROUTINE CONTNM(JRAD)
      &     -3.283E-07, -3.143E-07, -3.064E-07, -3.140E-07, -2.938E-07,  &
      &     -2.938E-07, -3.014E-07, -2.873E-07, -2.809E-07, -2.809E-07,  &
      &     -3.092E-07, -2.748E-07, -2.809E-07, -2.744E-07, -2.809E-07,  &
-     &     -2.669E-07, -2.666E-07, -2.870E-07, -2.806E-07, -2.806E-07/  
+     &     -2.669E-07, -2.666E-07, -2.870E-07, -2.806E-07, -2.806E-07/
       DATA (Z(I),I=  901,  950)/                                        &
      &     -2.806E-07, -2.870E-07, -2.730E-07, -2.590E-07, -2.512E-07,  &
      &     -2.792E-07, -2.856E-07, -2.860E-07, -2.781E-07, -2.565E-07,  &
@@ -6309,7 +6309,7 @@ SUBROUTINE CONTNM(JRAD)
      &     -2.162E-07, -2.226E-07, -2.022E-07, -2.086E-07, -2.083E-07,  &
      &     -2.148E-07, -2.288E-07, -2.285E-07, -2.286E-07, -2.288E-07,  &
      &     -2.209E-07, -2.069E-07, -2.069E-07, -2.131E-07, -2.131E-07,  &
-     &     -1.991E-07, -1.991E-07, -1.991E-07, -1.707E-07, -1.851E-07/  
+     &     -1.991E-07, -1.991E-07, -1.991E-07, -1.707E-07, -1.851E-07/
       DATA (Z(I),I= 951, 1000)/                                         &
      &     -1.772E-07, -1.775E-07, -1.912E-07, -1.976E-07, -2.117E-07,  &
      &     -1.974E-07, -1.772E-07, -1.837E-07, -1.693E-07, -1.693E-07,  &
@@ -6320,7 +6320,7 @@ SUBROUTINE CONTNM(JRAD)
      &     -9.455E-08, -8.022E-08, -6.618E-08, -7.990E-08, -8.016E-08,  &
      &     -7.992E-08, -8.779E-08, -7.986E-08, -1.015E-07, -9.567E-08,  &
      &     -7.373E-08, -8.135E-08, -9.567E-08, -7.520E-08, -8.955E-08,  &
-     &     -7.521E-08, -1.033E-07, -8.133E-08, -8.895E-08, -7.493E-08/  
+     &     -7.521E-08, -1.033E-07, -8.133E-08, -8.895E-08, -7.493E-08/
       DATA (Z(I),I= 1001, 1050)/                                        &
      &     -5.446E-08, -6.850E-08, -9.655E-08, -6.846E-08, -9.040E-08,  &
      &     -7.640E-08, -7.669E-08, -6.239E-08, -5.600E-08, -7.612E-08,  &
@@ -6331,7 +6331,7 @@ SUBROUTINE CONTNM(JRAD)
      &     -1.729E-08, -3.134E-08, -1.735E-08, -9.496E-09, -9.835E-09,  &
      &     -1.596E-08, -3.031E-08, -3.644E-08, -4.288E-08, -2.243E-08,  &
      &     -1.488E-08, -8.478E-10,  2.750E-08,  3.508E-08,  3.537E-08,  &
-     &      3.540E-08,  2.780E-08, -6.711E-09, -6.391E-10,  2.739E-08/  
+     &      3.540E-08,  2.780E-08, -6.711E-09, -6.391E-10,  2.739E-08/
       DATA (Z(I),I= 1051, 1100)/                                        &
      &      3.530E-08,  4.290E-08,  4.289E-08,  5.107E-08,  4.316E-08,  &
      &      4.345E-08,  5.102E-08,  2.937E-08,  3.696E-08,  3.699E-08,  &
@@ -6342,7 +6342,7 @@ SUBROUTINE CONTNM(JRAD)
      &      9.146E-08,  1.195E-07,  1.055E-07,  9.177E-08,  9.207E-08,  &
      &      9.848E-08,  9.876E-08,  9.846E-08,  9.846E-08,  1.125E-07,  &
      &      1.122E-07,  1.122E-07,  1.183E-07,  1.324E-07,  1.321E-07,  &
-     &      1.245E-07,  1.245E-07,  1.108E-07,  1.251E-07,  1.315E-07/  
+     &      1.245E-07,  1.245E-07,  1.108E-07,  1.251E-07,  1.315E-07/
       DATA (Z(I),I= 1101, 1150)/                                        &
      &      1.380E-07,  1.303E-07,  1.227E-07,  1.148E-07,  1.148E-07,  &
      &      1.289E-07,  1.350E-07,  1.210E-07,  1.351E-07,  1.556E-07,  &
@@ -6353,7 +6353,7 @@ SUBROUTINE CONTNM(JRAD)
      &      2.130E-07,  1.990E-07,  2.051E-07,  2.268E-07,  2.552E-07,  &
      &      2.689E-07,  2.973E-07,  3.034E-07,  3.177E-07,  3.101E-07,  &
      &      3.242E-07,  3.102E-07,  3.038E-07,  3.053E-07,  2.909E-07,  &
-     &      2.909E-07,  2.988E-07,  2.988E-07,  3.128E-07,  3.128E-07/  
+     &      2.909E-07,  2.988E-07,  2.988E-07,  3.128E-07,  3.128E-07/
       DATA (Z(I),I= 1151, 1200)/                                        &
      &      3.193E-07,  3.257E-07,  3.257E-07,  3.461E-07,  3.321E-07,  &
      &      3.321E-07,  3.257E-07,  3.256E-07,  3.257E-07,  3.394E-07,  &
@@ -6364,7 +6364,7 @@ SUBROUTINE CONTNM(JRAD)
      &      3.157E-07,  3.295E-07,  3.154E-07,  3.154E-07,  3.093E-07,  &
      &      2.952E-07,  2.812E-07,  2.671E-07,  2.672E-07,  2.734E-07,  &
      &      2.731E-07,  2.792E-07,  2.997E-07,  2.933E-07,  2.792E-07,  &
-     &      2.792E-07,  2.653E-07,  2.372E-07,  2.289E-07,  2.290E-07/  
+     &      2.792E-07,  2.653E-07,  2.372E-07,  2.289E-07,  2.290E-07/
       DATA (Z(I),I= 1201, 1250)/                                        &
      &      2.276E-07,  2.132E-07,  2.211E-07,  2.431E-07,  2.369E-07,  &
      &      2.448E-07,  2.388E-07,  2.247E-07,  2.043E-07,  2.043E-07,  &
@@ -6375,7 +6375,7 @@ SUBROUTINE CONTNM(JRAD)
      &      2.376E-07,  1.937E-07,  1.658E-07,  1.374E-07,  1.456E-07,  &
      &      1.395E-07,  1.690E-07,  1.769E-07,  1.849E-07,  1.988E-07,  &
      &      1.988E-07,  1.769E-07,  1.708E-07,  1.976E-07,  2.042E-07,  &
-     &      2.105E-07,  2.171E-07,  2.310E-07,  2.249E-07,  2.389E-07/  
+     &      2.105E-07,  2.171E-07,  2.310E-07,  2.249E-07,  2.389E-07/
       DATA (Z(I),I= 1251, 1300)/                                        &
      &      2.246E-07,  2.109E-07,  1.822E-07,  1.682E-07,  1.536E-07,  &
      &      1.467E-07,  1.529E-07,  1.593E-07,  1.521E-07,  1.866E-07,  &
@@ -6386,7 +6386,7 @@ SUBROUTINE CONTNM(JRAD)
      &      2.007E-07,  1.784E-07,  1.630E-07,  1.613E-07,  1.551E-07,  &
      &      1.425E-07,  1.507E-07,  1.242E-07,  1.184E-07,  1.259E-07,  &
      &      1.605E-07,  1.540E-07,  1.962E-07,  2.102E-07,  1.804E-07,  &
-     &      1.585E-07,  1.225E-07,  9.271E-08,  7.834E-08,  1.067E-07/  
+     &      1.585E-07,  1.225E-07,  9.271E-08,  7.834E-08,  1.067E-07/
       DATA (Z(I),I= 1301, 1350)/                                        &
      &      1.144E-07,  1.205E-07,  1.489E-07,  1.568E-07,  1.162E-07,  &
      &      1.039E-07,  1.399E-07,  1.196E-07,  1.263E-07,  1.267E-07,  &
@@ -6397,7 +6397,7 @@ SUBROUTINE CONTNM(JRAD)
      &      1.402E-07,  1.758E-07,  1.478E-07,  1.261E-07,  6.339E-08,  &
      &      2.789E-08, -2.071E-08, -2.791E-08, -4.312E-08, -3.657E-08,  &
      &     -9.756E-09,  3.890E-08,  2.843E-09, -3.339E-09, -3.133E-08,  &
-     &     -5.142E-08, -7.951E-08, -5.144E-08, -4.518E-08, -9.156E-09/  
+     &     -5.142E-08, -7.951E-08, -5.144E-08, -4.518E-08, -9.156E-09/
       DATA (Z(I),I= 1351, 1400)/                                        &
      &      1.096E-08,  1.085E-08,  3.110E-08,  5.755E-08,  7.769E-08,  &
      &      6.960E-08,  6.819E-08,  4.017E-08,  2.609E-08, -8.452E-09,  &
@@ -6408,7 +6408,7 @@ SUBROUTINE CONTNM(JRAD)
      &     -1.787E-07, -1.864E-07, -2.023E-07, -2.179E-07, -2.260E-07,  &
      &     -2.417E-07, -2.499E-07, -2.504E-07, -2.510E-07, -2.516E-07,  &
      &     -2.657E-07, -2.738E-07, -2.889E-07, -3.182E-07, -3.259E-07,  &
-     &     -3.346E-07, -3.486E-07, -3.754E-07, -3.819E-07, -3.947E-07/  
+     &     -3.346E-07, -3.486E-07, -3.754E-07, -3.819E-07, -3.947E-07/
       DATA (Z(I),I= 1401, 1450)/                                        &
      &     -3.998E-07, -4.139E-07, -4.214E-07, -4.162E-07, -4.378E-07,  &
      &     -4.672E-07, -4.888E-07, -4.964E-07, -4.825E-07, -4.964E-07,  &
@@ -6419,7 +6419,7 @@ SUBROUTINE CONTNM(JRAD)
      &     -5.577E-07, -6.978E-07, -5.575E-07, -5.576E-07, -6.950E-07,  &
      &     -5.577E-07, -5.576E-07, -6.951E-07, -5.577E-07, -5.577E-07,  &
      &     -5.577E-07, -5.576E-07, -5.576E-07, -6.950E-07, -5.577E-07,  &
-     &     -6.978E-07, -5.576E-07, -5.577E-07, -5.576E-07, -5.577E-07/  
+     &     -6.978E-07, -5.576E-07, -5.577E-07, -5.576E-07, -5.577E-07/
       DATA (Z(I),I= 1451, 1500)/                                        &
      &     -5.576E-07, -5.577E-07, -5.576E-07, -7.010E-07, -8.381E-07,  &
      &     -8.383E-07, -6.977E-07, -8.411E-07, -8.411E-07, -5.604E-07,  &
@@ -6430,7 +6430,7 @@ SUBROUTINE CONTNM(JRAD)
      &     -8.351E-07, -9.751E-07, -9.751E-07, -8.350E-07, -8.351E-07,  &
      &     -8.380E-07, -8.379E-07, -9.751E-07, -8.377E-07, -8.379E-07,  &
      &     -8.379E-07, -9.140E-07, -9.139E-07, -8.527E-07, -9.286E-07,  &
-     &     -8.526E-07, -9.286E-07, -7.881E-07, -8.526E-07, -7.882E-07/  
+     &     -8.526E-07, -9.286E-07, -7.881E-07, -8.526E-07, -7.882E-07/
       DATA (Z(I),I= 1501, 1550)/                                        &
      &     -6.477E-07, -7.122E-07, -7.121E-07, -7.883E-07, -6.475E-07,  &
      &     -8.524E-07, -8.522E-07, -6.478E-07, -7.881E-07, -7.883E-07,  &
@@ -6441,7 +6441,7 @@ SUBROUTINE CONTNM(JRAD)
      &     -4.576E-07, -6.007E-07, -4.604E-07, -4.603E-07, -3.814E-07,  &
      &     -3.169E-07, -3.199E-07, -3.813E-07, -3.813E-07, -4.601E-07,  &
      &     -3.201E-07, -3.203E-07, -3.201E-07, -3.200E-07, -3.202E-07,  &
-     &     -3.991E-07, -2.587E-07, -2.560E-07, -2.589E-07, -2.587E-07/  
+     &     -3.991E-07, -2.587E-07, -2.560E-07, -2.589E-07, -2.587E-07/
       DATA (Z(I),I= 1551, 1600)/                                        &
      &     -2.591E-07, -3.202E-07, -3.950E-08, -3.960E-08,  3.970E-08,  &
      &      3.965E-08, -1.009E-07, -3.950E-08,  3.965E-08, -1.009E-07,  &
@@ -6452,7 +6452,7 @@ SUBROUTINE CONTNM(JRAD)
      &      1.148E-07,  1.150E-07,  1.149E-07,  1.150E-07, -2.838E-08,  &
      &     -2.823E-08, -2.833E-08,  1.118E-07, -3.157E-08,  4.727E-08,  &
      &     -9.266E-08, -9.276E-08,  5.061E-08,  2.666E-07,  1.263E-07,  &
-     &      1.906E-07,  1.262E-07, -1.403E-08, -1.544E-07, -9.308E-08/  
+     &      1.906E-07,  1.262E-07, -1.403E-08, -1.544E-07, -9.308E-08/
       DATA (Z(I),I= 1601, 1650)/                                        &
      &      5.024E-08, -9.318E-08, -1.543E-07, -1.545E-07, -1.435E-08,  &
      &     -1.440E-08, -7.873E-08, -7.863E-08, -7.878E-08, -7.883E-08,  &
@@ -6463,7 +6463,7 @@ SUBROUTINE CONTNM(JRAD)
      &     -2.044E-07, -3.446E-07, -4.092E-07, -2.045E-07, -2.046E-07,  &
      &     -2.045E-07, -2.046E-07, -2.046E-07, -2.044E-07, -2.047E-07,  &
      &     -2.045E-07, -2.046E-07, -2.046E-07, -4.852E-07, -3.446E-07,  &
-     &     -2.806E-07, -2.806E-07, -2.805E-07, -5.611E-07, -3.418E-07/  
+     &     -2.806E-07, -2.806E-07, -2.805E-07, -5.611E-07, -3.418E-07/
       DATA (Z(I),I= 1651, 1700)/                                        &
      &     -3.416E-07, -4.820E-07, -4.031E-07, -3.418E-07, -3.418E-07,  &
      &     -4.819E-07, -4.059E-07, -3.447E-07, -3.447E-07, -3.447E-07,  &
@@ -6474,7 +6474,7 @@ SUBROUTINE CONTNM(JRAD)
      &     -4.230E-07, -4.233E-07, -2.831E-07, -4.230E-07, -2.829E-07,  &
      &     -3.619E-07, -3.590E-07, -3.618E-07, -4.992E-07, -4.991E-07,  &
      &     -4.992E-07, -4.378E-07, -4.378E-07, -2.973E-07, -7.816E-08,  &
-     &     -2.974E-07, -2.186E-07, -2.186E-07, -2.186E-07, -7.800E-08/  
+     &     -2.974E-07, -2.186E-07, -2.186E-07, -2.186E-07, -7.800E-08/
       DATA (Z(I),I= 1701, 1750)/                                        &
      &     -7.800E-08, -2.181E-07, -7.816E-08, -2.182E-07, -7.810E-08,  &
      &     -1.568E-07, -7.758E-08, -7.774E-08,  6.250E-08, -7.810E-08,  &
@@ -6485,7 +6485,7 @@ SUBROUTINE CONTNM(JRAD)
      &     -1.541E-07, -7.518E-08, -2.154E-07, -7.523E-08, -1.393E-07,  &
      &     -7.518E-08, -1.396E-07,  7.826E-10, -1.396E-07, -2.798E-07,  &
      &      9.391E-10, -2.798E-07, -2.799E-07, -1.396E-07, -1.396E-07,  &
-     &     -1.425E-07, -1.397E-07, -1.397E-07, -1.430E-07, -1.427E-07/  
+     &     -1.425E-07, -1.397E-07, -1.397E-07, -1.430E-07, -1.427E-07/
       DATA (Z(I),I= 1751, 1800)/                                        &
      &     -1.430E-07, -2.609E-09,  4.174E-10,  5.217E-10,  3.652E-10,  &
      &     -2.348E-09, -1.397E-07,  3.652E-10,  5.739E-10,  4.696E-10,  &
@@ -6496,7 +6496,7 @@ SUBROUTINE CONTNM(JRAD)
      &     -6.130E-08, -6.130E-08, -1.256E-07, -2.046E-07, -2.045E-07,  &
      &     -6.130E-08, -6.130E-08, -6.438E-08, -6.449E-08, -1.288E-07,  &
      &     -6.438E-08, -6.449E-08, -6.449E-08, -6.443E-08, -6.443E-08,  &
-     &     -6.438E-08, -6.438E-08, -1.258E-07,  1.435E-08,  1.440E-08/  
+     &     -6.438E-08, -6.438E-08, -1.258E-07,  1.435E-08,  1.440E-08/
       DATA (Z(I),I= 1801, 1850)/                                        &
      &      1.440E-08, -2.645E-08, -4.043E-08, -8.129E-08, -8.791E-08,  &
      &     -7.268E-08, -5.113E-08, -5.770E-08, -7.821E-08, -9.219E-08,  &
@@ -6507,7 +6507,7 @@ SUBROUTINE CONTNM(JRAD)
      &     -7.983E-08, -6.584E-08, -5.932E-08, -6.548E-08, -1.079E-07,  &
      &     -1.436E-07, -1.717E-07, -1.576E-07, -1.782E-07, -1.719E-07,  &
      &     -1.502E-07, -1.489E-07, -9.939E-08, -9.814E-08, -9.819E-08,  &
-     &     -1.110E-07, -1.174E-07, -1.313E-07, -1.454E-07, -1.594E-07/  
+     &     -1.110E-07, -1.174E-07, -1.313E-07, -1.454E-07, -1.594E-07/
       DATA (Z(I),I= 1851, 1900)/                                        &
      &     -1.454E-07, -1.314E-07, -1.173E-07, -1.044E-07, -1.121E-07,  &
      &     -1.198E-07, -1.554E-07, -1.630E-07, -1.502E-07, -1.798E-07,  &
@@ -6518,7 +6518,7 @@ SUBROUTINE CONTNM(JRAD)
      &     -1.437E-07, -1.145E-07, -1.007E-07, -9.318E-08, -9.198E-08,  &
      &     -9.835E-08, -1.049E-07, -9.078E-08, -9.083E-08, -9.845E-08,  &
      &     -1.266E-07, -1.545E-07, -2.108E-07, -2.169E-07, -1.949E-07,  &
-     &     -2.011E-07, -1.853E-07, -1.853E-07, -1.555E-07, -1.413E-07/  
+     &     -2.011E-07, -1.853E-07, -1.853E-07, -1.555E-07, -1.413E-07/
       DATA (Z(I),I= 1901, 1950)/                                        &
      &     -1.333E-07, -1.474E-07, -1.478E-07, -1.619E-07, -1.834E-07,  &
      &     -2.255E-07, -2.536E-07, -2.536E-07, -2.472E-07, -2.677E-07,  &
@@ -6529,7 +6529,7 @@ SUBROUTINE CONTNM(JRAD)
      &     -2.352E-07, -2.133E-07, -1.981E-07, -1.844E-07, -1.705E-07,  &
      &     -1.780E-07, -1.932E-07, -1.930E-07, -1.724E-07, -1.521E-07,  &
      &     -1.176E-07, -1.393E-07, -1.676E-07, -1.812E-07, -1.955E-07,  &
-     &     -1.672E-07, -1.536E-07, -1.252E-07, -1.113E-07, -9.715E-08/  
+     &     -1.672E-07, -1.536E-07, -1.252E-07, -1.113E-07, -9.715E-08/
       DATA (Z(I),I= 1951, 2000)/                                        &
      &     -9.725E-08, -6.918E-08, -1.112E-07, -9.720E-08, -1.256E-07,  &
      &     -1.111E-07, -8.343E-08, -8.309E-08, -5.502E-08, -2.687E-08,  &
@@ -6540,7 +6540,7 @@ SUBROUTINE CONTNM(JRAD)
      &     -1.109E-07, -1.252E-07, -1.611E-07, -1.754E-07, -1.626E-07,  &
      &     -1.483E-07, -1.561E-07, -1.574E-07, -1.790E-07, -2.005E-07,  &
      &     -2.363E-07, -2.081E-07, -2.082E-07, -1.801E-07, -2.020E-07,  &
-     &     -2.160E-07, -2.082E-07, -2.020E-07, -1.741E-07, -1.325E-07/  
+     &     -2.160E-07, -2.082E-07, -2.020E-07, -1.741E-07, -1.325E-07/
       DATA (Z(I),I= 2001, 2050)/                                        &
      &     -1.047E-07, -9.861E-08, -1.127E-07, -9.884E-08, -1.131E-07,  &
      &     -1.270E-07, -1.406E-07, -1.546E-07, -1.478E-07, -1.194E-07,  &
@@ -6551,7 +6551,7 @@ SUBROUTINE CONTNM(JRAD)
      &     -2.273E-07, -1.928E-07, -1.788E-07, -1.709E-07, -1.709E-07,  &
      &     -1.850E-07, -1.909E-07, -1.908E-07, -2.049E-07, -1.967E-07,  &
      &     -2.032E-07, -2.452E-07, -2.589E-07, -3.211E-07, -3.352E-07,  &
-     &     -3.133E-07, -2.710E-07, -2.275E-07, -2.278E-07, -2.203E-07/  
+     &     -3.133E-07, -2.710E-07, -2.275E-07, -2.278E-07, -2.203E-07/
       DATA (Z(I),I= 2051, 2100)/                                        &
      &     -2.267E-07, -2.392E-07, -2.600E-07, -2.665E-07, -2.729E-07,  &
      &     -2.793E-07, -2.934E-07, -3.153E-07, -3.291E-07, -3.229E-07,  &
@@ -6562,7 +6562,7 @@ SUBROUTINE CONTNM(JRAD)
      &     -3.845E-07, -4.065E-07, -3.986E-07, -4.061E-07, -4.065E-07,  &
      &     -4.205E-07, -3.925E-07, -3.861E-07, -3.580E-07, -3.720E-07,  &
      &     -3.720E-07, -4.001E-07, -4.141E-07, -4.140E-07, -4.138E-07,  &
-     &     -4.338E-07, -4.263E-07, -4.123E-07, -3.900E-07, -3.620E-07/  
+     &     -4.338E-07, -4.263E-07, -4.123E-07, -3.900E-07, -3.620E-07/
       DATA (Z(I),I= 2101, 2150)/                                        &
      &     -3.480E-07, -3.265E-07, -3.408E-07, -3.268E-07, -3.470E-07,  &
      &     -3.674E-07, -4.095E-07, -4.515E-07, -4.723E-07, -4.863E-07,  &
@@ -6573,7 +6573,7 @@ SUBROUTINE CONTNM(JRAD)
      &     -4.216E-07, -4.061E-07, -4.262E-07, -4.187E-07, -4.248E-07,  &
      &     -4.234E-07, -4.018E-07, -4.219E-07, -4.223E-07, -4.640E-07,  &
      &     -4.924E-07, -5.283E-07, -5.424E-07, -5.223E-07, -4.802E-07,  &
-     &     -4.522E-07, -4.241E-07, -4.178E-07, -4.181E-07, -3.976E-07/  
+     &     -4.522E-07, -4.241E-07, -4.178E-07, -4.181E-07, -3.976E-07/
       DATA (Z(I),I= 2151, 2200)/                                        &
      &     -4.256E-07, -4.472E-07, -4.674E-07, -4.750E-07, -4.825E-07,  &
      &     -4.702E-07, -4.562E-07, -4.498E-07, -4.716E-07, -4.792E-07,  &
@@ -6584,7 +6584,7 @@ SUBROUTINE CONTNM(JRAD)
      &     -2.910E-07, -3.124E-07, -3.279E-07, -3.699E-07, -3.978E-07,  &
      &     -3.914E-07, -3.569E-07, -3.166E-07, -2.821E-07, -2.896E-07,  &
      &     -3.115E-07, -3.269E-07, -3.485E-07, -3.280E-07, -3.140E-07,  &
-     &     -2.999E-07, -2.863E-07, -3.079E-07, -3.139E-07, -3.139E-07/  
+     &     -2.999E-07, -2.863E-07, -3.079E-07, -3.139E-07, -3.139E-07/
       DATA (Z(I),I= 2201, 2250)/                                        &
      &     -3.218E-07, -3.075E-07, -3.496E-07, -3.417E-07, -3.277E-07,  &
      &     -3.415E-07, -3.476E-07, -3.695E-07, -3.757E-07, -3.617E-07,  &
@@ -6595,7 +6595,7 @@ SUBROUTINE CONTNM(JRAD)
      &     -4.143E-07, -4.208E-07, -3.928E-07, -4.068E-07, -4.349E-07,  &
      &     -4.553E-07, -4.895E-07, -4.755E-07, -4.616E-07, -4.256E-07,  &
      &     -4.119E-07, -4.181E-07, -4.325E-07, -4.386E-07, -4.670E-07,  &
-     &     -4.734E-07, -4.734E-07, -4.659E-07, -4.723E-07, -5.004E-07/  
+     &     -4.734E-07, -4.734E-07, -4.659E-07, -4.723E-07, -5.004E-07/
       DATA (Z(I),I= 2251, 2300)/                                        &
      &     -5.141E-07, -5.342E-07, -5.763E-07, -5.623E-07, -5.404E-07,  &
      &     -5.124E-07, -4.905E-07, -4.905E-07, -4.905E-07, -5.109E-07,  &
@@ -6606,7 +6606,7 @@ SUBROUTINE CONTNM(JRAD)
      &     -5.159E-07, -5.094E-07, -4.875E-07, -4.735E-07, -4.735E-07,  &
      &     -4.735E-07, -4.811E-07, -4.671E-07, -4.954E-07, -4.893E-07,  &
      &     -4.673E-07, -4.534E-07, -4.394E-07, -4.037E-07, -4.037E-07,  &
-     &     -4.241E-07, -4.662E-07, -4.942E-07, -5.226E-07, -5.147E-07/  
+     &     -4.241E-07, -4.662E-07, -4.942E-07, -5.226E-07, -5.147E-07/
       DATA (Z(I),I= 2301, 2350)/                                        &
      &     -5.007E-07, -5.147E-07, -5.007E-07, -5.007E-07, -4.928E-07,  &
      &     -5.008E-07, -4.791E-07, -5.072E-07, -5.198E-07, -5.338E-07,  &
@@ -6617,7 +6617,7 @@ SUBROUTINE CONTNM(JRAD)
      &     -5.326E-07, -5.324E-07, -5.607E-07, -5.542E-07, -5.747E-07,  &
      &     -5.826E-07, -5.966E-07, -5.966E-07, -5.765E-07, -5.625E-07,  &
      &     -5.487E-07, -5.423E-07, -5.438E-07, -5.300E-07, -5.236E-07,  &
-     &     -5.311E-07, -5.527E-07, -5.466E-07, -5.541E-07, -5.480E-07/  
+     &     -5.311E-07, -5.527E-07, -5.466E-07, -5.541E-07, -5.480E-07/
       DATA (Z(I),I= 2351, 2400)/                                        &
      &     -5.415E-07, -5.289E-07, -5.009E-07, -4.883E-07, -5.099E-07,  &
      &     -5.037E-07, -4.973E-07, -4.911E-07, -4.286E-07, -3.660E-07,  &
@@ -6628,7 +6628,7 @@ SUBROUTINE CONTNM(JRAD)
      &     -3.473E-07, -3.754E-07, -4.034E-07, -4.031E-07, -4.033E-07,  &
      &     -3.969E-07, -3.969E-07, -3.890E-07, -3.891E-07, -4.031E-07,  &
      &     -4.031E-07, -4.031E-07, -4.031E-07, -4.031E-07, -4.095E-07,  &
-     &     -4.235E-07, -4.019E-07, -4.160E-07, -3.958E-07, -3.882E-07/  
+     &     -4.235E-07, -4.019E-07, -4.160E-07, -3.958E-07, -3.882E-07/
       DATA (Z(I),I= 2401, 2450)/                                        &
      &     -3.742E-07, -3.804E-07, -3.944E-07, -4.011E-07, -4.073E-07,  &
      &     -4.073E-07, -3.994E-07, -3.997E-07, -3.919E-07, -4.059E-07,  &
@@ -6639,7 +6639,7 @@ SUBROUTINE CONTNM(JRAD)
      &     -4.985E-07, -4.982E-07, -4.985E-07, -4.985E-07, -4.944E-07,  &
      &     -4.952E-07, -5.176E-07, -5.243E-07, -5.594E-07, -5.868E-07,  &
      &     -6.078E-07, -6.009E-07, -5.939E-07, -5.869E-07, -5.502E-07,  &
-     &     -5.515E-07, -5.487E-07, -5.599E-07, -5.661E-07, -5.695E-07/  
+     &     -5.515E-07, -5.487E-07, -5.599E-07, -5.661E-07, -5.695E-07/
       DATA (Z(I),I= 2451, 2500)/                                        &
      &     -5.667E-07, -5.574E-07, -5.560E-07, -5.532E-07, -5.221E-07,  &
      &     -5.314E-07, -5.061E-07, -4.870E-07, -4.811E-07, -4.715E-07,  &
@@ -6650,7 +6650,7 @@ SUBROUTINE CONTNM(JRAD)
      &     -3.953E-07, -3.960E-07, -3.944E-07, -3.943E-07, -3.948E-07,  &
      &     -3.911E-07, -3.817E-07, -3.704E-07, -3.583E-07, -3.475E-07,  &
      &     -3.403E-07, -3.394E-07, -3.356E-07, -3.333E-07, -3.309E-07,  &
-     &     -3.257E-07, -3.206E-07, -3.148E-07, -3.096E-07, -3.108E-07/  
+     &     -3.257E-07, -3.206E-07, -3.148E-07, -3.096E-07, -3.108E-07/
       DATA (Z(I),I= 2501, 2550)/                                        &
      &     -3.247E-07, -3.364E-07, -3.517E-07, -3.635E-07, -3.555E-07,  &
      &     -3.400E-07, -3.238E-07, -3.082E-07, -3.003E-07, -3.170E-07,  &
@@ -6661,7 +6661,7 @@ SUBROUTINE CONTNM(JRAD)
      &     -3.626E-07, -3.652E-07, -3.859E-07, -4.088E-07, -4.338E-07,  &
      &     -4.595E-07, -4.744E-07, -4.748E-07, -4.758E-07, -4.761E-07,  &
      &     -4.772E-07, -4.909E-07, -5.102E-07, -5.308E-07, -5.501E-07,  &
-     &     -5.653E-07, -5.538E-07, -5.375E-07, -5.190E-07, -5.028E-07/  
+     &     -5.653E-07, -5.538E-07, -5.375E-07, -5.190E-07, -5.028E-07/
       DATA (Z(I),I= 2551, 2600)/                                        &
      &     -4.997E-07, -5.220E-07, -5.441E-07, -5.685E-07, -5.907E-07,  &
      &     -5.939E-07, -5.815E-07, -5.711E-07, -5.615E-07, -5.499E-07,  &
@@ -6672,7 +6672,7 @@ SUBROUTINE CONTNM(JRAD)
      &     -4.445E-07, -4.370E-07, -4.294E-07, -4.233E-07, -4.186E-07,  &
      &     -4.159E-07, -4.126E-07, -4.093E-07, -4.018E-07, -3.901E-07,  &
      &     -3.776E-07, -3.659E-07, -3.542E-07, -3.515E-07, -3.558E-07,  &
-     &     -3.600E-07, -3.643E-07, -3.651E-07, -3.546E-07, -3.379E-07/  
+     &     -3.600E-07, -3.643E-07, -3.651E-07, -3.546E-07, -3.379E-07/
       DATA (Z(I),I= 2601, 2650)/                                        &
      &     -3.204E-07, -3.058E-07, -2.933E-07, -2.947E-07, -2.975E-07,  &
      &     -3.010E-07, -3.052E-07, -3.066E-07, -2.933E-07, -2.793E-07,  &
@@ -6683,7 +6683,7 @@ SUBROUTINE CONTNM(JRAD)
      &     -2.250E-07, -2.243E-07, -2.236E-07, -2.216E-07, -2.216E-07,  &
      &     -2.210E-07, -2.225E-07, -2.246E-07, -2.290E-07, -2.318E-07,  &
      &     -2.354E-07, -2.376E-07, -2.313E-07, -2.245E-07, -2.198E-07,  &
-     &     -2.129E-07, -2.102E-07, -2.160E-07, -2.210E-07, -2.253E-07/  
+     &     -2.129E-07, -2.102E-07, -2.160E-07, -2.210E-07, -2.253E-07/
       DATA (Z(I),I= 2651, 2700)/                                        &
      &     -2.297E-07, -2.306E-07, -2.237E-07, -2.176E-07, -2.121E-07,  &
      &     -2.066E-07, -2.062E-07, -2.077E-07, -2.092E-07, -2.143E-07,  &
@@ -6694,7 +6694,7 @@ SUBROUTINE CONTNM(JRAD)
      &     -1.648E-07, -1.632E-07, -1.602E-07, -1.580E-07, -1.586E-07,  &
      &     -1.557E-07, -1.549E-07, -1.527E-07, -1.525E-07, -1.489E-07,  &
      &     -1.487E-07, -1.479E-07, -1.486E-07, -1.484E-07, -1.491E-07,  &
-     &     -1.489E-07, -1.488E-07, -1.494E-07, -1.493E-07, -1.485E-07/  
+     &     -1.489E-07, -1.488E-07, -1.494E-07, -1.493E-07, -1.485E-07/
       DATA (Z(I),I= 2701, 2750)/                                        &
      &     -1.484E-07, -1.518E-07, -1.526E-07, -1.547E-07, -1.569E-07,  &
      &     -1.575E-07, -1.611E-07, -1.632E-07, -1.640E-07, -1.654E-07,  &
@@ -6705,7 +6705,7 @@ SUBROUTINE CONTNM(JRAD)
      &     -2.131E-07, -2.140E-07, -2.135E-07, -2.124E-07, -2.105E-07,  &
      &     -2.093E-07, -2.081E-07, -2.055E-07, -2.058E-07, -2.039E-07,  &
      &     -2.028E-07, -2.023E-07, -1.996E-07, -1.984E-07, -1.951E-07,  &
-     &     -1.959E-07, -1.940E-07, -1.928E-07, -1.901E-07, -1.889E-07/  
+     &     -1.959E-07, -1.940E-07, -1.928E-07, -1.901E-07, -1.889E-07/
       DATA (Z(I),I= 2751, 2800)/                                        &
      &     -1.870E-07, -1.843E-07, -1.823E-07, -1.782E-07, -1.755E-07,  &
      &     -1.728E-07, -1.702E-07, -1.647E-07, -1.634E-07, -1.593E-07,  &
@@ -6716,7 +6716,7 @@ SUBROUTINE CONTNM(JRAD)
      &     -1.019E-07, -1.006E-07, -9.780E-08, -9.514E-08, -9.455E-08,  &
      &     -9.330E-08, -9.128E-08, -8.923E-08, -8.864E-08, -8.879E-08,  &
      &     -8.536E-08, -8.615E-08, -8.414E-08, -8.288E-08, -8.226E-08,  &
-     &     -8.305E-08, -8.305E-08, -8.244E-08, -8.183E-08, -8.198E-08/  
+     &     -8.305E-08, -8.305E-08, -8.244E-08, -8.183E-08, -8.198E-08/
       DATA (Z(I),I= 2801, 2850)/                                        &
      &     -8.478E-08, -8.417E-08, -8.356E-08, -8.435E-08, -8.370E-08,  &
      &     -8.370E-08, -8.432E-08, -8.575E-08, -8.651E-08, -8.651E-08,  &
@@ -6727,7 +6727,7 @@ SUBROUTINE CONTNM(JRAD)
      &     -8.265E-08, -8.186E-08, -8.122E-08, -7.978E-08, -7.913E-08,  &
      &     -7.910E-08, -7.641E-08, -7.517E-08, -7.453E-08, -7.326E-08,  &
      &     -7.060E-08, -6.998E-08, -6.732E-08, -6.886E-08, -6.541E-08,  &
-     &     -6.417E-08, -6.353E-08, -6.230E-08, -6.308E-08, -6.246E-08/  
+     &     -6.417E-08, -6.353E-08, -6.230E-08, -6.308E-08, -6.246E-08/
       DATA (Z(I),I= 2851, 2900)/                                        &
      &     -6.325E-08, -6.126E-08, -6.205E-08, -6.000E-08, -6.078E-08,  &
      &     -5.815E-08, -5.893E-08, -5.896E-08, -5.896E-08, -5.960E-08,  &
@@ -6738,7 +6738,7 @@ SUBROUTINE CONTNM(JRAD)
      &     -5.779E-08, -5.930E-08, -5.790E-08, -5.801E-08, -5.863E-08,  &
      &     -5.798E-08, -5.719E-08, -5.717E-08, -5.717E-08, -5.714E-08,  &
      &     -5.653E-08, -5.933E-08, -5.872E-08, -5.808E-08, -5.948E-08,  &
-     &     -5.887E-08, -5.965E-08, -5.963E-08, -5.901E-08, -6.121E-08/  
+     &     -5.887E-08, -5.965E-08, -5.963E-08, -5.901E-08, -6.121E-08/
       DATA (Z(I),I= 2901, 2950)/                                        &
      &     -6.056E-08, -6.135E-08, -5.991E-08, -6.146E-08, -6.146E-08,  &
      &     -6.222E-08, -6.300E-08, -6.376E-08, -6.315E-08, -6.455E-08,  &
@@ -6749,7 +6749,7 @@ SUBROUTINE CONTNM(JRAD)
      &     -5.820E-08, -5.667E-08, -5.671E-08, -5.521E-08, -5.468E-08,  &
      &     -5.347E-08, -5.241E-08, -5.126E-08, -5.032E-08, -4.923E-08,  &
      &     -4.822E-08, -4.715E-08, -4.619E-08, -4.512E-08, -4.411E-08,  &
-     &     -4.294E-08, -4.198E-08, -4.082E-08, -3.972E-08, -3.848E-08/  
+     &     -4.294E-08, -4.198E-08, -4.082E-08, -3.972E-08, -3.848E-08/
       DATA (Z(I),I= 2951, 3000)/                                        &
      &     -3.765E-08, -3.656E-08, -3.531E-08, -3.421E-08, -3.319E-08,  &
      &     -3.209E-08, -3.131E-08, -3.082E-08, -3.010E-08, -2.947E-08,  &
@@ -6760,7 +6760,7 @@ SUBROUTINE CONTNM(JRAD)
      &     -2.441E-08, -2.454E-08, -2.448E-08, -2.470E-08, -2.463E-08,  &
      &     -2.491E-08, -2.499E-08, -2.485E-08, -2.506E-08, -2.514E-08,  &
      &     -2.521E-08, -2.494E-08, -2.501E-08, -2.488E-08, -2.488E-08,  &
-     &     -2.460E-08, -2.475E-08, -2.468E-08, -2.470E-08, -2.462E-08/  
+     &     -2.460E-08, -2.475E-08, -2.468E-08, -2.470E-08, -2.462E-08/
       DATA (Z(I),I= 3001, 3050)/                                        &
      &     -2.442E-08, -2.429E-08, -2.417E-08, -2.398E-08, -2.373E-08,  &
      &     -2.353E-08, -2.314E-08, -2.295E-08, -2.276E-08, -2.264E-08,  &
@@ -6771,7 +6771,7 @@ SUBROUTINE CONTNM(JRAD)
      &     -1.674E-08, -1.630E-08, -1.579E-08, -1.564E-08, -1.513E-08,  &
      &     -1.483E-08, -1.431E-08, -1.401E-08, -1.350E-08, -1.320E-08,  &
      &     -1.289E-08, -1.238E-08, -1.228E-08, -1.190E-08, -1.146E-08,  &
-     &     -1.116E-08, -1.064E-08, -1.033E-08, -1.040E-08, -1.028E-08/  
+     &     -1.116E-08, -1.064E-08, -1.033E-08, -1.040E-08, -1.028E-08/
       DATA (Z(I),I= 3051, 3100)/                                        &
      &     -1.042E-08, -1.036E-08, -1.023E-08, -1.037E-08, -1.045E-08,  &
      &     -1.025E-08, -1.033E-08, -1.026E-08, -1.040E-08, -1.054E-08,  &
@@ -6782,7 +6782,7 @@ SUBROUTINE CONTNM(JRAD)
      &     -1.714E-08, -1.741E-08, -1.775E-08, -1.805E-08, -1.794E-08,  &
      &     -1.819E-08, -1.814E-08, -1.810E-08, -1.848E-08, -1.844E-08,  &
      &     -1.868E-08, -1.864E-08, -1.874E-08, -1.885E-08, -1.887E-08,  &
-     &     -1.864E-08, -1.835E-08, -1.819E-08, -1.789E-08, -1.760E-08/  
+     &     -1.864E-08, -1.835E-08, -1.819E-08, -1.789E-08, -1.760E-08/
       DATA (Z(I),I= 3101, 3150)/                                        &
      &     -1.722E-08, -1.706E-08, -1.663E-08, -1.639E-08, -1.610E-08,  &
      &     -1.580E-08, -1.536E-08, -1.480E-08, -1.459E-08, -1.403E-08,  &
@@ -6793,83 +6793,83 @@ SUBROUTINE CONTNM(JRAD)
      &     -3.500E-09, -3.300E-09, -3.000E-09, -2.700E-09, -2.500E-09,  &
      &     -2.300E-09, -2.100E-09, -1.900E-09, -1.700E-09, -1.500E-09,  &
      &     -1.300E-09, -1.125E-09, -0.950E-09, -0.775E-09, -0.600E-09,  &
-     &     -0.425E-09, -0.250E-09, -0.100E-09, -0.005E-09,  0.00000  /  
-!                                                                       
-      END                                           
-!                                                                       
-!     --------------------------------------------------------------    
-!                                                                       
-      SUBROUTINE O3HHT0 (V1C,V2C,DVC,NPTC,C) 
-!                                                                       
-      Use params, ONLY: n_absrb 
-      IMPLICIT REAL*8           (V) 
-!                                                                       
-      COMMON /ABSORB/ V1ABS,V2ABS,DVABS,NPTABS,ABSRB(n_absrb) 
-      COMMON /O3HH0/ V1S,V2S,DVS,NPTS,S(2687) 
-      DIMENSION C(*) 
-!                                                                       
-      DVC = DVS 
-      V1C = V1ABS-DVC 
-      V2C = V2ABS+DVC 
-!                                                                       
-      IF (V1C.LT.V1S) then 
-         I1 = -1 
-         else 
-         I1 = (V1C-V1S)/DVS + 0.01 
-         end if 
-!                                                                       
-         V1C = V1S + DVS*REAL(I1-1) 
-         I2 = (V2C-V1S)/DVS + 0.01 
-         NPTC = I2-I1+3 
-         IF (NPTC.GT.NPTS) NPTC=NPTS+4 
-         V2C = V1C + DVS*REAL(NPTC-1) 
-!                                                                       
-         DO 10 J = 1, NPTC 
-            I = I1+(J-1) 
-            C(J) = 0. 
-            IF ((I.LT.1).OR.(I.GT.NPTS)) GO TO 10 
-            VJ = V1C+DVC* REAL(J-1) 
-            C(J) = S(I)/VJ 
-!                                                                       
-!     RADIATION FLD REMOVED FROM DIFFUSE OZONE                          
-!                                                                       
-   10    END DO 
-!                                                                       
-         RETURN 
-!                                                                       
-      END                                           
-!                                                                       
-!     --------------------------------------------------------------    
-!                                                                       
-      BLOCK DATA BO3HH0 
-!                                                                       
-      IMPLICIT REAL*8           (V) 
-!                                                                       
-!     O3HH0 CONTAINS O3 HARTLEY HUGGINS CROSS SECTIONS FOR 273K         
-!               UNITS OF (CM**2/MOL)*1.E-20                             
-!                                                                       
-!     NOW INCLUDES MOLINA & MOLINA AT 273K WITH THE TEMPERATURE         
-!     DEPENDENCE DETERMINED FROM THE 195K HARVARD MEASUREMENTS,         
-!     EMPLOYING THE BASS ALGORITHM                                      
-!                                                                       
-!              (CO(1+C1*(T-273.15)+C2*(T-273.15)**2);                   
-!                                                                       
-!     THIS IS ONLY FOR THE WAVELENGTH RANGE FROM .34 TO .35 MICRONS;    
-!     OTHERWISE, THE BASS DATA ALONE HAVE BEEN EMPLOYED BETWEEN         
-!     .34 AND .245 MICRONS.                                             
-!                                                                       
-!     NEW T-DEPENDENT X-SECTIONS BETWEEN .345 AND .36 MICRONS           
-!     HAVE NOW BEEN ADDED, BASED ON WORK BY CACCIANI, DISARRA           
-!     AND FIOCCO, UNIVERSITY OF ROME, 1987.  QUADRATIC TEMP             
-!     HAS BEEN DERIVED, AS ABOVE.                                       
-!                                                                       
-!     MOLINA & MOLINA HAVE AGAIN BEEN USED BETWEEN .245 AND .185        
-!     MICRONS (NO TEMPERATURE DEPENDENCE)                               
-!                                                                       
-!     AGREEMENT AMONGST THE FOUR DATA SETS IS REASONABLE (<10%)         
-!     AND OFTEN EXCELLENT (0-3%)                                        
-!                                                                       
-!                                                                       
+     &     -0.425E-09, -0.250E-09, -0.100E-09, -0.005E-09,  0.00000  /
+!
+      END
+!
+!     --------------------------------------------------------------
+!
+      SUBROUTINE O3HHT0 (V1C,V2C,DVC,NPTC,C)
+!
+      Use params, ONLY: n_absrb
+      IMPLICIT REAL*8           (V)
+!
+      COMMON /ABSORB/ V1ABS,V2ABS,DVABS,NPTABS,ABSRB(n_absrb)
+      COMMON /O3HH0/ V1S,V2S,DVS,NPTS,S(2687)
+      DIMENSION C(*)
+!
+      DVC = DVS
+      V1C = V1ABS-DVC
+      V2C = V2ABS+DVC
+!
+      IF (V1C.LT.V1S) then
+         I1 = -1
+         else
+         I1 = (V1C-V1S)/DVS + 0.01
+         end if
+!
+         V1C = V1S + DVS*REAL(I1-1)
+         I2 = (V2C-V1S)/DVS + 0.01
+         NPTC = I2-I1+3
+         IF (NPTC.GT.NPTS) NPTC=NPTS+4
+         V2C = V1C + DVS*REAL(NPTC-1)
+!
+         DO 10 J = 1, NPTC
+            I = I1+(J-1)
+            C(J) = 0.
+            IF ((I.LT.1).OR.(I.GT.NPTS)) GO TO 10
+            VJ = V1C+DVC* REAL(J-1)
+            C(J) = S(I)/VJ
+!
+!     RADIATION FLD REMOVED FROM DIFFUSE OZONE
+!
+   10    END DO
+!
+         RETURN
+!
+      END
+!
+!     --------------------------------------------------------------
+!
+      BLOCK DATA BO3HH0
+!
+      IMPLICIT REAL*8           (V)
+!
+!     O3HH0 CONTAINS O3 HARTLEY HUGGINS CROSS SECTIONS FOR 273K
+!               UNITS OF (CM**2/MOL)*1.E-20
+!
+!     NOW INCLUDES MOLINA & MOLINA AT 273K WITH THE TEMPERATURE
+!     DEPENDENCE DETERMINED FROM THE 195K HARVARD MEASUREMENTS,
+!     EMPLOYING THE BASS ALGORITHM
+!
+!              (CO(1+C1*(T-273.15)+C2*(T-273.15)**2);
+!
+!     THIS IS ONLY FOR THE WAVELENGTH RANGE FROM .34 TO .35 MICRONS;
+!     OTHERWISE, THE BASS DATA ALONE HAVE BEEN EMPLOYED BETWEEN
+!     .34 AND .245 MICRONS.
+!
+!     NEW T-DEPENDENT X-SECTIONS BETWEEN .345 AND .36 MICRONS
+!     HAVE NOW BEEN ADDED, BASED ON WORK BY CACCIANI, DISARRA
+!     AND FIOCCO, UNIVERSITY OF ROME, 1987.  QUADRATIC TEMP
+!     HAS BEEN DERIVED, AS ABOVE.
+!
+!     MOLINA & MOLINA HAVE AGAIN BEEN USED BETWEEN .245 AND .185
+!     MICRONS (NO TEMPERATURE DEPENDENCE)
+!
+!     AGREEMENT AMONGST THE FOUR DATA SETS IS REASONABLE (<10%)
+!     AND OFTEN EXCELLENT (0-3%)
+!
+!
       COMMON /O3HH0/ V1C,V2C,DVC,NC,                                    &
      &               O30001(80),O30081(80),O30161(80),O30241(80),       &
      &               O30321(80),O30401( 7),                             &
@@ -6880,23 +6880,23 @@ SUBROUTINE CONTNM(JRAD)
      &               C01281(80),C01361(80),C01441(80),C01521(80),       &
      &               C01601(80),C01681(80),C01761(80),C01841(80),       &
      &               C01921(80),C02001(80),C02081(80),C02161(80),       &
-     &               C02241(40)                                         
-!                                                                       
-!     DATA V1C  /27370./,V2C  /29400./,DVC  /5./,NC  /407/ INN & TANAKA 
-!         DATA FROM INN & TANAKA, HANDBOOK OF GEOPHYSICS, 1957, P 16-24 
-!                LINEARLY INTERPOLATED BY SAC, JUNE 1985                
-!                CONVERSION: (I&T)/(LOSCHMIDT 1 1987*1.2)               
-!                                                                       
-!     DATA V1C /29405./, V2C /40800./ ,DVC /5./, NC /2280/  BASS        
-!         DATA FROM BASS, JUNE 1985                                     
-!                                                                       
-      DATA V1C /27370./, V2C /40800./ ,DVC /5./, NC /2687/ 
-!                                                                       
-!                                                                       
-!    X 2.08858E-03, 1.98947E-03, 1.89037E-03, 1.79126E-03, 1.69215E-03, 
-!     THIS LINE OF DATA HAS BEEN REPLACED BY MONOTONICALLY INCREASING   
-!     VALUES                                                            
-!                                                                       
+     &               C02241(40)
+!
+!     DATA V1C  /27370./,V2C  /29400./,DVC  /5./,NC  /407/ INN & TANAKA
+!         DATA FROM INN & TANAKA, HANDBOOK OF GEOPHYSICS, 1957, P 16-24
+!                LINEARLY INTERPOLATED BY SAC, JUNE 1985
+!                CONVERSION: (I&T)/(LOSCHMIDT 1 1987*1.2)
+!
+!     DATA V1C /29405./, V2C /40800./ ,DVC /5./, NC /2280/  BASS
+!         DATA FROM BASS, JUNE 1985
+!
+      DATA V1C /27370./, V2C /40800./ ,DVC /5./, NC /2687/
+!
+!
+!    X 2.08858E-03, 1.98947E-03, 1.89037E-03, 1.79126E-03, 1.69215E-03,
+!     THIS LINE OF DATA HAS BEEN REPLACED BY MONOTONICALLY INCREASING
+!     VALUES
+!
       DATA O30001/                                                      &
      & 1.00000E-03, 1.15000E-03, 1.25000E-03, 1.40000E-03, 1.50000E-03, &
      & 1.59304E-03, 1.62396E-03, 1.76216E-03, 1.90036E-03, 2.03856E-03, &
@@ -6913,7 +6913,7 @@ SUBROUTINE CONTNM(JRAD)
      & 2.66912E-03, 2.72734E-03, 2.78557E-03, 2.84379E-03, 2.90202E-03, &
      & 2.96024E-03, 3.01847E-03, 3.07669E-03, 3.13491E-03, 3.19313E-03, &
      & 3.25136E-03, 3.30958E-03, 3.36781E-03, 3.31660E-03, 3.21583E-03, &
-     & 3.11505E-03, 3.22165E-03, 3.46058E-03, 3.69953E-03, 3.93846E-03/ 
+     & 3.11505E-03, 3.22165E-03, 3.46058E-03, 3.69953E-03, 3.93846E-03/
       DATA O30081/                                                      &
      & 4.17739E-03, 4.41633E-03, 4.42256E-03, 4.13791E-03, 4.17894E-03, &
      & 4.25583E-03, 4.33273E-03, 4.40963E-03, 4.49259E-03, 4.44532E-03, &
@@ -6930,7 +6930,7 @@ SUBROUTINE CONTNM(JRAD)
      & 3.47431E-03, 3.68089E-03, 3.92006E-03, 4.05246E-03, 4.16408E-03, &
      & 4.08710E-03, 3.98224E-03, 4.07316E-03, 4.19498E-03, 4.44990E-03, &
      & 4.77881E-03, 5.08270E-03, 5.37384E-03, 5.70240E-03, 5.91906E-03, &
-     & 5.96745E-03, 5.92363E-03, 5.80363E-03, 5.60812E-03, 5.37450E-03/ 
+     & 5.96745E-03, 5.92363E-03, 5.80363E-03, 5.60812E-03, 5.37450E-03/
       DATA O30161/                                                      &
      & 5.16202E-03, 4.98389E-03, 4.95294E-03, 5.04930E-03, 5.17576E-03, &
      & 5.26042E-03, 5.22957E-03, 5.32404E-03, 5.39630E-03, 5.53353E-03, &
@@ -6947,7 +6947,7 @@ SUBROUTINE CONTNM(JRAD)
      & 2.11545E-02, 1.79508E-02, 1.59757E-02, 1.49569E-02, 1.46214E-02, &
      & 1.46214E-02, 1.48217E-02, 1.51379E-02, 1.53816E-02, 1.58087E-02, &
      & 1.62186E-02, 1.66627E-02, 1.70961E-02, 1.76101E-02, 1.81759E-02, &
-     & 1.86154E-02, 1.88889E-02, 1.89577E-02, 1.89316E-02, 1.88826E-02/ 
+     & 1.86154E-02, 1.88889E-02, 1.89577E-02, 1.89316E-02, 1.88826E-02/
       DATA O30241/                                                      &
      & 1.90915E-02, 1.95550E-02, 2.02707E-02, 2.11620E-02, 2.21844E-02, &
      & 2.30920E-02, 2.37270E-02, 2.37422E-02, 2.33578E-02, 2.20358E-02, &
@@ -6964,7 +6964,7 @@ SUBROUTINE CONTNM(JRAD)
      & 3.26503E-02, 3.26829E-02, 3.27688E-02, 3.36446E-02, 3.55133E-02, &
      & 3.88447E-02, 4.28854E-02, 4.55381E-02, 4.77161E-02, 4.93567E-02, &
      & 4.95127E-02, 5.00492E-02, 5.06233E-02, 5.12739E-02, 5.20327E-02, &
-     & 5.29001E-02, 5.38677E-02, 5.49272E-02, 5.60703E-02, 5.72886E-02/ 
+     & 5.29001E-02, 5.38677E-02, 5.49272E-02, 5.60703E-02, 5.72886E-02/
       DATA O30321/                                                      &
      & 5.85739E-02, 5.99178E-02, 6.13170E-02, 6.28474E-02, 6.46499E-02, &
      & 6.68672E-02, 6.96421E-02, 7.31174E-02, 7.74361E-02, 8.27413E-02, &
@@ -6981,20 +6981,20 @@ SUBROUTINE CONTNM(JRAD)
      & 6.04035E-02, 6.17016E-02, 6.35548E-02, 6.59664E-02, 6.89282E-02, &
      & 7.24326E-02, 7.64718E-02, 8.10380E-02, 8.61236E-02, 9.17211E-02, &
      & 9.78192E-02, 1.04353E-01, 1.11218E-01, 1.18308E-01, 1.25519E-01, &
-     & 1.32745E-01, 1.39881E-01, 1.46821E-01, 1.53461E-01, 1.59687E-01/ 
-!                                                                       
-!    X 1.64187E-01, 1.69368E-01, 1.74549E-01, 1.79731E-01, 1.84912E-01, 
-!      1.90094E-01, 1.95275E-01/                                        
-!   THE VALUE AT 29400. HAS BEEN CHANGED TO PROVIDE A SMOOTH TRANSITION 
-!    X 1.90094E-01, 1.85275E-01/                                        
-!                                                                       
+     & 1.32745E-01, 1.39881E-01, 1.46821E-01, 1.53461E-01, 1.59687E-01/
+!
+!    X 1.64187E-01, 1.69368E-01, 1.74549E-01, 1.79731E-01, 1.84912E-01,
+!      1.90094E-01, 1.95275E-01/
+!   THE VALUE AT 29400. HAS BEEN CHANGED TO PROVIDE A SMOOTH TRANSITION
+!    X 1.90094E-01, 1.85275E-01/
+!
       DATA O30401/                                                      &
      & 1.65365E-01, 1.70353E-01, 1.74507E-01, 1.77686E-01, 1.79748E-01, &
-     & 1.80549E-01, 1.79948E-01/                                        
-!                                                                       
-!                                                                       
-!    FOLLOWING DATA ARE FROM BASS JUNE 1985                             
-!                                                                       
+     & 1.80549E-01, 1.79948E-01/
+!
+!
+!    FOLLOWING DATA ARE FROM BASS JUNE 1985
+!
       DATA C00001 /                                                     &
      & 1.81094E-01, 1.57760E-01, 1.37336E-01, 1.19475E-01, 1.17191E-01, &
      & 1.14331E-01, 1.15984E-01, 1.10412E-01, 1.12660E-01, 1.16014E-01, &
@@ -7011,7 +7011,7 @@ SUBROUTINE CONTNM(JRAD)
      & 2.28784E-01, 2.28276E-01, 2.34677E-01, 2.30730E-01, 2.16107E-01, &
      & 1.99471E-01, 1.85629E-01, 1.72730E-01, 1.56229E-01, 1.38156E-01, &
      & 1.37641E-01, 1.33169E-01, 1.32759E-01, 1.30102E-01, 1.35396E-01, &
-     & 1.37976E-01, 1.41571E-01, 1.46448E-01, 1.44508E-01, 1.47612E-01/ 
+     & 1.37976E-01, 1.41571E-01, 1.46448E-01, 1.44508E-01, 1.47612E-01/
       DATA C00081 /                                                     &
      & 1.47424E-01, 1.48173E-01, 1.52936E-01, 1.58908E-01, 1.58808E-01, &
      & 1.59860E-01, 1.73936E-01, 1.84109E-01, 1.95143E-01, 2.08267E-01, &
@@ -7028,7 +7028,7 @@ SUBROUTINE CONTNM(JRAD)
      & 3.24380E-01, 3.42266E-01, 3.59522E-01, 3.78005E-01, 3.97178E-01, &
      & 4.23351E-01, 4.45925E-01, 4.63029E-01, 4.94843E-01, 5.19418E-01, &
      & 5.49928E-01, 5.69115E-01, 6.02396E-01, 6.43471E-01, 6.76401E-01, &
-     & 7.14024E-01, 7.42425E-01, 7.60916E-01, 7.83319E-01, 7.98299E-01/ 
+     & 7.14024E-01, 7.42425E-01, 7.60916E-01, 7.83319E-01, 7.98299E-01/
       DATA C00161 /                                                     &
      & 7.76672E-01, 7.22769E-01, 6.45967E-01, 5.80850E-01, 5.76514E-01, &
      & 5.79380E-01, 5.90359E-01, 6.21721E-01, 6.37540E-01, 6.52572E-01, &
@@ -7045,7 +7045,7 @@ SUBROUTINE CONTNM(JRAD)
      & 1.03983E+00, 9.31884E-01, 8.35307E-01, 7.92620E-01, 7.81980E-01, &
      & 7.89623E-01, 8.05987E-01, 8.27344E-01, 8.57514E-01, 8.66302E-01, &
      & 8.72092E-01, 8.66840E-01, 8.40536E-01, 7.87360E-01, 7.35743E-01, &
-     & 6.92039E-01, 6.64032E-01, 6.48360E-01, 6.46288E-01, 6.49505E-01/ 
+     & 6.92039E-01, 6.64032E-01, 6.48360E-01, 6.46288E-01, 6.49505E-01/
       DATA C00241 /                                                     &
      & 6.69937E-01, 6.81006E-01, 7.00969E-01, 7.19834E-01, 7.26964E-01, &
      & 7.50591E-01, 7.73600E-01, 8.00673E-01, 8.20347E-01, 8.37855E-01, &
@@ -7062,7 +7062,7 @@ SUBROUTINE CONTNM(JRAD)
      & 1.20016E+00, 1.22697E+00, 1.27479E+00, 1.32572E+00, 1.38690E+00, &
      & 1.43768E+00, 1.48379E+00, 1.55317E+00, 1.64020E+00, 1.71268E+00, &
      & 1.77183E+00, 1.85824E+00, 1.95131E+00, 2.04609E+00, 2.13151E+00, &
-     & 2.17777E+00, 2.22832E+00, 2.26886E+00, 2.19775E+00, 2.05087E+00/ 
+     & 2.17777E+00, 2.22832E+00, 2.26886E+00, 2.19775E+00, 2.05087E+00/
       DATA C00321 /                                                     &
      & 1.96103E+00, 1.95554E+00, 1.98037E+00, 2.05440E+00, 2.11629E+00, &
      & 2.17893E+00, 2.24384E+00, 2.30464E+00, 2.32525E+00, 2.29945E+00, &
@@ -7079,7 +7079,7 @@ SUBROUTINE CONTNM(JRAD)
      & 2.98415E+00, 2.79309E+00, 2.65337E+00, 2.50962E+00, 2.43207E+00, &
      & 2.34812E+00, 2.34872E+00, 2.35186E+00, 2.39477E+00, 2.42629E+00, &
      & 2.48068E+00, 2.55087E+00, 2.55952E+00, 2.56497E+00, 2.64323E+00, &
-     & 2.67961E+00, 2.66263E+00, 2.70243E+00, 2.74911E+00, 2.81786E+00/ 
+     & 2.67961E+00, 2.66263E+00, 2.70243E+00, 2.74911E+00, 2.81786E+00/
       DATA C00401 /                                                     &
      & 2.88684E+00, 2.97790E+00, 3.04305E+00, 3.13053E+00, 3.23857E+00, &
      & 3.35582E+00, 3.40654E+00, 3.38117E+00, 3.36296E+00, 3.39480E+00, &
@@ -7096,7 +7096,7 @@ SUBROUTINE CONTNM(JRAD)
      & 4.86504E+00, 4.78569E+00, 4.72717E+00, 4.69132E+00, 4.65797E+00, &
      & 4.60305E+00, 4.59798E+00, 4.65300E+00, 4.69707E+00, 4.74790E+00, &
      & 4.82581E+00, 4.80953E+00, 4.80517E+00, 4.82685E+00, 4.82321E+00, &
-     & 4.84806E+00, 4.88591E+00, 4.91759E+00, 4.98074E+00, 5.07071E+00/ 
+     & 4.84806E+00, 4.88591E+00, 4.91759E+00, 4.98074E+00, 5.07071E+00/
       DATA C00481 /                                                     &
      & 5.18733E+00, 5.30567E+00, 5.38670E+00, 5.43942E+00, 5.51797E+00, &
      & 5.62652E+00, 5.71228E+00, 5.82347E+00, 5.91434E+00, 6.00171E+00, &
@@ -7113,7 +7113,7 @@ SUBROUTINE CONTNM(JRAD)
      & 8.51806E+00, 8.57638E+00, 8.56481E+00, 8.55461E+00, 8.55593E+00, &
      & 8.58756E+00, 8.50070E+00, 8.54400E+00, 8.57575E+00, 8.62083E+00, &
      & 8.60684E+00, 8.67824E+00, 8.72069E+00, 8.79127E+00, 8.85479E+00, &
-     & 8.86770E+00, 8.90574E+00, 8.91531E+00, 8.94800E+00, 9.00167E+00/ 
+     & 8.86770E+00, 8.90574E+00, 8.91531E+00, 8.94800E+00, 9.00167E+00/
       DATA C00561 /                                                     &
      & 9.14051E+00, 9.25421E+00, 9.39694E+00, 9.50896E+00, 9.53190E+00, &
      & 9.55977E+00, 9.53482E+00, 9.49662E+00, 9.53359E+00, 9.54007E+00, &
@@ -7130,7 +7130,7 @@ SUBROUTINE CONTNM(JRAD)
      & 1.31327E+01, 1.31722E+01, 1.31901E+01, 1.33189E+01, 1.34833E+01, &
      & 1.36228E+01, 1.37474E+01, 1.38548E+01, 1.39450E+01, 1.40926E+01, &
      & 1.43099E+01, 1.44836E+01, 1.46257E+01, 1.47755E+01, 1.49163E+01, &
-     & 1.51038E+01, 1.53308E+01, 1.54194E+01, 1.54852E+01, 1.55968E+01/ 
+     & 1.51038E+01, 1.53308E+01, 1.54194E+01, 1.54852E+01, 1.55968E+01/
       DATA C00641 /                                                     &
      & 1.57025E+01, 1.58667E+01, 1.60365E+01, 1.61427E+01, 1.62967E+01, &
      & 1.64735E+01, 1.66123E+01, 1.67268E+01, 1.67673E+01, 1.67825E+01, &
@@ -7147,7 +7147,7 @@ SUBROUTINE CONTNM(JRAD)
      & 2.27249E+01, 2.27172E+01, 2.27123E+01, 2.26859E+01, 2.27216E+01, &
      & 2.29306E+01, 2.30711E+01, 2.31374E+01, 2.31815E+01, 2.33423E+01, &
      & 2.33810E+01, 2.36430E+01, 2.36807E+01, 2.36676E+01, 2.38607E+01, &
-     & 2.41559E+01, 2.43413E+01, 2.44401E+01, 2.45968E+01, 2.47927E+01/ 
+     & 2.41559E+01, 2.43413E+01, 2.44401E+01, 2.45968E+01, 2.47927E+01/
       DATA C00721 /                                                     &
      & 2.50743E+01, 2.53667E+01, 2.55749E+01, 2.57357E+01, 2.58927E+01, &
      & 2.61523E+01, 2.64110E+01, 2.66650E+01, 2.68829E+01, 2.70635E+01, &
@@ -7164,7 +7164,7 @@ SUBROUTINE CONTNM(JRAD)
      & 3.67544E+01, 3.70664E+01, 3.72525E+01, 3.73491E+01, 3.76006E+01, &
      & 3.77102E+01, 3.78970E+01, 3.81254E+01, 3.82728E+01, 3.81720E+01, &
      & 3.82781E+01, 3.84982E+01, 3.87202E+01, 3.89958E+01, 3.94148E+01, &
-     & 3.98434E+01, 3.98952E+01, 4.01573E+01, 4.06014E+01, 4.09651E+01/ 
+     & 3.98434E+01, 3.98952E+01, 4.01573E+01, 4.06014E+01, 4.09651E+01/
       DATA C00801 /                                                     &
      & 4.12821E+01, 4.16849E+01, 4.19899E+01, 4.22719E+01, 4.27736E+01, &
      & 4.32254E+01, 4.33883E+01, 4.39831E+01, 4.39414E+01, 4.42613E+01, &
@@ -7181,7 +7181,7 @@ SUBROUTINE CONTNM(JRAD)
      & 5.95794E+01, 5.99600E+01, 5.98493E+01, 5.99441E+01, 6.02748E+01, &
      & 6.04778E+01, 6.05233E+01, 6.07194E+01, 6.11589E+01, 6.13324E+01, &
      & 6.17685E+01, 6.23166E+01, 6.31055E+01, 6.38211E+01, 6.42320E+01, &
-     & 6.45195E+01, 6.51125E+01, 6.56765E+01, 6.59286E+01, 6.62716E+01/ 
+     & 6.45195E+01, 6.51125E+01, 6.56765E+01, 6.59286E+01, 6.62716E+01/
       DATA C00881 /                                                     &
      & 6.65693E+01, 6.68906E+01, 6.72246E+01, 6.75177E+01, 6.78476E+01, &
      & 6.82599E+01, 6.84400E+01, 6.89072E+01, 6.95720E+01, 7.01410E+01, &
@@ -7198,7 +7198,7 @@ SUBROUTINE CONTNM(JRAD)
      & 9.44877E+01, 9.50636E+01, 9.57445E+01, 9.65211E+01, 9.68623E+01, &
      & 9.75356E+01, 9.81991E+01, 9.88881E+01, 9.94554E+01, 9.99292E+01, &
      & 1.00357E+02, 1.00670E+02, 1.01227E+02, 1.01529E+02, 1.01889E+02, &
-     & 1.02033E+02, 1.02254E+02, 1.02731E+02, 1.02914E+02, 1.03120E+02/ 
+     & 1.02033E+02, 1.02254E+02, 1.02731E+02, 1.02914E+02, 1.03120E+02/
       DATA C00961 /                                                     &
      & 1.03674E+02, 1.03768E+02, 1.04146E+02, 1.04850E+02, 1.05525E+02, &
      & 1.06263E+02, 1.06653E+02, 1.07084E+02, 1.07461E+02, 1.08052E+02, &
@@ -7215,7 +7215,7 @@ SUBROUTINE CONTNM(JRAD)
      & 1.40926E+02, 1.41267E+02, 1.41872E+02, 1.42233E+02, 1.43447E+02, &
      & 1.44641E+02, 1.45500E+02, 1.45996E+02, 1.47040E+02, 1.48767E+02, &
      & 1.48785E+02, 1.49525E+02, 1.50266E+02, 1.50814E+02, 1.51443E+02, &
-     & 1.52272E+02, 1.52846E+02, 1.54000E+02, 1.54629E+02, 1.54907E+02/ 
+     & 1.52272E+02, 1.52846E+02, 1.54000E+02, 1.54629E+02, 1.54907E+02/
       DATA C01041 /                                                     &
      & 1.55527E+02, 1.56642E+02, 1.57436E+02, 1.59036E+02, 1.59336E+02, &
      & 1.59661E+02, 1.60287E+02, 1.61202E+02, 1.62410E+02, 1.63040E+02, &
@@ -7232,7 +7232,7 @@ SUBROUTINE CONTNM(JRAD)
      & 2.08303E+02, 2.09426E+02, 2.10575E+02, 2.11637E+02, 2.12559E+02, &
      & 2.13361E+02, 2.14191E+02, 2.15264E+02, 2.16366E+02, 2.17316E+02, &
      & 2.17717E+02, 2.17154E+02, 2.19172E+02, 2.20346E+02, 2.20849E+02, &
-     & 2.21539E+02, 2.22810E+02, 2.22740E+02, 2.22824E+02, 2.23285E+02/ 
+     & 2.21539E+02, 2.22810E+02, 2.22740E+02, 2.22824E+02, 2.23285E+02/
       DATA C01121 /                                                     &
      & 2.23696E+02, 2.23864E+02, 2.23968E+02, 2.23544E+02, 2.24804E+02, &
      & 2.25953E+02, 2.26753E+02, 2.27732E+02, 2.29505E+02, 2.30108E+02, &
@@ -7249,7 +7249,7 @@ SUBROUTINE CONTNM(JRAD)
      & 2.97329E+02, 2.97016E+02, 2.96752E+02, 2.96599E+02, 2.96637E+02, &
      & 2.97057E+02, 2.97585E+02, 2.98179E+02, 2.98997E+02, 3.00012E+02, &
      & 3.00806E+02, 3.00908E+02, 3.02369E+02, 3.04063E+02, 3.05325E+02, &
-     & 3.06737E+02, 3.08066E+02, 3.09694E+02, 3.11530E+02, 3.13132E+02/ 
+     & 3.06737E+02, 3.08066E+02, 3.09694E+02, 3.11530E+02, 3.13132E+02/
       DATA C01201 /                                                     &
      & 3.13296E+02, 3.15513E+02, 3.16887E+02, 3.17682E+02, 3.18296E+02, &
      & 3.18654E+02, 3.18912E+02, 3.19236E+02, 3.19626E+02, 3.20020E+02, &
@@ -7266,7 +7266,7 @@ SUBROUTINE CONTNM(JRAD)
      & 3.97833E+02, 3.97285E+02, 4.01929E+02, 4.02158E+02, 4.04553E+02, &
      & 4.06451E+02, 4.06236E+02, 4.08135E+02, 4.07797E+02, 4.08415E+02, &
      & 4.10111E+02, 4.11781E+02, 4.12735E+02, 4.11547E+02, 4.11606E+02, &
-     & 4.13548E+02, 4.12557E+02, 4.12923E+02, 4.12866E+02, 4.13009E+02/ 
+     & 4.13548E+02, 4.12557E+02, 4.12923E+02, 4.12866E+02, 4.13009E+02/
       DATA C01281 /                                                     &
      & 4.14447E+02, 4.16032E+02, 4.17032E+02, 4.19064E+02, 4.22458E+02, &
      & 4.26021E+02, 4.25192E+02, 4.25684E+02, 4.27536E+02, 4.29972E+02, &
@@ -7283,7 +7283,7 @@ SUBROUTINE CONTNM(JRAD)
      & 5.03151E+02, 5.04329E+02, 5.05546E+02, 5.08259E+02, 5.09222E+02, &
      & 5.09818E+02, 5.11397E+02, 5.12391E+02, 5.13326E+02, 5.14329E+02, &
      & 5.15443E+02, 5.16533E+02, 5.21417E+02, 5.25071E+02, 5.26581E+02, &
-     & 5.27762E+02, 5.29274E+02, 5.31704E+02, 5.34310E+02, 5.35727E+02/ 
+     & 5.27762E+02, 5.29274E+02, 5.31704E+02, 5.34310E+02, 5.35727E+02/
       DATA C01361 /                                                     &
      & 5.36838E+02, 5.37082E+02, 5.36733E+02, 5.36170E+02, 5.36063E+02, &
      & 5.36451E+02, 5.37870E+02, 5.40475E+02, 5.42268E+02, 5.41972E+02, &
@@ -7300,7 +7300,7 @@ SUBROUTINE CONTNM(JRAD)
      & 6.14992E+02, 6.18595E+02, 6.20930E+02, 6.22107E+02, 6.22957E+02, &
      & 6.26710E+02, 6.28657E+02, 6.30132E+02, 6.31543E+02, 6.33043E+02, &
      & 6.36932E+02, 6.38248E+02, 6.37126E+02, 6.41648E+02, 6.48274E+02, &
-     & 6.52638E+02, 6.53922E+02, 6.56647E+02, 6.59351E+02, 6.60525E+02/ 
+     & 6.52638E+02, 6.53922E+02, 6.56647E+02, 6.59351E+02, 6.60525E+02/
       DATA C01441 /                                                     &
      & 6.60130E+02, 6.61375E+02, 6.62660E+02, 6.63976E+02, 6.65181E+02, &
      & 6.64820E+02, 6.64458E+02, 6.64927E+02, 6.66555E+02, 6.66759E+02, &
@@ -7317,7 +7317,7 @@ SUBROUTINE CONTNM(JRAD)
      & 7.37064E+02, 7.39178E+02, 7.36713E+02, 7.37365E+02, 7.40861E+02, &
      & 7.45281E+02, 7.46178E+02, 7.46991E+02, 7.48035E+02, 7.49777E+02, &
      & 7.54665E+02, 7.56585E+02, 7.57408E+02, 7.58131E+02, 7.58155E+02, &
-     & 7.60838E+02, 7.64792E+02, 7.68161E+02, 7.69263E+02, 7.73166E+02/ 
+     & 7.60838E+02, 7.64792E+02, 7.68161E+02, 7.69263E+02, 7.73166E+02/
       DATA C01521 /                                                     &
      & 7.79006E+02, 7.82037E+02, 7.83109E+02, 7.84674E+02, 7.87444E+02, &
      & 7.89510E+02, 7.90130E+02, 7.91364E+02, 7.95225E+02, 8.03599E+02, &
@@ -7334,7 +7334,7 @@ SUBROUTINE CONTNM(JRAD)
      & 8.62000E+02, 8.64593E+02, 8.67678E+02, 8.70908E+02, 8.73408E+02, &
      & 8.74779E+02, 8.74005E+02, 8.76718E+02, 8.80445E+02, 8.84365E+02, &
      & 8.83806E+02, 8.84292E+02, 8.85539E+02, 8.87474E+02, 8.84905E+02, &
-     & 8.84039E+02, 8.85105E+02, 8.83733E+02, 8.82224E+02, 8.79865E+02/ 
+     & 8.84039E+02, 8.85105E+02, 8.83733E+02, 8.82224E+02, 8.79865E+02/
       DATA C01601 /                                                     &
      & 8.75663E+02, 8.75575E+02, 8.73144E+02, 8.68602E+02, 8.70278E+02, &
      & 8.69659E+02, 8.68701E+02, 8.69250E+02, 8.71057E+02, 8.72860E+02, &
@@ -7351,7 +7351,7 @@ SUBROUTINE CONTNM(JRAD)
      & 9.50323E+02, 9.50937E+02, 9.54362E+02, 9.55855E+02, 9.56350E+02, &
      & 9.55908E+02, 9.57963E+02, 9.61866E+02, 9.66948E+02, 9.69786E+02, &
      & 9.74302E+02, 9.79061E+02, 9.82465E+02, 9.86019E+02, 9.89930E+02, &
-     & 9.94294E+02, 9.97011E+02, 9.98207E+02, 9.98607E+02, 1.00175E+03/ 
+     & 9.94294E+02, 9.97011E+02, 9.98207E+02, 9.98607E+02, 1.00175E+03/
       DATA C01681 /                                                     &
      & 1.00275E+03, 1.00284E+03, 1.00294E+03, 1.00485E+03, 1.00593E+03, &
      & 1.00524E+03, 1.00415E+03, 1.00335E+03, 1.00278E+03, 1.00185E+03, &
@@ -7368,7 +7368,7 @@ SUBROUTINE CONTNM(JRAD)
      & 1.06155E+03, 1.06035E+03, 1.05838E+03, 1.05649E+03, 1.05553E+03, &
      & 1.05498E+03, 1.05387E+03, 1.05171E+03, 1.04877E+03, 1.04725E+03, &
      & 1.04748E+03, 1.04733E+03, 1.04704E+03, 1.04643E+03, 1.04411E+03, &
-     & 1.04435E+03, 1.04520E+03, 1.04233E+03, 1.04047E+03, 1.03992E+03/ 
+     & 1.04435E+03, 1.04520E+03, 1.04233E+03, 1.04047E+03, 1.03992E+03/
       DATA C01761 /                                                     &
      & 1.04192E+03, 1.04171E+03, 1.04140E+03, 1.04197E+03, 1.04415E+03, &
      & 1.04548E+03, 1.04533E+03, 1.04616E+03, 1.04705E+03, 1.04800E+03, &
@@ -7385,7 +7385,7 @@ SUBROUTINE CONTNM(JRAD)
      & 1.06596E+03, 1.06812E+03, 1.07159E+03, 1.07361E+03, 1.07556E+03, &
      & 1.07751E+03, 1.08128E+03, 1.08523E+03, 1.08927E+03, 1.09193E+03, &
      & 1.09612E+03, 1.10133E+03, 1.10435E+03, 1.10781E+03, 1.11168E+03, &
-     & 1.11641E+03, 1.12217E+03, 1.12839E+03, 1.13298E+03, 1.13575E+03/ 
+     & 1.11641E+03, 1.12217E+03, 1.12839E+03, 1.13298E+03, 1.13575E+03/
       DATA C01841 /                                                     &
      & 1.13742E+03, 1.13929E+03, 1.14132E+03, 1.14340E+03, 1.14518E+03, &
      & 1.14742E+03, 1.14943E+03, 1.14935E+03, 1.14975E+03, 1.15086E+03, &
@@ -7402,7 +7402,7 @@ SUBROUTINE CONTNM(JRAD)
      & 1.12810E+03, 1.12740E+03, 1.12659E+03, 1.12564E+03, 1.12338E+03, &
      & 1.12117E+03, 1.11902E+03, 1.11878E+03, 1.11855E+03, 1.11828E+03, &
      & 1.11791E+03, 1.11784E+03, 1.11815E+03, 1.11957E+03, 1.12046E+03, &
-     & 1.12042E+03, 1.11929E+03, 1.12074E+03, 1.12708E+03, 1.12600E+03/ 
+     & 1.12042E+03, 1.11929E+03, 1.12074E+03, 1.12708E+03, 1.12600E+03/
       DATA C01921 /                                                     &
      & 1.12538E+03, 1.12871E+03, 1.13167E+03, 1.13388E+03, 1.13444E+03, &
      & 1.13595E+03, 1.13801E+03, 1.14096E+03, 1.14230E+03, 1.14304E+03, &
@@ -7419,7 +7419,7 @@ SUBROUTINE CONTNM(JRAD)
      & 1.13131E+03, 1.13110E+03, 1.13499E+03, 1.13914E+03, 1.14359E+03, &
      & 1.14383E+03, 1.14390E+03, 1.14435E+03, 1.14540E+03, 1.14646E+03, &
      & 1.14716E+03, 1.14880E+03, 1.15062E+03, 1.15170E+03, 1.15093E+03, &
-     & 1.14926E+03, 1.15133E+03, 1.15167E+03, 1.15043E+03, 1.15134E+03/ 
+     & 1.14926E+03, 1.15133E+03, 1.15167E+03, 1.15043E+03, 1.15134E+03/
       DATA C02001 /                                                     &
      & 1.15135E+03, 1.15000E+03, 1.15087E+03, 1.15118E+03, 1.14935E+03, &
      & 1.14780E+03, 1.14647E+03, 1.14560E+03, 1.14404E+03, 1.14238E+03, &
@@ -7436,7 +7436,7 @@ SUBROUTINE CONTNM(JRAD)
      & 1.15435E+03, 1.15422E+03, 1.15296E+03, 1.15228E+03, 1.15189E+03, &
      & 1.15198E+03, 1.15081E+03, 1.14881E+03, 1.14562E+03, 1.14276E+03, &
      & 1.14030E+03, 1.13637E+03, 1.13254E+03, 1.12942E+03, 1.12653E+03, &
-     & 1.12362E+03, 1.11987E+03, 1.11712E+03, 1.11522E+03, 1.11403E+03/ 
+     & 1.12362E+03, 1.11987E+03, 1.11712E+03, 1.11522E+03, 1.11403E+03/
       DATA C02081 /                                                     &
      & 1.11226E+03, 1.10947E+03, 1.10956E+03, 1.10976E+03, 1.10748E+03, &
      & 1.10673E+03, 1.10688E+03, 1.10675E+03, 1.10533E+03, 1.10230E+03, &
@@ -7453,7 +7453,7 @@ SUBROUTINE CONTNM(JRAD)
      & 1.10149E+03, 1.10162E+03, 1.10222E+03, 1.10389E+03, 1.10315E+03, &
      & 1.10158E+03, 1.10193E+03, 1.10186E+03, 1.10135E+03, 1.10336E+03, &
      & 1.10500E+03, 1.10459E+03, 1.10592E+03, 1.10784E+03, 1.10076E+03, &
-     & 1.09615E+03, 1.09496E+03, 1.09422E+03, 1.09350E+03, 1.09244E+03/ 
+     & 1.09615E+03, 1.09496E+03, 1.09422E+03, 1.09350E+03, 1.09244E+03/
       DATA C02161 /                                                     &
      & 1.08955E+03, 1.08535E+03, 1.08379E+03, 1.08184E+03, 1.07889E+03, &
      & 1.07563E+03, 1.07238E+03, 1.07042E+03, 1.06882E+03, 1.06761E+03, &
@@ -7470,7 +7470,7 @@ SUBROUTINE CONTNM(JRAD)
      & 1.03093E+03, 1.03062E+03, 1.02997E+03, 1.02919E+03, 1.02993E+03, &
      & 1.02983E+03, 1.02837E+03, 1.02611E+03, 1.02386E+03, 1.02426E+03, &
      & 1.02542E+03, 1.02750E+03, 1.02638E+03, 1.02496E+03, 1.02608E+03, &
-     & 1.02568E+03, 1.02388E+03, 1.02522E+03, 1.02692E+03, 1.02834E+03/ 
+     & 1.02568E+03, 1.02388E+03, 1.02522E+03, 1.02692E+03, 1.02834E+03/
       DATA C02241 /                                                     &
      & 1.02828E+03, 1.02716E+03, 1.02667E+03, 1.02607E+03, 1.02503E+03, &
      & 1.02723E+03, 1.03143E+03, 1.02881E+03, 1.02646E+03, 1.02500E+03, &
@@ -7479,76 +7479,76 @@ SUBROUTINE CONTNM(JRAD)
      & 1.02392E+03, 1.02267E+03, 1.02077E+03, 1.01964E+03, 1.01957E+03, &
      & 1.01848E+03, 1.01704E+03, 1.01524E+03, 1.01352E+03, 1.01191E+03, &
      & 1.01066E+03, 1.00952E+03, 1.00849E+03, 1.00660E+03, 1.00368E+03, &
-     & 9.99713E+02, 9.95921E+02, 9.94845E+02, 9.93286E+02, 9.91204E+02/ 
-!                                                                       
-      END                                           
-!                                                                       
-!     --------------------------------------------------------------    
-!                                                                       
-      SUBROUTINE O3HHT1 (V1C,V2C,DVC,NPTC,C) 
-!                                                                       
-      Use params, ONLY: n_absrb 
-      IMPLICIT REAL*8           (V) 
-!                                                                       
-      COMMON /ABSORB/ V1ABS,V2ABS,DVABS,NPTABS,ABSRB(n_absrb) 
-      COMMON /O3HH1/ V1S,V2S,DVS,NPTS,S(2687) 
-      DIMENSION C(*) 
-!                                                                       
-      DVC = DVS 
-      V1C = V1ABS-DVC 
-      V2C = V2ABS+DVC 
-!                                                                       
-      IF (V1C.LT.V1S) then 
-         I1 = -1 
-         else 
-         I1 = (V1C-V1S)/DVS + 0.01 
-         end if 
-!                                                                       
-         V1C = V1S + DVS*REAL(I1-1) 
-         I2 = (V2C-V1S)/DVS + 0.01 
-         NPTC = I2-I1+3 
-         IF (NPTC.GT.NPTS) NPTC=NPTS+4 
-         V2C = V1C + DVS*REAL(NPTC-1) 
-!                                                                       
-         DO 10 J = 1, NPTC 
-            I = I1+(J-1) 
-            C(J) = 0. 
-            IF ((I.LT.1).OR.(I.GT.NPTS)) GO TO 10 
-            C(J) = S(I) 
-   10    END DO 
-!                                                                       
-         RETURN 
-!                                                                       
-      END                                           
-!                                                                       
-!     --------------------------------------------------------------    
-!                                                                       
-      BLOCK DATA BO3HH1 
-!                                                                       
-      IMPLICIT REAL*8           (V) 
-!                                                                       
-!     RATIO (C1/C0)                                                     
-!     DATA FROM BASS 1985                                               
-!                                                                       
-!     NOW INCLUDES MOLINA & MOLINA AT 273K WITH THE TEMPERATURE         
-!     DEPENDENCE DETERMINED FROM THE 195K HARVARD MEASUREMENTS,         
-!     EMPLOYING THE BASS ALGORITHM                                      
-!                                                                       
-!              (CO(1+C1*(T-273.15)+C2*(T-273.15)**2);                   
-!                                                                       
-!     THIS IS ONLY FOR THE WAVELENGTH RANGE FROM .34 TO .35 MICRONS;    
-!     OTHERWISE, THE BASS DATA ALONE HAVE BEEN EMPLOYED BETWEEN         
-!     .34 AND .245 MICRONS.                                             
-!                                                                       
-!     NEW T-DEPENDENT X-SECTIONS BETWEEN .345 AND .36 MICRONS           
-!     HAVE NOW BEEN ADDED, BASED ON WORK BY CACCIANI, DISARRA           
-!     AND FIOCCO, UNIVERSITY OF ROME, 1987.  QUADRATIC TEMP             
-!     HAS BEEN DERIVED, AS ABOVE.                                       
-!                                                                       
-!     AGREEMENT AMONGST THE FOUR DATA SETS IS REASONABLE (<10%)         
-!     AND OFTEN EXCELLENT (0-3%)                                        
-!                                                                       
-!                                                                       
+     & 9.99713E+02, 9.95921E+02, 9.94845E+02, 9.93286E+02, 9.91204E+02/
+!
+      END
+!
+!     --------------------------------------------------------------
+!
+      SUBROUTINE O3HHT1 (V1C,V2C,DVC,NPTC,C)
+!
+      Use params, ONLY: n_absrb
+      IMPLICIT REAL*8           (V)
+!
+      COMMON /ABSORB/ V1ABS,V2ABS,DVABS,NPTABS,ABSRB(n_absrb)
+      COMMON /O3HH1/ V1S,V2S,DVS,NPTS,S(2687)
+      DIMENSION C(*)
+!
+      DVC = DVS
+      V1C = V1ABS-DVC
+      V2C = V2ABS+DVC
+!
+      IF (V1C.LT.V1S) then
+         I1 = -1
+         else
+         I1 = (V1C-V1S)/DVS + 0.01
+         end if
+!
+         V1C = V1S + DVS*REAL(I1-1)
+         I2 = (V2C-V1S)/DVS + 0.01
+         NPTC = I2-I1+3
+         IF (NPTC.GT.NPTS) NPTC=NPTS+4
+         V2C = V1C + DVS*REAL(NPTC-1)
+!
+         DO 10 J = 1, NPTC
+            I = I1+(J-1)
+            C(J) = 0.
+            IF ((I.LT.1).OR.(I.GT.NPTS)) GO TO 10
+            C(J) = S(I)
+   10    END DO
+!
+         RETURN
+!
+      END
+!
+!     --------------------------------------------------------------
+!
+      BLOCK DATA BO3HH1
+!
+      IMPLICIT REAL*8           (V)
+!
+!     RATIO (C1/C0)
+!     DATA FROM BASS 1985
+!
+!     NOW INCLUDES MOLINA & MOLINA AT 273K WITH THE TEMPERATURE
+!     DEPENDENCE DETERMINED FROM THE 195K HARVARD MEASUREMENTS,
+!     EMPLOYING THE BASS ALGORITHM
+!
+!              (CO(1+C1*(T-273.15)+C2*(T-273.15)**2);
+!
+!     THIS IS ONLY FOR THE WAVELENGTH RANGE FROM .34 TO .35 MICRONS;
+!     OTHERWISE, THE BASS DATA ALONE HAVE BEEN EMPLOYED BETWEEN
+!     .34 AND .245 MICRONS.
+!
+!     NEW T-DEPENDENT X-SECTIONS BETWEEN .345 AND .36 MICRONS
+!     HAVE NOW BEEN ADDED, BASED ON WORK BY CACCIANI, DISARRA
+!     AND FIOCCO, UNIVERSITY OF ROME, 1987.  QUADRATIC TEMP
+!     HAS BEEN DERIVED, AS ABOVE.
+!
+!     AGREEMENT AMONGST THE FOUR DATA SETS IS REASONABLE (<10%)
+!     AND OFTEN EXCELLENT (0-3%)
+!
+!
       COMMON /O3HH1/ V1C,V2C,DVC,NC,                                    &
      &               O31001(85),C10086(80),C10166(80),C10246(65),       &
      &               C10311(16),C10327(80),C10407( 1),                  &
@@ -7559,14 +7559,14 @@ SUBROUTINE CONTNM(JRAD)
      &               C11281(80),C11361(80),C11441(80),C11521(80),       &
      &               C11601(80),C11681(80),C11761(80),C11841(80),       &
      &               C11921(80),C12001(80),C12081(80),C12161(80),       &
-     &               C12241(40)                                         
-!                                                                       
-!     DATA V1C /29405./, V2C /40800./ ,DVC /5./, NC /2280/   BASS       
-!                                                                       
-      DATA V1C /27370./, V2C /40800./ ,DVC /5./, NC /2687/ 
-!                                                                       
-      DATA O31001/85*1.3E-3/ 
-!                                                                       
+     &               C12241(40)
+!
+!     DATA V1C /29405./, V2C /40800./ ,DVC /5./, NC /2280/   BASS
+!
+      DATA V1C /27370./, V2C /40800./ ,DVC /5./, NC /2687/
+!
+      DATA O31001/85*1.3E-3/
+!
       DATA C10086/                                                      &
      & 1.37330E-03, 1.62821E-03, 2.01703E-03, 2.54574E-03, 3.20275E-03, &
      & 3.89777E-03, 4.62165E-03, 5.26292E-03, 5.86986E-03, 6.41494E-03, &
@@ -7583,7 +7583,7 @@ SUBROUTINE CONTNM(JRAD)
      & 7.99028E-03, 9.90724E-03, 1.29121E-02, 1.54686E-02, 1.60876E-02, &
      & 1.59530E-02, 1.57040E-02, 1.59499E-02, 1.63961E-02, 1.72670E-02, &
      & 1.81634E-02, 1.95519E-02, 2.14181E-02, 2.28670E-02, 2.33506E-02, &
-     & 2.22736E-02, 2.14296E-02, 2.15271E-02, 2.30730E-02, 2.36220E-02/ 
+     & 2.22736E-02, 2.14296E-02, 2.15271E-02, 2.30730E-02, 2.36220E-02/
       DATA C10166/                                                      &
      & 2.44466E-02, 2.44476E-02, 2.39223E-02, 2.41386E-02, 2.53687E-02, &
      & 2.67491E-02, 2.80425E-02, 2.77558E-02, 2.82626E-02, 2.86776E-02, &
@@ -7600,7 +7600,7 @@ SUBROUTINE CONTNM(JRAD)
      & 2.52014E-02, 2.47766E-02, 2.47171E-02, 2.47478E-02, 2.43986E-02, &
      & 2.43498E-02, 2.40537E-02, 2.40574E-02, 2.40446E-02, 2.40847E-02, &
      & 2.39400E-02, 2.42127E-02, 2.47123E-02, 2.52914E-02, 2.52103E-02, &
-     & 2.51421E-02, 2.43229E-02, 2.37902E-02, 2.30865E-02, 2.28174E-02/ 
+     & 2.51421E-02, 2.43229E-02, 2.37902E-02, 2.30865E-02, 2.28174E-02/
       DATA C10246/                                                      &
      & 2.28830E-02, 2.33671E-02, 2.38274E-02, 2.46699E-02, 2.56739E-02, &
      & 2.61408E-02, 2.62898E-02, 2.64228E-02, 2.55561E-02, 2.47095E-02, &
@@ -7614,12 +7614,12 @@ SUBROUTINE CONTNM(JRAD)
      & 2.00041E-02, 2.01233E-02, 2.01917E-02, 1.98918E-02, 1.96649E-02, &
      & 1.95162E-02, 2.01044E-02, 2.06711E-02, 2.08881E-02, 2.04812E-02, &
      & 1.92249E-02, 1.80188E-02, 1.69496E-02, 1.60488E-02, 1.52865E-02, &
-     & 1.46940E-02, 1.41067E-02, 1.35675E-02, 1.31094E-02, 1.27542E-02/ 
+     & 1.46940E-02, 1.41067E-02, 1.35675E-02, 1.31094E-02, 1.27542E-02/
       DATA C10311/                                                      &
      &                                                     1.3073E-02,  &
      & 1.2795E-02,  1.2753E-02,  1.2868E-02,  1.2885E-02,  1.2554E-02,  &
      & 1.2106E-02,  1.1616E-02,  1.1394E-02,  1.1092E-02,  1.0682E-02,  &
-     & 1.0519E-02,  9.7219E-03,  9.3434E-03,  8.5260E-03,  8.3333E-03/  
+     & 1.0519E-02,  9.7219E-03,  9.3434E-03,  8.5260E-03,  8.3333E-03/
       DATA C10327/                                                      &
      & 7.8582E-03,  6.8295E-03,  6.7963E-03,  6.7516E-03,  6.2930E-03,  &
      & 6.1615E-03,  6.1250E-03,  5.9011E-03,  5.7823E-03,  5.4688E-03,  &
@@ -7636,9 +7636,9 @@ SUBROUTINE CONTNM(JRAD)
      & 9.1488E-03,  8.8595E-03,  8.5976E-03,  8.4447E-03,  8.0731E-03,  &
      & 8.0283E-03,  7.7827E-03,  7.7638E-03,  7.2438E-03,  6.8246E-03,  &
      & 6.3457E-03,  5.6632E-03,  5.2500E-03,  4.3593E-03,  3.9431E-03,  &
-     & 3.1580E-03,  2.2298E-03,  1.7818E-03,  1.4513E-03,  1.3188E-03/  
+     & 3.1580E-03,  2.2298E-03,  1.7818E-03,  1.4513E-03,  1.3188E-03/
       DATA C10407/                                                      &
-     & 2.1034E-03/                                                      
+     & 2.1034E-03/
       DATA C10001 /                                                     &
      & 6.45621E-03, 7.11308E-03, 1.06130E-02, 1.36338E-02, 1.27746E-02, &
      & 1.42152E-02, 1.41144E-02, 1.64830E-02, 1.67110E-02, 1.57368E-02, &
@@ -7655,7 +7655,7 @@ SUBROUTINE CONTNM(JRAD)
      & 6.95844E-03, 7.34506E-03, 7.53823E-03, 7.03272E-03, 7.57051E-03, &
      & 9.20239E-03, 1.10864E-02, 1.16188E-02, 1.30029E-02, 1.44364E-02, &
      & 1.29292E-02, 1.36031E-02, 1.35967E-02, 1.30412E-02, 1.29874E-02, &
-     & 1.14829E-02, 1.18009E-02, 1.20829E-02, 1.17831E-02, 1.21489E-02/ 
+     & 1.14829E-02, 1.18009E-02, 1.20829E-02, 1.17831E-02, 1.21489E-02/
       DATA C10081 /                                                     &
      & 1.27019E-02, 1.25557E-02, 1.23812E-02, 1.20158E-02, 1.26749E-02, &
      & 1.17139E-02, 1.14552E-02, 1.11268E-02, 9.79143E-03, 8.79741E-03, &
@@ -7672,7 +7672,7 @@ SUBROUTINE CONTNM(JRAD)
      & 8.67936E-03, 8.53862E-03, 7.95459E-03, 8.04037E-03, 7.95361E-03, &
      & 7.87432E-03, 6.99165E-03, 7.37107E-03, 6.09187E-03, 6.21030E-03, &
      & 5.33277E-03, 5.04633E-03, 4.45811E-03, 4.34153E-03, 3.98596E-03, &
-     & 3.84225E-03, 3.41943E-03, 3.60535E-03, 2.81691E-03, 2.49771E-03/ 
+     & 3.84225E-03, 3.41943E-03, 3.60535E-03, 2.81691E-03, 2.49771E-03/
       DATA C10161 /                                                     &
      & 2.35046E-03, 2.50947E-03, 3.75462E-03, 4.92349E-03, 5.09294E-03, &
      & 4.98312E-03, 5.19325E-03, 4.41827E-03, 4.25192E-03, 4.46745E-03, &
@@ -7689,7 +7689,7 @@ SUBROUTINE CONTNM(JRAD)
      & 2.92502E-03, 3.88322E-03, 4.39984E-03, 4.67814E-03, 4.80395E-03, &
      & 4.69130E-03, 4.54564E-03, 4.46773E-03, 4.59178E-03, 4.37498E-03, &
      & 4.12706E-03, 4.18299E-03, 4.57267E-03, 5.60127E-03, 6.51936E-03, &
-     & 7.10498E-03, 7.49870E-03, 7.89554E-03, 7.97428E-03, 8.21044E-03/ 
+     & 7.10498E-03, 7.49870E-03, 7.89554E-03, 7.97428E-03, 8.21044E-03/
       DATA C10241 /                                                     &
      & 8.06324E-03, 7.76648E-03, 7.62238E-03, 7.77675E-03, 7.46905E-03, &
      & 7.61115E-03, 7.42715E-03, 7.28461E-03, 7.51514E-03, 7.38782E-03, &
@@ -7706,7 +7706,7 @@ SUBROUTINE CONTNM(JRAD)
      & 6.43049E-03, 6.45975E-03, 6.20534E-03, 5.93094E-03, 5.67360E-03, &
      & 5.38584E-03, 5.19364E-03, 4.92599E-03, 4.60655E-03, 4.24669E-03, &
      & 3.94253E-03, 3.55894E-03, 3.24256E-03, 2.92974E-03, 2.62760E-03, &
-     & 2.52238E-03, 2.24714E-03, 2.26350E-03, 2.44380E-03, 3.03798E-03/ 
+     & 2.52238E-03, 2.24714E-03, 2.26350E-03, 2.44380E-03, 3.03798E-03/
       DATA C10321 /                                                     &
      & 3.50000E-03, 3.55416E-03, 3.43661E-03, 3.19814E-03, 3.02155E-03, &
      & 2.73890E-03, 2.50078E-03, 2.34595E-03, 2.18282E-03, 2.19285E-03, &
@@ -7723,7 +7723,7 @@ SUBROUTINE CONTNM(JRAD)
      & 2.36349E-03, 3.33744E-03, 3.44617E-03, 4.27280E-03, 4.61076E-03, &
      & 5.20165E-03, 5.14851E-03, 5.22909E-03, 5.08278E-03, 5.16125E-03, &
      & 5.01572E-03, 4.51685E-03, 4.67541E-03, 4.83421E-03, 4.57546E-03, &
-     & 4.55111E-03, 5.03093E-03, 4.67838E-03, 4.44282E-03, 4.40774E-03/ 
+     & 4.55111E-03, 5.03093E-03, 4.67838E-03, 4.44282E-03, 4.40774E-03/
       DATA C10401 /                                                     &
      & 4.48123E-03, 4.24410E-03, 4.03559E-03, 3.73969E-03, 3.45458E-03, &
      & 3.18217E-03, 3.16115E-03, 3.36877E-03, 3.62026E-03, 3.69898E-03, &
@@ -7740,7 +7740,7 @@ SUBROUTINE CONTNM(JRAD)
      & 2.88022E-03, 2.93939E-03, 3.01176E-03, 2.98886E-03, 2.96947E-03, &
      & 3.38082E-03, 3.61657E-03, 3.42654E-03, 3.41274E-03, 3.22475E-03, &
      & 2.97658E-03, 3.21944E-03, 3.32032E-03, 3.33273E-03, 3.58854E-03, &
-     & 3.67023E-03, 3.64069E-03, 3.74557E-03, 3.77703E-03, 3.64042E-03/ 
+     & 3.67023E-03, 3.64069E-03, 3.74557E-03, 3.77703E-03, 3.64042E-03/
       DATA C10481 /                                                     &
      & 3.39468E-03, 3.22657E-03, 3.16466E-03, 3.24224E-03, 3.24801E-03, &
      & 3.19487E-03, 3.40155E-03, 3.16940E-03, 2.92293E-03, 3.00998E-03, &
@@ -7757,7 +7757,7 @@ SUBROUTINE CONTNM(JRAD)
      & 2.31080E-03, 2.42771E-03, 2.43339E-03, 2.53280E-03, 2.37093E-03, &
      & 2.37377E-03, 2.73453E-03, 2.60836E-03, 2.55568E-03, 2.44062E-03, &
      & 2.71093E-03, 2.64421E-03, 2.66969E-03, 2.55560E-03, 2.71800E-03, &
-     & 2.79534E-03, 2.59070E-03, 2.55373E-03, 2.45272E-03, 2.55571E-03/ 
+     & 2.79534E-03, 2.59070E-03, 2.55373E-03, 2.45272E-03, 2.55571E-03/
       DATA C10561 /                                                     &
      & 2.54606E-03, 2.57349E-03, 2.46807E-03, 2.35634E-03, 2.44470E-03, &
      & 2.47050E-03, 2.57131E-03, 2.71649E-03, 2.58800E-03, 2.54524E-03, &
@@ -7774,7 +7774,7 @@ SUBROUTINE CONTNM(JRAD)
      & 2.39968E-03, 2.62447E-03, 2.55339E-03, 2.51556E-03, 2.47477E-03, &
      & 2.50276E-03, 2.48381E-03, 2.48484E-03, 2.48316E-03, 2.38541E-03, &
      & 2.41183E-03, 2.55888E-03, 2.42810E-03, 2.43356E-03, 2.25996E-03, &
-     & 2.34736E-03, 2.10305E-03, 2.13870E-03, 2.17472E-03, 2.05354E-03/ 
+     & 2.34736E-03, 2.10305E-03, 2.13870E-03, 2.17472E-03, 2.05354E-03/
       DATA C10641 /                                                     &
      & 2.11572E-03, 2.19557E-03, 2.09545E-03, 2.07831E-03, 1.94425E-03, &
      & 1.89333E-03, 1.98025E-03, 1.98328E-03, 2.01702E-03, 1.98333E-03, &
@@ -7791,7 +7791,7 @@ SUBROUTINE CONTNM(JRAD)
      & 1.77984E-03, 1.91506E-03, 2.04256E-03, 2.04095E-03, 1.94031E-03, &
      & 1.90447E-03, 2.02049E-03, 1.98360E-03, 2.04364E-03, 2.02519E-03, &
      & 2.20802E-03, 1.96964E-03, 1.94559E-03, 2.09922E-03, 2.11184E-03, &
-     & 2.05706E-03, 2.02257E-03, 2.01781E-03, 2.01055E-03, 1.86538E-03/ 
+     & 2.05706E-03, 2.02257E-03, 2.01781E-03, 2.01055E-03, 1.86538E-03/
       DATA C10721 /                                                     &
      & 1.86899E-03, 1.76798E-03, 1.85871E-03, 1.95363E-03, 1.96404E-03, &
      & 1.84169E-03, 1.82851E-03, 1.84582E-03, 1.81997E-03, 1.76461E-03, &
@@ -7808,7 +7808,7 @@ SUBROUTINE CONTNM(JRAD)
      & 1.62472E-03, 1.53931E-03, 1.55536E-03, 1.61649E-03, 1.66493E-03, &
      & 1.86915E-03, 1.59984E-03, 1.60483E-03, 1.66549E-03, 1.73449E-03, &
      & 1.73673E-03, 1.68393E-03, 1.67434E-03, 1.77880E-03, 1.76154E-03, &
-     & 1.43028E-03, 1.69651E-03, 1.60934E-03, 1.69413E-03, 1.70514E-03/ 
+     & 1.43028E-03, 1.69651E-03, 1.60934E-03, 1.69413E-03, 1.70514E-03/
       DATA C10801 /                                                     &
      & 1.62471E-03, 1.74854E-03, 1.76480E-03, 1.63495E-03, 1.59364E-03, &
      & 1.39603E-03, 1.47897E-03, 1.49509E-03, 1.70002E-03, 1.63048E-03, &
@@ -7825,7 +7825,7 @@ SUBROUTINE CONTNM(JRAD)
      & 1.35679E-03, 1.15438E-03, 1.41184E-03, 1.49093E-03, 1.32193E-03, &
      & 1.25009E-03, 1.37625E-03, 1.49022E-03, 1.44180E-03, 1.27628E-03, &
      & 1.29670E-03, 1.31636E-03, 1.28874E-03, 1.31177E-03, 1.35732E-03, &
-     & 1.33854E-03, 1.30253E-03, 1.31374E-03, 1.27379E-03, 1.18339E-03/ 
+     & 1.33854E-03, 1.30253E-03, 1.31374E-03, 1.27379E-03, 1.18339E-03/
       DATA C10881 /                                                     &
      & 1.22016E-03, 1.26551E-03, 1.26371E-03, 1.28180E-03, 1.36024E-03, &
      & 1.45759E-03, 1.29413E-03, 1.35858E-03, 1.26528E-03, 1.18623E-03, &
@@ -7842,7 +7842,7 @@ SUBROUTINE CONTNM(JRAD)
      & 9.87464E-04, 9.41872E-04, 9.05021E-04, 8.59547E-04, 9.03963E-04, &
      & 8.66415E-04, 8.84726E-04, 8.77087E-04, 8.70584E-04, 8.81338E-04, &
      & 8.97658E-04, 8.97586E-04, 9.19028E-04, 8.82438E-04, 9.00710E-04, &
-     & 9.54329E-04, 9.54490E-04, 9.10940E-04, 9.95472E-04, 9.50134E-04/ 
+     & 9.54329E-04, 9.54490E-04, 9.10940E-04, 9.95472E-04, 9.50134E-04/
       DATA C10961 /                                                     &
      & 9.17127E-04, 9.70916E-04, 9.87575E-04, 9.65026E-04, 9.71779E-04, &
      & 1.00967E-03, 1.00053E-03, 9.26063E-04, 9.34721E-04, 9.76354E-04, &
@@ -7859,7 +7859,7 @@ SUBROUTINE CONTNM(JRAD)
      & 7.15567E-04, 7.56723E-04, 7.98438E-04, 8.83150E-04, 8.45671E-04, &
      & 7.40924E-04, 7.35498E-04, 7.77829E-04, 6.93566E-04, 5.10188E-04, &
      & 7.52717E-04, 6.94185E-04, 6.71928E-04, 6.73286E-04, 6.89415E-04, &
-     & 7.22917E-04, 7.89448E-04, 8.53812E-04, 7.45132E-04, 7.68732E-04/ 
+     & 7.22917E-04, 7.89448E-04, 8.53812E-04, 7.45132E-04, 7.68732E-04/
       DATA C11041 /                                                     &
      & 8.10104E-04, 7.55615E-04, 7.09145E-04, 6.80676E-04, 7.54594E-04, &
      & 7.89416E-04, 7.88579E-04, 7.49805E-04, 6.13534E-04, 7.22491E-04, &
@@ -7876,7 +7876,7 @@ SUBROUTINE CONTNM(JRAD)
      & 5.63852E-04, 6.18018E-04, 5.71768E-04, 5.75433E-04, 6.05766E-04, &
      & 5.93065E-04, 5.31708E-04, 5.41187E-04, 5.76985E-04, 5.78176E-04, &
      & 5.75339E-04, 6.85426E-04, 5.51038E-04, 6.02049E-04, 6.20406E-04, &
-     & 5.80169E-04, 5.36399E-04, 5.59608E-04, 5.46575E-04, 5.66979E-04/ 
+     & 5.80169E-04, 5.36399E-04, 5.59608E-04, 5.46575E-04, 5.66979E-04/
       DATA C11121 /                                                     &
      & 5.94982E-04, 6.18469E-04, 6.56281E-04, 8.22124E-04, 7.81716E-04, &
      & 7.29616E-04, 7.14460E-04, 7.08969E-04, 6.53794E-04, 7.33138E-04, &
@@ -7893,7 +7893,7 @@ SUBROUTINE CONTNM(JRAD)
      & 3.33930E-04, 3.01390E-04, 3.08028E-04, 3.41464E-04, 3.70574E-04, &
      & 3.47893E-04, 3.28433E-04, 3.46976E-04, 3.60351E-04, 3.50559E-04, &
      & 3.56070E-04, 3.62782E-04, 3.37330E-04, 3.33763E-04, 3.57046E-04, &
-     & 3.08784E-04, 2.93898E-04, 2.80842E-04, 2.54114E-04, 2.38198E-04/ 
+     & 3.08784E-04, 2.93898E-04, 2.80842E-04, 2.54114E-04, 2.38198E-04/
       DATA C11201 /                                                     &
      & 3.48753E-04, 2.97334E-04, 2.82929E-04, 2.94150E-04, 3.07875E-04, &
      & 3.21129E-04, 3.38335E-04, 3.49826E-04, 3.47647E-04, 3.35438E-04, &
@@ -7910,7 +7910,7 @@ SUBROUTINE CONTNM(JRAD)
      & 1.64407E-04, 3.65674E-04, 3.18233E-04, 4.00755E-04, 3.33375E-04, &
      & 2.62930E-04, 2.87052E-04, 2.51395E-04, 2.85274E-04, 2.66915E-04, &
      & 2.10866E-04, 1.89517E-04, 1.67378E-04, 2.79951E-04, 2.97224E-04, &
-     & 1.89222E-04, 3.33825E-04, 3.56386E-04, 3.89727E-04, 4.30407E-04/ 
+     & 1.89222E-04, 3.33825E-04, 3.56386E-04, 3.89727E-04, 4.30407E-04/
       DATA C11281 /                                                     &
      & 4.45922E-04, 4.23446E-04, 4.41347E-04, 4.06723E-04, 3.00181E-04, &
      & 1.85243E-04, 3.13176E-04, 4.08991E-04, 4.24776E-04, 3.56412E-04, &
@@ -7927,7 +7927,7 @@ SUBROUTINE CONTNM(JRAD)
      & 2.46691E-04, 2.25234E-04, 2.26755E-04, 1.64112E-04, 1.87750E-04, &
      & 2.22984E-04, 2.00443E-04, 2.38863E-04, 2.77590E-04, 2.91953E-04, &
      & 2.80611E-04, 3.08215E-04, 1.79095E-04, 1.46920E-04, 2.29177E-04, &
-     & 2.54685E-04, 2.68866E-04, 2.13346E-04, 1.20122E-04, 5.55240E-05/ 
+     & 2.54685E-04, 2.68866E-04, 2.13346E-04, 1.20122E-04, 5.55240E-05/
       DATA C11361 /                                                     &
      & 5.99017E-05, 1.07768E-04, 1.67810E-04, 2.06886E-04, 2.36232E-04, &
      & 2.24598E-04, 2.30792E-04, 2.71274E-04, 1.29062E-04, 1.92624E-04, &
@@ -7944,7 +7944,7 @@ SUBROUTINE CONTNM(JRAD)
      & 2.88542E-04, 2.59726E-04, 3.00936E-04, 3.11237E-04, 2.61275E-04, &
      & 1.37136E-04, 2.76566E-04, 3.82888E-04, 3.97564E-04, 4.43655E-04, &
      & 3.15415E-04, 2.60869E-04, 3.19171E-04, 3.34205E-04, 2.02914E-04, &
-     & 1.16223E-04, 1.14737E-04, 6.10978E-05,-8.03695E-06,-1.07062E-05/ 
+     & 1.16223E-04, 1.14737E-04, 6.10978E-05,-8.03695E-06,-1.07062E-05/
       DATA C11441 /                                                     &
      & 6.50664E-05, 1.12586E-04, 1.56727E-04, 1.57927E-04, 1.05762E-04, &
      & 1.03646E-04, 1.72520E-04, 2.23668E-04, 2.12775E-04, 2.33525E-04, &
@@ -7961,7 +7961,7 @@ SUBROUTINE CONTNM(JRAD)
      & 6.10658E-05, 2.37782E-05, 1.24450E-04, 1.87610E-04, 1.44775E-04, &
      & 5.60937E-05, 6.64032E-05, 1.28073E-04, 1.77512E-04, 1.84684E-04, &
      & 5.73677E-05, 5.29679E-05, 9.95510E-05, 1.61423E-04, 3.19036E-04, &
-     & 3.17383E-04, 2.36505E-04, 1.80844E-04, 1.63722E-04, 1.21478E-04/ 
+     & 3.17383E-04, 2.36505E-04, 1.80844E-04, 1.63722E-04, 1.21478E-04/
       DATA C11521 /                                                     &
      & 6.85823E-05, 7.42058E-05, 1.14838E-04, 1.21131E-04, 8.01009E-05, &
      & 1.52058E-04, 2.18368E-04, 2.53416E-04, 2.27116E-04, 1.25336E-04, &
@@ -7978,7 +7978,7 @@ SUBROUTINE CONTNM(JRAD)
      & 2.76980E-05, 5.51685E-05, 9.39909E-05, 1.16108E-04, 7.72703E-05, &
      & 4.37409E-05, 1.13925E-04, 8.18872E-05, 2.87657E-05,-2.41413E-05, &
      & 1.24699E-05, 2.19589E-05,-5.88247E-06,-9.66151E-05,-2.06255E-05, &
-     &-1.83148E-06,-5.63625E-05,-8.65590E-05,-8.26020E-05,-5.06239E-05/ 
+     &-1.83148E-06,-5.63625E-05,-8.65590E-05,-8.26020E-05,-5.06239E-05/
       DATA C11601 /                                                     &
      & 1.28065E-05,-1.34669E-05, 1.59701E-05, 9.44755E-05, 1.63032E-05, &
      & 2.51304E-05, 7.38226E-05, 1.28405E-04, 1.17413E-04, 9.92387E-05, &
@@ -7995,7 +7995,7 @@ SUBROUTINE CONTNM(JRAD)
      & 5.12522E-05, 5.12172E-05, 1.05053E-05, 1.65321E-05, 3.47537E-05, &
      & 5.62503E-05, 4.18666E-05, 3.13970E-05, 3.11750E-05, 7.21547E-05, &
      & 2.55262E-05,-2.76061E-05, 5.43449E-06,-5.20575E-05,-1.08627E-04, &
-     &-1.40475E-04,-1.59926E-04,-1.32237E-04,-8.15458E-05,-1.31738E-04/ 
+     &-1.40475E-04,-1.59926E-04,-1.32237E-04,-8.15458E-05,-1.31738E-04/
       DATA C11681 /                                                     &
      &-1.64036E-04,-1.69351E-04,-1.24797E-04,-1.61950E-04,-2.01904E-04, &
      &-2.22995E-04,-1.87647E-04,-1.70817E-04,-1.64583E-04,-1.12811E-04, &
@@ -8012,7 +8012,7 @@ SUBROUTINE CONTNM(JRAD)
      &-1.42082E-04,-1.33790E-04,-1.27963E-04,-1.21233E-04,-1.09965E-04, &
      &-1.02233E-04,-1.03804E-04,-1.19503E-04,-7.74707E-05,-4.66805E-05, &
      &-3.52201E-05,-4.07406E-05,-4.66887E-05,-5.05962E-05,-3.30333E-05, &
-     &-3.47981E-05,-3.60962E-05, 1.44242E-05, 4.10478E-05, 3.68984E-05/ 
+     &-3.47981E-05,-3.60962E-05, 1.44242E-05, 4.10478E-05, 3.68984E-05/
       DATA C11761 /                                                     &
      &-2.81300E-05, 2.83171E-05, 7.48062E-05, 4.29333E-05, 8.50076E-06, &
      & 4.98135E-06, 4.44854E-05, 2.51860E-05, 3.12189E-05, 6.39424E-05, &
@@ -8029,7 +8029,7 @@ SUBROUTINE CONTNM(JRAD)
      & 1.17359E-04, 1.06637E-04, 1.12404E-04, 9.78586E-05, 1.03178E-04, &
      & 1.28717E-04, 1.56642E-04, 1.62544E-04, 1.50109E-04, 1.43214E-04, &
      & 1.33651E-04, 1.24352E-04, 1.41420E-04, 1.36340E-04, 1.18769E-04, &
-     & 1.31656E-04, 8.81533E-05, 1.55214E-05,-3.68736E-07,-1.76213E-05/ 
+     & 1.31656E-04, 8.81533E-05, 1.55214E-05,-3.68736E-07,-1.76213E-05/
       DATA C11841 /                                                     &
      &-2.85341E-05, 4.65155E-06, 5.41350E-06,-7.01247E-06, 6.57918E-06, &
      &-2.45784E-05,-6.89104E-05,-6.90953E-05,-6.23937E-05,-6.72978E-05, &
@@ -8046,7 +8046,7 @@ SUBROUTINE CONTNM(JRAD)
      &-6.86921E-05,-8.05504E-05,-9.24178E-05,-1.03991E-04,-1.00468E-04, &
      &-6.71447E-05,-3.84897E-06,-5.99067E-06,-2.21894E-05,-5.21766E-05, &
      &-3.93796E-05,-4.06712E-05,-6.21649E-05,-1.13073E-04,-1.20560E-04, &
-     &-5.92397E-05, 5.24432E-05, 9.41628E-05,-3.47458E-07, 5.33267E-05/ 
+     &-5.92397E-05, 5.24432E-05, 9.41628E-05,-3.47458E-07, 5.33267E-05/
       DATA C11921 /                                                     &
      & 8.92961E-05, 2.75694E-05,-7.48460E-06,-2.15504E-05, 1.05501E-06, &
      & 6.30910E-06, 5.94620E-07,-2.45194E-05,-1.59657E-05, 7.93610E-07, &
@@ -8063,7 +8063,7 @@ SUBROUTINE CONTNM(JRAD)
      &-1.66405E-05, 7.94396E-06,-3.41772E-06,-4.03175E-05,-1.06888E-04, &
      &-9.50526E-05,-7.46111E-05,-5.09617E-05,-6.70981E-05,-7.93529E-05, &
      &-5.58423E-05,-1.01523E-04,-1.62269E-04,-1.69958E-04,-1.37786E-04, &
-     &-8.79862E-05,-1.46838E-04,-1.66938E-04,-1.51380E-04,-1.62184E-04/ 
+     &-8.79862E-05,-1.46838E-04,-1.66938E-04,-1.51380E-04,-1.62184E-04/
       DATA C12001 /                                                     &
      &-1.61105E-04,-1.42088E-04,-1.57033E-04,-1.65294E-04,-1.45079E-04, &
      &-9.76982E-05,-6.09891E-05,-1.01719E-04,-1.03049E-04,-8.85546E-05, &
@@ -8080,7 +8080,7 @@ SUBROUTINE CONTNM(JRAD)
      &-1.61937E-04,-1.62626E-04,-1.54977E-04,-1.77814E-04,-2.00386E-04, &
      &-1.87407E-04,-2.07243E-04,-2.44672E-04,-2.19014E-04,-2.13695E-04, &
      &-2.32440E-04,-1.85194E-04,-1.51172E-04,-1.69834E-04,-1.73780E-04, &
-     &-1.75232E-04,-2.00698E-04,-1.82826E-04,-1.27786E-04,-1.33633E-04/ 
+     &-1.75232E-04,-2.00698E-04,-1.82826E-04,-1.27786E-04,-1.33633E-04/
       DATA C12081 /                                                     &
      &-1.21317E-04,-7.50390E-05,-1.06743E-04,-1.40805E-04,-1.06336E-04, &
      &-9.46654E-05,-9.78182E-05,-1.19906E-04,-1.14160E-04,-7.28186E-05, &
@@ -8097,7 +8097,7 @@ SUBROUTINE CONTNM(JRAD)
      &-1.27749E-04,-1.45598E-04,-1.55964E-04,-1.45120E-04,-1.25544E-04, &
      &-1.05692E-04,-1.17639E-04,-1.24142E-04,-1.24749E-04,-1.63878E-04, &
      &-1.97021E-04,-1.98617E-04,-2.69136E-04,-3.68357E-04,-2.33702E-04, &
-     &-1.61830E-04,-1.78578E-04,-2.01839E-04,-2.28731E-04,-2.63606E-04/ 
+     &-1.61830E-04,-1.78578E-04,-2.01839E-04,-2.28731E-04,-2.63606E-04/
       DATA C12161 /                                                     &
      &-2.44698E-04,-1.86451E-04,-2.20546E-04,-2.22752E-04,-1.55169E-04, &
      &-1.25100E-04,-1.09794E-04,-9.59016E-05,-1.03857E-04,-1.35573E-04, &
@@ -8114,7 +8114,7 @@ SUBROUTINE CONTNM(JRAD)
      &-1.18750E-04,-1.72076E-04,-1.72120E-04,-1.48285E-04,-1.85116E-04, &
      &-1.98602E-04,-1.74016E-04,-1.37913E-04,-1.01221E-04,-9.69581E-05, &
      &-1.08794E-04,-1.39433E-04,-1.38575E-04,-1.32088E-04,-1.37431E-04, &
-     &-1.30033E-04,-1.10829E-04,-1.35604E-04,-1.66515E-04,-1.98167E-04/ 
+     &-1.30033E-04,-1.10829E-04,-1.35604E-04,-1.66515E-04,-1.98167E-04/
       DATA C12241 /                                                     &
      &-1.97716E-04,-1.74019E-04,-1.64719E-04,-1.64779E-04,-1.85725E-04, &
      &-2.28526E-04,-2.84329E-04,-1.82449E-04,-1.30747E-04,-1.93620E-04, &
@@ -8123,76 +8123,76 @@ SUBROUTINE CONTNM(JRAD)
      &-2.16568E-04,-2.38288E-04,-1.94453E-04,-1.87154E-04,-2.30493E-04, &
      &-2.34696E-04,-2.30351E-04,-2.60562E-04,-2.86427E-04,-3.06699E-04, &
      &-2.79131E-04,-2.49392E-04,-3.03389E-04,-3.10346E-04,-2.61782E-04, &
-     &-2.30905E-04,-2.11669E-04,-2.37680E-04,-2.38194E-04,-2.10955E-04/ 
-!                                                                       
-      END                                           
-!                                                                       
-!     --------------------------------------------------------------    
-!                                                                       
-      SUBROUTINE O3HHT2 (V1C,V2C,DVC,NPTC,C) 
-!                                                                       
-      Use params, ONLY: n_absrb 
-      IMPLICIT REAL*8           (V) 
-!                                                                       
-      COMMON /ABSORB/ V1ABS,V2ABS,DVABS,NPTABS,ABSRB(n_absrb) 
-      COMMON /O3HH2/ V1S,V2S,DVS,NPTS,S(2687) 
-      DIMENSION C(*) 
-!                                                                       
-      DVC = DVS 
-      V1C = V1ABS-DVC 
-      V2C = V2ABS+DVC 
-!                                                                       
-      IF (V1C.LT.V1S) then 
-         I1 = -1 
-         else 
-         I1 = (V1C-V1S)/DVS + 0.01 
-         end if 
-!                                                                       
-         V1C = V1S + DVS*REAL(I1-1) 
-         I2 = (V2C-V1S)/DVS + 0.01 
-         NPTC = I2-I1+3 
-         IF (NPTC.GT.NPTS) NPTC=NPTS+4 
-         V2C = V1C + DVS*REAL(NPTC-1) 
-!                                                                       
-         DO 10 J = 1, NPTC 
-            I = I1+(J-1) 
-            C(J) = 0. 
-            IF ((I.LT.1).OR.(I.GT.NPTS)) GO TO 10 
-            C(J) = S(I) 
-   10    END DO 
-!                                                                       
-         RETURN 
-!                                                                       
-      END                                           
-!                                                                       
-!     --------------------------------------------------------------    
-!                                                                       
-      BLOCK DATA BO3HH2 
-!                                                                       
-      IMPLICIT REAL*8           (V) 
-!                                                                       
-!     RATIO (C2/C0)                                                     
-!     DATA FROM BASS 1985                                               
-!                                                                       
-!     NOW INCLUDES MOLINA & MOLINA AT 273K WITH THE TEMPERATURE         
-!     DEPENDENCE DETERMINED FROM THE 195K HARVARD MEASUREMENTS,         
-!     EMPLOYING THE BASS ALGORITHM                                      
-!                                                                       
-!              (CO(1+C1*(T-273.15)+C2*(T-273.15)**2);                   
-!                                                                       
-!     THIS IS ONLY FOR THE WAVELENGTH RANGE FROM .34 TO .35 MICRONS;    
-!     OTHERWISE, THE BASS DATA ALONE HAVE BEEN EMPLOYED BETWEEN         
-!     .34 AND .245 MICRONS.                                             
-!                                                                       
-!     NEW T-DEPENDENT X-SECTIONS BETWEEN .345 AND .36 MICRONS           
-!     HAVE NOW BEEN ADDED, BASED ON WORK BY CACCIANI, DISARRA           
-!     AND FIOCCO, UNIVERSITY OF ROME, 1987.  QUADRATIC TEMP             
-!     HAS BEEN DERIVED, AS ABOVE.                                       
-!                                                                       
-!     AGREEMENT AMONGST THE FOUR DATA SETS IS REASONABLE (<10%)         
-!     AND OFTEN EXCELLENT (0-3%)                                        
-!                                                                       
-!                                                                       
+     &-2.30905E-04,-2.11669E-04,-2.37680E-04,-2.38194E-04,-2.10955E-04/
+!
+      END
+!
+!     --------------------------------------------------------------
+!
+      SUBROUTINE O3HHT2 (V1C,V2C,DVC,NPTC,C)
+!
+      Use params, ONLY: n_absrb
+      IMPLICIT REAL*8           (V)
+!
+      COMMON /ABSORB/ V1ABS,V2ABS,DVABS,NPTABS,ABSRB(n_absrb)
+      COMMON /O3HH2/ V1S,V2S,DVS,NPTS,S(2687)
+      DIMENSION C(*)
+!
+      DVC = DVS
+      V1C = V1ABS-DVC
+      V2C = V2ABS+DVC
+!
+      IF (V1C.LT.V1S) then
+         I1 = -1
+         else
+         I1 = (V1C-V1S)/DVS + 0.01
+         end if
+!
+         V1C = V1S + DVS*REAL(I1-1)
+         I2 = (V2C-V1S)/DVS + 0.01
+         NPTC = I2-I1+3
+         IF (NPTC.GT.NPTS) NPTC=NPTS+4
+         V2C = V1C + DVS*REAL(NPTC-1)
+!
+         DO 10 J = 1, NPTC
+            I = I1+(J-1)
+            C(J) = 0.
+            IF ((I.LT.1).OR.(I.GT.NPTS)) GO TO 10
+            C(J) = S(I)
+   10    END DO
+!
+         RETURN
+!
+      END
+!
+!     --------------------------------------------------------------
+!
+      BLOCK DATA BO3HH2
+!
+      IMPLICIT REAL*8           (V)
+!
+!     RATIO (C2/C0)
+!     DATA FROM BASS 1985
+!
+!     NOW INCLUDES MOLINA & MOLINA AT 273K WITH THE TEMPERATURE
+!     DEPENDENCE DETERMINED FROM THE 195K HARVARD MEASUREMENTS,
+!     EMPLOYING THE BASS ALGORITHM
+!
+!              (CO(1+C1*(T-273.15)+C2*(T-273.15)**2);
+!
+!     THIS IS ONLY FOR THE WAVELENGTH RANGE FROM .34 TO .35 MICRONS;
+!     OTHERWISE, THE BASS DATA ALONE HAVE BEEN EMPLOYED BETWEEN
+!     .34 AND .245 MICRONS.
+!
+!     NEW T-DEPENDENT X-SECTIONS BETWEEN .345 AND .36 MICRONS
+!     HAVE NOW BEEN ADDED, BASED ON WORK BY CACCIANI, DISARRA
+!     AND FIOCCO, UNIVERSITY OF ROME, 1987.  QUADRATIC TEMP
+!     HAS BEEN DERIVED, AS ABOVE.
+!
+!     AGREEMENT AMONGST THE FOUR DATA SETS IS REASONABLE (<10%)
+!     AND OFTEN EXCELLENT (0-3%)
+!
+!
       COMMON /O3HH2/ V1C,V2C,DVC,NC,                                    &
      &               O32001(85),C20086(80),C20166(80),C20246(65),       &
      &               C20311(16),C20327(80),C20407( 1),                  &
@@ -8203,14 +8203,14 @@ SUBROUTINE CONTNM(JRAD)
      &               C21281(80),C21361(80),C21441(80),C21521(80),       &
      &               C21601(80),C21681(80),C21761(80),C21841(80),       &
      &               C21921(80),C22001(80),C22081(80),C22161(80),       &
-     &               C22241(40)                                         
-!                                                                       
-!     DATA V1C /29405./, V2C /40800./ ,DVC /5./, NC /2280/   BASS       
-!                                                                       
-      DATA V1C /27370./, V2C /40800./ ,DVC /5./, NC /2687/ 
-!                                                                       
-      DATA O32001/85*1.0E-5/ 
-!                                                                       
+     &               C22241(40)
+!
+!     DATA V1C /29405./, V2C /40800./ ,DVC /5./, NC /2280/   BASS
+!
+      DATA V1C /27370./, V2C /40800./ ,DVC /5./, NC /2687/
+!
+      DATA O32001/85*1.0E-5/
+!
       DATA C20086/                                                      &
      & 1.29359E-05, 1.55806E-05, 2.00719E-05, 2.64912E-05, 3.48207E-05, &
      & 4.36986E-05, 5.31318E-05, 6.13173E-05, 6.89465E-05, 7.56793E-05, &
@@ -8227,7 +8227,7 @@ SUBROUTINE CONTNM(JRAD)
      & 5.29451E-05, 7.42215E-05, 1.08971E-04, 1.40085E-04, 1.46553E-04, &
      & 1.43526E-04, 1.39051E-04, 1.40983E-04, 1.45564E-04, 1.55589E-04, &
      & 1.66142E-04, 1.82840E-04, 2.06486E-04, 2.24339E-04, 2.29268E-04, &
-     & 2.13109E-04, 2.00305E-04, 1.99955E-04, 2.18566E-04, 2.24182E-04/ 
+     & 2.13109E-04, 2.00305E-04, 1.99955E-04, 2.18566E-04, 2.24182E-04/
       DATA C20166/                                                      &
      & 2.33505E-04, 2.31824E-04, 2.22666E-04, 2.23905E-04, 2.38131E-04, &
      & 2.54322E-04, 2.69548E-04, 2.62953E-04, 2.67609E-04, 2.70567E-04, &
@@ -8244,7 +8244,7 @@ SUBROUTINE CONTNM(JRAD)
      & 1.92214E-04, 1.83376E-04, 1.81710E-04, 1.82283E-04, 1.75182E-04, &
      & 1.72406E-04, 1.68170E-04, 1.67400E-04, 1.69469E-04, 1.69092E-04, &
      & 1.65985E-04, 1.66912E-04, 1.74226E-04, 1.85036E-04, 1.85517E-04, &
-     & 1.85805E-04, 1.73809E-04, 1.67628E-04, 1.57690E-04, 1.54952E-04/ 
+     & 1.85805E-04, 1.73809E-04, 1.67628E-04, 1.57690E-04, 1.54952E-04/
       DATA C20246/                                                      &
      & 1.53707E-04, 1.57710E-04, 1.58175E-04, 1.67253E-04, 1.82079E-04, &
      & 1.91285E-04, 1.96564E-04, 2.03822E-04, 1.93736E-04, 1.82924E-04, &
@@ -8258,12 +8258,12 @@ SUBROUTINE CONTNM(JRAD)
      & 1.39578E-04, 1.37052E-04, 1.33850E-04, 1.26641E-04, 1.21342E-04, &
      & 1.17669E-04, 1.25973E-04, 1.33623E-04, 1.33839E-04, 1.24427E-04, &
      & 1.02462E-04, 8.76101E-05, 8.27912E-05, 8.29040E-05, 7.78590E-05, &
-     & 7.39042E-05, 6.45765E-05, 5.70151E-05, 5.11846E-05, 4.83163E-05/ 
+     & 7.39042E-05, 6.45765E-05, 5.70151E-05, 5.11846E-05, 4.83163E-05/
       DATA C20311/                                                      &
      &                                                     5.4470E-05,  &
      & 5.3312E-05,  5.3135E-05,  5.3619E-05,  5.3686E-05,  5.2308E-05,  &
      & 5.0441E-05,  4.8402E-05,  4.7476E-05,  4.6215E-05,  4.4507E-05,  &
-     & 4.3830E-05,  4.0508E-05,  3.8931E-05,  3.5525E-05,  3.4722E-05/  
+     & 4.3830E-05,  4.0508E-05,  3.8931E-05,  3.5525E-05,  3.4722E-05/
       DATA C20327/                                                      &
      & 3.2743E-05,  2.8456E-05,  2.8318E-05,  2.8132E-05,  2.6221E-05,  &
      & 2.5673E-05,  2.5521E-05,  2.4588E-05,  2.4093E-05,  2.2787E-05,  &
@@ -8280,9 +8280,9 @@ SUBROUTINE CONTNM(JRAD)
      & 3.8120E-05,  3.6915E-05,  3.5823E-05,  3.5186E-05,  3.3638E-05,  &
      & 3.3451E-05,  3.2428E-05,  3.2349E-05,  3.0183E-05,  2.8436E-05,  &
      & 2.6440E-05,  2.3597E-05,  2.1875E-05,  1.8164E-05,  1.6430E-05,  &
-     & 1.3159E-05,  9.2907E-06,  7.4243E-06,  6.0469E-06,  5.4951E-06/  
+     & 1.3159E-05,  9.2907E-06,  7.4243E-06,  6.0469E-06,  5.4951E-06/
       DATA C20407/                                                      &
-     & 8.7642E-06/                                                      
+     & 8.7642E-06/
       DATA C20001 /                                                     &
      & 2.16295E-05, 1.69111E-05, 5.39633E-05, 1.01866E-04, 8.28657E-05, &
      & 9.16593E-05, 8.88666E-05, 1.37764E-04, 1.44322E-04, 1.20659E-04, &
@@ -8299,7 +8299,7 @@ SUBROUTINE CONTNM(JRAD)
      & 4.51321E-05, 5.91854E-05, 5.51601E-05, 4.41923E-05, 3.59217E-05, &
      & 4.08520E-05, 6.15981E-05, 6.66549E-05, 8.26031E-05, 1.13556E-04, &
      & 8.72988E-05, 9.71052E-05, 9.31839E-05, 8.73745E-05, 8.61717E-05, &
-     & 6.05645E-05, 6.51131E-05, 6.93393E-05, 7.01096E-05, 6.43565E-05/ 
+     & 6.05645E-05, 6.51131E-05, 6.93393E-05, 7.01096E-05, 6.43565E-05/
       DATA C20081 /                                                     &
      & 7.36929E-05, 7.66881E-05, 7.60815E-05, 7.13570E-05, 8.40487E-05, &
      & 8.51489E-05, 7.54168E-05, 6.72694E-05, 4.75508E-05, 3.59379E-05, &
@@ -8316,7 +8316,7 @@ SUBROUTINE CONTNM(JRAD)
      & 3.79823E-05, 3.72225E-05, 3.02360E-05, 3.22961E-05, 3.43398E-05, &
      & 3.57176E-05, 2.65446E-05, 3.29388E-05, 1.65455E-05, 2.66173E-05, &
      & 1.74277E-05, 1.74324E-05, 1.27879E-05, 1.46247E-05, 1.92378E-05, &
-     & 2.20049E-05, 1.44790E-05, 2.49244E-05, 2.29209E-05, 1.76192E-05/ 
+     & 2.20049E-05, 1.44790E-05, 2.49244E-05, 2.29209E-05, 1.76192E-05/
       DATA C20161 /                                                     &
      & 1.84528E-05, 2.54350E-05, 3.33972E-05, 3.69190E-05, 2.92139E-05, &
      & 2.47666E-05, 2.86764E-05, 1.48163E-05, 1.80461E-05, 2.84545E-05, &
@@ -8333,7 +8333,7 @@ SUBROUTINE CONTNM(JRAD)
      & 2.02921E-05, 3.22062E-05, 2.37112E-05, 1.94803E-05, 2.40726E-05, &
      & 2.11531E-05, 1.89158E-05, 2.46957E-05, 2.63175E-05, 2.57747E-05, &
      & 2.22047E-05, 2.52755E-05, 2.80848E-05, 3.75157E-05, 4.09915E-05, &
-     & 4.04853E-05, 3.21661E-05, 3.15652E-05, 3.21576E-05, 3.67060E-05/ 
+     & 4.04853E-05, 3.21661E-05, 3.15652E-05, 3.21576E-05, 3.67060E-05/
       DATA C20241 /                                                     &
      & 3.13071E-05, 2.84939E-05, 2.71169E-05, 2.99559E-05, 2.94631E-05, &
      & 3.26716E-05, 2.99028E-05, 2.60045E-05, 3.15375E-05, 3.12895E-05, &
@@ -8350,7 +8350,7 @@ SUBROUTINE CONTNM(JRAD)
      & 2.02314E-05, 2.20209E-05, 2.05131E-05, 2.12017E-05, 1.96689E-05, &
      & 1.61907E-05, 1.57662E-05, 1.58239E-05, 1.54650E-05, 1.46376E-05, &
      & 1.32891E-05, 1.30511E-05, 1.17635E-05, 1.28585E-05, 1.12887E-05, &
-     & 1.32627E-05, 1.31833E-05, 1.68679E-05, 1.98092E-05, 2.70744E-05/ 
+     & 1.32627E-05, 1.31833E-05, 1.68679E-05, 1.98092E-05, 2.70744E-05/
       DATA C20321 /                                                     &
      & 2.22033E-05, 1.63430E-05, 1.61104E-05, 1.50865E-05, 1.54382E-05, &
      & 1.55654E-05, 1.67924E-05, 1.89185E-05, 1.96791E-05, 2.14894E-05, &
@@ -8367,7 +8367,7 @@ SUBROUTINE CONTNM(JRAD)
      &-2.17204E-05,-1.23979E-05,-1.04928E-05, 7.43085E-06, 1.55350E-05, &
      & 3.15204E-05, 3.17601E-05, 2.93677E-05, 3.42485E-05, 3.87087E-05, &
      & 3.61242E-05, 2.62406E-05, 3.31686E-05, 3.54314E-05, 2.50625E-05, &
-     & 2.60444E-05, 4.10729E-05, 3.47247E-05, 3.31716E-05, 3.34778E-05/ 
+     & 2.60444E-05, 4.10729E-05, 3.47247E-05, 3.31716E-05, 3.34778E-05/
       DATA C20401 /                                                     &
      & 4.03029E-05, 4.09241E-05, 3.96717E-05, 3.53410E-05, 2.81048E-05, &
      & 1.98891E-05, 1.92314E-05, 2.82525E-05, 3.76641E-05, 4.34135E-05, &
@@ -8384,7 +8384,7 @@ SUBROUTINE CONTNM(JRAD)
      & 6.93250E-06, 5.07198E-06, 7.90632E-06, 9.08149E-06, 1.03602E-05, &
      & 2.17425E-05, 2.71741E-05, 2.16875E-05, 1.95088E-05, 1.56568E-05, &
      & 8.41152E-06, 1.26749E-05, 1.17673E-05, 9.96037E-06, 1.21982E-05, &
-     & 1.31854E-05, 1.50216E-05, 1.72214E-05, 2.02773E-05, 2.09625E-05/ 
+     & 1.31854E-05, 1.50216E-05, 1.72214E-05, 2.02773E-05, 2.09625E-05/
       DATA C20481 /                                                     &
      & 1.66656E-05, 1.45666E-05, 1.66608E-05, 2.04989E-05, 2.21395E-05, &
      & 2.35993E-05, 2.69390E-05, 2.13921E-05, 1.72643E-05, 1.70995E-05, &
@@ -8401,7 +8401,7 @@ SUBROUTINE CONTNM(JRAD)
      & 1.37014E-05, 1.34487E-05, 1.15536E-05, 1.33597E-05, 9.24478E-06, &
      & 7.28477E-06, 1.40321E-05, 1.31518E-05, 1.03118E-05, 8.59764E-06, &
      & 1.57138E-05, 1.20792E-05, 1.49440E-05, 1.34375E-05, 1.54686E-05, &
-     & 1.65346E-05, 1.33823E-05, 1.37238E-05, 1.36128E-05, 1.46206E-05/ 
+     & 1.65346E-05, 1.33823E-05, 1.37238E-05, 1.36128E-05, 1.46206E-05/
       DATA C20561 /                                                     &
      & 1.40777E-05, 1.59980E-05, 1.30180E-05, 1.01390E-05, 1.12366E-05, &
      & 9.86099E-06, 1.10702E-05, 1.26783E-05, 9.51072E-06, 8.07299E-06, &
@@ -8418,7 +8418,7 @@ SUBROUTINE CONTNM(JRAD)
      & 6.66928E-06, 1.08926E-05, 1.07870E-05, 9.23485E-06, 8.50452E-06, &
      & 9.41914E-06, 8.74027E-06, 8.93322E-06, 9.79061E-06, 8.26490E-06, &
      & 8.37630E-06, 1.17064E-05, 1.10176E-05, 1.11587E-05, 9.45563E-06, &
-     & 1.18352E-05, 7.79327E-06, 9.22766E-06, 1.01868E-05, 8.23925E-06/ 
+     & 1.18352E-05, 7.79327E-06, 9.22766E-06, 1.01868E-05, 8.23925E-06/
       DATA C20641 /                                                     &
      & 9.23706E-06, 1.04428E-05, 8.80392E-06, 9.37098E-06, 7.43126E-06, &
      & 7.01424E-06, 9.29360E-06, 8.97171E-06, 9.31718E-06, 9.87118E-06, &
@@ -8435,7 +8435,7 @@ SUBROUTINE CONTNM(JRAD)
      & 6.68425E-06, 8.56576E-06, 1.05282E-05, 1.10647E-05, 9.91625E-06, &
      & 7.95356E-06, 8.66443E-06, 9.13551E-06, 1.04870E-05, 9.79244E-06, &
      & 1.26214E-05, 8.42148E-06, 8.13468E-06, 1.11338E-05, 1.06780E-05, &
-     & 8.54578E-06, 7.82119E-06, 8.33258E-06, 8.23644E-06, 5.95583E-06/ 
+     & 8.54578E-06, 7.82119E-06, 8.33258E-06, 8.23644E-06, 5.95583E-06/
       DATA C20721 /                                                     &
      & 5.85592E-06, 4.05898E-06, 6.39260E-06, 8.43280E-06, 8.76251E-06, &
      & 6.70423E-06, 6.81368E-06, 7.43506E-06, 7.14376E-06, 6.51065E-06, &
@@ -8452,7 +8452,7 @@ SUBROUTINE CONTNM(JRAD)
      & 7.50416E-06, 6.14975E-06, 6.51422E-06, 7.74942E-06, 8.11492E-06, &
      & 1.19607E-05, 7.92722E-06, 4.47848E-06, 6.02524E-06, 9.74067E-06, &
      & 1.02429E-05, 8.60819E-06, 8.57044E-06, 1.09196E-05, 1.02048E-05, &
-     & 3.86222E-06, 9.26104E-06, 7.33341E-06, 9.08181E-06, 1.05569E-05/ 
+     & 3.86222E-06, 9.26104E-06, 7.33341E-06, 9.08181E-06, 1.05569E-05/
       DATA C20801 /                                                     &
      & 1.06776E-05, 1.10247E-05, 1.04520E-05, 8.78328E-06, 7.60679E-06, &
      & 7.27896E-06, 9.72776E-06, 5.16039E-06, 1.03134E-05, 1.09088E-05, &
@@ -8469,7 +8469,7 @@ SUBROUTINE CONTNM(JRAD)
      & 7.11669E-06, 2.80033E-06, 6.50756E-06, 9.43974E-06, 5.22402E-06, &
      & 3.82334E-06, 7.29963E-06, 8.62313E-06, 7.42018E-06, 4.56506E-06, &
      & 5.29972E-06, 5.62787E-06, 4.63852E-06, 5.18329E-06, 7.01884E-06, &
-     & 7.24888E-06, 5.18157E-06, 5.40219E-06, 5.92412E-06, 4.97977E-06/ 
+     & 7.24888E-06, 5.18157E-06, 5.40219E-06, 5.92412E-06, 4.97977E-06/
       DATA C20881 /                                                     &
      & 5.29040E-06, 5.33812E-06, 4.76620E-06, 4.65759E-06, 5.10546E-06, &
      & 6.49525E-06, 4.43416E-06, 5.30223E-06, 3.27044E-06, 2.55324E-06, &
@@ -8486,7 +8486,7 @@ SUBROUTINE CONTNM(JRAD)
      & 2.53079E-06, 2.87260E-06, 1.87600E-06,-3.84453E-07, 1.80836E-06, &
      & 9.28123E-07, 1.94986E-06, 2.40483E-06, 2.79865E-06, 2.86361E-06, &
      & 2.63868E-06, 3.34704E-06, 3.32132E-06, 2.58463E-06, 2.45684E-06, &
-     & 3.35043E-06, 3.19848E-06, 1.73037E-06, 2.98206E-06, 2.77491E-06/ 
+     & 3.35043E-06, 3.19848E-06, 1.73037E-06, 2.98206E-06, 2.77491E-06/
       DATA C20961 /                                                     &
      & 6.51674E-07, 2.52219E-06, 2.97136E-06, 1.96700E-06, 2.29350E-06, &
      & 3.01956E-06, 3.20811E-06, 1.30467E-06, 1.68172E-06, 2.56264E-06, &
@@ -8503,7 +8503,7 @@ SUBROUTINE CONTNM(JRAD)
      & 2.14143E-07, 1.21751E-06, 2.30470E-06, 4.27911E-06, 2.96622E-06, &
      & 8.67534E-07, 9.12041E-07, 2.48797E-06, 9.43519E-07,-3.60949E-06, &
      & 2.01928E-06, 1.88873E-06, 8.06749E-07, 7.33519E-07, 1.17440E-06, &
-     & 1.69744E-06, 3.64492E-06, 3.11556E-06, 8.89471E-07, 1.93064E-06/ 
+     & 1.69744E-06, 3.64492E-06, 3.11556E-06, 8.89471E-07, 1.93064E-06/
       DATA C21041 /                                                     &
      & 3.02787E-06, 1.92575E-06, 1.73720E-06,-1.32700E-07, 1.41743E-06, &
      & 2.24632E-06, 2.47945E-06, 2.05151E-06,-9.56031E-07, 2.57317E-07, &
@@ -8520,7 +8520,7 @@ SUBROUTINE CONTNM(JRAD)
      & 1.80941E-06, 2.68577E-06, 2.44584E-06, 2.51720E-06, 2.64857E-06, &
      & 2.24182E-06, 1.62007E-06, 2.60421E-06, 3.09782E-06, 3.11099E-06, &
      & 3.81513E-06, 6.91606E-06, 3.28767E-06, 3.44175E-06, 4.16771E-06, &
-     & 3.75452E-06, 2.21050E-06, 2.99939E-06, 2.86993E-06, 2.47080E-06/ 
+     & 3.75452E-06, 2.21050E-06, 2.99939E-06, 2.86993E-06, 2.47080E-06/
       DATA C21121 /                                                     &
      & 2.33607E-06, 2.68568E-06, 3.39344E-06, 6.09518E-06, 5.10422E-06, &
      & 4.04027E-06, 4.01363E-06, 4.53142E-06, 2.94424E-06, 4.76694E-06, &
@@ -8537,7 +8537,7 @@ SUBROUTINE CONTNM(JRAD)
      &-6.67372E-07,-1.00033E-06,-1.12001E-06,-1.06624E-06,-9.23789E-07, &
      &-9.83788E-07,-2.11656E-06,-2.45001E-06,-2.75874E-06,-3.36003E-06, &
      &-3.38364E-06,-2.63747E-06,-3.11047E-06,-3.75258E-06,-3.83211E-06, &
-     &-3.52833E-06,-3.48464E-06,-3.77021E-06,-4.26887E-06,-4.23917E-06/ 
+     &-3.52833E-06,-3.48464E-06,-3.77021E-06,-4.26887E-06,-4.23917E-06/
       DATA C21201 /                                                     &
      &-1.42438E-06,-2.48477E-06,-2.84719E-06,-2.70247E-06,-2.50588E-06, &
      &-2.22900E-06,-1.78393E-06,-1.76826E-06,-2.16396E-06,-2.67543E-06, &
@@ -8554,7 +8554,7 @@ SUBROUTINE CONTNM(JRAD)
      &-4.25726E-06, 2.32917E-06,-5.61131E-07, 2.05234E-06, 3.74631E-07, &
      &-7.66493E-07, 1.42689E-06,-7.79683E-07, 9.06809E-07, 5.13642E-07, &
      &-1.52504E-06,-2.12058E-06,-2.50316E-06, 1.03637E-08, 5.60002E-07, &
-     &-1.48075E-06, 1.94155E-06, 1.91846E-06, 2.78507E-06, 3.90146E-06/ 
+     &-1.48075E-06, 1.94155E-06, 1.91846E-06, 2.78507E-06, 3.90146E-06/
       DATA C21281 /                                                     &
      & 3.61409E-06, 3.23677E-06, 4.00022E-06, 3.19157E-06, 4.03034E-07, &
      &-2.03929E-06, 1.23366E-06, 3.28589E-06, 3.94168E-06, 3.94672E-06, &
@@ -8571,7 +8571,7 @@ SUBROUTINE CONTNM(JRAD)
      & 4.82255E-07, 1.12599E-06, 2.11763E-06, 2.66807E-07, 2.29324E-07, &
      & 7.07005E-07, 3.41907E-07,-1.17115E-07, 9.03089E-07, 1.76844E-06, &
      & 1.87134E-06, 2.64057E-06, 4.00395E-07,-4.19679E-07, 6.30769E-07, &
-     & 1.02725E-06, 1.05876E-06,-4.08660E-07,-2.32668E-06,-2.73468E-06/ 
+     & 1.02725E-06, 1.05876E-06,-4.08660E-07,-2.32668E-06,-2.73468E-06/
       DATA C21361 /                                                     &
      &-2.40600E-06,-1.81203E-06,-7.96431E-07, 7.40789E-07, 2.73188E-07, &
      & 1.68367E-07,-1.27227E-07,-1.05041E-06,-3.51726E-06,-1.64956E-06, &
@@ -8588,7 +8588,7 @@ SUBROUTINE CONTNM(JRAD)
      & 1.07277E-06, 1.37006E-06, 1.66932E-06, 1.75820E-06, 1.41859E-06, &
      &-5.84947E-08, 2.17349E-06, 4.27053E-06, 5.27286E-06, 5.87085E-06, &
      & 2.42692E-06, 2.39305E-06, 6.19573E-06, 5.12518E-06, 1.27171E-06, &
-     &-6.81963E-07, 4.16199E-08,-1.36608E-06,-2.53272E-06,-2.37700E-06/ 
+     &-6.81963E-07, 4.16199E-08,-1.36608E-06,-2.53272E-06,-2.37700E-06/
       DATA C21441 /                                                     &
      &-7.96719E-07, 3.85367E-07,-1.08393E-07,-9.04587E-07,-1.54917E-06, &
      &-3.11945E-06,-5.58484E-07, 1.61347E-06, 1.11736E-06, 2.11889E-06, &
@@ -8605,7 +8605,7 @@ SUBROUTINE CONTNM(JRAD)
      &-1.09782E-06,-6.56149E-07, 2.01650E-06, 1.84770E-06, 4.39586E-08, &
      &-2.03588E-06,-1.46366E-06,-3.45189E-07, 4.02577E-07, 3.10362E-07, &
      &-2.16073E-06,-1.91861E-06,-2.90520E-07, 2.03692E-06, 3.47996E-06, &
-     & 4.21761E-06, 3.89000E-06, 1.86138E-06, 1.56143E-06, 4.88964E-07/ 
+     & 4.21761E-06, 3.89000E-06, 1.86138E-06, 1.56143E-06, 4.88964E-07/
       DATA C21521 /                                                     &
      &-9.28184E-07,-4.34315E-07, 8.74954E-07, 1.58417E-06, 1.36880E-06, &
      & 2.65016E-06, 4.62623E-06, 5.81990E-06, 4.72139E-06, 1.95905E-06, &
@@ -8622,7 +8622,7 @@ SUBROUTINE CONTNM(JRAD)
      & 3.35270E-07, 5.39243E-07, 9.08467E-07, 1.39382E-06, 1.08806E-06, &
      & 1.18589E-06, 3.58461E-06, 2.78668E-06, 1.25964E-06,-2.72255E-07, &
      & 1.72305E-06, 1.82937E-06, 7.46252E-07,-1.10555E-06, 2.24967E-07, &
-     & 6.45674E-07,-1.87591E-07,-8.84068E-07,-1.75433E-06,-2.17670E-06/ 
+     & 6.45674E-07,-1.87591E-07,-8.84068E-07,-1.75433E-06,-2.17670E-06/
       DATA C21601 /                                                     &
      &-1.37112E-06,-2.31722E-06,-2.23860E-06,-1.16796E-06,-2.23765E-06, &
      &-1.86406E-06,-1.03517E-06,-5.90824E-07,-6.57710E-07,-7.00941E-07, &
@@ -8639,7 +8639,7 @@ SUBROUTINE CONTNM(JRAD)
      &-1.27237E-06,-1.50189E-06,-3.79292E-06,-3.92038E-06,-3.58490E-06, &
      &-3.26439E-06,-2.42138E-06,-2.70516E-06,-3.58080E-06,-1.71822E-06, &
      &-2.41567E-06,-3.50193E-06,-2.62394E-06,-3.08424E-06,-3.89604E-06, &
-     &-4.84127E-06,-4.41385E-06,-3.22673E-06,-1.80987E-06,-2.93027E-06/ 
+     &-4.84127E-06,-4.41385E-06,-3.22673E-06,-1.80987E-06,-2.93027E-06/
       DATA C21681 /                                                     &
      &-3.17366E-06,-2.79721E-06,-1.78848E-06,-2.80254E-06,-3.55572E-06, &
      &-3.34632E-06,-2.83979E-06,-2.48022E-06,-2.15090E-06,-1.08311E-06, &
@@ -8656,7 +8656,7 @@ SUBROUTINE CONTNM(JRAD)
      &-1.37371E-06,-1.65974E-06,-1.26079E-06,-8.08050E-07,-8.41278E-07, &
      &-1.53860E-06,-1.66687E-06,-6.56592E-07,-3.05110E-08, 1.08623E-07, &
      &-2.87222E-07,-2.63555E-07,-7.89575E-07,-1.56059E-06,-6.42174E-07, &
-     &-9.43333E-07,-1.38671E-06, 6.50443E-07, 1.35301E-06, 9.27981E-07/ 
+     &-9.43333E-07,-1.38671E-06, 6.50443E-07, 1.35301E-06, 9.27981E-07/
       DATA C21761 /                                                     &
      &-1.21705E-06,-9.63848E-08, 8.73593E-07,-3.47278E-08,-1.79042E-06, &
      &-2.15544E-06,-4.48668E-07,-1.17414E-06,-1.35437E-06,-8.90688E-07, &
@@ -8673,7 +8673,7 @@ SUBROUTINE CONTNM(JRAD)
      & 1.05680E-06, 5.91076E-07, 2.07187E-07, 3.82385E-07, 5.91560E-07, &
      & 8.26519E-07, 1.22139E-06, 1.63501E-06, 2.06423E-06, 2.50038E-06, &
      & 2.38037E-06, 1.91688E-06, 2.46702E-06, 2.45066E-06, 2.16732E-06, &
-     & 3.13517E-06, 2.68221E-06, 1.39877E-06, 8.58945E-07, 6.83181E-07/ 
+     & 3.13517E-06, 2.68221E-06, 1.39877E-06, 8.58945E-07, 6.83181E-07/
       DATA C21841 /                                                     &
      & 8.46816E-07, 1.73491E-06, 1.98732E-06, 1.94059E-06, 2.19284E-06, &
      & 1.73215E-06, 1.06865E-06, 1.14117E-06, 1.43213E-06, 1.42275E-06, &
@@ -8690,7 +8690,7 @@ SUBROUTINE CONTNM(JRAD)
      & 9.32462E-08,-4.83623E-07,-9.16323E-07,-1.22772E-06,-1.61586E-06, &
      &-1.27409E-06,-1.98119E-07,-3.69182E-08,-1.41061E-07,-5.12562E-07, &
      &-4.55495E-07,-8.12132E-07,-1.71772E-06,-2.70741E-06,-2.98751E-06, &
-     &-2.19520E-06, 3.01900E-07, 1.17806E-06,-1.23067E-06, 4.17086E-07/ 
+     &-2.19520E-06, 3.01900E-07, 1.17806E-06,-1.23067E-06, 4.17086E-07/
       DATA C21921 /                                                     &
      & 1.68113E-06, 4.81677E-07,-1.55187E-07,-3.35287E-07, 2.94916E-07, &
      & 4.57124E-07, 3.38692E-07,-2.49203E-07,-3.62585E-07,-2.39653E-07, &
@@ -8707,7 +8707,7 @@ SUBROUTINE CONTNM(JRAD)
      & 8.99037E-07, 2.25330E-06, 1.44822E-06, 3.07437E-07,-1.22366E-06, &
      &-7.64217E-07, 2.13156E-08, 1.07909E-06, 6.10755E-07, 1.81483E-07, &
      & 8.12405E-07,-9.13283E-08,-1.35885E-06,-1.58366E-06,-7.88594E-07, &
-     & 4.48283E-07,-1.23754E-06,-1.65105E-06,-8.93014E-07,-1.48622E-06/ 
+     & 4.48283E-07,-1.23754E-06,-1.65105E-06,-8.93014E-07,-1.48622E-06/
       DATA C22001 /                                                     &
      &-1.67948E-06,-1.24310E-06,-1.54411E-06,-1.65677E-06,-1.04998E-06, &
      &-1.46985E-07, 4.61778E-07,-4.87832E-07,-4.89452E-07,-1.24840E-07, &
@@ -8724,7 +8724,7 @@ SUBROUTINE CONTNM(JRAD)
      &-9.75302E-07,-8.70978E-07,-3.59071E-08,-3.01726E-07,-8.27641E-07, &
      &-1.14899E-06,-1.50160E-06,-1.83660E-06,-1.26290E-06,-1.07659E-06, &
      &-1.34878E-06,-5.24626E-07,-7.85094E-08,-8.79473E-07,-1.19291E-06, &
-     &-1.33298E-06,-1.59750E-06,-1.31836E-06,-5.73079E-07,-1.10349E-06/ 
+     &-1.33298E-06,-1.59750E-06,-1.31836E-06,-5.73079E-07,-1.10349E-06/
       DATA C22081 /                                                     &
      &-1.11807E-06,-1.99530E-07,-8.10496E-07,-1.42679E-06,-5.34617E-07, &
      &-2.05001E-07,-2.51690E-07,-1.01740E-06,-1.02841E-06,-7.48750E-08, &
@@ -8741,7 +8741,7 @@ SUBROUTINE CONTNM(JRAD)
      &-1.59880E-06,-1.61420E-06,-1.54368E-06,-1.41036E-06,-7.20350E-07, &
      & 1.35544E-07, 3.14481E-07, 6.29265E-07, 1.09161E-06,-1.36044E-07, &
      &-1.22932E-06,-1.29847E-06,-3.26429E-06,-6.01062E-06,-2.09945E-06, &
-     & 1.26878E-07,-2.88050E-08,-6.82802E-07,-1.39340E-06,-1.82986E-06/ 
+     & 1.26878E-07,-2.88050E-08,-6.82802E-07,-1.39340E-06,-1.82986E-06/
       DATA C22161 /                                                     &
      &-1.67208E-06,-1.07994E-06,-1.89195E-06,-2.10782E-06,-1.04519E-06, &
      &-3.27672E-07, 1.95516E-07, 1.63838E-07,-2.29575E-07,-1.01609E-06, &
@@ -8758,7 +8758,7 @@ SUBROUTINE CONTNM(JRAD)
      &-9.19712E-07,-1.91707E-06,-2.14767E-06,-2.03629E-06,-2.86441E-06, &
      &-3.07735E-06,-2.28656E-06,-1.40256E-06,-5.50649E-07,-3.11627E-07, &
      &-7.90261E-07,-2.10728E-06,-1.89739E-06,-1.53762E-06,-2.39947E-06, &
-     &-2.28765E-06,-1.27564E-06,-2.15154E-06,-3.17932E-06,-3.84234E-06/ 
+     &-2.28765E-06,-1.27564E-06,-2.15154E-06,-3.17932E-06,-3.84234E-06/
       DATA C22241 /                                                     &
      &-3.65102E-06,-2.84055E-06,-2.48744E-06,-2.27683E-06,-2.33087E-06, &
      &-3.44460E-06,-5.19613E-06,-2.85882E-06,-1.39921E-06,-2.00579E-06, &
@@ -8767,67 +8767,67 @@ SUBROUTINE CONTNM(JRAD)
      &-2.61515E-06,-2.56413E-06,-1.49601E-06,-1.23245E-06,-2.08440E-06, &
      &-2.11121E-06,-1.93424E-06,-2.27439E-06,-2.58183E-06,-2.84705E-06, &
      &-2.32183E-06,-1.80966E-06,-3.04089E-06,-3.14334E-06,-1.91331E-06, &
-     &-1.51037E-06,-1.43610E-06,-2.11316E-06,-2.45184E-06,-2.42262E-06/ 
-!                                                                       
-      END                                           
-!                                                                       
-!     --------------------------------------------------------------    
-!                                                                       
-      SUBROUTINE O3HHUV (V1C,V2C,DVC,NPTC,C) 
-!                                                                       
-      Use params, ONLY: n_absrb 
-      IMPLICIT REAL*8           (V) 
-!                                                                       
-      COMMON /ABSORB/ V1ABS,V2ABS,DVABS,NPTABS,ABSRB(n_absrb) 
-      COMMON /O3HUV/ V1S,V2S,DVS,NPTS,S(133) 
-      DIMENSION C(*) 
-!                                                                       
-      DVC = DVS 
-      V1C = V1ABS-DVC 
-      V2C = V2ABS+DVC 
-!                                                                       
-      IF (V1C.LT.V1S) then 
-         I1 = -1 
-         else 
-         I1 = (V1C-V1S)/DVS + 0.01 
-         end if 
-!                                                                       
-         V1C = V1S + DVS*REAL(I1-1) 
-         I2 = (V2C-V1S)/DVS + 0.01 
-         NPTC = I2-I1+3 
-         IF (NPTC.GT.NPTS) NPTC=NPTS+4 
-         V2C = V1C + DVS*REAL(NPTC-1) 
-!                                                                       
-         DO 10 J = 1, NPTC 
-            I = I1+(J-1) 
-            C(J) = 0. 
-            IF ((I.LT.1).OR.(I.GT.NPTS)) GO TO 10 
-            VJ = V1C+DVC* REAL(J-1) 
-            C(J) = S(I)/VJ 
-!                                                                       
-!     RADIATION FLD REMOVED FROM U.V.    OZONE                          
-!                                                                       
-   10    END DO 
-!                                                                       
-         RETURN 
-!                                                                       
-      END                                           
-!                                                                       
-!     --------------------------------------------------------------    
-!                                                                       
-      BLOCK DATA BO3HUV 
-!                                                                       
-      IMPLICIT REAL*8           (V) 
-!                                                                       
-!     DATA DERIVED FROM MOLINA & MOLINA, JGR,91,14501-14508,1986.       
-!     VALUES BETWEEN 245 AND 185NM (40800 AND 54054CM-1) USED AS        
-!     DIRECT AVERAGE WITH NO TEMPERATURE DEPENDENCE.                    
-!                                                                       
+     &-1.51037E-06,-1.43610E-06,-2.11316E-06,-2.45184E-06,-2.42262E-06/
+!
+      END
+!
+!     --------------------------------------------------------------
+!
+      SUBROUTINE O3HHUV (V1C,V2C,DVC,NPTC,C)
+!
+      Use params, ONLY: n_absrb
+      IMPLICIT REAL*8           (V)
+!
+      COMMON /ABSORB/ V1ABS,V2ABS,DVABS,NPTABS,ABSRB(n_absrb)
+      COMMON /O3HUV/ V1S,V2S,DVS,NPTS,S(133)
+      DIMENSION C(*)
+!
+      DVC = DVS
+      V1C = V1ABS-DVC
+      V2C = V2ABS+DVC
+!
+      IF (V1C.LT.V1S) then
+         I1 = -1
+         else
+         I1 = (V1C-V1S)/DVS + 0.01
+         end if
+!
+         V1C = V1S + DVS*REAL(I1-1)
+         I2 = (V2C-V1S)/DVS + 0.01
+         NPTC = I2-I1+3
+         IF (NPTC.GT.NPTS) NPTC=NPTS+4
+         V2C = V1C + DVS*REAL(NPTC-1)
+!
+         DO 10 J = 1, NPTC
+            I = I1+(J-1)
+            C(J) = 0.
+            IF ((I.LT.1).OR.(I.GT.NPTS)) GO TO 10
+            VJ = V1C+DVC* REAL(J-1)
+            C(J) = S(I)/VJ
+!
+!     RADIATION FLD REMOVED FROM U.V.    OZONE
+!
+   10    END DO
+!
+         RETURN
+!
+      END
+!
+!     --------------------------------------------------------------
+!
+      BLOCK DATA BO3HUV
+!
+      IMPLICIT REAL*8           (V)
+!
+!     DATA DERIVED FROM MOLINA & MOLINA, JGR,91,14501-14508,1986.
+!     VALUES BETWEEN 245 AND 185NM (40800 AND 54054CM-1) USED AS
+!     DIRECT AVERAGE WITH NO TEMPERATURE DEPENDENCE.
+!
       COMMON /O3HUV/ V1C,V2C,DVC,NC,                                    &
-     &               C02281(80),C02361(53)                              
-!                                                                       
-      DATA V1C /40800./, V2C /54000./ ,DVC /100./, NC /133/ 
-!                                                                       
+     &               C02281(80),C02361(53)
+!
+      DATA V1C /40800./, V2C /54000./ ,DVC /100./, NC /133/
+!
       DATA C02281/                                                      &
      & 9.91204E-18, 9.76325E-18, 9.72050E-18, 9.51049E-18, 9.23530E-18, &
      & 9.02306E-18, 8.90510E-18, 8.60115E-18, 8.39094E-18, 8.27926E-18, &
@@ -8844,7 +8844,7 @@ SUBROUTINE CONTNM(JRAD)
      & 8.83466E-19, 8.38631E-19, 7.96631E-19, 7.54331E-19, 7.13805E-19, &
      & 6.78474E-19, 6.44340E-19, 6.13104E-19, 5.81777E-19, 5.53766E-19, &
      & 5.27036E-19, 5.03555E-19, 4.82633E-19, 4.61483E-19, 4.42014E-19, &
-     & 4.23517E-19, 4.07774E-19, 3.93060E-19, 3.80135E-19, 3.66348E-19/ 
+     & 4.23517E-19, 4.07774E-19, 3.93060E-19, 3.80135E-19, 3.66348E-19/
       DATA C02361/                                                      &
      & 3.53665E-19, 3.47884E-19, 3.39690E-19, 3.34288E-19, 3.29135E-19, &
      & 3.23104E-19, 3.18875E-19, 3.16800E-19, 3.15925E-19, 3.12932E-19, &
@@ -8856,86 +8856,86 @@ SUBROUTINE CONTNM(JRAD)
      & 4.80497E-19, 4.90242E-19, 4.99652E-19, 5.10316E-19, 5.21510E-19, &
      & 5.32130E-19, 5.43073E-19, 5.56207E-19, 5.61756E-19, 5.66799E-19, &
      & 5.85545E-19, 5.92409E-19, 5.96168E-19, 6.12497E-19, 6.20231E-19, &
-     & 6.24621E-19, 6.34160E-19, 6.43622E-19/                           
-!                                                                       
-      END                                           
-!                                                                       
-!     --------------------------------------------------------------    
-                                                                        
-      subroutine o2_ver_1 (v1c,v2c,dvc,nptc,c,T) 
-!                                                                       
-      Use params, ONLY: n_absrb 
-      IMPLICIT REAL*8 (v) 
-                                                                        
-      COMMON /ABSORB/ V1ABS,V2ABS,DVABS,NPTABS,ABSRB(n_absrb) 
-                                                                        
-      COMMON /o2_f  / V1S,V2S,DVS,NPTS,xo2(103),xo2t(103) 
-                                                                        
-      dimension c(*) 
-                                                                        
-!                                                                       
-!     Oxygen Collision Induced Fundamental                              
-                                                                        
+     & 6.24621E-19, 6.34160E-19, 6.43622E-19/
+!
+      END
+!
+!     --------------------------------------------------------------
+
+      subroutine o2_ver_1 (v1c,v2c,dvc,nptc,c,T)
+!
+      Use params, ONLY: n_absrb
+      IMPLICIT REAL*8 (v)
+
+      COMMON /ABSORB/ V1ABS,V2ABS,DVABS,NPTABS,ABSRB(n_absrb)
+
+      COMMON /o2_f  / V1S,V2S,DVS,NPTS,xo2(103),xo2t(103)
+
+      dimension c(*)
+
+!
+!     Oxygen Collision Induced Fundamental
+
 !     F. Thibault, V. Menoux, R. Le Doucen, L. Rosenman, J.-M. Hartmann,
 !     and Ch. Boulet
 !     Infrared collision-induced absorption by O2 near 6.4 microns for
 !     atmospheric applications: measurements and emprirical modeling,
-!     Appl. Optics, 35, 5911-5917, (1996).                          
-                                                                        
-      DATA T_0/ 296./, xlosmt/ 2.68675e+19/ 
-!                                                                       
-      xktfac = (1./T_0)-(1./T) 
-!                                                                       
-!     correct formulation for consistency with LBLRTM:                  
-!                                                                       
-      factor = (1.e+20 /xlosmt) 
-!                                                                       
+!     Appl. Optics, 35, 5911-5917, (1996).
+
+      DATA T_0/ 296./, xlosmt/ 2.68675e+19/
+!
+      xktfac = (1./T_0)-(1./T)
+!
+!     correct formulation for consistency with LBLRTM:
+!
+      factor = (1.e+20 /xlosmt)
+!
 !     A factor of 0.21, the mixing ratio of oxygen, in the Thibault et
-!     al. formulation is not included here.  This factor is in the 
+!     al. formulation is not included here.  This factor is in the
 !     column amount.
-!                                                                       
-      DVC = DVS 
-      V1C = V1ABS-DVC 
-      V2C = V2ABS+DVC 
-!                                                                       
-      IF (V1C.LT.V1S) then 
-         I1 = -1 
-         else 
-         I1 = (V1C-V1S)/DVS + 0.01 
-         end if 
-!                                                                       
-         V1C = V1S + DVS*REAL(I1-1) 
-         I2 = (V2C-V1S)/DVS + 0.01 
-         NPTC = I2-I1+3 
-         IF (NPTC.GT.NPTS) NPTC=NPTS+4 
-         V2C = V1C + DVS*REAL(NPTC-1) 
-!                                                                       
-         do 10 j=1,nptc 
-         i = i1+(j-1) 
-         C(J) = 0. 
-         IF ((I.LT.1).OR.(I.GT.NPTS)) GO TO 10 
-         VJ = V1C+DVC* REAL(J-1) 
-!     the radiation field is removed with 1/vj                          
-!                                                                       
-         c(j) = factor * xo2(i)* exp(xo2t(i)*xktfac) / vj 
-!                                                                       
-   10    end do 
-!                                                                       
-  920    format (f10.2,1p,e12.2,0p,f10.2,1p2e12.2) 
-!                                                                       
-         return 
-      END                                           
-                                                                        
-      BLOCK DATA bo2f 
-                                                                        
-      IMPLICIT REAL*8 (V) 
-                                                                        
+!
+      DVC = DVS
+      V1C = V1ABS-DVC
+      V2C = V2ABS+DVC
+!
+      IF (V1C.LT.V1S) then
+         I1 = -1
+         else
+         I1 = (V1C-V1S)/DVS + 0.01
+         end if
+!
+         V1C = V1S + DVS*REAL(I1-1)
+         I2 = (V2C-V1S)/DVS + 0.01
+         NPTC = I2-I1+3
+         IF (NPTC.GT.NPTS) NPTC=NPTS+4
+         V2C = V1C + DVS*REAL(NPTC-1)
+!
+         do 10 j=1,nptc
+         i = i1+(j-1)
+         C(J) = 0.
+         IF ((I.LT.1).OR.(I.GT.NPTS)) GO TO 10
+         VJ = V1C+DVC* REAL(J-1)
+!     the radiation field is removed with 1/vj
+!
+         c(j) = factor * xo2(i)* exp(xo2t(i)*xktfac) / vj
+!
+   10    end do
+!
+  920    format (f10.2,1p,e12.2,0p,f10.2,1p2e12.2)
+!
+         return
+      END
+
+      BLOCK DATA bo2f
+
+      IMPLICIT REAL*8 (V)
+
       COMMON /o2_f  / V1S,V2S,DVS,NPTS,                                 &
      &          o0001(50),o0051(50),o0101(03),                          &
-     &          ot0001(50),ot0051(50),ot0101(03)                        
-                                                                        
-      DATA V1S,V2S,DVS,NPTS /1340.000,1850.000,   5.000,  103/ 
-                                                                        
+     &          ot0001(50),ot0051(50),ot0101(03)
+
+      DATA V1S,V2S,DVS,NPTS /1340.000,1850.000,   5.000,  103/
+
       DATA o0001/                                                       &
      &      0.000E+00,  9.744E-09,  2.256E-08,  3.538E-08,  4.820E-08,  &
      &      6.100E-08,  7.400E-08,  8.400E-08,  9.600E-08,  1.200E-07,  &
@@ -8946,7 +8946,7 @@ SUBROUTINE CONTNM(JRAD)
      &      1.920E-06,  2.040E-06,  2.150E-06,  2.260E-06,  2.370E-06,  &
      &      2.510E-06,  2.670E-06,  2.850E-06,  3.070E-06,  3.420E-06,  &
      &      3.830E-06,  4.200E-06,  4.450E-06,  4.600E-06,  4.530E-06,  &
-     &      4.280E-06,  3.960E-06,  3.680E-06,  3.480E-06,  3.350E-06/  
+     &      4.280E-06,  3.960E-06,  3.680E-06,  3.480E-06,  3.350E-06/
       DATA o0051/                                                       &
      &      3.290E-06,  3.250E-06,  3.230E-06,  3.230E-06,  3.210E-06,  &
      &      3.190E-06,  3.110E-06,  3.030E-06,  2.910E-06,  2.800E-06,  &
@@ -8957,10 +8957,10 @@ SUBROUTINE CONTNM(JRAD)
      &      2.900E-07,  2.670E-07,  2.420E-07,  2.150E-07,  1.820E-07,  &
      &      1.600E-07,  1.460E-07,  1.280E-07,  1.030E-07,  8.700E-08,  &
      &      8.100E-08,  7.100E-08,  6.400E-08,  5.807E-08,  5.139E-08,  &
-     &      4.496E-08,  3.854E-08,  3.212E-08,  2.569E-08,  1.927E-08/  
+     &      4.496E-08,  3.854E-08,  3.212E-08,  2.569E-08,  1.927E-08/
       DATA o0101/                                                       &
-     &      1.285E-08,  6.423E-09,  0.000E+00/                          
-                                                                        
+     &      1.285E-08,  6.423E-09,  0.000E+00/
+
       DATA ot0001/                                                      &
      &      4.000E+02,  4.000E+02,  4.000E+02,  4.000E+02,  4.000E+02,  &
      &      4.670E+02,  4.000E+02,  3.150E+02,  3.790E+02,  3.680E+02,  &
@@ -8971,7 +8971,7 @@ SUBROUTINE CONTNM(JRAD)
      &     -2.600E+01, -4.700E+01, -6.300E+01, -7.900E+01, -8.800E+01,  &
      &     -8.800E+01, -8.700E+01, -9.000E+01, -9.800E+01, -9.900E+01,  &
      &     -1.090E+02, -1.340E+02, -1.600E+02, -1.670E+02, -1.640E+02,  &
-     &     -1.580E+02, -1.530E+02, -1.510E+02, -1.560E+02, -1.660E+02/  
+     &     -1.580E+02, -1.530E+02, -1.510E+02, -1.560E+02, -1.660E+02/
       DATA ot0051/                                                      &
      &     -1.680E+02, -1.730E+02, -1.700E+02, -1.610E+02, -1.450E+02,  &
      &     -1.260E+02, -1.080E+02, -8.400E+01, -5.900E+01, -2.900E+01,  &
@@ -8982,79 +8982,79 @@ SUBROUTINE CONTNM(JRAD)
      &      3.350E+02,  3.610E+02,  3.780E+02,  3.730E+02,  3.380E+02,  &
      &      3.190E+02,  3.460E+02,  3.220E+02,  2.910E+02,  2.900E+02,  &
      &      3.500E+02,  3.710E+02,  5.040E+02,  4.000E+02,  4.000E+02,  &
-     &      4.000E+02,  4.000E+02,  4.000E+02,  4.000E+02,  4.000E+02/  
+     &      4.000E+02,  4.000E+02,  4.000E+02,  4.000E+02,  4.000E+02/
       DATA ot0101/                                                      &
-     &      4.000E+02,  4.000E+02,  4.000E+02/                          
-                                                                        
-      END                                           
-                                                                        
-!     --------------------------------------------------------------    
-!                                                                       
-      SUBROUTINE O2INF1 (V1C,V2C,DVC,NPTC,C) 
-!                                                                       
-      Use params, ONLY: n_absrb 
-      IMPLICIT REAL*8           (V) 
-!                                                                       
-      COMMON /ABSORB/ V1ABS,V2ABS,DVABS,NPTABS,ABSRB(n_absrb) 
-      DIMENSION C(*) 
-                                                                        
-      COMMON /o2inf1_mate/ V1S,V2S,DVS,NPTS,xo2inf1(483) 
-                                                                        
-!                                                                       
+     &      4.000E+02,  4.000E+02,  4.000E+02/
+
+      END
+
+!     --------------------------------------------------------------
+!
+      SUBROUTINE O2INF1 (V1C,V2C,DVC,NPTC,C)
+!
+      Use params, ONLY: n_absrb
+      IMPLICIT REAL*8           (V)
+!
+      COMMON /ABSORB/ V1ABS,V2ABS,DVABS,NPTABS,ABSRB(n_absrb)
+      DIMENSION C(*)
+
+      COMMON /o2inf1_mate/ V1S,V2S,DVS,NPTS,xo2inf1(483)
+
+!
 !        O2 continuum formulated by Mate et al. over the spectral region
-!        7550-8486 cm-1:  "Absolute Intensities for the O2 1.27 micron  
-!        continuum absorption", B. Mate, C. Lugez, G.T. Fraser, and     
-!        W.J. Lafferty, J. Geophys. Res., 104, 30,585-30,590, 1999.     
-!                                                                       
-!        The units of these continua coefficients are  
-!         1 / (amagat_O2*amagat_air).                                
-!        Also, refer to the paper "Observed  Atmospheric                
-!        Collision Induced Absorption in Near Infrared Oxygen Bands",   
-!        Mlawer, Clough, Brown, Stephen, Landry, Goldman, & Murcray,    
-!        Journal of Geophysical Research (1997).                        
-!   ***********                                                         
-                                                                        
-      DVC = DVS 
-!                                                                       
-      V1C = V1ABS-DVC 
-      V2C = V2ABS+DVC 
-!                                                                       
-      IF (V1C.LT.V1S) then 
-         I1 = -1 
-         else 
-         I1 = (V1C-V1S)/DVS + 0.01 
-         end if 
-!                                                                       
-         V1C = V1S + DVS*REAL(I1-1) 
-         I2 = (V2C-V1S)/DVS + 0.01 
-         NPTC = I2-I1+3 
-         IF (NPTC.GT.NPTS) NPTC=NPTS+4 
-         V2C = V1C + DVS*REAL(NPTC-1) 
-!                                                                       
-         DO 10 J = 1, NPTC 
-            I = I1+(J-1) 
-            C(J) = 0. 
-            IF ((I.LT.1).OR.(I.GT.NPTS)) GO TO 10 
-            vj = v1c + dvc* REAL(j-1) 
-            C(J) = xo2inf1(I)/vj 
-   10    END DO 
-!                                                                       
-         RETURN 
-!                                                                       
-      END                                           
-                                                                        
-!     --------------------------------------------------------------    
-!                                                                       
-      BLOCK DATA bo2inf1 
-                                                                        
-      IMPLICIT REAL*8 (V) 
-                                                                        
+!        7550-8486 cm-1:  "Absolute Intensities for the O2 1.27 micron
+!        continuum absorption", B. Mate, C. Lugez, G.T. Fraser, and
+!        W.J. Lafferty, J. Geophys. Res., 104, 30,585-30,590, 1999.
+!
+!        The units of these continua coefficients are
+!         1 / (amagat_O2*amagat_air).
+!        Also, refer to the paper "Observed  Atmospheric
+!        Collision Induced Absorption in Near Infrared Oxygen Bands",
+!        Mlawer, Clough, Brown, Stephen, Landry, Goldman, & Murcray,
+!        Journal of Geophysical Research (1997).
+!   ***********
+
+      DVC = DVS
+!
+      V1C = V1ABS-DVC
+      V2C = V2ABS+DVC
+!
+      IF (V1C.LT.V1S) then
+         I1 = -1
+         else
+         I1 = (V1C-V1S)/DVS + 0.01
+         end if
+!
+         V1C = V1S + DVS*REAL(I1-1)
+         I2 = (V2C-V1S)/DVS + 0.01
+         NPTC = I2-I1+3
+         IF (NPTC.GT.NPTS) NPTC=NPTS+4
+         V2C = V1C + DVS*REAL(NPTC-1)
+!
+         DO 10 J = 1, NPTC
+            I = I1+(J-1)
+            C(J) = 0.
+            IF ((I.LT.1).OR.(I.GT.NPTS)) GO TO 10
+            vj = v1c + dvc* REAL(j-1)
+            C(J) = xo2inf1(I)/vj
+   10    END DO
+!
+         RETURN
+!
+      END
+
+!     --------------------------------------------------------------
+!
+      BLOCK DATA bo2inf1
+
+      IMPLICIT REAL*8 (V)
+
       COMMON /o2inf1_mate/ V1,V2,DV,NPT,                                &
      &          o0001(50),o0051(50),o0101(50),o0151(50),o0201(50),      &
-     &          o0251(50),o0301(50),o0351(50),o0401(50),o0451(33)       
-                                                                        
-      DATA V1,V2,DV,NPT /7536.000,8500.000,   2.000,  483/ 
-                                                                        
+     &          o0251(50),o0301(50),o0351(50),o0401(50),o0451(33)
+
+      DATA V1,V2,DV,NPT /7536.000,8500.000,   2.000,  483/
+
       DATA o0001/                                                       &
      &      0.000E+00,  4.355E-11,  8.709E-11,  1.742E-10,  3.484E-10,  &
      &      6.968E-10,  1.394E-09,  2.787E-09,  3.561E-09,  3.314E-09,  &
@@ -9065,7 +9065,7 @@ SUBROUTINE CONTNM(JRAD)
      &      5.048E-09,  5.248E-09,  5.473E-09,  4.852E-09,  5.362E-09,  &
      &      6.157E-09,  6.150E-09,  6.347E-09,  6.388E-09,  6.213E-09,  &
      &      6.521E-09,  8.470E-09,  8.236E-09,  8.269E-09,  8.776E-09,  &
-     &      9.122E-09,  9.189E-09,  9.778E-09,  8.433E-09,  9.964E-09/  
+     &      9.122E-09,  9.189E-09,  9.778E-09,  8.433E-09,  9.964E-09/
       DATA o0051/                                                       &
      &      9.827E-09,  1.064E-08,  1.063E-08,  1.031E-08,  1.098E-08,  &
      &      1.156E-08,  1.295E-08,  1.326E-08,  1.467E-08,  1.427E-08,  &
@@ -9076,7 +9076,7 @@ SUBROUTINE CONTNM(JRAD)
      &      2.839E-08,  2.923E-08,  2.893E-08,  2.949E-08,  2.962E-08,  &
      &      3.057E-08,  3.056E-08,  3.364E-08,  3.563E-08,  3.743E-08,  &
      &      3.813E-08,  3.946E-08,  4.082E-08,  4.201E-08,  4.297E-08,  &
-     &      4.528E-08,  4.587E-08,  4.704E-08,  4.962E-08,  5.115E-08/  
+     &      4.528E-08,  4.587E-08,  4.704E-08,  4.962E-08,  5.115E-08/
       DATA o0101/                                                       &
      &      5.341E-08,  5.365E-08,  5.557E-08,  5.891E-08,  6.084E-08,  &
      &      6.270E-08,  6.448E-08,  6.622E-08,  6.939E-08,  7.233E-08,  &
@@ -9087,7 +9087,7 @@ SUBROUTINE CONTNM(JRAD)
      &      1.578E-07,  1.628E-07,  1.685E-07,  1.760E-07,  1.847E-07,  &
      &      1.929E-07,  2.002E-07,  2.070E-07,  2.177E-07,  2.262E-07,  &
      &      2.365E-07,  2.482E-07,  2.587E-07,  2.655E-07,  2.789E-07,  &
-     &      2.925E-07,  3.023E-07,  3.153E-07,  3.296E-07,  3.409E-07/  
+     &      2.925E-07,  3.023E-07,  3.153E-07,  3.296E-07,  3.409E-07/
       DATA o0151/                                                       &
      &      3.532E-07,  3.680E-07,  3.859E-07,  3.951E-07,  4.074E-07,  &
      &      4.210E-07,  4.381E-07,  4.588E-07,  4.792E-07,  4.958E-07,  &
@@ -9098,7 +9098,7 @@ SUBROUTINE CONTNM(JRAD)
      &      7.968E-07,  7.945E-07,  7.861E-07,  7.864E-07,  7.741E-07,  &
      &      7.675E-07,  7.592E-07,  7.400E-07,  7.362E-07,  7.285E-07,  &
      &      7.173E-07,  6.966E-07,  6.744E-07,  6.597E-07,  6.413E-07,  &
-     &      6.265E-07,  6.110E-07,  5.929E-07,  5.717E-07,  5.592E-07/  
+     &      6.265E-07,  6.110E-07,  5.929E-07,  5.717E-07,  5.592E-07/
       DATA o0201/                                                       &
      &      5.411E-07,  5.235E-07,  5.061E-07,  4.845E-07,  4.732E-07,  &
      &      4.593E-07,  4.467E-07,  4.328E-07,  4.161E-07,  4.035E-07,  &
@@ -9109,7 +9109,7 @@ SUBROUTINE CONTNM(JRAD)
      &      2.302E-07,  2.241E-07,  2.191E-07,  2.140E-07,  2.093E-07,  &
      &      2.052E-07,  1.998E-07,  1.963E-07,  1.920E-07,  1.862E-07,  &
      &      1.834E-07,  1.795E-07,  1.745E-07,  1.723E-07,  1.686E-07,  &
-     &      1.658E-07,  1.629E-07,  1.595E-07,  1.558E-07,  1.523E-07/  
+     &      1.658E-07,  1.629E-07,  1.595E-07,  1.558E-07,  1.523E-07/
       DATA o0251/                                                       &
      &      1.498E-07,  1.466E-07,  1.452E-07,  1.431E-07,  1.408E-07,  &
      &      1.381E-07,  1.362E-07,  1.320E-07,  1.298E-07,  1.262E-07,  &
@@ -9120,7 +9120,7 @@ SUBROUTINE CONTNM(JRAD)
      &      8.827E-08,  8.689E-08,  8.433E-08,  8.324E-08,  8.204E-08,  &
      &      8.036E-08,  7.951E-08,  7.804E-08,  7.524E-08,  7.392E-08,  &
      &      7.227E-08,  7.176E-08,  6.975E-08,  6.914E-08,  6.859E-08,  &
-     &      6.664E-08,  6.506E-08,  6.368E-08,  6.262E-08,  6.026E-08/  
+     &      6.664E-08,  6.506E-08,  6.368E-08,  6.262E-08,  6.026E-08/
       DATA o0301/                                                       &
      &      6.002E-08,  5.866E-08,  5.867E-08,  5.641E-08,  5.589E-08,  &
      &      5.499E-08,  5.309E-08,  5.188E-08,  5.139E-08,  4.991E-08,  &
@@ -9131,7 +9131,7 @@ SUBROUTINE CONTNM(JRAD)
      &      2.964E-08,  2.920E-08,  2.888E-08,  2.981E-08,  2.830E-08,  &
      &      2.750E-08,  2.580E-08,  2.528E-08,  2.444E-08,  2.378E-08,  &
      &      2.413E-08,  2.234E-08,  2.316E-08,  2.199E-08,  2.088E-08,  &
-     &      1.998E-08,  1.920E-08,  1.942E-08,  1.859E-08,  1.954E-08/  
+     &      1.998E-08,  1.920E-08,  1.942E-08,  1.859E-08,  1.954E-08/
       DATA o0351/                                                       &
      &      1.955E-08,  1.749E-08,  1.720E-08,  1.702E-08,  1.521E-08,  &
      &      1.589E-08,  1.469E-08,  1.471E-08,  1.543E-08,  1.433E-08,  &
@@ -9142,7 +9142,7 @@ SUBROUTINE CONTNM(JRAD)
      &      8.037E-09,  9.163E-09,  8.098E-09,  8.160E-09,  7.511E-09,  &
      &      7.011E-09,  6.281E-09,  6.502E-09,  7.323E-09,  7.569E-09,  &
      &      5.941E-09,  5.867E-09,  5.676E-09,  4.840E-09,  5.063E-09,  &
-     &      5.207E-09,  4.917E-09,  5.033E-09,  5.356E-09,  3.795E-09/  
+     &      5.207E-09,  4.917E-09,  5.033E-09,  5.356E-09,  3.795E-09/
       DATA o0401/                                                       &
      &      4.983E-09,  4.600E-09,  3.635E-09,  3.099E-09,  2.502E-09,  &
      &      3.823E-09,  3.464E-09,  4.332E-09,  3.612E-09,  3.682E-09,  &
@@ -9153,7 +9153,7 @@ SUBROUTINE CONTNM(JRAD)
      &      5.170E-09,  4.387E-09,  4.148E-09,  4.043E-09,  3.545E-09,  &
      &      3.392E-09,  3.609E-09,  4.635E-09,  3.467E-09,  2.558E-09,  &
      &      3.389E-09,  2.672E-09,  2.468E-09,  1.989E-09,  2.816E-09,  &
-     &      4.023E-09,  2.664E-09,  2.219E-09,  3.169E-09,  1.654E-09/  
+     &      4.023E-09,  2.664E-09,  2.219E-09,  3.169E-09,  1.654E-09/
       DATA o0451/                                                       &
      &      3.189E-09,  2.535E-09,  2.618E-09,  3.265E-09,  2.138E-09,  &
      &      1.822E-09,  2.920E-09,  2.002E-09,  1.300E-09,  3.764E-09,  &
@@ -9161,120 +9161,120 @@ SUBROUTINE CONTNM(JRAD)
      &      2.636E-09,  2.937E-09,  2.939E-09,  2.732E-09,  2.218E-09,  &
      &      1.046E-09,  6.419E-10,  1.842E-09,  1.112E-09,  1.265E-09,  &
      &      4.087E-09,  2.044E-09,  1.022E-09,  5.109E-10,  2.554E-10,  &
-     &      1.277E-10,  6.386E-11,  0.000E+00/                          
-                                                                        
-      END                                           
-                                                                        
-                                                                        
-!     --------------------------------------------------------------    
-!                                                                       
-      SUBROUTINE O2INF2 (V1C,V2C,DVC,NPTC,C) 
-!                                                                       
-      Use params, ONLY: n_absrb 
-      IMPLICIT REAL*8           (V) 
-!                                                                       
-      COMMON /ABSORB/ V1ABS,V2ABS,DVABS,NPTABS,ABSRB(n_absrb) 
-      DIMENSION C(*) 
-!                                                                       
-      DATA V1_osc /9375./, HW1 /58.96/, V2_osc /9439./, HW2 /45.04/ 
-      DATA S1 /1.166E-04/, S2 /3.086E-05/ 
-!                                                                       
-      V1S = 9100. 
-      v2s = 11000. 
-      DVS = 2. 
-      DVC = DVS 
-!                                                                       
-      V1C = V1ABS-DVC 
-      V2C = V2ABS+DVC 
-!                                                                       
-! The following lines prevent a possible problem that can only occur if 
-! v2abs-v1abs >> 2000 cm-1 (i.e. in the standalone continuum code).     
-      if (v1c .lt. v1s) v1c = v1s - 2. * dvs 
-      if (v2c .gt. v2s) v2c = v2s + 2. * dvs 
-      NPTC = (v2c-v1c)/dvc + 3.01 
-      V2C = V1C+DVc* REAL(NPTC-1) 
-!                                                                       
-      DO 10 J = 1, NPTC 
-         C(J) = 0. 
-         VJ = V1C+DVC* REAL(J-1) 
-         IF ((Vj.gt.v1s) .and. (Vj.lt.v2s)) then 
-            DV1 = Vj - V1_osc 
-            DV2 = Vj - V2_osc 
-            IF (DV1 .LT. 0.0) THEN 
-               DAMP1 = EXP (DV1 / 176.1) 
-            ELSE 
-               DAMP1 = 1.0 
-            ENDIF 
-            IF (DV2 .LT. 0.0) THEN 
-               DAMP2 = EXP (DV2 / 176.1) 
-            ELSE 
-               DAMP2 = 1.0 
-            ENDIF 
+     &      1.277E-10,  6.386E-11,  0.000E+00/
+
+      END
+
+
+!     --------------------------------------------------------------
+!
+      SUBROUTINE O2INF2 (V1C,V2C,DVC,NPTC,C)
+!
+      Use params, ONLY: n_absrb
+      IMPLICIT REAL*8           (V)
+!
+      COMMON /ABSORB/ V1ABS,V2ABS,DVABS,NPTABS,ABSRB(n_absrb)
+      DIMENSION C(*)
+!
+      DATA V1_osc /9375./, HW1 /58.96/, V2_osc /9439./, HW2 /45.04/
+      DATA S1 /1.166E-04/, S2 /3.086E-05/
+!
+      V1S = 9100.
+      v2s = 11000.
+      DVS = 2.
+      DVC = DVS
+!
+      V1C = V1ABS-DVC
+      V2C = V2ABS+DVC
+!
+! The following lines prevent a possible problem that can only occur if
+! v2abs-v1abs >> 2000 cm-1 (i.e. in the standalone continuum code).
+      if (v1c .lt. v1s) v1c = v1s - 2. * dvs
+      if (v2c .gt. v2s) v2c = v2s + 2. * dvs
+      NPTC = (v2c-v1c)/dvc + 3.01
+      V2C = V1C+DVc* REAL(NPTC-1)
+!
+      DO 10 J = 1, NPTC
+         C(J) = 0.
+         VJ = V1C+DVC* REAL(J-1)
+         IF ((Vj.gt.v1s) .and. (Vj.lt.v2s)) then
+            DV1 = Vj - V1_osc
+            DV2 = Vj - V2_osc
+            IF (DV1 .LT. 0.0) THEN
+               DAMP1 = EXP (DV1 / 176.1)
+            ELSE
+               DAMP1 = 1.0
+            ENDIF
+            IF (DV2 .LT. 0.0) THEN
+               DAMP2 = EXP (DV2 / 176.1)
+            ELSE
+               DAMP2 = 1.0
+            ENDIF
             O2INF = 0.31831 * (((S1 * DAMP1 / HW1)/(1. + (DV1/HW1)**2)) &
-            + ((S2 * DAMP2 / HW2)/(1. + (DV2/HW2)**2))) * 1.054         
-            C(J) = O2INF/VJ 
-            endif 
-   10    END DO 
-!                                                                       
-         RETURN 
-!                                                                       
-      END                                           
-!     --------------------------------------------------------------    
-!                                                                       
-      SUBROUTINE O2INF3 (V1C,V2C,DVC,NPTC,C) 
-!                                                                       
-      Use params, ONLY: n_absrb 
-      IMPLICIT REAL*8           (V) 
-!                                                                       
-      COMMON /ABSORB/ V1ABS,V2ABS,DVABS,NPTABS,ABSRB(n_absrb) 
-      DIMENSION C(*) 
-                                                                        
-      COMMON /o2inf3_aband/ V1S,V2S,DVS,NPTS,xo2inf3(240) 
-                                                                        
-!                                                                       
+            + ((S2 * DAMP2 / HW2)/(1. + (DV2/HW2)**2))) * 1.054
+            C(J) = O2INF/VJ
+            endif
+   10    END DO
+!
+         RETURN
+!
+      END
+!     --------------------------------------------------------------
+!
+      SUBROUTINE O2INF3 (V1C,V2C,DVC,NPTC,C)
+!
+      Use params, ONLY: n_absrb
+      IMPLICIT REAL*8           (V)
+!
+      COMMON /ABSORB/ V1ABS,V2ABS,DVABS,NPTABS,ABSRB(n_absrb)
+      DIMENSION C(*)
+
+      COMMON /o2inf3_aband/ V1S,V2S,DVS,NPTS,xo2inf3(240)
+
+!
 !        O2 A-band continuum formulated by Mlawer and Gombos based on
-!        solar FTS measurements (TCCON at SGP).  Spectral range is 
+!        solar FTS measurements (TCCON at SGP).  Spectral range is
 !        12990.5 - 13229.5 cm-1.
-!         
-!   ***********                                                         
-                                                                        
-      DVC = DVS 
-!                                                                       
-      V1C = V1ABS-DVC 
-      V2C = V2ABS+DVC 
-!                                                                       
-      IF (V1C.LT.V1S) then 
-         I1 = -1 
-         else 
-         I1 = (V1C-V1S)/DVS + 0.01 
-         end if 
-!                                                                       
-         V1C = V1S + DVS*REAL(I1-1) 
-         I2 = (V2C-V1S)/DVS + 0.01 
-         NPTC = I2-I1+3 
-         IF (NPTC.GT.NPTS) NPTC=NPTS+4 
-         V2C = V1C + DVS*REAL(NPTC-1) 
-!                                                                       
-         DO 10 J = 1, NPTC 
-            I = I1+(J-1) 
-            C(J) = 0. 
-            IF ((I.LT.1).OR.(I.GT.NPTS)) GO TO 10 
-            vj = v1c + dvc* REAL(j-1) 
-            C(J) = xo2inf3(I)/vj 
-   10    END DO 
-!                                                                       
-         RETURN 
-!                                                                       
-      END                                           
-!     --------------------------------------------------------------    
-!                                                                       
-      BLOCK DATA bo2inf3 
-                                                                        
-      IMPLICIT REAL*8 (V) 
-                                                                        
-      COMMON /o2inf3_aband/ V1,V2,DV,NPT,x02inf3(240)                                    
-                                                                        
-      DATA V1,V2,DV,NPT /12990.5, 13229.5, 1.0, 240/ 
+!
+!   ***********
+
+      DVC = DVS
+!
+      V1C = V1ABS-DVC
+      V2C = V2ABS+DVC
+!
+      IF (V1C.LT.V1S) then
+         I1 = -1
+         else
+         I1 = (V1C-V1S)/DVS + 0.01
+         end if
+!
+         V1C = V1S + DVS*REAL(I1-1)
+         I2 = (V2C-V1S)/DVS + 0.01
+         NPTC = I2-I1+3
+         IF (NPTC.GT.NPTS) NPTC=NPTS+4
+         V2C = V1C + DVS*REAL(NPTC-1)
+!
+         DO 10 J = 1, NPTC
+            I = I1+(J-1)
+            C(J) = 0.
+            IF ((I.LT.1).OR.(I.GT.NPTS)) GO TO 10
+            vj = v1c + dvc* REAL(j-1)
+            C(J) = xo2inf3(I)/vj
+   10    END DO
+!
+         RETURN
+!
+      END
+!     --------------------------------------------------------------
+!
+      BLOCK DATA bo2inf3
+
+      IMPLICIT REAL*8 (V)
+
+      COMMON /o2inf3_aband/ V1,V2,DV,NPT,x02inf3(240)
+
+      DATA V1,V2,DV,NPT /12990.5, 13229.5, 1.0, 240/
 
       DATA x02inf3/                                                     &
      &      0.000E+00,  0.000E+00,  0.000E+00,  0.000E+00,  0.000E+00,  &
@@ -9302,7 +9302,7 @@ SUBROUTINE CONTNM(JRAD)
      &      1.788E-07,  1.795E-07,  1.800E-07,  1.798E-07,  1.793E-07,  &
      &      1.784E-07,  1.770E-07,  1.748E-07,  1.725E-07,  1.700E-07,  &
      &      1.670E-07,  1.635E-07,  1.597E-07,  1.550E-07,  1.480E-07,  &
-     &      1.390E-07,  1.300E-07,  1.107E-07,  9.830E-08,  9.200E-08,  & 
+     &      1.390E-07,  1.300E-07,  1.107E-07,  9.830E-08,  9.200E-08,  &
      &      8.700E-08,  8.900E-08,  9.900E-08,  1.080E-07,  1.240E-07,  &
      &      1.700E-07,  2.400E-07,  2.590E-07,  2.630E-07,  2.650E-07,  &
      &      2.650E-07,  2.610E-07,  2.520E-07,  2.400E-07,  2.280E-07,  &
@@ -9324,75 +9324,75 @@ SUBROUTINE CONTNM(JRAD)
      &      7.460E-09,  7.010E-09,  6.560E-09,  6.110E-09,  5.660E-09,  &
      &      5.210E-09,  4.760E-09,  4.310E-09,  3.860E-09,  3.410E-09,  &
      &      2.960E-09,  2.510E-09,  2.060E-09,  1.610E-09,  1.160E-09,  &
-     &      7.100E-10,  2.600E-10,  0.000E+00,  0.000E+00,  0.000E+00/  
-                                                                        
-      END                                           
-                                                                                                                                                
-!     --------------------------------------------------------------    
-!                                                                       
-      SUBROUTINE O2_vis (V1C,V2C,DVC,NPTC,C) 
-!                                                                       
-      Use params, ONLY: n_absrb 
-      IMPLICIT REAL*8           (V) 
-!                                                                       
-      COMMON /ABSORB/ V1ABS,V2ABS,DVABS,NPTABS,ABSRB(n_absrb) 
-      DIMENSION C(*) 
-      COMMON /o2_o2_vis/ V1s,V2s,DVs,NPTs, s(1488) 
-                                                                        
-      DATA XLOSMT / 2.68675E+19 / 
-!                                                                       
-!        O2 continuum formulated by Greenblatt et al. over the spectral 
-!        region 8797-29870 cm-1:  "Absorption Coefficients of Oxygen 
-!        Between 330 and 1140 nm, G.D. Greenblatt, J.J. Orlando, J.B. 
-!        Burkholder and A.R. Ravishabkara,  J. Geophys. Res., 95, 
+     &      7.100E-10,  2.600E-10,  0.000E+00,  0.000E+00,  0.000E+00/
+
+      END
+
+!     --------------------------------------------------------------
+!
+      SUBROUTINE O2_vis (V1C,V2C,DVC,NPTC,C)
+!
+      Use params, ONLY: n_absrb
+      IMPLICIT REAL*8           (V)
+!
+      COMMON /ABSORB/ V1ABS,V2ABS,DVABS,NPTABS,ABSRB(n_absrb)
+      DIMENSION C(*)
+      COMMON /o2_o2_vis/ V1s,V2s,DVs,NPTs, s(1488)
+
+      DATA XLOSMT / 2.68675E+19 /
+!
+!        O2 continuum formulated by Greenblatt et al. over the spectral
+!        region 8797-29870 cm-1:  "Absorption Coefficients of Oxygen
+!        Between 330 and 1140 nm, G.D. Greenblatt, J.J. Orlando, J.B.
+!        Burkholder and A.R. Ravishabkara,  J. Geophys. Res., 95,
 !        18577-18582, 1990.
-!                                                                       
-!        The units conversion  is to (cm^2/molec)/atm(o2)               
-!                                                                       
+!
+!        The units conversion  is to (cm^2/molec)/atm(o2)
+!
 !      These are the conditions reported in the paper by Greenblatt et
-!      al. for the spectrum of Fig. 1.                                           
-!                                                                       
-!     conditions:  55 atm.; 296 K; 89.5 cm path                         
-!                                                                       
-      factor = 1./((xlosmt*1.e-20*(55.*273./296.)**2)*89.5) 
-!                                                                       
-      DVC = DVS 
-!                                                                       
-      V1C = V1ABS-DVC 
-      V2C = V2ABS+DVC 
-!                                                                       
-      IF (V1C.LT.V1S) then 
-         I1 = -1 
-         else 
-         I1 = (V1C-V1S)/DVS + 0.01 
-         end if 
-!                                                                       
-         V1C = V1S + DVS*REAL(I1-1) 
-         I2 = (V2C-V1S)/DVS + 0.01 
-         NPTC = I2-I1+3 
-         IF (NPTC.GT.NPTS) NPTC=NPTS+4 
-         V2C = V1C + DVS*REAL(NPTC-1) 
-!                                                                       
-         DO 10 J = 1, NPTC 
-            I = I1+(J-1) 
-            C(J) = 0. 
-            IF ((I.LT.1).OR.(I.GT.NPTS)) GO TO 10 
-            vj = v1c + dvc* REAL(j-1) 
-!                                                                       
-            C(J) = factor*S(I)/vj 
-                                                                        
-   10    END DO 
-!                                                                       
-         RETURN 
-!                                                                       
-      END                                           
-!                                                                       
-!     --------------------------------------------------------------    
-!                                                                       
-      BLOCK DATA bo2in_vis 
-                                                                        
-      IMPLICIT REAL*8 (V) 
-                                                                        
+!      al. for the spectrum of Fig. 1.
+!
+!     conditions:  55 atm.; 296 K; 89.5 cm path
+!
+      factor = 1./((xlosmt*1.e-20*(55.*273./296.)**2)*89.5)
+!
+      DVC = DVS
+!
+      V1C = V1ABS-DVC
+      V2C = V2ABS+DVC
+!
+      IF (V1C.LT.V1S) then
+         I1 = -1
+         else
+         I1 = (V1C-V1S)/DVS + 0.01
+         end if
+!
+         V1C = V1S + DVS*REAL(I1-1)
+         I2 = (V2C-V1S)/DVS + 0.01
+         NPTC = I2-I1+3
+         IF (NPTC.GT.NPTS) NPTC=NPTS+4
+         V2C = V1C + DVS*REAL(NPTC-1)
+!
+         DO 10 J = 1, NPTC
+            I = I1+(J-1)
+            C(J) = 0.
+            IF ((I.LT.1).OR.(I.GT.NPTS)) GO TO 10
+            vj = v1c + dvc* REAL(j-1)
+!
+            C(J) = factor*S(I)/vj
+
+   10    END DO
+!
+         RETURN
+!
+      END
+!
+!     --------------------------------------------------------------
+!
+      BLOCK DATA bo2in_vis
+
+      IMPLICIT REAL*8 (V)
+
       COMMON /o2_o2_vis/ V1,V2,DV,NPT,                                  &
      &  o2vis0001(50),o2vis0051(50),o2vis0101(50),o2vis0151(50),        &
      &  o2vis0201(50),o2vis0251(50),o2vis0301(50),o2vis0351(50),        &
@@ -9401,10 +9401,10 @@ SUBROUTINE CONTNM(JRAD)
      &  o2vis0801(50),o2vis0851(50),o2vis0901(50),o2vis0951(50),        &
      &  o2vis1001(50),o2vis1051(50),o2vis1101(50),o2vis1151(50),        &
      &  o2vis1201(50),o2vis1251(50),o2vis1301(50),o2vis1351(50),        &
-     &  o2vis1401(50),o2vis1451(38)                                     
-                                                                        
-      DATA V1,V2,DV,NPT /15000.0, 29870.0, 10.0,  1488/ 
-                                                                        
+     &  o2vis1401(50),o2vis1451(38)
+
+      DATA V1,V2,DV,NPT /15000.0, 29870.0, 10.0,  1488/
+
       DATA o2vis0001/                                                   &
      &      0.00E+00,   0.00E+00,   0.00E+00,   0.00E+00,   0.00E+00,   &
      &      0.00E+00,   0.00E+00,   0.00E+00,   0.00E+00,   0.00E+00,   &
@@ -9415,7 +9415,7 @@ SUBROUTINE CONTNM(JRAD)
      &      1.00E-03,   1.00E-03,   1.00E-03,   1.00E-03,   1.00E-03,   &
      &      2.00E-03,   2.00E-03,   2.00E-03,   2.00E-03,   2.00E-03,   &
      &      2.49E-03,   3.00E-03,   3.00E-03,   3.00E-03,   4.00E-03,   &
-     &      4.00E-03,   5.00E-03,   5.00E-03,   6.00E-03,   7.00E-03/   
+     &      4.00E-03,   5.00E-03,   5.00E-03,   6.00E-03,   7.00E-03/
       DATA o2vis0051/                                                   &
      &      8.00E-03,   9.00E-03,   1.00E-02,   1.10E-02,   1.25E-02,   &
      &      1.46E-02,   1.60E-02,   1.80E-02,   2.00E-02,   2.23E-02,   &
@@ -9426,7 +9426,7 @@ SUBROUTINE CONTNM(JRAD)
      &      1.07E-01,   1.10E-01,   1.14E-01,   1.16E-01,   1.18E-01,   &
      &      1.19E-01,   1.20E-01,   1.21E-01,   1.20E-01,   1.20E-01,   &
      &      1.19E-01,   1.17E-01,   1.16E-01,   1.13E-01,   1.10E-01,   &
-     &      1.07E-01,   1.03E-01,   9.97E-02,   9.58E-02,   9.15E-02/   
+     &      1.07E-01,   1.03E-01,   9.97E-02,   9.58E-02,   9.15E-02/
       DATA o2vis0101/                                                   &
      &      8.80E-02,   8.41E-02,   7.94E-02,   7.53E-02,   7.17E-02,   &
      &      6.83E-02,   6.43E-02,   6.08E-02,   5.69E-02,   5.31E-02,   &
@@ -9437,7 +9437,7 @@ SUBROUTINE CONTNM(JRAD)
      &      1.65E-02,   1.50E-02,   1.40E-02,   1.30E-02,   1.30E-02,   &
      &      1.20E-02,   1.10E-02,   1.10E-02,   1.00E-02,   1.00E-02,   &
      &      9.00E-03,   9.00E-03,   9.00E-03,   8.00E-03,   8.00E-03,   &
-     &      7.01E-03,   7.00E-03,   7.00E-03,   6.98E-03,   6.00E-03/   
+     &      7.01E-03,   7.00E-03,   7.00E-03,   6.98E-03,   6.00E-03/
       DATA o2vis0151/                                                   &
      &      5.80E-03,   5.00E-03,   5.00E-03,   5.00E-03,   4.00E-03,   &
      &      4.00E-03,   4.00E-03,   4.00E-03,   4.00E-03,   4.00E-03,   &
@@ -9448,7 +9448,7 @@ SUBROUTINE CONTNM(JRAD)
      &      3.00E-03,   3.00E-03,   3.00E-03,   3.00E-03,   3.00E-03,   &
      &      4.00E-03,   4.00E-03,   4.00E-03,   4.00E-03,   5.00E-03,   &
      &      5.00E-03,   6.00E-03,   6.00E-03,   7.00E-03,   7.41E-03,   &
-     &      8.15E-03,   9.00E-03,   1.01E-02,   1.10E-02,   1.20E-02/   
+     &      8.15E-03,   9.00E-03,   1.01E-02,   1.10E-02,   1.20E-02/
       DATA o2vis0201/                                                   &
      &      1.40E-02,   1.50E-02,   1.70E-02,   1.85E-02,   1.97E-02,   &
      &      2.24E-02,   2.47E-02,   2.74E-02,   3.06E-02,   3.36E-02,   &
@@ -9459,7 +9459,7 @@ SUBROUTINE CONTNM(JRAD)
      &      1.82E-01,   1.84E-01,   1.85E-01,   1.84E-01,   1.83E-01,   &
      &      1.81E-01,   1.80E-01,   1.77E-01,   1.74E-01,   1.71E-01,   &
      &      1.68E-01,   1.64E-01,   1.60E-01,   1.55E-01,   1.51E-01,   &
-     &      1.46E-01,   1.40E-01,   1.36E-01,   1.30E-01,   1.25E-01/   
+     &      1.46E-01,   1.40E-01,   1.36E-01,   1.30E-01,   1.25E-01/
       DATA o2vis0251/                                                   &
      &      1.20E-01,   1.14E-01,   1.09E-01,   1.05E-01,   9.93E-02,   &
      &      9.30E-02,   8.88E-02,   8.38E-02,   7.94E-02,   7.51E-02,   &
@@ -9470,7 +9470,7 @@ SUBROUTINE CONTNM(JRAD)
      &      2.25E-02,   2.10E-02,   2.00E-02,   1.90E-02,   1.80E-02,   &
      &      1.76E-02,   1.70E-02,   1.60E-02,   1.50E-02,   1.49E-02,   &
      &      1.40E-02,   1.30E-02,   1.30E-02,   1.22E-02,   1.20E-02,   &
-     &      1.20E-02,   1.10E-02,   1.10E-02,   1.10E-02,   1.00E-02/   
+     &      1.20E-02,   1.10E-02,   1.10E-02,   1.10E-02,   1.00E-02/
       DATA o2vis0301/                                                   &
      &      1.00E-02,   1.00E-02,   1.00E-02,   9.16E-03,   9.00E-03,   &
      &      9.00E-03,   9.00E-03,   9.00E-03,   8.49E-03,   8.00E-03,   &
@@ -9481,7 +9481,7 @@ SUBROUTINE CONTNM(JRAD)
      &      7.00E-03,   7.00E-03,   7.00E-03,   7.00E-03,   7.00E-03,   &
      &      7.00E-03,   7.00E-03,   7.00E-03,   7.00E-03,   7.00E-03,   &
      &      7.00E-03,   7.00E-03,   7.00E-03,   7.00E-03,   7.00E-03,   &
-     &      7.00E-03,   7.00E-03,   8.00E-03,   8.00E-03,   8.00E-03/   
+     &      7.00E-03,   7.00E-03,   8.00E-03,   8.00E-03,   8.00E-03/
       DATA o2vis0351/                                                   &
      &      8.00E-03,   8.00E-03,   8.00E-03,   9.00E-03,   9.00E-03,   &
      &      9.00E-03,   9.07E-03,   1.00E-02,   1.00E-02,   1.00E-02,   &
@@ -9492,7 +9492,7 @@ SUBROUTINE CONTNM(JRAD)
      &      2.30E-02,   2.30E-02,   2.30E-02,   2.20E-02,   2.20E-02,   &
      &      2.20E-02,   2.10E-02,   2.10E-02,   2.00E-02,   2.00E-02,   &
      &      1.90E-02,   1.90E-02,   1.82E-02,   1.80E-02,   1.74E-02,   &
-     &      1.70E-02,   1.63E-02,   1.60E-02,   1.50E-02,   1.49E-02/   
+     &      1.70E-02,   1.63E-02,   1.60E-02,   1.50E-02,   1.49E-02/
       DATA o2vis0401/                                                   &
      &      1.40E-02,   1.37E-02,   1.30E-02,   1.30E-02,   1.21E-02,   &
      &      1.20E-02,   1.13E-02,   1.09E-02,   1.00E-02,   9.34E-03,   &
@@ -9503,7 +9503,7 @@ SUBROUTINE CONTNM(JRAD)
      &      3.17E-03,   3.00E-03,   3.00E-03,   3.00E-03,   3.00E-03,   &
      &      3.00E-03,   3.00E-03,   3.00E-03,   3.00E-03,   3.00E-03,   &
      &      3.00E-03,   3.00E-03,   3.00E-03,   2.00E-03,   2.00E-03,   &
-     &      2.00E-03,   2.00E-03,   2.00E-03,   2.00E-03,   2.00E-03/   
+     &      2.00E-03,   2.00E-03,   2.00E-03,   2.00E-03,   2.00E-03/
       DATA o2vis0451/                                                   &
      &      2.00E-03,   2.00E-03,   2.00E-03,   2.00E-03,   2.00E-03,   &
      &      2.00E-03,   2.00E-03,   2.00E-03,   2.00E-03,   2.00E-03,   &
@@ -9514,7 +9514,7 @@ SUBROUTINE CONTNM(JRAD)
      &      1.00E-03,   1.00E-03,   1.00E-03,   1.00E-03,   1.00E-03,   &
      &      1.00E-03,   1.00E-03,   1.00E-03,   1.00E-03,   1.00E-03,   &
      &      1.00E-03,   1.00E-03,   1.00E-03,   1.00E-03,   1.00E-03,   &
-     &      1.00E-03,   1.00E-03,   1.00E-03,   1.00E-03,   1.00E-03/   
+     &      1.00E-03,   1.00E-03,   1.00E-03,   1.00E-03,   1.00E-03/
       DATA o2vis0501/                                                   &
      &      1.00E-03,   1.00E-03,   1.00E-03,   1.00E-03,   1.00E-03,   &
      &      1.00E-03,   1.00E-03,   1.00E-03,   1.00E-03,   1.00E-03,   &
@@ -9525,7 +9525,7 @@ SUBROUTINE CONTNM(JRAD)
      &      1.05E-03,   1.00E-03,   1.00E-03,   1.00E-03,   1.00E-03,   &
      &      1.00E-03,   1.00E-03,   1.00E-03,   1.00E-03,   1.00E-03,   &
      &      1.00E-03,   1.00E-03,   1.00E-03,   1.00E-03,   1.00E-03,   &
-     &      1.00E-03,   1.00E-03,   1.00E-03,   1.00E-03,   1.00E-03/   
+     &      1.00E-03,   1.00E-03,   1.00E-03,   1.00E-03,   1.00E-03/
       DATA o2vis0551/                                                   &
      &      1.00E-03,   1.00E-03,   1.71E-03,   2.00E-03,   2.00E-03,   &
      &      2.00E-03,   2.00E-03,   2.00E-03,   3.00E-03,   3.00E-03,   &
@@ -9536,7 +9536,7 @@ SUBROUTINE CONTNM(JRAD)
      &      4.13E-02,   4.49E-02,   4.89E-02,   5.38E-02,   5.98E-02,   &
      &      6.45E-02,   6.94E-02,   7.41E-02,   8.01E-02,   8.51E-02,   &
      &      9.00E-02,   9.49E-02,   9.88E-02,   1.01E-01,   1.04E-01,   &
-     &      1.07E-01,   1.07E-01,   1.06E-01,   1.03E-01,   1.00E-01/   
+     &      1.07E-01,   1.07E-01,   1.06E-01,   1.03E-01,   1.00E-01/
       DATA o2vis0601/                                                   &
      &      9.66E-02,   8.93E-02,   8.35E-02,   7.92E-02,   7.33E-02,   &
      &      6.84E-02,   6.40E-02,   5.91E-02,   5.57E-02,   5.26E-02,   &
@@ -9547,7 +9547,7 @@ SUBROUTINE CONTNM(JRAD)
      &      1.44E-02,   1.36E-02,   1.30E-02,   1.16E-02,   1.10E-02,   &
      &      1.00E-02,   1.00E-02,   9.00E-03,   8.27E-03,   8.00E-03,   &
      &      7.45E-03,   7.00E-03,   7.00E-03,   6.18E-03,   6.00E-03,   &
-     &      6.00E-03,   5.00E-03,   5.00E-03,   5.00E-03,   5.00E-03/   
+     &      6.00E-03,   5.00E-03,   5.00E-03,   5.00E-03,   5.00E-03/
       DATA o2vis0651/                                                   &
      &      4.00E-03,   4.00E-03,   4.00E-03,   4.00E-03,   4.00E-03,   &
      &      4.00E-03,   3.00E-03,   3.00E-03,   3.00E-03,   3.00E-03,   &
@@ -9558,7 +9558,7 @@ SUBROUTINE CONTNM(JRAD)
      &      2.00E-03,   2.00E-03,   2.00E-03,   2.00E-03,   2.00E-03,   &
      &      2.00E-03,   1.28E-03,   2.00E-03,   2.00E-03,   2.00E-03,   &
      &      2.00E-03,   2.00E-03,   2.00E-03,   2.00E-03,   2.00E-03,   &
-     &      2.00E-03,   2.00E-03,   2.00E-03,   2.00E-03,   2.00E-03/   
+     &      2.00E-03,   2.00E-03,   2.00E-03,   2.00E-03,   2.00E-03/
       DATA o2vis0701/                                                   &
      &      2.00E-03,   2.00E-03,   2.00E-03,   2.00E-03,   2.00E-03,   &
      &      2.00E-03,   2.00E-03,   2.00E-03,   2.00E-03,   2.00E-03,   &
@@ -9569,7 +9569,7 @@ SUBROUTINE CONTNM(JRAD)
      &      7.35E-03,   8.00E-03,   8.36E-03,   9.00E-03,   9.00E-03,   &
      &      1.00E-02,   1.00E-02,   1.00E-02,   1.00E-02,   1.00E-02,   &
      &      1.00E-02,   1.00E-02,   9.65E-03,   9.00E-03,   9.00E-03,   &
-     &      8.00E-03,   8.00E-03,   7.69E-03,   7.00E-03,   7.00E-03/   
+     &      8.00E-03,   8.00E-03,   7.69E-03,   7.00E-03,   7.00E-03/
       DATA o2vis0751/                                                   &
      &      6.44E-03,   6.00E-03,   6.00E-03,   6.00E-03,   5.00E-03,   &
      &      5.00E-03,   5.00E-03,   5.00E-03,   5.00E-03,   4.00E-03,   &
@@ -9580,7 +9580,7 @@ SUBROUTINE CONTNM(JRAD)
      &      2.00E-03,   2.00E-03,   2.00E-03,   2.00E-03,   2.00E-03,   &
      &      2.00E-03,   2.00E-03,   2.00E-03,   2.00E-03,   2.00E-03,   &
      &      2.00E-03,   2.00E-03,   2.00E-03,   2.00E-03,   2.00E-03,   &
-     &      2.00E-03,   2.00E-03,   2.00E-03,   2.00E-03,   2.00E-03/   
+     &      2.00E-03,   2.00E-03,   2.00E-03,   2.00E-03,   2.00E-03/
       DATA o2vis0801/                                                   &
      &      2.00E-03,   2.00E-03,   2.00E-03,   2.00E-03,   2.00E-03,   &
      &      2.00E-03,   2.00E-03,   2.00E-03,   2.00E-03,   2.00E-03,   &
@@ -9591,7 +9591,7 @@ SUBROUTINE CONTNM(JRAD)
      &      1.00E-03,   1.00E-03,   1.00E-03,   1.00E-03,   1.00E-03,   &
      &      1.00E-03,   1.00E-03,   1.00E-03,   1.00E-03,   1.00E-03,   &
      &      1.00E-03,   1.00E-03,   1.00E-03,   1.00E-03,   1.00E-03,   &
-     &      1.00E-03,   1.00E-03,   1.00E-03,   1.00E-03,   1.00E-03/   
+     &      1.00E-03,   1.00E-03,   1.00E-03,   1.00E-03,   1.00E-03/
       DATA o2vis0851/                                                   &
      &      1.00E-03,   1.00E-03,   1.00E-03,   1.00E-03,   1.00E-03,   &
      &      1.00E-03,   1.00E-03,   1.00E-03,   1.00E-03,   1.00E-03,   &
@@ -9602,7 +9602,7 @@ SUBROUTINE CONTNM(JRAD)
      &      1.00E-03,   1.00E-03,   1.00E-03,   1.00E-03,   1.00E-03,   &
      &      1.00E-03,   1.00E-03,   1.00E-03,   1.00E-03,   1.00E-03,   &
      &      1.00E-03,   1.00E-03,   1.00E-03,   1.00E-03,   1.00E-03,   &
-     &      1.00E-03,   1.00E-03,   1.00E-03,   1.00E-03,   1.00E-03/   
+     &      1.00E-03,   1.00E-03,   1.00E-03,   1.00E-03,   1.00E-03/
       DATA o2vis0901/                                                   &
      &      1.00E-03,   1.00E-03,   1.00E-03,   1.00E-03,   1.00E-03,   &
      &      1.00E-03,   1.00E-03,   1.00E-03,   1.00E-03,   5.50E-04,   &
@@ -9613,7 +9613,7 @@ SUBROUTINE CONTNM(JRAD)
      &      0.00E+00,   0.00E+00,   0.00E+00,   0.00E+00,   0.00E+00,   &
      &      0.00E+00,   0.00E+00,   0.00E+00,   0.00E+00,   0.00E+00,   &
      &      0.00E+00,   0.00E+00,   0.00E+00,   0.00E+00,   0.00E+00,   &
-     &      0.00E+00,   0.00E+00,   0.00E+00,   0.00E+00,   0.00E+00/   
+     &      0.00E+00,   0.00E+00,   0.00E+00,   0.00E+00,   0.00E+00/
       DATA o2vis0951/                                                   &
      &      0.00E+00,   0.00E+00,   0.00E+00,   0.00E+00,   0.00E+00,   &
      &      0.00E+00,   0.00E+00,   0.00E+00,   1.34E-04,   1.00E-03,   &
@@ -9624,7 +9624,7 @@ SUBROUTINE CONTNM(JRAD)
      &      1.00E-03,   1.00E-03,   1.00E-03,   1.00E-03,   1.00E-03,   &
      &      1.00E-03,   1.00E-03,   1.00E-03,   1.00E-03,   1.00E-03,   &
      &      1.00E-03,   7.65E-05,   1.00E-03,   1.00E-03,   1.00E-03,   &
-     &      1.00E-03,   1.00E-03,   1.00E-03,   1.00E-03,   1.00E-03/   
+     &      1.00E-03,   1.00E-03,   1.00E-03,   1.00E-03,   1.00E-03/
       DATA o2vis1001/                                                   &
      &      1.00E-03,   1.20E-04,   0.00E+00,   0.00E+00,   0.00E+00,   &
      &      0.00E+00,   0.00E+00,   0.00E+00,   0.00E+00,   0.00E+00,   &
@@ -9635,7 +9635,7 @@ SUBROUTINE CONTNM(JRAD)
      &      0.00E+00,   0.00E+00,   0.00E+00,   0.00E+00,   0.00E+00,   &
      &      0.00E+00,   0.00E+00,   0.00E+00,   0.00E+00,   0.00E+00,   &
      &      0.00E+00,   0.00E+00,   0.00E+00,   0.00E+00,   0.00E+00,   &
-     &      0.00E+00,   0.00E+00,   0.00E+00,   0.00E+00,   0.00E+00/   
+     &      0.00E+00,   0.00E+00,   0.00E+00,   0.00E+00,   0.00E+00/
       DATA o2vis1051/                                                   &
      &      0.00E+00,   0.00E+00,   0.00E+00,   0.00E+00,   0.00E+00,   &
      &      0.00E+00,   6.09E-04,   3.47E-04,   6.97E-04,   2.60E-04,   &
@@ -9646,7 +9646,7 @@ SUBROUTINE CONTNM(JRAD)
      &      1.00E-03,   1.00E-03,   1.00E-03,   1.00E-03,   1.00E-03,   &
      &      1.00E-03,   1.00E-03,   1.00E-03,   1.00E-03,   1.00E-03,   &
      &      1.00E-03,   1.68E-03,   2.00E-03,   2.00E-03,   2.00E-03,   &
-     &      2.00E-03,   2.76E-03,   3.00E-03,   3.00E-03,   3.00E-03/   
+     &      2.00E-03,   2.76E-03,   3.00E-03,   3.00E-03,   3.00E-03/
       DATA o2vis1101/                                                   &
      &      3.80E-03,   4.00E-03,   4.82E-03,   5.00E-03,   5.84E-03,   &
      &      6.00E-03,   6.85E-03,   7.85E-03,   8.86E-03,   9.86E-03,   &
@@ -9657,7 +9657,7 @@ SUBROUTINE CONTNM(JRAD)
      &      4.07E-02,   4.10E-02,   4.10E-02,   4.03E-02,   3.93E-02,   &
      &      3.83E-02,   3.73E-02,   3.64E-02,   3.48E-02,   3.34E-02,   &
      &      3.18E-02,   2.99E-02,   2.85E-02,   2.70E-02,   2.50E-02,   &
-     &      2.31E-02,   2.11E-02,   1.92E-02,   1.76E-02,   1.63E-02/   
+     &      2.31E-02,   2.11E-02,   1.92E-02,   1.76E-02,   1.63E-02/
       DATA o2vis1151/                                                   &
      &      1.47E-02,   1.34E-02,   1.17E-02,   1.07E-02,   9.78E-03,   &
      &      8.81E-03,   7.84E-03,   6.88E-03,   6.00E-03,   5.94E-03,   &
@@ -9668,7 +9668,7 @@ SUBROUTINE CONTNM(JRAD)
      &      1.00E-03,   1.00E-03,   1.00E-03,   1.00E-03,   1.00E-03,   &
      &      1.00E-03,   1.00E-03,   1.00E-03,   1.00E-03,   1.00E-03,   &
      &      1.00E-03,   1.00E-03,   1.00E-03,   1.00E-03,   1.00E-03,   &
-     &      1.00E-03,   1.00E-03,   1.00E-03,   1.00E-03,   1.00E-03/   
+     &      1.00E-03,   1.00E-03,   1.00E-03,   1.00E-03,   1.00E-03/
       DATA o2vis1201/                                                   &
      &      1.00E-03,   1.00E-03,   1.00E-03,   1.00E-03,   1.00E-03,   &
      &      1.00E-03,   1.00E-03,   1.00E-03,   1.00E-03,   1.00E-03,   &
@@ -9679,7 +9679,7 @@ SUBROUTINE CONTNM(JRAD)
      &      2.00E-03,   2.00E-03,   2.00E-03,   2.56E-03,   3.00E-03,   &
      &      3.00E-03,   3.30E-03,   4.00E-03,   4.00E-03,   4.04E-03,   &
      &      4.95E-03,   5.85E-03,   6.00E-03,   6.67E-03,   7.58E-03,   &
-     &      8.48E-03,   9.39E-03,   1.03E-02,   1.14E-02,   1.31E-02/   
+     &      8.48E-03,   9.39E-03,   1.03E-02,   1.14E-02,   1.31E-02/
       DATA o2vis1251/                                                   &
      &      1.40E-02,   1.58E-02,   1.76E-02,   1.94E-02,   2.12E-02,   &
      &      2.30E-02,   2.56E-02,   2.89E-02,   3.16E-02,   3.44E-02,   &
@@ -9690,7 +9690,7 @@ SUBROUTINE CONTNM(JRAD)
      &      6.54E-02,   6.43E-02,   6.29E-02,   6.11E-02,   5.94E-02,   &
      &      5.74E-02,   5.48E-02,   5.31E-02,   5.05E-02,   4.86E-02,   &
      &      4.62E-02,   4.41E-02,   4.23E-02,   4.03E-02,   3.78E-02,   &
-     &      3.61E-02,   3.43E-02,   3.26E-02,   3.08E-02,   2.91E-02/   
+     &      3.61E-02,   3.43E-02,   3.26E-02,   3.08E-02,   2.91E-02/
       DATA o2vis1301/                                                   &
      &      2.73E-02,   2.58E-02,   2.49E-02,   2.31E-02,   2.22E-02,   &
      &      2.07E-02,   1.95E-02,   1.86E-02,   1.77E-02,   1.69E-02,   &
@@ -9701,7 +9701,7 @@ SUBROUTINE CONTNM(JRAD)
      &      7.00E-03,   7.00E-03,   7.00E-03,   7.00E-03,   6.42E-03,   &
      &      6.00E-03,   6.00E-03,   6.00E-03,   6.00E-03,   5.18E-03,   &
      &      5.00E-03,   5.00E-03,   5.00E-03,   4.80E-03,   4.04E-03,   &
-     &      4.89E-03,   4.27E-03,   4.00E-03,   4.00E-03,   4.00E-03/   
+     &      4.89E-03,   4.27E-03,   4.00E-03,   4.00E-03,   4.00E-03/
       DATA o2vis1351/                                                   &
      &      4.00E-03,   4.00E-03,   4.00E-03,   4.00E-03,   4.00E-03,   &
      &      4.00E-03,   4.00E-03,   4.00E-03,   3.20E-03,   3.00E-03,   &
@@ -9712,7 +9712,7 @@ SUBROUTINE CONTNM(JRAD)
      &      4.00E-03,   4.00E-03,   4.69E-03,   5.00E-03,   5.00E-03,   &
      &      5.15E-03,   5.97E-03,   6.00E-03,   6.61E-03,   7.43E-03,   &
      &      8.00E-03,   8.06E-03,   8.88E-03,   9.70E-03,   1.05E-02,   &
-     &      1.13E-02,   1.21E-02,   1.30E-02,   1.38E-02,   1.52E-02/   
+     &      1.13E-02,   1.21E-02,   1.30E-02,   1.38E-02,   1.52E-02/
       DATA o2vis1401/                                                   &
      &      1.64E-02,   1.72E-02,   1.80E-02,   1.88E-02,   1.96E-02,   &
      &      2.04E-02,   2.10E-02,   2.10E-02,   2.10E-02,   2.10E-02,   &
@@ -9723,7 +9723,7 @@ SUBROUTINE CONTNM(JRAD)
      &      1.25E-02,   1.20E-02,   1.19E-02,   1.11E-02,   1.03E-02,   &
      &      1.00E-02,   9.75E-03,   9.00E-03,   9.00E-03,   8.37E-03,   &
      &      8.00E-03,   8.00E-03,   8.00E-03,   7.22E-03,   7.00E-03,   &
-     &      7.00E-03,   6.86E-03,   6.07E-03,   6.00E-03,   6.00E-03/   
+     &      7.00E-03,   6.86E-03,   6.07E-03,   6.00E-03,   6.00E-03/
       DATA o2vis1451/                                                   &
      &      6.00E-03,   5.93E-03,   5.15E-03,   5.00E-03,   5.00E-03,   &
      &      5.00E-03,   5.00E-03,   5.00E-03,   5.00E-03,   5.00E-03,   &
@@ -9732,258 +9732,258 @@ SUBROUTINE CONTNM(JRAD)
      &      4.00E-03,   4.00E-03,   4.00E-03,   4.00E-03,   4.00E-03,   &
      &      4.00E-03,   4.00E-03,   4.00E-03,   4.00E-03,   4.00E-03,   &
      &      4.00E-03,   4.00E-03,   4.00E-03,   4.00E-03,   4.00E-03,   &
-     &      1.00E-03,   2.00E-04,   0./                                 
-!                                                                       
-      END                                           
-                                                                        
-!     --------------------------------------------------------------    
-!                                                                       
-      SUBROUTINE O2HERZ (V1C,V2C,DVC,NPTC,C,T,P) 
-!                                                                       
-      Use params, ONLY: n_absrb 
-      IMPLICIT REAL*8           (V) 
-!                                                                       
-      COMMON /ABSORB/ V1ABS,V2ABS,DVABS,NPTABS,ABSRB(n_absrb) 
-      DIMENSION C(*) 
-!                                                                       
-      V1S = 36000. 
-      DVS = 10. 
-      DVC = DVS 
-!                                                                       
-      V1C = V1ABS-DVC 
-      V2C = V2ABS+DVC 
-!                                                                       
-      IF (V1C.LT.V1S) then 
-         I1 = -1 
-         else 
-         I1 = (V1C-V1S)/DVS + 0.01 
-         end if 
-!                                                                       
-         V1C = V1S + DVS*REAL(I1-1) 
-         I2 = (V2C-V1S)/DVS + 0.01 
-         NPTC = I2-I1+3 
-!         IF (NPTC.GT.NPTS) NPTC=NPTS+4 
-!        mja, 10-27-2011 - this seems to be redundant as the 
+     &      1.00E-03,   2.00E-04,   0./
+!
+      END
+
+!     --------------------------------------------------------------
+!
+      SUBROUTINE O2HERZ (V1C,V2C,DVC,NPTC,C,T,P)
+!
+      Use params, ONLY: n_absrb
+      IMPLICIT REAL*8           (V)
+!
+      COMMON /ABSORB/ V1ABS,V2ABS,DVABS,NPTABS,ABSRB(n_absrb)
+      DIMENSION C(*)
+!
+      V1S = 36000.
+      DVS = 10.
+      DVC = DVS
+!
+      V1C = V1ABS-DVC
+      V2C = V2ABS+DVC
+!
+      IF (V1C.LT.V1S) then
+         I1 = -1
+         else
+         I1 = (V1C-V1S)/DVS + 0.01
+         end if
+!
+         V1C = V1S + DVS*REAL(I1-1)
+         I2 = (V2C-V1S)/DVS + 0.01
+         NPTC = I2-I1+3
+!         IF (NPTC.GT.NPTS) NPTC=NPTS+4
+!        mja, 10-27-2011 - this seems to be redundant as the
 !        Herzberg O2 continuum is a function, not block data
-         V2C = V1C + DVS*REAL(NPTC-1) 
-!                                                                       
-         DO 10 J = 1, NPTC 
-            I = I1+(J-1) 
-            C(J) = 0. 
-            IF (I.LT.1) GO TO 10 
-            VJ = V1C+DVC* REAL(J-1) 
-            CALL HERTDA (HERZ,VJ) 
-            CALL HERPRS (HERZ,T,P) 
-            C(J) = HERZ/VJ 
-   10    END DO 
-!                                                                       
-         RETURN 
-!                                                                       
-      END                                           
-!                                                                       
-!     --------------------------------------------------------------    
-!                                                                       
-      SUBROUTINE HERTDA (HERZ,V) 
-!                                                                       
-      IMPLICIT REAL*8           (V) 
-!                                                                       
-!     HERZBERG O2 ABSORPTION                                            
-!     HALL,1987 PRIVATE COMMUNICATION, BASED ON:                        
-!                                                                       
-!     REF. JOHNSTON, ET AL., JGR,89,11661-11665,1984                    
-!          NICOLET, 1987 (RECENT STUDIES IN ATOMIC                      
-!                         & MOLECULAR PROCESSES,                        
-!                         PLENUM PUBLISHING CORP, NY 1987)              
-!                                                                       
-!     AND YOSHINO, ET AL., 1988 (PREPRINT OF "IMPROVED ABSORPTION       
-!          CROSS SECTIONS OF OXYGEN IN THE WAVELENGTH REGION 205-240NM  
-!          OF THE HERZBERG CONTINUUM")                                  
-!                                                                       
-!     **** NOTE:  CROSS SECTION AT 0 PRESSURE  ***                      
-!     THE PRESSURE DEPENDENT TERM IS IN SUBROUTINE HERPRS               
-!                                                                       
-!C    COMMON /CNSTNS/ PI,CA,DEG,GCAIR,BIGNUM,BIGEXP                     
-!                                                                       
-      HERZ = 0.0 
-      IF (V.LE.36000.00) RETURN 
-!                                                                       
-!     EXTRAPOLATE SMOOTHLY THROUGH THE HERZBERG BAND REGION             
-!     NOTE: HERZBERG BANDS ARE NOT CORRECTLY INCLUDED                   
-!                                                                       
-      CORR = 0. 
-      IF (V.LE.40000.) CORR = ((40000.-V)/4000.)*7.917E-27 
-!                                                                       
-!     UNITS ARE (CM2)                                                   
-!                                                                       
-!     HALL'S NEW HERZBERG  (LEAST SQRS FIT, LN(P))                      
-!                                                                       
-!     YRATIO=2048.7/WL(I)  ****IN ANGSTOMS****                          
-!           =.20487/WN(I)     IN MICRONS                                
-!           =WCM(I)/48811.0   IN CM-1                                   
-!                                                                       
-      YRATIO = V/48811.0 
-!     HERZ = 6.884E-24*(YRATIO)*EXP(-69.738*( LOG(YRATIO))**2)-CORR     
-!     factor of 1.e-20 removed; put in front factor                     
-      HERZ = 6.884E-04*(YRATIO)*EXP(-69.738*( LOG(YRATIO))**2)-CORR 
-!                                                                       
-      RETURN 
-!                                                                       
-      END                                           
-!                                                                       
-!     --------------------------------------------------------------    
-!                                                                       
-      SUBROUTINE HERPRS (HERZ,T,P) 
-!                                                                       
-!     CORRECT THE HERZBERG CONTINUUM CROSS SECTION FOR PRESSURE         
-!     DEPENDENCE; BASED ON SHARDANAND, JQRST, 18, 525-530, 1977.        
-!                 FOR UN2| BROADENING                                   
-!                 AND YOSHINO ET AL 1988 FOR UO2| BROADENING            
-!                                                                       
-!     PO2= PARTIAL PRESSURE OF O2                                       
-!     PN2= PARTIAL PRESSURE OF N2; BN2=.45*BO2                          
-!                                                                       
-!     DATA BO2 / 1.72E-3 /                                              
-!                                                                       
-!     Changed in Herzberg continuum pressure,                           
-!     Reference:                                                        
-!     "Atmospheric Propagation in the UV, Visible, IR and MM-wave       
-!     Region and Related Systems Aspects".                              
-!     G.P. Anderson,F.X. Kneizys, E.P. Shettle, L.W. Abreu,             
-!     J.H. Chetwynd, R.E. Huffman, and L.A. Hall; Conference            
-!     Proceedings No. 454 of the Advisory Group for Aerospace           
-!     Research & Development; 1990.                                     
-!                                                                       
-      DATA BO2 / 1.81E-3 / 
-      DATA PO / 1013. /,TO / 273.16 / 
-!                                                                       
-!     NOTE:  THE HERZBERG CONTINUUM OBEYS BEER'S LAW                    
-!            OPTICAL DEPTH(TOTAL)=SUM OVER LAYER O.D.(I)                
-!                                                                       
-!     BO2= RATIO OF SIGMA(O2-O2)/(SIGMA(O2)) * 760(TORR)*.2095          
-!     BN2=.45*BO2= RATIO OF SIGMA(O2-N2)/(SIGMA(O2)) * 760(TORR)*.78    
-!                                                                       
-!     BO2*760*(.2095+.45*.78) = .73 , AS BELOW                          
-!                                                                       
-!     Changed Herzberg continuum pressure (see above reference)         
-!                                                                       
-!     BO2*760*(.2095+.45*.78) = .83 , AS BELOW                          
-!                                                                       
-!                                                                       
-      HERZ = HERZ*(1.+.83*(P/PO)*(TO/T)) 
-!                                                                       
-      RETURN 
-!                                                                       
-      END                                           
-!                                                                       
-!     --------------------------------------------------------------    
-      subroutine cld_od(V1C,V2C,DVC,NPTC,C,layer,xkt) 
-!     --------------------------------------------------------------    
-!                                                                       
-      Use params, ONLY: n_absrb 
-      IMPLICIT REAL*8           (V) 
-!                                                                       
-      COMMON /ABSORB/ V1ABS,V2ABS,DVABS,NPTABS,ABSRB(n_absrb) 
-                                                                        
+         V2C = V1C + DVS*REAL(NPTC-1)
+!
+         DO 10 J = 1, NPTC
+            I = I1+(J-1)
+            C(J) = 0.
+            IF (I.LT.1) GO TO 10
+            VJ = V1C+DVC* REAL(J-1)
+            CALL HERTDA (HERZ,VJ)
+            CALL HERPRS (HERZ,T,P)
+            C(J) = HERZ/VJ
+   10    END DO
+!
+         RETURN
+!
+      END
+!
+!     --------------------------------------------------------------
+!
+      SUBROUTINE HERTDA (HERZ,V)
+!
+      IMPLICIT REAL*8           (V)
+!
+!     HERZBERG O2 ABSORPTION
+!     HALL,1987 PRIVATE COMMUNICATION, BASED ON:
+!
+!     REF. JOHNSTON, ET AL., JGR,89,11661-11665,1984
+!          NICOLET, 1987 (RECENT STUDIES IN ATOMIC
+!                         & MOLECULAR PROCESSES,
+!                         PLENUM PUBLISHING CORP, NY 1987)
+!
+!     AND YOSHINO, ET AL., 1988 (PREPRINT OF "IMPROVED ABSORPTION
+!          CROSS SECTIONS OF OXYGEN IN THE WAVELENGTH REGION 205-240NM
+!          OF THE HERZBERG CONTINUUM")
+!
+!     **** NOTE:  CROSS SECTION AT 0 PRESSURE  ***
+!     THE PRESSURE DEPENDENT TERM IS IN SUBROUTINE HERPRS
+!
+!C    COMMON /CNSTNS/ PI,CA,DEG,GCAIR,BIGNUM,BIGEXP
+!
+      HERZ = 0.0
+      IF (V.LE.36000.00) RETURN
+!
+!     EXTRAPOLATE SMOOTHLY THROUGH THE HERZBERG BAND REGION
+!     NOTE: HERZBERG BANDS ARE NOT CORRECTLY INCLUDED
+!
+      CORR = 0.
+      IF (V.LE.40000.) CORR = ((40000.-V)/4000.)*7.917E-27
+!
+!     UNITS ARE (CM2)
+!
+!     HALL'S NEW HERZBERG  (LEAST SQRS FIT, LN(P))
+!
+!     YRATIO=2048.7/WL(I)  ****IN ANGSTOMS****
+!           =.20487/WN(I)     IN MICRONS
+!           =WCM(I)/48811.0   IN CM-1
+!
+      YRATIO = V/48811.0
+!     HERZ = 6.884E-24*(YRATIO)*EXP(-69.738*( LOG(YRATIO))**2)-CORR
+!     factor of 1.e-20 removed; put in front factor
+      HERZ = 6.884E-04*(YRATIO)*EXP(-69.738*( LOG(YRATIO))**2)-CORR
+!
+      RETURN
+!
+      END
+!
+!     --------------------------------------------------------------
+!
+      SUBROUTINE HERPRS (HERZ,T,P)
+!
+!     CORRECT THE HERZBERG CONTINUUM CROSS SECTION FOR PRESSURE
+!     DEPENDENCE; BASED ON SHARDANAND, JQRST, 18, 525-530, 1977.
+!                 FOR UN2| BROADENING
+!                 AND YOSHINO ET AL 1988 FOR UO2| BROADENING
+!
+!     PO2= PARTIAL PRESSURE OF O2
+!     PN2= PARTIAL PRESSURE OF N2; BN2=.45*BO2
+!
+!     DATA BO2 / 1.72E-3 /
+!
+!     Changed in Herzberg continuum pressure,
+!     Reference:
+!     "Atmospheric Propagation in the UV, Visible, IR and MM-wave
+!     Region and Related Systems Aspects".
+!     G.P. Anderson,F.X. Kneizys, E.P. Shettle, L.W. Abreu,
+!     J.H. Chetwynd, R.E. Huffman, and L.A. Hall; Conference
+!     Proceedings No. 454 of the Advisory Group for Aerospace
+!     Research & Development; 1990.
+!
+      DATA BO2 / 1.81E-3 /
+      DATA PO / 1013. /,TO / 273.16 /
+!
+!     NOTE:  THE HERZBERG CONTINUUM OBEYS BEER'S LAW
+!            OPTICAL DEPTH(TOTAL)=SUM OVER LAYER O.D.(I)
+!
+!     BO2= RATIO OF SIGMA(O2-O2)/(SIGMA(O2)) * 760(TORR)*.2095
+!     BN2=.45*BO2= RATIO OF SIGMA(O2-N2)/(SIGMA(O2)) * 760(TORR)*.78
+!
+!     BO2*760*(.2095+.45*.78) = .73 , AS BELOW
+!
+!     Changed Herzberg continuum pressure (see above reference)
+!
+!     BO2*760*(.2095+.45*.78) = .83 , AS BELOW
+!
+!
+      HERZ = HERZ*(1.+.83*(P/PO)*(TO/T))
+!
+      RETURN
+!
+      END
+!
+!     --------------------------------------------------------------
+      subroutine cld_od(V1C,V2C,DVC,NPTC,C,layer,xkt)
+!     --------------------------------------------------------------
+!
+      Use params, ONLY: n_absrb
+      IMPLICIT REAL*8           (V)
+!
+      COMMON /ABSORB/ V1ABS,V2ABS,DVABS,NPTABS,ABSRB(n_absrb)
+
       COMMON /IFIL/ IRD,IPR,IPU,NOPR,NFHDRF,NPHDRF,NFHDRL,NPHDRL,       &
      &              NLNGTH,KFILE,KPANEL,LINFIL,NFILE,IAFIL,IEXFIL,      &
-     &              NLTEFL,LNFIL4,LNGTH4                                
-!                                                                       
-      parameter (n_lyr=200,n_cld=500) 
-!                                                                       
+     &              NLTEFL,LNFIL4,LNGTH4
+!
+      parameter (n_lyr=200,n_cld=500)
+!
       COMMON /cld_rd/ n_freq, n_align, v_cloud_freq(n_cld),             &
-     &                                      cloudodlayer(n_lyr,n_cld)   
-      DIMENSION C(*) 
-!                                                                       
-      logical EX 
-      character*55 in_cld_file 
-      dimension i_layer(n_lyr), pres_layer_dum(n_lyr), v_cntnm(n_lyr) 
-!                                                                       
-      data in_cld_file /'in_lblrtm_cld'/ 
-      data dvs /5./ 
-!                                                                       
-!     ----------------------------------------------------------        
-!     Read in TES cloud effective optical depth file                    
-!     ----------------------------------------------------------        
-!                                                                       
-      if (layer .eq. 1) then 
-                                                                        
-         open (35,FILE=in_cld_file,STATUS='OLD') 
-         read (35,*) n_freq 
-         read (35,*) (v_cloud_freq(j),j=1,n_freq) 
-                                                                        
-         write (ipr,*) 
+     &                                      cloudodlayer(n_lyr,n_cld)
+      DIMENSION C(*)
+!
+      logical EX
+      character*55 in_cld_file
+      dimension i_layer(n_lyr), pres_layer_dum(n_lyr), v_cntnm(n_lyr)
+!
+      data in_cld_file /'in_lblrtm_cld'/
+      data dvs /5./
+!
+!     ----------------------------------------------------------
+!     Read in TES cloud effective optical depth file
+!     ----------------------------------------------------------
+!
+      if (layer .eq. 1) then
+
+         open (35,FILE=in_cld_file,STATUS='OLD')
+         read (35,*) n_freq
+         read (35,*) (v_cloud_freq(j),j=1,n_freq)
+
+         write (ipr,*)
          write (ipr,*)                                                  &
-     &           '** iaersl=5; Cloud Information from "in_cld_file" **' 
-         write (ipr,'(" n_freq = ",i5)') n_freq 
-         write (ipr,'(5x,10f10.4)') (v_cloud_freq(j),j=1,n_freq) 
-                                                                        
-         read (35,*) n_layer 
-                                                                        
-         write (ipr,'(" n_layer = ",i5)') n_layer 
-                                                                        
-         do l =1,n_layer 
-            read (35,*) i_layer(l), pres_layer_dum(l) 
-            read (35,*) (cloudodlayer(l,j),j=1,n_freq) 
-            write (ipr,'(i5,f12.5)') i_layer(l), pres_layer_dum(l) 
-            write (ipr,'(5x,10f10.4)') (cloudodlayer(l,j),j=1,n_freq) 
-         enddo 
-         close (35) 
-                                                                        
-      endif 
-                                                                        
-!                                                                       
-!        ----------------------------------------------------------     
-!        Generated output continuum grid                                
-!        ----------------------------------------------------------     
-!                                                                       
-      DVC = DVS 
-      V1C = V1ABS-10. 
-      V2C = V2ABS+10. 
-      NPTC = ((V2C - V1C)/DVC) + 1 
-                                                                        
-      do J = 1, NPTC 
-         v_cntnm(j) = V1C+DVC* REAL(J-1) 
-      enddo 
-!                                                                       
-!        ----------------------------------------------------------     
+     &           '** iaersl=5; Cloud Information from "in_cld_file" **'
+         write (ipr,'(" n_freq = ",i5)') n_freq
+         write (ipr,'(5x,10f10.4)') (v_cloud_freq(j),j=1,n_freq)
+
+         read (35,*) n_layer
+
+         write (ipr,'(" n_layer = ",i5)') n_layer
+
+         do l =1,n_layer
+            read (35,*) i_layer(l), pres_layer_dum(l)
+            read (35,*) (cloudodlayer(l,j),j=1,n_freq)
+            write (ipr,'(i5,f12.5)') i_layer(l), pres_layer_dum(l)
+            write (ipr,'(5x,10f10.4)') (cloudodlayer(l,j),j=1,n_freq)
+         enddo
+         close (35)
+
+      endif
+
+!
+!        ----------------------------------------------------------
+!        Generated output continuum grid
+!        ----------------------------------------------------------
+!
+      DVC = DVS
+      V1C = V1ABS-10.
+      V2C = V2ABS+10.
+      NPTC = ((V2C - V1C)/DVC) + 1
+
+      do J = 1, NPTC
+         v_cntnm(j) = V1C+DVC* REAL(J-1)
+      enddo
+!
+!        ----------------------------------------------------------
 !        Linearly interpolate TES cloud effective OD onto continuum grid
-!        ----------------------------------------------------------     
-                                                                        
-      ilo = 1 
-      do j=1, NPTC 
-         IF (v_cntnm(j).LE.v_cloud_freq(1))      THEN 
-         C(j) = cloudodlayer(layer,1) 
-         GO TO 10 
-      ELSE IF (v_cntnm(j).GT.v_cloud_freq(n_freq)) THEN 
-         C(j) = cloudodlayer(layer,n_freq) 
-         GO TO 10 
-         END IF 
-                                                                        
-         do i=ilo, n_freq 
-            IF (v_cntnm(j).LE.v_cloud_freq(i))  THEN 
+!        ----------------------------------------------------------
+
+      ilo = 1
+      do j=1, NPTC
+         IF (v_cntnm(j).LE.v_cloud_freq(1))      THEN
+         C(j) = cloudodlayer(layer,1)
+         GO TO 10
+      ELSE IF (v_cntnm(j).GT.v_cloud_freq(n_freq)) THEN
+         C(j) = cloudodlayer(layer,n_freq)
+         GO TO 10
+         END IF
+
+         do i=ilo, n_freq
+            IF (v_cntnm(j).LE.v_cloud_freq(i))  THEN
          v_m=(cloudodlayer(layer,i)-cloudodlayer(layer,i-1))/ (         &
-         v_cloud_freq(i)-v_cloud_freq(i-1))                             
+         v_cloud_freq(i)-v_cloud_freq(i-1))
          C(j) = cloudodlayer(layer,i-1)+ (v_cntnm(j)-v_cloud_freq(i-1))*&
-         v_m                                                            
-         ilo = i-1 
-         GO TO 10 
-            END IF 
-         enddo 
-                                                                        
-   10    continue 
-!                                                                       
-         if (v_cntnm(j).eq.0.) then 
-            C(j) = 0. 
-         else 
-            C(j) = C(j)/RADFN(v_cntnm(j),XKT) 
-         endif 
-                                                                        
-         if (ilo.lt.1) ilo = 1 
-!                                                                       
-      enddo 
-                                                                        
-!                                                                       
-      RETURN 
+         v_m
+         ilo = i-1
+         GO TO 10
+            END IF
+         enddo
+
+   10    continue
+!
+         if (v_cntnm(j).eq.0.) then
+            C(j) = 0.
+         else
+            C(j) = C(j)/RADFN(v_cntnm(j),XKT)
+         endif
+
+         if (ilo.lt.1) ilo = 1
+!
+      enddo
+
+!
+      RETURN
     END subroutine cld_od
 
       SUBROUTINE XINT (V1A,V2A,DVA,A,AFACT,VFT,DVR3,R3,N1R3,N2R3)         !B17520
