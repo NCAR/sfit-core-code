@@ -8,7 +8,7 @@ module hitran
 
    implicit none
 
-   integer, parameter     :: nhit=99, ngal=2, ncia=2, nglines=100000, flagoff=280,nlmx=5, nsdv=5, ncorr=2  
+   integer, parameter     :: nhit=99, ngal=2, ncia=2, nglines=100000, flagoff=280,nlmx=5, nsdv=5, ncorr=2
    integer, parameter     :: nlmlines=100000, nsdlines=100000
    real(8), parameter     :: weps = 1.0d-6
    integer                :: hnml, gnml, lnml, snml, enml
@@ -20,7 +20,7 @@ module hitran
    character (len=255), dimension(nsdv) :: sdv_files
    character (len=255), dimension(nlmx) :: lm_files
    character (len=1024) :: linelist_path
-   
+
    type, public :: hitranfile
       integer             :: mo        ! molecule id from subdir name for this file --- replaces map()
       integer             :: flag      ! 0-hitran, 1-cia f&s
@@ -75,20 +75,23 @@ module hitran
 ! those id's and names must be the same in the reference.prf file
 ! eg a files containing hitran lines is read from one subdir in linelist then the molid will be changed
 ! to the 2digit integer 0NN of the subdir name and assumed to be for gas 0NN_abcdef
-! --- CODE NUMBERS TO CONVERT FROM HITRAN TO ATMOS / SFIT
-!     INDEX IS HITRAN ID NUMBER, VALUE IS SFIT
+
+! --- CODE NUMBERS TO CONVERT FROM HITRAN TO ATMOS / SFIT (GGG)
+
+!     INDEX IS HITRAN ID NUMBER, VALUE IS SFIT ID NUNMBER
+
 !     SFIT     HITRAN         SFIT        PSEUDOLINES FILE MOLID/ISO
 !     #        # NAME         # NAME
       DATA MAP / &
-      1,    &! 1 H2O
-      2,    &! 2 CO2
-      3,    &! 3 O3
-      4,    &! 4 N2O
-      5,    &! 5 CO
-      6,    &! 6 CH4
-      7,    &! 7 O2
-      8,    &! 8 NO
-      9,    &! 9 SO2
+      1,    &! 1  H2O
+      2,    &! 2  CO2
+      3,    &! 3  O3
+      4,    &! 4  N2O
+      5,    &! 5  CO
+      6,    &! 6  CH4
+      7,    &! 7  O2
+      8,    &! 8  NO
+      9,    &! 9  SO2
       10,   &! 10 NO2
       11,   &! 11 NH3
       12,   &! 12 HNO3
@@ -112,7 +115,7 @@ module hitran
       50,   &! 30 SF6         CH3CL
       47,   &! 31 H2S         CF4
       46,   &! 32 HCOOH       CCL2F2
-      22,   &! 33 HO2         CCL3F3
+      22,   &! 33 HO2         CCL3F
       0,    &! 34 O           CH3CCL3
       35,   &! 35 CLONO2      CCL4          PS 35/1
       0,    &! 36 NO+         COF2
@@ -122,13 +125,13 @@ module hitran
       44,   &! 40 CH3BR*      C2H2
       69,   &! 41 CH3CN*      N2
       31,   &! 42 CF4*        CHF2CL
-      43,   &! 43             COCL2
-      44,   &! 44             CH3BR
-      45,   &! 45             CH3I
-      46,   &! 46             HCOOH
-      47,   &! 47             H2S
-      48,   &! 48             CHCL2F
-      49,   &! 49             O2CIA
+      43,   &! 43 C2H4 (C4H2?)COCL2
+      44,   &! 44 HC3N        CH3BR
+      45,   &! 45 H2          CH3I
+      46,   &! 46 CS          HCOOH
+      47,   &! 47 SO3         H2S
+      48,   &! 48 C2N2        CHCL2F
+      49,   &! 49 COCL2       O2CIA
       50,   &! 50             SF6
       51,   &! 51             NF3
       52,   &! 52             OTHER
