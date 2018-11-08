@@ -70,7 +70,7 @@ module hitran
       real(4)            :: dt(3)      ! intensity [cm-1/(molec/cm-2)]
    end type linemixdata
 
-! this map is obsolete
+! this map MAY be obsolete
 ! the linelist directory structure is the key to the gas names and the molecule id numbers
 ! those id's and names must be the same in the reference.prf file
 ! eg a files containing hitran lines is read from one subdir in linelist then the molid will be changed
@@ -78,9 +78,9 @@ module hitran
 
 ! --- CODE NUMBERS TO CONVERT FROM HITRAN TO ATMOS / SFIT (GGG)
 
-!     INDEX IS HITRAN ID NUMBER, VALUE IS SFIT ID NUNMBER
+!     INDEX IS HITRAN ID NUMBER, VALUE IS SFIT ID NUMBER
 
-!     SFIT     HITRAN         SFIT        PSEUDOLINES FILE MOLID/ISO
+!     SFIT     HITRAN         SFIT        NO_LINES   PSEUDO    ATM
 !     #        # NAME         # NAME
       DATA MAP / &
       1,    &! 1  H2O
@@ -106,34 +106,34 @@ module hitran
       21,   &! 21 HOCL
       41,   &! 22 N2          HO2
       28,   &! 23 HCN         H202
-      30,   &! 24 CH3CL       HONO
-      23,   &! 25 H2O2        HO2NO2
-      40,   &! 26 C2H2        N2O5
-      38,   &! 27 C2H6        CLONO2
+      30,   &! 24 CH3CL       HONO           X
+      23,   &! 25 H2O2        HO2NO2         X
+      40,   &! 26 C2H2        N2O5                  PS
+      38,   &! 27 C2H6        CLONO2                PS
       0,    &! 28 PH3         HCN
-      36,   &! 29 COF2        CH3F
+      36,   &! 29 COF2        CH3F           X
       50,   &! 30 SF6         CH3CL
       47,   &! 31 H2S         CF4
-      46,   &! 32 HCOOH       CCL2F2
-      22,   &! 33 HO2         CCL3F
-      0,    &! 34 O           CH3CCL3
-      35,   &! 35 CLONO2      CCL4          PS 35/1
+      46,   &! 32 HCOOH       CCL2F2                PS
+      22,   &! 33 HO2         CCL3F                 PS
+      0,    &! 34 O           CH3CCL3        X
+      35,   &! 35 CLONO2      CCL4                  PS
       0,    &! 36 NO+         COF2
-      0,    &! 37 HOBR        COCLF
+      0,    &! 37 HOBR        COCLF                 PS
       39,   &! 38 C2H4        C2H6
       64,   &! 39 CH3OH*      C2H4
       44,   &! 40 CH3BR*      C2H2
       69,   &! 41 CH3CN*      N2
-      31,   &! 42 CF4*        CHF2CL
-      43,   &! 43 C2H4 (C4H2?)COCL2
+      31,   &! 42 CF4*        CHF2CL                PS
+      43,   &! 43 C4H2        COCL2                 Both
       44,   &! 44 HC3N        CH3BR
-      45,   &! 45 H2          CH3I
+      45,   &! 45 H2          CH3I           X
       46,   &! 46 CS          HCOOH
       47,   &! 47 SO3         H2S
-      48,   &! 48 C2N2        CHCL2F
+      48,   &! 48 C2N2        CHCL2F         X
       49,   &! 49 COCL2       O2CIA
-      50,   &! 50             SF6
-      51,   &! 51             NF3
+      50,   &! 50             SF6                     PS
+      51,   &! 51             NF3                     PS
       52,   &! 52             OTHER
       53,   &! 53             OTHER
       54,   &! 54             OTHER
@@ -142,23 +142,23 @@ module hitran
       57,   &! 57             OTHER
       58,   &! 58             OCLO
       59,   &! 59             F134A
-      60,   &! 60             C3H8
-      61,   &! 61             F142B
-      62,   &! 62             CFC113
+      60,   &! 60             C3H8                    PS
+      61,   &! 61             F142B                   PS
+      62,   &! 62             CFC113                  PS
       63,   &! 63             F141B
       64,   &! 64             CH3OH
-      65,   &! 65             CH3CNPL
-      66,   &! 66             C2H6PL
-      67,   &! 67             PAN
-      68,   &! 68             CH3CHO
+      65,   &! 65             CH3CNPL                 PS
+      66,   &! 66             C2H6PL                  PS
+      67,   &! 67             PAN                     PS
+      68,   &! 68             CH3CHO                  PS
       69,   &! 69             CH3CN
       70,   &! 70             OTHER
-      71,   &! 71             OTHER
-      72,   &! 72             OTHER
-      73,   &! 73             OTHER
-      74,   &! 74             OTHER
-      75,   &! 75             OTHER
-      76,   &! 76             OTHER
+      71,   &! 71             CH3COOH                 PS
+      72,   &! 72             C5H8                    PS
+      73,   &! 73             MVK                     PS
+      74,   &! 74             MACR                    PS
+      75,   &! 75             C3H6                    PS
+      76,   &! 76             C4H8                    PS
       77,   &! 77             OTHER
       78,   &! 78             OTHER
       79,   &! 79             OTHER

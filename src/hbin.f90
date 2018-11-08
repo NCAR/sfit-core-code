@@ -186,7 +186,7 @@ program hbin
          lmx(ifl)%lm_t1(ind) = 0.0d0
          lmx(ifl)%lm_t2(ind) = 0.0d0
          ! test for linemixing parameter
-         read (buf(63:), *, end=16) lmx(ifl)%lm_air(ind), lmx(ifl)%lm_t1(ind), lmx(ifl)%lm_t2(ind) 
+         read (buf(63:), *, end=16) lmx(ifl)%lm_air(ind), lmx(ifl)%lm_t1(ind), lmx(ifl)%lm_t2(ind)
 
          lmx(ifl)%n = lmx(ifl)%n + 1
 
@@ -234,7 +234,7 @@ program hbin
 !            print *, 'bla2 ', sdv(ifl)%g0_air(ind), sdv(ifl)%s0_self(ind), sdv(ifl)%qa(ind)
 !            call flush()
 !         end if
-         
+
 !         read (buf(86:), *, end=26) sdv(ifl)%g2_air(ind)
 
 !         if ((sdv(ifl)%g2_air(ind) .le. tiny(0.0D0)).and.(sdv(ifl)%s0_self(ind) .le. tiny(0.0D0))) cycle
@@ -251,7 +251,7 @@ program hbin
 
 !701 format(f6.5,f4.3,f4.2,f8.6,1x,g15.6,1x,g15.6,1x,g15.6)
 701 format(f6.5,f4.3,f4.2,f8.6,1x,g6.5)
-   
+
    ! --- fill CORRELATION line parameters struct with all line data from each file
    do ifl = 1, enml
 
@@ -271,7 +271,7 @@ program hbin
 35       close( elp(ifl)%lun )
          exit
 36       continue
-         
+
       enddo
       write(6,117) elp(ifl)%n, ' lines read in CORR file : ', ifl
    enddo
@@ -369,7 +369,7 @@ program hbin
             !             hlp(ldx)%flag(CORR_FLAG) = .TRUE.
             !             dum = flagoff + CORR_FLAG
             !             write( hfl(ldx)%buf(dum:dum), '(l1)' ) .TRUE.
-            !          endif                  
+            !          endif
             !       end if
             !    enddo
             ! enddo
@@ -481,6 +481,8 @@ subroutine filh( hd, hf )
 
    type (hitrandata), intent(out)    :: hd
    type (hitranfile), intent(inout)  :: hf
+   character aiso*1           ! HITRAN 2016 CO2 has isotopes 11 & 12 labeled A and B, we will leave alone
+                              ! in the ascii record but changed to 11, 12 in the binary (internal) record
 
    hd%flag(1:8) = .FALSE.
 
@@ -501,11 +503,13 @@ subroutine filh( hd, hf )
    case (0)       ! HITRAN line
 
       ! --- read parameters
-      read( hf%buf, 107) hd%mo, hd%is, hd%nu, hd%sl, hd%ea, hd%ah, hd%sh, hd%el, hd%tx, hd%ps, &
+      read( hf%buf, 107) hd%mo, aiso, hd%nu, hd%sl, hd%ea, hd%ah, hd%sh, hd%el, hd%tx, hd%ps, &
                          hd%qa, hd%er, hd%lm, hd%uw, hd%lw, hd%bt
 
       ! --- map hitran molecule id to sfit id
       hd%mo = hf%mo
+      if( hd%mo .EQ. 2 .AND. aiso .EQ. 'A' ) hd%is = 11
+      if( hd%mo .EQ. 2 .AND. aiso .EQ. 'B' ) hd%is = 12
 
    case (1)        ! O2CIA, id 49/0,1 -> 1,2
 
@@ -520,9 +524,11 @@ subroutine filh( hd, hf )
 
       ! --- map cia molecule iso to sfit iso file iso's are 0,1 (f,s) change to 1,2
       hd%is = hd%is + 1
+      write( hf%buf(3:3), '(i1)' ) hd%is
 
       if(hd%is .eq. 1) hd%flag(fcia_flag) = .TRUE.      ! fcia o2
       if(hd%is .eq. 2) hd%flag(scia_flag) = .TRUE.      ! scia o2
+
 
    case (2)        ! N2CIA, id 52/0,1 -> 1,2
 
@@ -537,6 +543,7 @@ subroutine filh( hd, hf )
 
       ! --- map cia molecule iso to sfit iso file iso's are 0,1 (f,s) change to 1,2
       hd%is = hd%is + 1
+      write( hf%buf(3:3), '(i1)' ) hd%is
 
       if(hd%is .eq. 1) hd%flag(fcia_flag) = .TRUE.      ! fcia n2
       if(hd%is .eq. 2) hd%flag(scia_flag) = .TRUE.      ! scia n2
@@ -549,7 +556,6 @@ subroutine filh( hd, hf )
    end select
 
    write( hf%buf(1:2), '(i2)' ) hd%mo
-   write( hf%buf(3:3), '(i1)' ) hd%is
    write( hf%buf(flagoff+1:flagoff+8), '(8l1)' ) hd%flag(1:8)
 
    return
@@ -594,7 +600,7 @@ subroutine read_input( hasc, wstr, wstp, HFL, GLP, LFL, SDV, ELP )
    integer :: ctl_version = 2 ! 1 - original hbin.input version (till v0.9.4.4)
                               !     test for existence of ASC flag in the first valid line
                               ! 2 - tagged hbin.input version
-   
+
    TYPE (GALATRYDATA), intent(inout)   :: GLP(ngal)
    TYPE (HITRANFILE),  intent(inout)   :: HFL(nhit+ncia)
    TYPE (GALATRYDATA), intent(inout)   :: LFL(nlmx)
@@ -619,7 +625,7 @@ subroutine read_input( hasc, wstr, wstp, HFL, GLP, LFL, SDV, ELP )
 5  continue
    print *, 'Not a valid tagged hbin input, assume old input file version'
    ctl_version = 1
-   
+
 6  continue
 
    ! --- read in ascii output flag
@@ -630,12 +636,12 @@ subroutine read_input( hasc, wstr, wstp, HFL, GLP, LFL, SDV, ELP )
       read(buffer,'(l10)') out_ascii
    end if
 
-   
+
 
 
    !print*, hasc
    hasc = out_ascii
-   
+
    ! --- read path to hitran files
    if (ctl_version.eq.1) then
       call nextbuf( ilun, buffer )
@@ -708,7 +714,7 @@ subroutine read_input( hasc, wstr, wstp, HFL, GLP, LFL, SDV, ELP )
       goto 12
 
       ! --- save this line
-   11 hnml           = hnml +1
+   11 hnml           = hnml +1   ! actual # of hitran files
       hfl(hnml)%buf  = buffer
       hfl(hnml)%lun  = lun
       read( linebuffer(1:3), '(i3)' ) hfl(hnml)%mo
@@ -728,7 +734,7 @@ subroutine read_input( hasc, wstr, wstp, HFL, GLP, LFL, SDV, ELP )
    ! --- Dicke narrowing narrowing or Galatry data files - block 2 in hbin.input
    ! --- read number of expected Galatry files (max=2)
    ! --- Galatry files are unique format from hitran
-   
+
    if (ctl_version.eq.1) then
       call nextbuf( ilun, buffer )
       read(buffer,*) ngal_files
@@ -968,7 +974,7 @@ subroutine read_ctrl
    real(double)      :: dwave
 
 
-   
+
    ! --- open sfit4.ctl file if its here
    inquire( file=filename, exist = fexist )
    if( .not. fexist ) then
