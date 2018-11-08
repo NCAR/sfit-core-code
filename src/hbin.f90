@@ -59,8 +59,7 @@ program hbin
    write (tag,*) trim(version), ' runtime:', cdate(1:8), '-', ztime(1:2), ':', ztime(3:4), ':', ztime(5:6)
    write ( 6, *) trim(tag)
    write(6,*) ' This version uses quanta from HITRAN to attribute extra parameters to each transition record.'
-
-   print *, ' hbin v0.9.5.0'
+   write(6,*) ' hbin v0.9.6.0'
 
 
    ! --- read in band, isotope info from sfit4.ctl file fr this fit
@@ -502,14 +501,21 @@ subroutine filh( hd, hf )
    select case ( hf%flag )
    case (0)       ! HITRAN line
 
-      ! --- read parameters
-      read( hf%buf, 107) hd%mo, aiso, hd%nu, hd%sl, hd%ea, hd%ah, hd%sh, hd%el, hd%tx, hd%ps, &
-                         hd%qa, hd%er, hd%lm, hd%uw, hd%lw, hd%bt
+      read( hf%buf, 107) hd%mo
+      if( hd%mo .EQ. 2 ) then
+         ! --- read parameters
+         read( hf%buf, 108) hd%mo, aiso,  hd%nu, hd%sl, hd%ea, hd%ah, hd%sh, hd%el, hd%tx, hd%ps, &
+                            hd%qa, hd%er, hd%lm, hd%uw, hd%lw, hd%bt
+         if( aiso .EQ. 'A' ) hd%is = 11
+         if( aiso .EQ. 'B' ) hd%is = 12
+      else
+         ! --- read parameters
+         read( hf%buf, 107) hd%mo, hd%is, hd%nu, hd%sl, hd%ea, hd%ah, hd%sh, hd%el, hd%tx, hd%ps, &
+                            hd%qa, hd%er, hd%lm, hd%uw, hd%lw, hd%bt
+      endif
 
       ! --- map hitran molecule id to sfit id
       hd%mo = hf%mo
-      if( hd%mo .EQ. 2 .AND. aiso .EQ. 'A' ) hd%is = 11
-      if( hd%mo .EQ. 2 .AND. aiso .EQ. 'B' ) hd%is = 12
 
    case (1)        ! O2CIA, id 49/0,1 -> 1,2
 
@@ -574,6 +580,8 @@ subroutine filh( hd, hf )
 
 107 format( i2, i1, f12.6, 1p, e10.3, e10.0, 0p, 2(f5.4), f10.4, f4.2, f8.6, &
             a60, a18, a1, 2f7.0, f10.0 )
+108 format( i2, a1, f12.6, 1p, e10.3, e10.0, 0p, 2(f5.4), f10.4, f4.2, f8.6, &
+            a60, a18, a1, 2f7.0, f10.0 )
 110 format( 7f12.5 )
 
 
@@ -614,10 +622,9 @@ subroutine read_input( hasc, wstr, wstp, HFL, GLP, LFL, SDV, ELP )
       stop
    endif
 
-
    if(ctl_version.eq.2) then
       call read_hbin(ifilename, istat)
-      print *, 'ISTAT', istat
+      !print *, 'ISTAT', istat
       if (istat.lt.0) goto 5
       goto 6
    end if
@@ -636,9 +643,6 @@ subroutine read_input( hasc, wstr, wstp, HFL, GLP, LFL, SDV, ELP )
       read(buffer,'(l10)') out_ascii
    end if
 
-
-
-
    !print*, hasc
    hasc = out_ascii
 
@@ -648,7 +652,7 @@ subroutine read_input( hasc, wstr, wstp, HFL, GLP, LFL, SDV, ELP )
       linelist_path = trim( buffer )
    end if
    linelist_path = trim( adjustl(linelist_path) )
-   write(6,112) 'Linelist : ', trim(linelist_path)
+   write(6,112) 'Path to Linelist : ', trim(linelist_path)
 
    ! --- read number of expected hitran files (max=99)
    if (ctl_version.eq.1) then
@@ -702,7 +706,7 @@ subroutine read_input( hasc, wstr, wstp, HFL, GLP, LFL, SDV, ELP )
       ! --- find starting wavenumber in file
       do
          read( lun, 100, end=10 ) buffer
-         read( buffer, 107 ) mo, iso, wavnum
+         read( buffer, 108 ) mo, wavnum
          if( wavnum .ge. wstr )exit
       enddo
       if( wavnum .lt. wstr )goto 10
@@ -754,8 +758,10 @@ subroutine read_input( hasc, wstr, wstp, HFL, GLP, LFL, SDV, ELP )
          call nextbuf( ilun, linebuffer )
          filename = trim(linelist_path) // trim(linebuffer)
       else
-         filename = trim(linelist_path) // trim(gal_files(i))
+         linebuffer = trim(gal_files(i))
+         filename = trim(linelist_path) // linebuffer
       end if
+
       n = len_trim(filename)
       if( filename(n:n) .eq. '/' )cycle
 
@@ -788,6 +794,9 @@ subroutine read_input( hasc, wstr, wstp, HFL, GLP, LFL, SDV, ELP )
       goto 22
 
       ! --- save this line
+print *, 1
+print*, buffer
+print *, 2
    21 glp(gnml)%buf = buffer(1:64)
       glp(gnml)%lun = lun
       read( linebuffer(1:3), '(i3)' ) glp(gnml)%mo(1)
@@ -945,6 +954,7 @@ return
 
 100 format( a160 )
 107 format(i2,i1,f12.6,1p,e10.3,10x,0p,f5.4,f5.4,f10.4,f4.2,f8.6,f7.4)
+108 format(i2,1x,f12.6)
 110 format( a, a )
 111 format( a, i10 )
 112 format( /, a, a )
