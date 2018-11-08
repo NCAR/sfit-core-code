@@ -1,0 +1,18 @@
+version v0.6
+
+- many bugfixes in the output files
+
+new features
+
+sfit4
+
+- inclusion of the transmission curvature possible (fw.transmission = T)
+- new lineshapes (Tran line shape, fw.lineshape = 4)
+- line mixing first order (fw.lineshape = 4, fw.linemixing = T), only if line mixing data are available
+- sdv lineshape (fw.lineshape = 4, fw.lineshape.sdv = T), only if sdv parameters are available
+- absorbing layer in emission calculation (fw.emission=T, fw.continuum = T, see sfit4_init for more details)
+
+hbin
+
+- input files can be tag = value, old format is still read in too
+- inclusion of additional line parameters (linemixing 1st order, line narrowing, additional parameters for pCqHDC lineshape)
