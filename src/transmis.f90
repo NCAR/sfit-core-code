@@ -26,7 +26,6 @@
       USE molcparam
       USE lineparam
       USE continuum
-
       IMPLICIT NONE
 
 ! --- TCONV and TCALC now allocated in setup
@@ -564,7 +563,6 @@
 
     END SUBROUTINE GASNTRAN
 
-    !--------------------------------------------------------------------------------
 !---------------------------------------------------------------------------
       SUBROUTINE ZERONTRAN(IBAND, IPOINT, MONONE)
 
