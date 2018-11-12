@@ -93,7 +93,7 @@ readin.o \
 sfit4.o \
 solar.o \
 synspec.o \
-tips.o \
+tips_2017.o \
 transmis.o \
 vibfcn.o \
 voigt.o \
@@ -149,7 +149,7 @@ binput_4_0 \
 : params.o binput_parse_4_0.o retvparam.o bandparam.o lineparam.o solar.o channel.o initialize.o opt.o writeout.o binput_parse_4_0.o hitran.o
 
 binput_parse_4_0.o \
-: params.o retvparam.o frwdmdl.o bandparam.o lineparam.o solar.o channel.o initialize.o opt.o datafiles.o isotope.o writeout.o continuum.o hitran.o 
+: params.o retvparam.o frwdmdl.o bandparam.o lineparam.o solar.o channel.o initialize.o opt.o datafiles.o isotope.o writeout.o continuum.o hitran.o
 
 channel.o \
 : params.o writeout.o synspec.o datafiles.o
@@ -173,7 +173,7 @@ diagnostic.o \
 
 frwdmdl.o \
 : params.o transmis.o datafiles.o molcparam.o solar.o synspec.o channel.o bandparam.o retvparam.o \
-	writeout.o initialize.o continuum.o 
+	writeout.o initialize.o continuum.o
 
 galatry.o \
 : params.o
@@ -230,7 +230,7 @@ solar.o \
 synspec.o \
 : params.o transmis.o solar.o bandparam.o
 
-tips.o \
+tips_2017.o \
 : params.o
 
 transmis.o \
@@ -250,4 +250,4 @@ writeout.o \
 : params.o datafiles.o retvparam.o molcparam.o isotope.o bandparam.o
 
 xsections.o \
-: params.o retvparam.o vibfcn.o tips.o isotope.o lineparam.o bandparam.o molcparam.o voigt_sdv_lm.o lineshape_pcqsdhc.o
+: params.o retvparam.o vibfcn.o tips_2017.o isotope.o lineparam.o bandparam.o molcparam.o voigt_sdv_lm.o lineshape_pcqsdhc.o

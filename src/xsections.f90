@@ -128,6 +128,7 @@
                ISO = ISCODE(IMOL)
 !print*, 'kro 4 ', mo
 !  --- CHECK FOR ISOTOPE SEPARATION
+!  ---  eg TIPS IS NOT AWARE OF ON-THE-FLY ISOTOPE SEPARATION
                DO I=1, NISOSEP
                    IF((MO .EQ. NEWID(I)) .AND. (ISO .EQ. NEWISO(I)))THEN
                        MO  = OLDID(I)
@@ -135,42 +136,40 @@
                    ENDIF
                ENDDO
 
-! --- CASE FOR CIA O2 (49/1 FCIA, 49/2 SCIA) DUMMY BACK TO O2 FOR PART. FCN.
-!               IF( HFLAG(N,FCIA_FLAG) .OR. HFLAG(N,SCIA_FLAG) )THEN
-!                  MO  = 7
-!                  ISO = 1
-!               ENDIF
+               CALL BD_TIPS_2017(MO, STDTEMP, ISO, GI, QTSTDTEMP)
+               CALL BD_TIPS_2017(MO, T(K), ISO, GI, QT)
 
-               CALL BD_TIPS_2011(MO, STDTEMP, ISO, GI, QTSTDTEMP)
-               CALL BD_TIPS_2011(MO, T(K), ISO, GI, QT)
+!              --- STIMULATED EMISSION CORRECTION TO LINE INTENSITY
                STIMFC = (1.D0 - EXP((-RCONST2*AZERO(N)/T(K))))/(1.D0 - EXP((-RCONST2*AZERO(N)/STDTEMP)))
-!               VIBFAC = QV(IMOL,KMAX+1)/QV(IMOL,K)
-!               SSLOLD = ST296(N)*(STDTEMP/T(K))*(STDTEMP/T(K))**TDEP(ICODE(IMOL))*VIBFAC*STIMFC*EXP((-TXE))
 
                IF (PRTDEBUG) THEN
                   PRINT *
-                  PRINT *,"IBAND,K,N,ID1,ID2,QT,QTSTD,T(K)=", &
-                           IBAND,K,N,ICODE(IMOL),ISCODE(IMOL),QT,QTSTDTEMP,T(K)
-                  PRINT *,"   VIB PART RESULT =", &
-                       (STDTEMP/T(K))*(STDTEMP/T(K))**TDEP(ICODE(IMOL))*VIBFAC
+                  PRINT *,"IBAND,K,N,ICODE,ISCODE,MOL,ISO =", IBAND,K,N, ICODE(IMOL),ISCODE(IMOL), MO,ISO
+                  PRINT *,"               T(K), QTSTD, QT = ", T(K), QTSTDTEMP, QT
+                  VIBFAC = QV(IMOL,KMAX+1)/QV(IMOL,K)
+                  SSLOLD = ST296(N)*(STDTEMP/T(K))*(STDTEMP/T(K))**TDEP(ICODE(IMOL))*VIBFAC*STIMFC*EXP((-TXE))
                ENDIF
 
                IF (QTSTDTEMP <= 0.0 .OR. QT <= 0.0) THEN
-!                 ... USE NON-TIPS METHOD VIBRATIONAL PARTITION FUNCTION
+!              --- USE NON-TIPS METHOD VIBRATIONAL PARTITION FUNCTION IF SPECIES IS NOT INCLUDED IN TIPS
                   VIBFAC = QV(IMOL,KMAX+1)/QV(IMOL,K)
-!               --- STIMULATED EMISSION CORRECTION TO LINE INTENSITY
                   SSL = ST296(N)*(STDTEMP/T(K))*(STDTEMP/T(K))**TDEP(ICODE(IMOL))*VIBFAC*STIMFC*EXP((-TXE))
-                  !SSL = SSLOLD
                   IF (PRTDEBUG) THEN
-                     PRINT *,"   VIB PARTITION SSL =",SSL
+                     PRINT *,"         T RATIO: TIPS, VIBFCN = ", QTSTDTEMP/QT, (STDTEMP/T(K))**TDEP(ICODE(IMOL))*VIBFAC
+                     PRINT *,"              USING VIBFCN SSL = ", SSL
                   ENDIF
                ELSE
-!                 ... USE TIPS
+!               --- USE TIPS
                   SSL = ST296(N)*(STDTEMP/T(K))*(QTSTDTEMP/QT)*STIMFC*EXP((-TXE))
                   IF (PRTDEBUG) THEN
-                     PRINT *,"   QTSTDTEMP/QT=",QTSTDTEMP/QT
-                     PRINT *,"   TIPS SSL, VIB PARTITION SSL =",SSL,SSLOLD
+                     PRINT *,"         T RATIO: TIPS, VIBFCN = ", QTSTDTEMP/QT, (STDTEMP/T(K))**TDEP(ICODE(IMOL))*VIBFAC
+                     PRINT *,"                USING TIPS SSL = ", SSL
                   ENDIF
+               ENDIF
+
+               IF (PRTDEBUG) THEN
+                  PRINT *, "                      TIPS SSL = ", SSL
+                  PRINT *, "                    VIBFCN SSL = ", SSLOLD
                ENDIF
 
 ! --- PUT MO AND ISO BACK TO NON-ISOTOPE SEPARATION AND TO 49 FROM 7 FOR CIA
@@ -206,7 +205,7 @@
                   S2 = 0.0D0
                END IF
 
-               
+
                ALOR = (ACOFB + SCOFB)*(STDTEMP/T(K))**TDLIN(N)
                ADOP = RFACTOR*SQRT(T(K)/GMASS(N))*AZERO(N)
 
@@ -219,7 +218,7 @@
 
                YDUM = ALOGSQ*ALOR/ADOP
 
-               ! SPEED DEPENDENT VOIGT 
+               ! SPEED DEPENDENT VOIGT
                SDVLM_PARAM(1:4) = 0.0D0
                IF (HFLAG(N,SDV_FLAG)) THEN
                   SDVLM_PARAM(1) = GAMMA2(N)*P(K) ! ASYMMETRY FOR SDV (MIXING COEFFICIENT)
@@ -273,7 +272,7 @@
                   ! pCqSDHC MODEL (Tran)
                   call pCqSDHC(azero(N),ADOP,ALOR,G2,S0, S2, ANUVC,ETA0,&
                        azero(N),AKV_R,AKV_I)
-                  AKV = SSL * (AKV_R + LM * AKV_I)! ALL OTHER PARTS OF AKZERO ARE ALREADY PART OF 
+                  AKV = SSL * (AKV_R + LM * AKV_I)! ALL OTHER PARTS OF AKZERO ARE ALREADY PART OF
                   ! AKV_R AND AKV_I
                ELSE
                   AKV = AKZERO * VOIGT(XDUM,YDUM)
@@ -321,7 +320,7 @@
                      ! pCqSDHC MODEL (Tran)
                      call pCqSDHC(WLIN,ADOP,ALOR,G2,S0, S2, ANUVC,ETA0,&
                           ANUZ,AKV_R,AKV_I)
-                     AKV = SSL * (AKV_R + LM * AKV_I)! ALL OTHER PARTS OF AKZERO ARE ALREADY PART OF 
+                     AKV = SSL * (AKV_R + LM * AKV_I)! ALL OTHER PARTS OF AKZERO ARE ALREADY PART OF
                      ! AKV_R AND AKV_I
                   ELSE
                      XDUM = ABS(XDUM)
@@ -342,7 +341,7 @@
 
       RETURN
 
- 100  FORMAT(F12.5, 1X, 8L2, 4D15.7, " CLEAR SVD & LM FLAG : ", I5 )
+ !100  FORMAT(F12.5, 1X, 8L2, 4D15.7, " CLEAR SVD & LM FLAG : ", I5 )
 
       END SUBROUTINE KROSSR
 

@@ -506,8 +506,16 @@ subroutine filh( hd, hf )
          ! --- read parameters
          read( hf%buf, 108) hd%mo, aiso,  hd%nu, hd%sl, hd%ea, hd%ah, hd%sh, hd%el, hd%tx, hd%ps, &
                             hd%qa, hd%er, hd%lm, hd%uw, hd%lw, hd%bt
-         if( aiso .EQ. 'A' ) hd%is = 11
-         if( aiso .EQ. 'B' ) hd%is = 12
+         if( aiso .EQ. 'A' )then
+            hd%is = 11
+         else if( aiso .EQ. 'B' ) then
+            hd%is = 12
+         else if( aiso .EQ. '0' ) then
+            hd%is = 10
+         else
+            read(aiso, '(i1)') hd%is
+         endif
+
       else
          ! --- read parameters
          read( hf%buf, 107) hd%mo, hd%is, hd%nu, hd%sl, hd%ea, hd%ah, hd%sh, hd%el, hd%tx, hd%ps, &
@@ -953,7 +961,7 @@ print *, 2
 return
 
 100 format( a160 )
-107 format(i2,i1,f12.6,1p,e10.3,10x,0p,f5.4,f5.4,f10.4,f4.2,f8.6,f7.4)
+!107 format(i2,i1,f12.6,1p,e10.3,10x,0p,f5.4,f5.4,f10.4,f4.2,f8.6,f7.4)
 108 format(i2,1x,f12.6)
 110 format( a, a )
 111 format( a, i10 )

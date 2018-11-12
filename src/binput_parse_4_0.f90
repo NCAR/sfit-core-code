@@ -1115,11 +1115,13 @@ end subroutine read_file_section
        case ('files')
           call read_string_list(value, hitran_files, nr_files)
           if (nr_files.ne.nhit_files) then
-             print *, 'Expected and found number of hitran files do not match : ', nr_files, nhit_files
+             write(6,100) 'Expected and found number of hitran files do not match : ', nr_files, nhit_files
           end if
        case default
           WRITE( 0,*) 'BINPUT_PARSE_4_0:READ_HBIN_HITRAN_SECTION: Key ', trim(keyword(2)), ' not contained in section : HITRAN'
        end select
+
+ 100  format(a70, 2i6)
 
      end subroutine read_hbin_hitran_section
 
@@ -1143,7 +1145,7 @@ end subroutine read_file_section
           case ('files')
              call read_string_list(value, gal_files, nr_files)
           if (nr_files.ne.ngal_files) then
-             print *, 'Expected and found number of galatry files do not match : ', nr_files, ngal_files
+             write(6,100) 'Expected and found number of galatry files do not match : ', nr_files, ngal_files
           end if
           case default
              WRITE( 0,*) 'BINPUT_PARSE_4_0:READ_AUX_HITRAN_SECTION: Key ', trim(keyword(3)), ' not contained in section : AUX.GAL'
@@ -1155,7 +1157,7 @@ end subroutine read_file_section
           case ('files')
              call read_string_list(value, lm_files, nr_files)
              if (nr_files.ne.nlm_files) then
-             print *, 'Expected and found number of line mixing files do not match : ', nr_files, nlm_files
+             write(6,100) 'Expected and found number of line mixing files do not match : ', nr_files, nlm_files
           end if
           case default
              WRITE( 0,*) 'BINPUT_PARSE_4_0:READ_AUX_HITRAN_SECTION: Key ', trim(keyword(3)), ' not contained in section : AUX.LM'
@@ -1167,7 +1169,7 @@ end subroutine read_file_section
           case ('files')
              call read_string_list(value, sdv_files, nr_files)
              if (nr_files.ne.nsdv_files) then
-             print *, 'Expected and found number of SDV files do not match : ', nr_files, nsdv_files
+             write(6,100) 'Expected and found number of SDV files do not match : ', nr_files, nsdv_files
           end if
           case default
              WRITE( 0,*) 'BINPUT_PARSE_4_0:READ_AUX_HITRAN_SECTION: Key ', trim(keyword(3)), ' not contained in section : AUX.SDV'
@@ -1175,6 +1177,8 @@ end subroutine read_file_section
        case default
           WRITE( 0,*) 'BINPUT_PARSE_4_0:READ_AUX_HITRAN_SECTION: Key ', trim(keyword(3)), ' not contained in section : AUX'
        end select
+
+ 100  format(a70, 2i6)
 
      end subroutine read_hbin_aux_section
 
