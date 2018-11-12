@@ -1,5 +1,23 @@
 Running Notes for Developers / Documentation for sfit4
 
+NOV 2018 -jwh
+added HITRAN16 and ATM2018 line lists
+   - edited gggmol and hitmolf90 codes to parse out combined ATM and HIT line list files to individual gases
+   - moved individual files to linelist.all for testing (not in release yet)
+   - edited hbin to accommodate new isotopes
+   - edited mol id map in hitran.f90
+   - added Linelist_Map.xlsx into linelist directory to keep track of lines available.
+
+added TIPS 2017
+   - edited lineparam and xsection for testing
+   - changed debug prints in xsection for better comparisons with TIPS & VIBFCN
+   - edited binput_parse for print statements of hitran & auxiliary finle reads
+   - lots of edited in tips_2017.f90 : combined commons and include files, edited big IF to a CASE,
+      modified id numbers for SFIT after #21
+   - initial test with x.co2.iso
+
+
+
 -------------- Version PreRelease: 0.9.6 (March 2018) --------------
 
 1. Compile/Test V0.9.7.0
