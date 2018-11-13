@@ -42,7 +42,7 @@ contains
   subroutine read_hbin(filename, istat)
     character (len=*), intent(in) :: filename
     character (len=255), dimension(10) :: keyword
-    character (len=2048) :: value
+    character (len=4096) :: value
     integer :: file_stat, nr_keys, istat !, nr
     logical :: bp_exist
 
@@ -180,8 +180,8 @@ subroutine read_line_binput(keyword, nr_keyword, value, file_stat)
     integer, intent(out) :: file_stat
     integer, intent(out) :: nr_keyword
 
-    character (len=2048) ::  line
-    character (len=2048) :: line_complete
+    character (len=4096) ::  line
+    character (len=4096) :: line_complete
     character (len=255) :: kw
     integer pos,nr,error
     logical flag
