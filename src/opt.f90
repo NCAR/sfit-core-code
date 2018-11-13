@@ -756,40 +756,40 @@ SUBROUTINE GETSAINV( ISMIX )
 
       END SUBROUTINE GETSAINV
 
-      subroutine make_TPmatrix(nl,altvec,TPmat)
-        ! Calculates a smoothness constraint matrix for the given
-        ! altitude vector. Routine pitched from Frank Hase.
+      SUBROUTINE MAKE_TPMATRIX(NL,ALTVEC,TPMAT)
+        ! CALCULATES A SMOOTHNESS CONSTRAINT MATRIX FOR THE GIVEN
+        ! ALTITUDE VECTOR. ROUTINE PITCHED FROM FRANK HASE.
 
-        ! nl is the number of altitude layers, altvec is Z,
-        ! i.e. the boundaries of the altitude grid
+        ! NL IS THE NUMBER OF ALTITUDE LAYERS, ALTVEC IS Z,
+        ! I.E. THE BOUNDARIES OF THE ALTITUDE GRID
 
-        implicit none
+        IMPLICIT NONE
 
-        integer,intent(in) :: nl
-        real(8),dimension(nl+1),intent(in) :: altvec
-        real(8),dimension(nl,nl),intent(out) :: TPmat
+        INTEGER,INTENT(IN) :: NL
+        REAL(8),DIMENSION(NL+1),INTENT(IN) :: ALTVEC
+        REAL(8),DIMENSION(NL,NL),INTENT(OUT) :: TPMAT
 
-        integer :: i
-        real(8),dimension(:,:),allocatable :: Bmat,Dmat
+        INTEGER :: I
+        REAL(8),DIMENSION(:,:),ALLOCATABLE :: BMAT,DMAT
 
-        allocate (Bmat(nl,nl),Dmat(nl,nl))
-        ! Setup B matrix for TP = BT * D * B
-        Bmat = 0.0d0
-        do i = 1,nl - 1
-           Bmat(i,i) = 1.0d0
-           Bmat(i,i+1) = -1.0d0
-        end do
-        ! Setup matrix D
-        Dmat = 0.0d0
-        do i = 1,nl
-           Dmat(i,i) = 1.0d0 / ((altvec(i+1) - altvec(i)) * (altvec(i+1) - altvec(i)))
-        end do
-        ! Calculate BT * D * B
-        TPmat = matmul(transpose(Bmat),matmul(Dmat,Bmat))
+        ALLOCATE (BMAT(NL,NL),DMAT(NL,NL))
+        ! SETUP B MATRIX FOR TP = BT * D * B
+        BMAT = 0.0D0
+        DO I = 1,NL - 1
+           BMAT(I,I) = 1.0D0
+           BMAT(I,I+1) = -1.0D0
+        END DO
+        ! SETUP MATRIX D
+        DMAT = 0.0D0
+        DO I = 1,NL
+           DMAT(I,I) = 1.0D0 / ((ALTVEC(I+1) - ALTVEC(I)) * (ALTVEC(I+1) - ALTVEC(I)))
+        END DO
+        ! CALCULATE BT * D * B
+        TPMAT = MATMUL(TRANSPOSE(BMAT),MATMUL(DMAT,BMAT))
 
-        deallocate (Bmat,Dmat)
+        DEALLOCATE (BMAT,DMAT)
 
-      end subroutine make_TPmatrix
+      END SUBROUTINE MAKE_TPMATRIX
 
 
 
