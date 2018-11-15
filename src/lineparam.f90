@@ -338,7 +338,6 @@
 !         AAA(NLINES) = 0.1D0
 !         SSS(NLINES) = 0.1D0
           if (AW .le. 0.0) AAA(NLINES) = 0.1D0
-
           if (SW .le. 0.0) SSS(NLINES) = AAA(NLINES)
          ST296(NLINES) = ST296(NLINES)*SCHMIT*ZEROC/STDTEMP
       ENDIF

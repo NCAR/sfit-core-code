@@ -1,0 +1,151 @@
+# hbin.input for Testing ATM 20181101
+#
+# implemented in version b3.99:
+# the linelist directory structure is the key to the gas names and the molecule id numbers
+# those id's and names must be the same in the reference.prf file
+# eg a files containing hitran lines is read from one subdir in linelist then the molid will be changed
+# to the 2digit integer 0NN of the subdir name and assumed to be for gas 'abcdef' from subdir 0NN_abcdef
+#
+# Save an ascii (HITRAN format) list file (True / False)
+file.out.ascii = T
+#
+# Path to the directory tree where the gas subdirectories are
+#
+#file.in.linelist = /home/mathias/linelist/
+file.in.linelist = /Users/jamesw/FDP/sfit/400/linelist.all/
+#
+# Then the next lines are paths to each gas file that will be searched for lines in the
+# desired wavenember region.  The id numbers are in sfit order - not HITRAN, BUT KEEP
+# these directory names the files are in HITRAN format.  File names can be anything.
+#
+# Tip: put a blank after the '/' to skip that gas or just remove it (and decrease hitran.nr)
+#
+# 049_O2CIA/o2cia_20060420.101 - this file is a special case, molid & isotope
+#  ids are dealt with differently
+#
+# Number of path/files to look for
+hitran.nr = 99
+#
+#
+hitran.files =
+001_H2O/001_H2O-HDO.atm.20181101
+002_CO2/002_CO2.atm.20181101
+003_O3/003_O3.atm.20181101
+004_N2O/004_N2O.atm.20181101
+005_CO/005_CO.atm.20181101
+006_CH4/006_CH4.atm.20181101
+007_O2/007_O2.atm.20181101
+008_NO/008_NO.atm.20181101
+009_SO2/009_SO2.atm.20181101
+010_NO2/010_NO2.atm.20181101
+011_NH3/011_NH3.atm.20181101
+012_HNO3/012_HNO3.atm.20181101
+013_OH/013_OH.atm.20181101
+014_HF/014_HF.atm.20181101
+015_HCL/015_HCL.atm.20181101
+016_HBR/016_HBr.atm.20181101
+017_HI/017_HI.atm.20181101
+018_CLO/018_ClO.atm.20181101
+019_OCS/019_OCS.atm.20181101
+020_H2CO/020_H2CO.atm.20181101
+021_HOCL/021_HOCl.atm.20181101
+022_HO2/022_HO2.atm.20181101
+023_H2O2/023_H2O2.atm.20181101
+024_HONO/
+025_HO2NO2/
+026_N2O5/2007.sudo.n2o5
+027_CLONO2/2007.sudo.clono2
+028_HCN/028_HCN.atm.20181101
+029_CH3F/
+030_CH3CL/030_CH3Cl.atm.20181101
+031_CF4/2007.sudo.cf4
+032_CCL2F2/2007.sudo.ccl2f2
+033_CCL3F/2007.sudo.ccl3f
+034_CH3CCL3/
+035_CCL4/2007.sudo.ccl4
+036_COF2/036_COF2.atm.20181101
+037_COCLF/2007.sudo.coclf
+038_C2H6/038_C2H6.atm.20181101
+039_C2H4/039_C2H4.atm.20181101
+040_C2H2/040_C2H2.atm.20181101
+041_N2/041_N2.atm.20181101
+042_CHF2CL/2007.sudo.chf2cl
+043_COCL2/049_COCL2.hit16.20181107
+044_CH3BR/040_CH3Br.hit16.20181107
+045_CH3I/
+046_HCOOH/046_HCOOH.atm.20181101
+047_H2S/047_H2S.atm.20181101
+048_CHCL2F/
+049_O2CIA/o2cia_20060420.101
+050_SF6/2007.sudo.sf6
+051_NF3/nf3.101.511.txt
+052_N2CIA/n2cia.20060420.101
+053_OTHER/
+054_OTHER/
+055_OTHER/
+056_OTHER/
+057_OTHER/
+058_OCLO/
+059_F134A/
+060_C3H8/2005ppn.sudo.c3h8
+061_F142B/2007.sudo.f142b
+062_CFC113/2007.sudo.f113
+063_F141B/
+064_CH3OH/039_CH3OH.hit16.20181107
+065_OTHER/
+066_OTHER/
+067_PAN/2007.sudo.pan
+068_CH3CHO/2007.sudo.ch3cho
+069_CH3CN/041_CH3CN.hit16.20181107
+070_OTHER/
+071_CH3COOH/
+072_C5H8/
+073_MVK/
+074_MACR/
+075_C3H6/
+076_C4H8/
+077_OTHER/
+078_OTHER/
+079_OTHER/
+080_OTHER/
+081_OTHER/
+082_OTHER/
+083_OTHER/
+084_OTHER/
+085_OTHER/
+086_OTHER/
+087_OTHER/
+088_OTHER/
+089_OTHER/
+090_OTHER/
+091_OTHER/
+092_OTHER/
+093_OTHER/
+094_OTHER/
+095_OTHER/
+096_OTHER/
+097_OTHER/
+098_OTHER/
+099_OTHER/
+#
+#
+# Galatry parameters
+# molecule id numbers in these files have to match the sfit molecule id
+aux = gal sdv lm
+aux.gal.nr = 0
+aux.gal.files =
+014_HF/14_hit12_Galatry.txt
+015_HCL/15_hit12_Galatry.txt
+#
+#
+# CO2 Line mixing parameters for Boone implementation
+aux.lm.nr = 0
+aux.lm.files =
+002_CO2/02_hase_lm.dat
+#
+#
+# Speed Dependent Voigt parameter files --- not yet!
+aux.sdv.nr = 0
+aux.sdv.files =
+005_CO/05_hit12_SDV.txt
+#
