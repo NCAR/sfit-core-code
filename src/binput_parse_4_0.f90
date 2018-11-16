@@ -37,7 +37,7 @@ module binput_parse_4_0
   save
 
   character (len=255), dimension(5) :: keyword
-  character (len=2048) :: value
+  character (len=4096) :: value
   character (len=7), dimension(10) :: gas_prf, gas_col
   logical, dimension(10) :: gas_detail=.false.
   logical :: f_gasprf=.false., f_gascol=.false.
@@ -1115,7 +1115,7 @@ end subroutine read_file_section
        case ('files')
           call read_string_list(value, hitran_files, nr_files)
           if (nr_files.ne.nhit_files) then
-             write(6,100) 'Expected and found number of hitran files do not match : ', nr_files, nhit_files
+             write(6,100) 'Expected and found number of hitran files do not match : ', nhit_files, nr_files
           end if
        case default
           WRITE( 0,*) 'BINPUT_PARSE_4_0:READ_HBIN_HITRAN_SECTION: Key ', trim(keyword(2)), ' not contained in section : HITRAN'
@@ -1145,7 +1145,7 @@ end subroutine read_file_section
           case ('files')
              call read_string_list(value, gal_files, nr_files)
           if (nr_files.ne.ngal_files) then
-             write(6,100) 'Expected and found number of galatry files do not match : ', nr_files, ngal_files
+             write(6,100) 'Expected and found number of galatry files do not match : ', ngal_files, nr_files
           end if
           case default
              WRITE( 0,*) 'BINPUT_PARSE_4_0:READ_AUX_HITRAN_SECTION: Key ', trim(keyword(3)), ' not contained in section : AUX.GAL'
@@ -1157,7 +1157,7 @@ end subroutine read_file_section
           case ('files')
              call read_string_list(value, lm_files, nr_files)
              if (nr_files.ne.nlm_files) then
-             write(6,100) 'Expected and found number of line mixing files do not match : ', nr_files, nlm_files
+             write(6,100) 'Expected and found number of line mixing files do not match : ', nlm_files, nr_files
           end if
           case default
              WRITE( 0,*) 'BINPUT_PARSE_4_0:READ_AUX_HITRAN_SECTION: Key ', trim(keyword(3)), ' not contained in section : AUX.LM'
@@ -1169,7 +1169,7 @@ end subroutine read_file_section
           case ('files')
              call read_string_list(value, sdv_files, nr_files)
              if (nr_files.ne.nsdv_files) then
-             write(6,100) 'Expected and found number of SDV files do not match : ', nr_files, nsdv_files
+             write(6,100) 'Expected and found number of SDV files do not match : ', nsdv_files, nr_files
           end if
           case default
              WRITE( 0,*) 'BINPUT_PARSE_4_0:READ_AUX_HITRAN_SECTION: Key ', trim(keyword(3)), ' not contained in section : AUX.SDV'
@@ -1213,7 +1213,7 @@ end subroutine read_file_section
 
        integer :: pos
 
-       character (len=2048) :: val
+       character (len=4096) :: val
 
        val = value
 
@@ -1226,8 +1226,10 @@ end subroutine read_file_section
           nr_val = nr_val + 1
           if (pos.gt.0) then
              vallist(nr_val) = trim(adjustl(val(1:pos)))
+             !print*, vallist(nr_val)
           else
              vallist(nr_val) = trim(adjustl(val(1:len_trim(val))))
+             !print*, vallist(nr_val)
              exit
           end if
           val = adjustl(val(pos+1:len(val)))

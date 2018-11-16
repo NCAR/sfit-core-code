@@ -58,8 +58,8 @@ program hbin
    call date_and_time (cdate, ztime, zone)
    write (tag,*) trim(version), ' runtime:', cdate(1:8), '-', ztime(1:2), ':', ztime(3:4), ':', ztime(5:6)
    write ( 6, *) trim(tag)
-   write(6,*) ' This version uses quanta from HITRAN to attribute extra parameters to each transition record.'
-   write(6,*) ' hbin v0.9.6.0'
+   write(6,*) ' This hbin version uses quanta from HITRAN to attribute extra parameters to each transition record.'
+   !write(6,*) ' hbin v0.9.6.0'
 
 
    ! --- read in band, isotope info from sfit4.ctl file fr this fit
@@ -688,6 +688,11 @@ subroutine read_input( hasc, wstr, wstp, HFL, GLP, LFL, SDV, ELP )
          linebuffer = trim(hitran_files(i))
       end if
       n = len_trim(filename)
+      !print*, n
+      !print*, linebuffer
+      !print*, filename
+      !print*, nhit_files, i, hitran_files(i)
+
       ! catch eg 065_CH3CNPL/ 2007.sudo.ch3cn
       do j=1, n
         if( filename(j:j) .eq. ' ' )then
@@ -1018,6 +1023,7 @@ subroutine read_ctrl
       end select
    end do
    write(6,101) 'Found number of bands : ', nband
+   write(6,*) ''
 
    ! --- Loop over bands
    do iband = 1, nband
@@ -1031,6 +1037,7 @@ subroutine read_ctrl
       write(6,100) iband, wave3(iband), wave5(iband), wave4(iband), wave6(iband), pmax(iband), dn(iband)
    enddo
 
+   write(6,*) ''
    close( bp_nr )
 
 return

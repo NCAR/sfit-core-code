@@ -1309,11 +1309,11 @@ subroutine parsetitle( title, yy, mm, dd, hh, nn, ss, sza, azm, dur, res, fov, l
 character (len=80), intent(out)   :: title
 character (len=1), intent(inout)  :: loc
 integer, intent(out)              :: yy, mm, dd, hh, nn, ss
-real(8), intent(out)                 :: sza, azm, dur, fov, res
-real(8)                           :: roe, hour
+real(8), intent(out)              :: sza, azm, dur, fov, res
+real(8)                           :: roe, hour, alt, lat, lon
 !real(4)                           :: opd
 character (len=3)                 :: apd, mstr
-integer                           :: m = 0, i
+integer                           :: m = 0, i, h2, n2, s2
 
 ! from bnr.c
 !// 1char key for values in header
@@ -1403,17 +1403,32 @@ goto 10
 m = m + 1
 ! Jungfraujoch headers
 ! JJB-S09A01JK.MOY 01 OCT 2009  4.400 mK 1.45 mm Ap.ZA=72.359 S/N= 3201 h= 8.299
-read(title,100,err=21) dd, mstr, yy, fov, sza, hour
+read(title,100,err=20) dd, mstr, yy, fov, sza, hour
 do i = 1,12
    if (mstr.eq.month_str(i)) mm = i
 end do
-hour = hour -1 
+hour = hour -1
 hh = floor(hour)
-nn = floor(mod(hour,1.0d0)*60.0d0) 
-ss = floor(mod(hour*60.0d0,1.0d0)*60.0d0) 
+nn = floor(mod(hour,1.0d0)*60.0d0)
+ss = floor(mod(hour*60.0d0,1.0d0)*60.0d0)
 goto 10
 
-21 print*, 'spec:parsetitle: header read', m
+20 continue
+!NAI
+! Grp 1: 20170821 17:41:56-17:42:19 42.72  106.34 2421.0!?5?2 ?@p?#?W?@??+$??2
+read(title,40,err=31)yy, mm, dd, hh, nn, ss, h2, n2, s2, lat, lon, alt
+40 format(7x,i4,i2,i2,6(1x,i2),1x,f6.0,f7.0,f6.0)
+!print*, yy, mm, dd, hh, nn, ss, h2, n2, s2, sza, azm, alt
+hour = ((hh + (nn + ss/60.)/60.) + (h2 + (n2 + s2/60.)/60.))/2.
+hh   = floor(hour)
+nn   = floor(mod(hour,1.0d0)*60.0d0)
+ss   = floor(mod(hour*60.0d0,1.0d0)*60.0d0)
+!print*, hh, nn, ss
+goto 10
+
+21 continue
+
+31 print*, 'spec:parsetitle: header read', m
 print*,yy, mm, dd, hh, nn, ss, sza, azm
 stop '4'
 
