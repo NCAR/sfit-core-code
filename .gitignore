@@ -1,0 +1,6 @@
+*.dSYM
+sfit4
+hbin
+pspec
+*.mod
+*.o

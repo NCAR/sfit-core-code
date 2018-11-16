@@ -568,7 +568,7 @@ end subroutine read_file_section
     character (len=*), intent(in) :: value
 
     character (len=255) :: tmpstr
-    integer :: nr
+    !integer :: nr
     logical :: tflag
 
     if (len_trim(keyword(2)).eq.0) then
@@ -1108,31 +1108,32 @@ end subroutine read_file_section
        character (len=*), dimension(*),intent(in) :: keyword
        character (len=*), intent(in) :: value
        integer :: nr_files
-       
+
        select case (trim(adjustl(keyword(2))))
        case ('nr')
           read(value, *) nhit_files
        case ('files')
           call read_string_list(value, hitran_files, nr_files)
           if (nr_files.ne.nhit_files) then
-             print *, 'Wrong number of hitran files entries'
-             print *, nr_files, nhit_files
+             write(6,100) 'Expected and found number of hitran files do not match : ', nr_files, nhit_files
           end if
        case default
           WRITE( 0,*) 'BINPUT_PARSE_4_0:READ_HBIN_HITRAN_SECTION: Key ', trim(keyword(2)), ' not contained in section : HITRAN'
        end select
 
+ 100  format(a70, 2i6)
+
      end subroutine read_hbin_hitran_section
 
-     subroutine read_hbin_aux_section(keyword, value)     
+     subroutine read_hbin_aux_section(keyword, value)
        implicit none
        character (len=*), dimension(*),intent(in) :: keyword
        character (len=*), intent(in) :: value
 
        integer :: nr_aux, nr_files
        character (len=10), dimension(4) :: aux_param
-       
-       if (len_trim(keyword(2)).eq.0) then       
+
+       if (len_trim(keyword(2)).eq.0) then
           call read_string_list(value, aux_param, nr_aux)
           return
        end if
@@ -1144,8 +1145,7 @@ end subroutine read_file_section
           case ('files')
              call read_string_list(value, gal_files, nr_files)
           if (nr_files.ne.ngal_files) then
-             print *, 'Wrong number of galatry files entries'
-             print *, nr_files, ngal_files
+             write(6,100) 'Expected and found number of galatry files do not match : ', nr_files, ngal_files
           end if
           case default
              WRITE( 0,*) 'BINPUT_PARSE_4_0:READ_AUX_HITRAN_SECTION: Key ', trim(keyword(3)), ' not contained in section : AUX.GAL'
@@ -1157,9 +1157,8 @@ end subroutine read_file_section
           case ('files')
              call read_string_list(value, lm_files, nr_files)
              if (nr_files.ne.nlm_files) then
-                print *, 'Wrong number of line mixing files entries'
-                print *, nr_files, nlm_files
-             end if
+             write(6,100) 'Expected and found number of line mixing files do not match : ', nr_files, nlm_files
+          end if
           case default
              WRITE( 0,*) 'BINPUT_PARSE_4_0:READ_AUX_HITRAN_SECTION: Key ', trim(keyword(3)), ' not contained in section : AUX.LM'
           end select
@@ -1170,9 +1169,8 @@ end subroutine read_file_section
           case ('files')
              call read_string_list(value, sdv_files, nr_files)
              if (nr_files.ne.nsdv_files) then
-                print *, 'Wrong number of line mixing files entries'
-                print *, nr_files, nsdv_files
-             end if
+             write(6,100) 'Expected and found number of SDV files do not match : ', nr_files, nsdv_files
+          end if
           case default
              WRITE( 0,*) 'BINPUT_PARSE_4_0:READ_AUX_HITRAN_SECTION: Key ', trim(keyword(3)), ' not contained in section : AUX.SDV'
           end select
@@ -1180,9 +1178,11 @@ end subroutine read_file_section
           WRITE( 0,*) 'BINPUT_PARSE_4_0:READ_AUX_HITRAN_SECTION: Key ', trim(keyword(3)), ' not contained in section : AUX'
        end select
 
+ 100  format(a70, 2i6)
+
      end subroutine read_hbin_aux_section
 
-     subroutine read_hbin_file_section(keyword, value)     
+     subroutine read_hbin_file_section(keyword, value)
        character (len=*), dimension(*),intent(in) :: keyword
        character (len=*), intent(in) :: value
 
@@ -1216,7 +1216,7 @@ end subroutine read_file_section
        character (len=2048) :: val
 
        val = value
-       
+
        nr_val = 0
        pos = index(adjustl(val),' ')
        !       write(*,*) val, pos
@@ -1235,7 +1235,7 @@ end subroutine read_file_section
        end do
 
        return
-       
+
      end subroutine read_string_list
 
    end module binput_parse_4_0

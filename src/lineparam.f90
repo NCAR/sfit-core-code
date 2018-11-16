@@ -67,13 +67,13 @@
                                                 ! 1 = FORCE VOIGT FOR ALL LINES
                                                 ! 2 = USE GALATRY FOR LINES WITH PARAMETERS, VOIGT ELSE
                                                 ! 3 = USE SDV FOR LINES WITH PARAMETERS
-                                                ! 4 = USE pCqSDHC 
+                                                ! 4 = USE pCqSDHC
 
       ! if lshapemodel = 0, the following switches may be used to switch certain features
       ! by default all switched on for default line shape
       logical :: lsm_sdv = .false.              ! if TRUE, speed dependent Voigt is used
 
-      
+
       INTEGER, PARAMETER   :: GALATRY_FLAG=1,FCIA_FLAG=2,SCIA_FLAG=3
       integer, PARAMETER   :: SDV_FLAG=4,LM_FLAG=5,CORR_FLAG=5
       INTEGER, PARAMETER   :: LM_1ST_FLAG=6, LM_FULL_FLAG=7

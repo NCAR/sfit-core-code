@@ -2,6 +2,20 @@ Version Documentation for sfit4
 
 -------------- Version PreRelease: 0.9.6 (March 2018) --------------
 
+1. Compile/Test V0.9.7.0
+MacOS (Hannigan)
+$ gfortran -v
+Target: x86_64-apple-darwin15.6.0
+Configured with: ../gcc-7.1.0/configure --enable-languages=c++,fortran
+Thread model: posix
+gcc version 7.1.0 (GCC)
+Note: need to remove -mcmodel=large & to do so reduce NMAX to 255 from 512 -appears to be a mismatch on the MacOS linker
+
+2. Red Hat Linux (Smale)
+The version of gfortran below worked:
+Linux version 3.10.0-693.21.1.el7.x86_64
+GNU Fortran (GCC) 4.8.5 20150623 (Red Hat 4.8.5-16)
+
 
 -------------- Version 9.4.4 (June 2014) --------------
 MAJOR
@@ -9,5 +23,5 @@ MAJOR
   uncertainties. See bug report #92.
 
 MINOR
-+ Added space between FITRMS and CHI_Y_2 in summary file so these values would not run 
++ Added space between FITRMS and CHI_Y_2 in summary file so these values would not run
   together for bad fits

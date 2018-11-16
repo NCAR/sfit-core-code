@@ -26,7 +26,6 @@
       USE molcparam
       USE lineparam
       USE continuum
-      
       IMPLICIT NONE
 
 ! --- TCONV and TCALC now allocated in setup
@@ -64,7 +63,7 @@
 !            do kk = 1, npath  !kmax
 !               CCC(:nspec,kk) = CORG(:nspec,kk) * ( TORG(kk) / T(KK) )
 !            enddo
-            
+
 !print*, k, nspec, ccc(:nspec,k), T(K), TORG(k), CORG(:nspec,k)
 
 !print*, k, ccc(:nspec,k)
@@ -80,7 +79,7 @@
       IF( KMAX .EQ. 0 )THEN
          DO KK = 1, NCELL
             PMASMX(KK) = 0.D0
-            PMASMX(KK) = DMAX1(MAXVAL(CCC(:NSPEC,KK)),PMASMX(KK))            
+            PMASMX(KK) = DMAX1(MAXVAL(CCC(:NSPEC,KK)),PMASMX(KK))
             !PRINT *,  PMASMX(KK)
          END DO
 !         IF (NCELL .GT. 0) THEN
@@ -100,7 +99,7 @@
       REAL(DOUBLE), DIMENSION(:),   ALLOCATABLE :: cross_all
 
 
-      
+
       MONONE = 1
       MXONE  = 1
 !  --- COMPUTE MONOCHROMATIC TRANSMITTANCES FOR ALL SCANS
@@ -116,7 +115,7 @@
 
       END DO
 
-      
+
       !  --- Write out crossections per altitude and frequency
       if (.false.) then
          print *, 'write out crosssections'
@@ -133,7 +132,7 @@
             cross_all(1:ncross) = CROSS(NRET+1,K,1:ncross)
             write(94, '(100000(ES13.4,1x))') (cross_all(i), i=1,ncross)
          end do
-         if(f_contabs) then   
+         if(f_contabs) then
             do k = 1,ksmax2
                cross_all(1:ncross) = CROSS(NRET+2,K,1:ncross)
                write(94, '(100000(ES13.4,1x))') (cross_all(i), i=1,ncross)
@@ -142,7 +141,7 @@
          call fileclose(94,1)
          deallocate(cross_all)
       end if
-      
+
 !  --- COPY TRANSMISSION ARRAY
 
       TCALC  (2,:NMONSM)         = TCALC  (1,:NMONSM)
@@ -194,7 +193,7 @@
       KSMAX2 = KZTAN(ISCAN(IBAND,NSCANS))
 
 
-            
+
 !print*, 'ntran ', iband, nscans, ISCAN(IBAND,NSCANS), KSMAX2
 
 !                   ------------LOOP OVER LAYERS
@@ -204,7 +203,7 @@
 
 
 
-         
+
          ! ------------LOOP OVER SPECTRA
          DO INDXX = 1, NSCANS
 
@@ -224,8 +223,8 @@
 
                      ! --- DON'T APPLY SHIFT TO FIRST POINT
                      CROSS_FACMAS(1,K,MSTOR) = CROSS(1,K,ICINDX) * FACMAS
-                     
-                     
+
+
                      ! IF THERE IS AN LAYER WITH 0.0 VMR OF THE TARGET GAS
                      IF (XORG(1,K).GT.TINY(XORG(1,K))) THEN
                         TCALC(IPOINT,MSTOR) = TCALC(IPOINT,MSTOR) + (X(1,K)/XORG(1,K)) * CROSS_FACMAS(1,K,MSTOR)
@@ -285,11 +284,11 @@
                         if (f_contabs) then
                            CROSS_FACMAS(NRET+2,K,MSTOR) = CROSS(NRET+2,K,ICINDX2)*FACMAS
                            TCALC(IPOINT,MSTOR) = TCALC(IPOINT,MSTOR) + CROSS_FACMAS(NRET+2,K,MSTOR)
-                           
+
                            IF (IEMISSION/=0) THEN
                               ! Transmission calculated below the layer ALT, needed
-                              ! for calculation of contribution to emission from 
-                              ! layer ALT to the ground 
+                              ! for calculation of contribution to emission from
+                              ! layer ALT to the ground
                               DO ALT=1,KSMAX2
                                  IF (ZBAR(ALT) > ZBAR(K)) THEN
                                     TCALC_E(IPOINT,MSTOR,ALT) = &
@@ -340,8 +339,8 @@
                           TCALC(IPOINT,MSTOR) = TCALC(IPOINT,MSTOR) + CROSS_FACMAS(NRET+2,K,MSTOR)
                           IF (IEMISSION/=0) THEN
                              ! TRANSMISSION CALCULATED BELOW THE LAYER ALT, NEEDED
-                             ! FOR CALCULATION OF CONTRIBUTION TO EMISSION FROM 
-                             ! LAYER ALT TO THE GROUND 
+                             ! FOR CALCULATION OF CONTRIBUTION TO EMISSION FROM
+                             ! LAYER ALT TO THE GROUND
                              DO ALT=1,KSMAX2
                                 IF (ZBAR(ALT) > ZBAR(K)) THEN
                                    TCALC_E(IPOINT,MSTOR,ALT) = &
@@ -504,7 +503,7 @@
                   ICINDX = MIN0(MXMAX,ICINDX)
                ENDIF
                CROSS_FACMAS(IR,K,MSTOR) = CROSS(IR,K,ICINDX)*FACMAS
-               TCALC(IPOINT,MSTOR) = TCALC(IPOINT,MSTOR) + CROSS_FACMAS(IR,K,MSTOR) 
+               TCALC(IPOINT,MSTOR) = TCALC(IPOINT,MSTOR) + CROSS_FACMAS(IR,K,MSTOR)
 !               if (IR.eq.1) print *, TCALC(IPOINT,MSTOR)
                IF (IEMISSION.EQ.1) THEN
                   ! Transmission calculated below the layer ALT, needed
@@ -561,10 +560,9 @@
          end if
       endDO
       RETURN
-      
+
     END SUBROUTINE GASNTRAN
 
-    !--------------------------------------------------------------------------------
 !---------------------------------------------------------------------------
       SUBROUTINE ZERONTRAN(IBAND, IPOINT, MONONE)
 

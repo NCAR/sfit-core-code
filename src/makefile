@@ -34,8 +34,11 @@ FFLAGS = -Wall -fno-automatic -fcheck=all -ffpe-trap=invalid,zero,overflow,under
          -fbounds-check -fbacktrace -g -ffree-line-length-none
 
 # optimize -Ofast v4.8
+#FFLAGS = -g -Wall -fno-automatic -frepack-arrays  -ffree-line-length-none -mcmodel=large
+#FFLAGS = -g -Wall -fno-automatic -frepack-arrays  -ffree-line-length-none # -Wno-unused-function -Wno-unused-variable -Wno-conversion
 FFLAGS = -g -Wall -fno-automatic -frepack-arrays  -ffree-line-length-none -mcmodel=small
 #FFLAGS = -g -Wall -fno-automatic -frepack-arrays  -ffree-line-length-none
+
 
 # supply compile date:
 # -cpp -DBDATE="\"`date +%Y%m%d`"\" -O2 -fno-automatic
@@ -50,10 +53,9 @@ FFLAGS = -g -Wall -fno-automatic -frepack-arrays  -ffree-line-length-none -mcmod
 #FC = pgf90
 #FFLAGS = ${PGBUG} ${PGTRAP}
 #FFLAGS = -traceback -g -Kieee  ${PGTRAP} ${PGBUG}
-
-PGTRAP = -Ktrap=divz -Ktrap=align -Ktrap=denorm  -Ktrap=inv -Ktrap=ovf -Ktrap=unf
-PGBUG = -Mbounds -Mchkfpstk -Mchkptr -Mchkstk -Mpgicoff
-PGOPT = -fast
+#PGTRAP = -Ktrap=divz -Ktrap=align -Ktrap=denorm  -Ktrap=inv -Ktrap=ovf -Ktrap=unf
+#PGBUG = -Mbounds -Mchkfpstk -Mchkptr -Mchkstk -Mpgicoff
+#PGOPT = -fast
 
 # use internal matrix inversion (not lapack)
 # no eigenvector output
@@ -91,7 +93,7 @@ readin.o \
 sfit4.o \
 solar.o \
 synspec.o \
-tips.o \
+tips_2017.o \
 transmis.o \
 vibfcn.o \
 voigt.o \
@@ -107,16 +109,16 @@ all : sfit4 hbin pspec # convert_rdrv_394
 
 
 
-sfit4: $(OBJS) rdrv40.o 
+sfit4: $(OBJS) rdrv40.o
 	$(FC) -o $@ $^ $(FFLAGS) $(LIBS) $(VLIB)
 
 #convert_rdrv_394 : convert_rdrv_394.o $(OBJS) convert_old_data_files.o read_binput_394.o
 #	$(FC) -o $@ $^ $(FFLAGS) $(LIBS) $(VLIB)
 
-hbin: hbin.o hitran.o $(OBJS) 
+hbin: hbin.o hitran.o $(OBJS)
 	$(FC) -o $@ $^ $(FFLAGS) $(LIBS) $(VLIB)
 
-pspec: pspec.o spec.o fitting.o  $(OBJS) 
+pspec: pspec.o spec.o fitting.o  $(OBJS)
 	$(FC) -o $@ $^ $(FFLAGS) $(LIBS) $(VLIB)
 
 #params.o binput_4_0.o binput_parse_4_0.o datafiles.o bandparam.o
@@ -147,7 +149,7 @@ binput_4_0 \
 : params.o binput_parse_4_0.o retvparam.o bandparam.o lineparam.o solar.o channel.o initialize.o opt.o writeout.o binput_parse_4_0.o hitran.o
 
 binput_parse_4_0.o \
-: params.o retvparam.o frwdmdl.o bandparam.o lineparam.o solar.o channel.o initialize.o opt.o datafiles.o isotope.o writeout.o continuum.o hitran.o mt-ckd-cont.o
+: params.o retvparam.o frwdmdl.o bandparam.o lineparam.o solar.o channel.o initialize.o opt.o datafiles.o isotope.o writeout.o continuum.o hitran.o
 
 channel.o \
 : params.o writeout.o synspec.o datafiles.o
@@ -158,8 +160,6 @@ convert_old_data_files.o \
 convert_rdrv_394.o \
 : datafiles.o params.o binput_4_0.o convert_old_data_files.o
 
-mt-ckd-cont.o\
-: params.o bandparam.o retvparam.o
 
 continuum.o\
 : params.o xsections.o retvparam.o
@@ -173,7 +173,7 @@ diagnostic.o \
 
 frwdmdl.o \
 : params.o transmis.o datafiles.o molcparam.o solar.o synspec.o channel.o bandparam.o retvparam.o \
-	writeout.o initialize.o continuum.o mt-ckd-cont.o 
+	writeout.o initialize.o continuum.o
 
 galatry.o \
 : params.o
@@ -230,12 +230,12 @@ solar.o \
 synspec.o \
 : params.o transmis.o solar.o bandparam.o
 
-tips.o \
+tips_2017.o \
 : params.o
 
 transmis.o \
 : params.o bandparam.o retvparam.o vibfcn.o xsections.o molcparam.o lineparam.o\
-continuum.o 
+continuum.o
 
 vibfcn.o \
 : params.o retvparam.o molcparam.o #writeout.o
@@ -250,4 +250,4 @@ writeout.o \
 : params.o datafiles.o retvparam.o molcparam.o isotope.o bandparam.o
 
 xsections.o \
-: params.o retvparam.o vibfcn.o tips.o isotope.o lineparam.o bandparam.o molcparam.o voigt_sdv_lm.o lineshape_pcqsdhc.o
+: params.o retvparam.o vibfcn.o tips_2017.o isotope.o lineparam.o bandparam.o molcparam.o voigt_sdv_lm.o lineshape_pcqsdhc.o
