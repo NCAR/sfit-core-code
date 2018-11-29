@@ -299,23 +299,26 @@ program hbin
          ! --- if in band : write out that data to the hbin file
          if( wavnum .ge. wstr )then
 
-
+!print*, 'gal'
             ! --- check if a Galatry beta can be appended
             do ifl = 1, gnml
                do i = 1, glp(ifl)%n
                   if ( glp(ifl)%mo(i) .eq. hlp(ldx)%mo .and. &
                        glp(ifl)%is(i) .eq. hlp(ldx)%is ) then
+!                       print*, 'gal', hlp(ldx)%qa, glp(ifl)%qa(i)
                      if (qu_equal(hlp(ldx)%qa, glp(ifl)%qa(i))) then
                         write( hfl(ldx)%buf(161:172), 110 ) glp(ifl)%beta(i)
                         hlp(ldx)%bt = real(glp(ifl)%beta(i),4)
                         hlp(ldx)%flag(GALATRY_FLAG) = .TRUE.
                         dum = flagoff + GALATRY_FLAG
+                        print*, 'gal',  hlp(ldx)%mo, hlp(ldx)%is, hlp(ldx)%flag(GALATRY_FLAG), hlp(ldx)%qa, glp(ifl)%qa(i)
                         write( hfl(ldx)%buf(dum:dum), '(l1)' ) .TRUE.
                      endif
                   end if
                enddo
             enddo
 
+!print*, 'lnm'
             ! --- check if this line has linemixing data to be attached
             do ifl = 1, lnml
                do i=1, lmx(ifl)%n
@@ -328,6 +331,7 @@ program hbin
                         write( hfl(ldx)%buf(209:244), 1121 ) hlp(ldx)%lmtk1, hlp(ldx)%lmtk2, hlp(ldx)%ylm
                         hlp(ldx)%flag(LM_FLAG) = .TRUE.
                         dum = flagoff + LM_FLAG
+                        print*, 'lnm',  hlp(ldx)%mo, hlp(ldx)%is, hlp(ldx)%flag(LM_FLAG), hlp(ldx)%qa, lmx(ifl)%qa(i)
                         write( hfl(ldx)%buf(dum:dum), '(l1)' ) .TRUE.
                         exit
                      endif ! right wavenumber
@@ -335,7 +339,7 @@ program hbin
                enddo ! i, records in file
             enddo ! line mix files
 
-
+!print*, 'sdv'
             ! --- check if this line has SDV data to be attached
             do ifl = 1, snml
                do i=1, sdv(ifl)%n
@@ -344,12 +348,13 @@ program hbin
                      if (qu_equal(hlp(ldx)%qa, sdv(ifl)%qa(i))) then
                         hlp(ldx)%gamma0  = real(sdv(ifl)%g0_air(i))          ! gam0 for SDV
                         hlp(ldx)%gamma2  = real(sdv(ifl)%g2_air(i))          ! gam2 for SDV
-                        hlp(ldx)%shift0  = real(sdv(ifl)%s0_air(i))           ! shift0 for SDV
+                        hlp(ldx)%shift0  = real(sdv(ifl)%s0_air(i))          ! shift0 for SDV
                         hlp(ldx)%shift2  = real(sdv(ifl)%ts_air(i))          ! shift2 for SDV
                         write( hfl(ldx)%buf(172:209), 112 ) hlp(ldx)%gamma0, hlp(ldx)%gamma2, &
                              hlp(ldx)%shift0
                         hlp(ldx)%flag(SDV_FLAG) = .TRUE.
                         dum = flagoff + SDV_FLAG
+                        print*, 'sdv', hlp(ldx)%mo, hlp(ldx)%is, hlp(ldx)%flag(SDV_FLAG), hlp(ldx)%qa, sdv(ifl)%qa(i)
                         write( hfl(ldx)%buf(dum:dum), '(l1)' ) .TRUE.
                         exit
                      endif ! right wavenumber
@@ -1079,6 +1084,10 @@ function qu_equal(quanta1, quanta2)
   implicit none
   character (len=*), intent(in):: quanta1, quanta2
   logical :: qu_equal
+
+!print *, quanta1
+!print *, quanta2
+
 
   qu_equal = .false.
   if (quanta1.eq.quanta2) qu_equal = .true.

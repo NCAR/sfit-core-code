@@ -647,7 +647,7 @@
          CALL FILEOPEN( 64, 1 )
          WRITE(64,*)  TRIM(TAG), ' SHAT N X N (BLOCK DIAGONAL)'
          WRITE(64,*) N, N
-         WRITE(69,260) (trim(ADJUSTL(PNAME(i))),i=1,N)
+         WRITE(64,260) (trim(ADJUSTL(PNAME(i))),i=1,N)
          DO I=1,N
             WRITE(64,261) (SHAT(I,J), J=1, N)
          END DO
