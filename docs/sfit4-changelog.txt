@@ -13,6 +13,7 @@ added CFC's to molcparam, vibfcn
 
 added HITRAN16 and ATM2018 line lists
    - edited gggmol and hitmolf90 codes to parse out combined ATM and HIT line list files to individual gases
+   - used 160 char for all lists to include quanta data.
    - moved individual files to linelist.all for testing (not in release yet)
    - edited hbin to accommodate new isotopes
    - edited mol id map in hitran.f90
@@ -28,6 +29,7 @@ added TIPS 2017
    - lots of edited in tips_2017.f90 : combined commons and include files, edited big IF to a CASE,
       modified id numbers for SFIT after #21
    - initial test with x.co2.iso
+   - TIPS processing is slow
 
 
 -------------------

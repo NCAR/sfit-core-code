@@ -51,6 +51,7 @@
 !                              TFIL66, &      ! K.OUT JACOBIAN, SA, SE, SAINV
 !                              TFIL67, &      ! SE.OUT
 !                              TFIL68, &      ! KT.OUT INVERSE JACOBIAN OUTPUT
+!                              TFIL69, &      ! SAINV.OUT INVERSE COVARIANCE MATRIX OUTPUT
 !                              TFIL70, &      ! DETAIL.OPT - OE DETAIL OUTPUT
 !                              TFIL71, &      ! STATION.LAYERS INPUT LEVELS AND MIDPOINTS
 !                              TFIL72, &      ! REFERENCE.PRF - ZPT + REFMOD INPUT VMR PROFILES
