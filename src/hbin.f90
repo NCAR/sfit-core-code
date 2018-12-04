@@ -515,7 +515,6 @@ subroutine filh( hd, hf )
          else
             read(aiso, '(i1)') hd%is
          endif
-
       else
          ! --- read parameters
          read( hf%buf, 107) hd%mo, hd%is, hd%nu, hd%sl, hd%ea, hd%ah, hd%sh, hd%el, hd%tx, hd%ps, &
