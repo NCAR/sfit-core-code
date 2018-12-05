@@ -117,13 +117,13 @@ aux.gal.files =
 015_HCL/15_hit12_Galatry.txt
 #
 #
-# CO2 Line mixing parameters for Boone implementation
+# CO2 Line mixing parameters 
 aux.lm.nr = 1
 aux.lm.files = 
 002_CO2/02_hase_lm.dat
 #
 #
-# Speed Dependent Voigt parameter files --- not yet!
+# Speed Dependent Voigt parameter files 
 aux.sdv.nr = 1
 aux.sdv.files = 
 005_CO/05_hit12_SDV.txt

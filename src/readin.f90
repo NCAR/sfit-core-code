@@ -160,8 +160,6 @@
                CYCLE
             ENDIF
 
-
-            
 ! --- THIS WILL BE A PROFILE RETRIEVAL
             NPGAS = NPGAS + 1
             IF (NPGAS > MAXPRF) GO TO 301
@@ -210,26 +208,6 @@
 
          WRITE (16, 620) DELNU
 
-         WRITE(16,*)''
-         WRITE(16,*) ' LINE SHAPE MODEL:'
-         SELECT CASE ( LSHAPEMODEL )  ! USER CHOICE OF LINE SHAPE MODEL
-            CASE (0)
-               WRITE (16,*) '  0 = CHOOSE MODEL DEPENDING ON EXISTANCE OF PARAMETERS'
-            CASE (1)
-               WRITE (16,*) '  1 = FORCE VOIGT FOR ALL LINES'
-            CASE (2)
-               WRITE (16,*) '  2 = USE GALATRY FOR LINES WITH PARAMETERS, VOIGT ELSE'
-            CASE (3)
-               WRITE (16,*) '  3 = VOIGT + LINE MIXING FOR LINES WITH PARAMETERS'
-            CASE (4)
-               WRITE (16,*) '  4 = USE PCQSDHC (Tran2013)'
-            CASE DEFAULT
-               WRITE(16,*)' LINE SHAPE MODEL FLAG OUT OF RANGE MUST BE 0, 1, 2, 3)'
-               WRITE(00,*)' LINE SHAPE MODEL FLAG OUT OF RANGE MUST BE 0, 1, 2, 3)'
-               CALL SHUTDOWN
-               STOP '2'
-         END SELECT
-
          NEGFLAG = -1
          IF( ITRMAX .LT. 0 ) THEN
             ITRMAX = IABS(ITRMAX)
@@ -274,7 +252,7 @@
 
   600 FORMAT(/,' RETRIEVAL GAS #      ',I2, '                    : ', A7)
   601 FORMAT(  ' PROFILE RETRIEVAL CODE                     : ',L5 )
-  602 FORMAT(  ' CELL RETRIEVAL CODE                     : ',L5 )
+  602 FORMAT(  ' CELL RETRIEVAL CODE                        : ',L5 )
 
   605 FORMAT(/' ABORT -- NUMBER OF RETRIEVAL GASES EXCEEDS ',I2)
   606 FORMAT(' ABORT -- NUMBER OF PROFILE RETRIEVALS (NPGAS=',I2,&
@@ -321,7 +299,27 @@
       IF( .NOT. F_EAPOD ) IEAP = 0
       IF( .NOT. F_EPHASE ) IEPHS = 0
       WRITE(16, 101)
-      WRITE(16, 102) IFCO, FPS, F_EAPOD, IEAP, NEAP, F_EPHASE, IEPHS, NEPHS, IEMISSION
+      WRITE(16, 102) IFCO, FPS, F_EAPOD, IEAP, NEAP, F_EPHASE, IEPHS, NEPHS, IEMISSION, LSHAPEMODEL
+
+      WRITE(16,*)''
+      WRITE(16,*) ' LINE SHAPE MODEL:'
+      SELECT CASE ( LSHAPEMODEL )  ! USER CHOICE OF LINE SHAPE MODEL
+         CASE (0)
+            WRITE (16,*) '  0 = CHOOSE MODEL DEPENDING ON EXISTANCE OF PARAMETERS'
+         CASE (1)
+            WRITE (16,*) '  1 = FORCE VOIGT FOR ALL LINES'
+         CASE (2)
+            WRITE (16,*) '  2 = USE GALATRY FOR LINES WITH PARAMETERS, VOIGT ELSE'
+         CASE (3)
+            WRITE (16,*) '  3 = VOIGT + LINE MIXING FOR LINES WITH PARAMETERS'
+         CASE (4)
+            WRITE (16,*) '  4 = USE PCQSDHC (Tran2013)'
+         CASE DEFAULT
+            WRITE(16,*)' LINE SHAPE MODEL FLAG OUT OF RANGE MUST BE 0, 1, 2, 3)'
+            WRITE(00,*)' LINE SHAPE MODEL FLAG OUT OF RANGE MUST BE 0, 1, 2, 3)'
+            CALL SHUTDOWN
+            STOP '2'
+      END SELECT
 
       IF( IEMISSION /= 0 )THEN
          WRITE(16,103)
@@ -368,7 +366,8 @@
               '  INCLUDE PRESSURE SHIFT                    : ', L5, /, &
               '  EFFECTIVE MODULATION FUNCTION TYPE        : ', L5, I5, '   # TERMS : ', I5, /, &
               '  EFFECTIVE PHASE FUNCTION TYPE             : ', L5, I5, '   # TERMS : ', I5, /, &
-              '  COMPUTE EMISSION COMPONENT                : ', I5 )
+              '  COMPUTE EMISSION COMPONENT                : ', I5, /, &
+              '  LINE SHAPE MODEL INDEX                    : ', I5 )
 
  103  FORMAT(/,' EMISSION PARAMETERS:')
  104  FORMAT( '  BACKGROUND TEMPERATURE                    : ', F12.4, / &

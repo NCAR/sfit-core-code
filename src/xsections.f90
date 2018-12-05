@@ -270,8 +270,7 @@
                   AKV = AKZERO * AKV
                ELSEIF(LSHAPEMODEL.EQ.4) THEN
                   ! pCqSDHC MODEL (Tran)
-                  call pCqSDHC(azero(N),ADOP,ALOR,G2,S0, S2, ANUVC,ETA0,&
-                       azero(N),AKV_R,AKV_I)
+                  call pCqSDHC(azero(N),ADOP,ALOR,G2,S0, S2, ANUVC, ETA0, azero(N),AKV_R,AKV_I)
                   AKV = SSL * (AKV_R + LM * AKV_I)! ALL OTHER PARTS OF AKZERO ARE ALREADY PART OF
                   ! AKV_R AND AKV_I
                ELSE

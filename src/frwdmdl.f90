@@ -440,7 +440,8 @@
                   ! kzero increments for each band
                   KZERO = KZERO + 1
                   ZSHIFT(IBAND,JSCAN) = PARM(NBKFIT+NSHIFT+KZERO)
-                  ZSHIFTSAV(JSCAN) = ZSHIFT(IBAND,JSCAN)
+                  ! SAVE THE ZSHIFT FOR MW'S IN WHICH IT IS NOT RETRIEVED.
+                  if (ICOUNT.EQ.1) ZSHIFTSAV(JSCAN) = ZSHIFT(IBAND,JSCAN)
                ELSE IF (IZERO(IBAND) == 2 .AND. NZERO .GT. 0) THEN
                   ! if we're not calculating it then use shift from band from this spec that we are fitting
                   ZSHIFT(IBAND,JSCAN) = ZSHIFTSAV(JSCAN)
