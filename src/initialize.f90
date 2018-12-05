@@ -912,7 +912,10 @@
       NZERO = 0
       DO I = 1, NBAND
          IF (F_ZSHIFT(I)) THEN
-            IF (IZERO(I) .NE. 1 ) CYCLE
+            IF (IZERO(I) .NE. 1 ) THEN
+               IZERO(I) = 2
+               CYCLE
+            END IF
             N = NSCAN(I)
             IF (N > 0) THEN
                DO KK = 1, N
@@ -922,9 +925,9 @@
                SPARM(NVAR+1:N+NVAR) = SZERO(I)
                NVAR = N + NVAR
                NZERO = N + NZERO
-            ENDIF
+            END IF
          ELSE
-            IF( IZERO(I) .NE. 2 ) IZERO(I) = 0
+            IZERO(I) = 0
          END IF
       ENDDO
 
