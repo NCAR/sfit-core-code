@@ -4,7 +4,7 @@
  file.in.stalayers              = station.layers
  file.in.refprofile             = reference.prf
  file.in.spectrum               = spectrum
- file.in.solarlines             = /usr/local/share/linelist_v0.9/solar/120621/solar.dat
+ file.in.solarlines             = solar.dat
  file.in.linelist               = 00780.871900-00811.128100.hbin
 
  # Definition for retrieval gases
