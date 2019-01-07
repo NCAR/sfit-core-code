@@ -40,7 +40,7 @@
                                             ! CHANNEL SPECTRUM VALUES (pwj)
       INTEGER :: FIRST_CHANNEL_PARM_NUM     ! THE POSITION OF FIRST CHANNEL
       ! PARM IN STATE VECTOR  (pwj)
-      INTEGER :: NCHAN                      ! MP number of beams retrieved
+      INTEGER :: NCHAN =0                     ! MP number of beams retrieved
 
       CONTAINS
 
