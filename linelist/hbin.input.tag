@@ -120,7 +120,7 @@ aux.gal.files =
 # CO2 Line mixing parameters for Boone implementation
 aux.lm.nr = 1
 aux.lm.files = 
-002_CO2/02_hase_lm.dat
+002_CO2/02_hit08_f53_LM1ST.par
 #
 #
 # Speed Dependent Voigt parameter files --- not yet!
