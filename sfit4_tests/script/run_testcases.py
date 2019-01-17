@@ -1,8 +1,16 @@
 #!/usr/bin/python 
 
+# goes through all testcases, runs hbin, sfit4 and prints out some
+# numbers.  Intended to test a setup on a new computer, new compiler,
+# new compiler flags or after code changes.
+#
+# test.ctl is required and contains some information for running the test cases.
+#
+# Mathias Palm <mathias.palm@uni-bremen.de> January 2019
+
 import os,sys,string
 
-from libs import sfit4_ctl,summary,statevec
+from libs import sfit4_ctl,summary,statevec, read_from_file
 
 import numpy as np
 import subprocess
