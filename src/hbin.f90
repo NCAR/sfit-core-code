@@ -215,7 +215,7 @@ program hbin
          stop 'hbin error'
       endif
 
-      sdv(ifl)%n = 1
+      sdv(ifl)%n = 0
       do i = 1, nglines
          read( sdv(ifl)%lun, 109, end=25 ) buf
          if (len_trim(buf).eq.0) cycle
@@ -224,7 +224,9 @@ program hbin
          sdv(ifl)%g2_air(ind) = 0.0D0
          read( buf, 119 ) sdv(ifl)%mo(ind), sdv(ifl)%is(ind), &
               sdv(ifl)%qa(ind)
-         read (buf(63:), 701, err=26) sdv(ifl)%g0_air(ind), tmpreal, tmpreal, tmpreal, sdv(ifl)%g2_air(ind)
+         call flush()
+         read (buf(64:), 701) sdv(ifl)%g0_air(ind), tmpreal, tmpreal, tmpreal, sdv(ifl)%g2_air(ind)
+!         read (buf(63:), 701, err=26) sdv(ifl)%g0_air(ind), tmpreal, tmpreal, tmpreal, sdv(ifl)%g2_air(ind)
          if (sdv(ifl)%g2_air(ind).lt.tiny(0.0d0)) then
             goto 26
          end if
@@ -249,7 +251,7 @@ program hbin
    enddo
 
 !701 format(f6.5,f4.3,f4.2,f8.6,1x,g15.6,1x,g15.6,1x,g15.6)
-701 format(f6.5,f4.3,f4.2,f8.6,1x,g6.5)
+701 format(f6.5,f5.4,f3.2,f8.6,1x,g15.6)
 
    ! --- fill CORRELATION line parameters struct with all line data from each file
    do ifl = 1, enml
