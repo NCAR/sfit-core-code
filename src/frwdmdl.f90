@@ -254,6 +254,10 @@
          CALL CALC_CONTINUUM(CONT_PARAM)
 
 
+         ! CHANNEL PARAMS INCLUDED BEFORE 
+         NCOUNT = NCOUNT + NCHAN
+         
+
 !  ---  UPDATE VMRS OF RETRIEVAL GASES
          DELTA_Y(:NFIT) = 0.0D0
          DELTA_Y(:NMONSM) = 0.0D0
@@ -298,6 +302,7 @@
             ENDIF
          END DO
 
+         
          
 ! --- TEMPERATURE RETRIEVAL
          IF( IFTEMP ) THEN

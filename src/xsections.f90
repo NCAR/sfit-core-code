@@ -192,7 +192,7 @@
                ELSEIF  ( LSM_SDV.and.HFLAG(N,SDV_FLAG) ) THEN
                   ACOFB = GAMMA0(N)*P(K)*(1.0D0 - XGAS(IMOL,K))
                   SCOFB = SSS(N)*P(K)*XGAS(IMOL,K)
-                  G2 = GAMMA2(N)*GAMMA0(N)*P(k) * (1.0D0 - XGAS(IMOL,K))! not yet implemented: + SELF_GAMMA2(N)*P(K)*XGAS(IMOL,K)
+                  G2 = GAMMA2(N)*P(k) * (1.0D0 - XGAS(IMOL,K))! not yet implemented: + SELF_GAMMA2(N)*P(K)*XGAS(IMOL,K)
                ELSE
                   ACOFB = AAA(N)*P(K)*(1.0D0 - XGAS(IMOL,K))
                   SCOFB = SSS(N)*P(K)*XGAS(IMOL,K)
