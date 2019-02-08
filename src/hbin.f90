@@ -185,7 +185,7 @@ program hbin
          lmx(ifl)%lm_t1(ind) = 0.0d0
          lmx(ifl)%lm_t2(ind) = 0.0d0
          ! test for linemixing parameter
-         read (buf(63:), *, end=16) lmx(ifl)%lm_air(ind), lmx(ifl)%lm_t1(ind), lmx(ifl)%lm_t2(ind)
+         read (buf(64:), *, end=16) lmx(ifl)%lm_air(ind), lmx(ifl)%lm_t1(ind), lmx(ifl)%lm_t2(ind)
 
          lmx(ifl)%n = lmx(ifl)%n + 1
 
