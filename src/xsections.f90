@@ -46,7 +46,7 @@
 ! --- IN PRESSURE-BROADENED LOWER LAYERS
 
       LOGICAL      :: PRTDEBUG = .FALSE.
-      INTEGER      :: NR_LEVEL, K_START, K_END, NRESET=0
+      INTEGER      :: NR_LEVEL, K_START, K_END !, NRESET=0
       INTEGER      :: JSTART, JSTOP, N1, K, I, J, INDXX, IBAND, LMIN, LMAX
       INTEGER      :: N, IMOL, NPOINT, MO, ISO
       !INTEGER      :: II, IJ
@@ -81,6 +81,8 @@
             REAL(DOUBLE) , INTENT(IN) :: T
             END FUNCTION BETAT
       END INTERFACE
+
+      PRINT *, ' COMPUTING CROSS-SECTIONS...'
 
       GI = 0
       QT = 0.0D0
@@ -136,8 +138,12 @@
                    ENDIF
                ENDDO
 
-               CALL BD_TIPS_2017(MO, STDTEMP, ISO, GI, QTSTDTEMP)
-               CALL BD_TIPS_2017(MO, T(K), ISO, GI, QT)
+               IF( USE_TIPS )THEN
+                  CALL BD_TIPS_2017(MO, STDTEMP, ISO, GI, QTSTDTEMP)
+                  CALL BD_TIPS_2017(MO, T(K), ISO, GI, QT)
+               ELSE
+                  QT = -1.0
+               ENDIF
 
 !              --- STIMULATED EMISSION CORRECTION TO LINE INTENSITY
                STIMFC = (1.D0 - EXP((-RCONST2*AZERO(N)/T(K))))/(1.D0 - EXP((-RCONST2*AZERO(N)/STDTEMP)))
@@ -186,7 +192,7 @@
                ELSEIF  ( LSM_SDV.and.HFLAG(N,SDV_FLAG) ) THEN
                   ACOFB = GAMMA0(N)*P(K)*(1.0D0 - XGAS(IMOL,K))
                   SCOFB = SSS(N)*P(K)*XGAS(IMOL,K)
-                  G2 = GAMMA2(N)*GAMMA0(N)*P(k) * (1.0D0 - XGAS(IMOL,K))! not yet implemented: + SELF_GAMMA2(N)*P(K)*XGAS(IMOL,K)
+                  G2 = GAMMA2(N)*P(k) * (1.0D0 - XGAS(IMOL,K))! not yet implemented: + SELF_GAMMA2(N)*P(K)*XGAS(IMOL,K)
                ELSE
                   ACOFB = AAA(N)*P(K)*(1.0D0 - XGAS(IMOL,K))
                   SCOFB = SSS(N)*P(K)*XGAS(IMOL,K)
