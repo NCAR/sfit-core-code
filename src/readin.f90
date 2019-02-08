@@ -299,7 +299,7 @@
       IF( .NOT. F_EAPOD ) IEAP = 0
       IF( .NOT. F_EPHASE ) IEPHS = 0
       WRITE(16, 101)
-      WRITE(16, 102) IFCO, FPS, F_EAPOD, IEAP, NEAP, F_EPHASE, IEPHS, NEPHS, IEMISSION, LSHAPEMODEL
+      WRITE(16, 102) IFCO, FPS, USE_TIPS, F_EAPOD, IEAP, NEAP, F_EPHASE, IEPHS, NEPHS, IEMISSION, LSHAPEMODEL
 
       WRITE(16,*)''
       WRITE(16,*) ' LINE SHAPE MODEL:'
@@ -364,6 +364,7 @@
  101  FORMAT(/,' FORWARD MODEL SWITCHES:')
  102  FORMAT( '  INCLUDE SOLAR LINES                       : ', L5, /, &
               '  INCLUDE PRESSURE SHIFT                    : ', L5, /, &
+              '  USE TIPS IF APPLICABLE                    : ', L5, /, &
               '  EFFECTIVE MODULATION FUNCTION TYPE        : ', L5, I5, '   # TERMS : ', I5, /, &
               '  EFFECTIVE PHASE FUNCTION TYPE             : ', L5, I5, '   # TERMS : ', I5, /, &
               '  COMPUTE EMISSION COMPONENT                : ', I5, /, &
@@ -377,8 +378,8 @@
 
  105  FORMAT(/,' RETRIEVAL SWITCHES: ')
  106  FORMAT( '  FIT SOLAR SHIFT                           : ', L5, /, &
-              '  FIT WAVENUMBER SHIFT                      : ', L5, '   TYPE       : ', I5, /, &
-              '  FIT BACKGROUND                            : ', L5, '   TYPE       : ', I5, /, &
+              '  FIT WAVENUMBER SHIFT                      : ', L5, '          TYPE : ', I5, /, &
+              '  FIT BACKGROUND                            : ', L5, '          TYPE : ', I5, /, &
               '  FIT DIFFERENT SHIFT BY GAS                : ', L5, /, &
               '  FIT SIMPLE PHASE CORRECTION               : ', L5, /, &
               '  FIT MODULATION FUNCTION                   : ', L5, /, &

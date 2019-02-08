@@ -31,6 +31,7 @@ module binput_parse_4_0
   use isotope
   use writeout
   use hitran
+  use tips
 
 
   implicit none;
@@ -336,6 +337,10 @@ end subroutine read_file_section
     integer pos
 
     select case (trim(adjustl(keyword(2))))
+    case( 'tips')
+       if (len_trim(keyword(3)).eq.0) then
+          read(value, *) use_tips
+       endif
     case ('isotope_separation')
        read(value,*) useiso
     case ('delnu')

@@ -1,5 +1,10 @@
 **Change Log for SFIT4, Linelist, Documentation & auxiliary codes**
 
+
+--------------------
+Jan 2019  -jwh
+Added switch for on/off of TIPS fw.tips = T/F (TIPS is very slow)
+
 --------------------
 
 Nov 2018 -jwh

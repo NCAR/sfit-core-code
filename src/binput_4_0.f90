@@ -31,6 +31,7 @@ module binput_4_0
   use opt
   use writeout
   use hitran
+  use tips
 
   implicit none
   save

@@ -989,6 +989,7 @@ subroutine kpno( opdmax, wl1, wl2, roe, lat, lon, nterp, rflag, oflag, zflag, vf
 
    character (len=80)  :: title, bfile
    character (len=1)   :: loc
+   real      (4), dimension(:), allocatable :: amps4
    real      (8), dimension(:), allocatable :: amps, outspec
    real      (8), dimension(:), allocatable :: wavs, awavs
    integer   (4), dimension(1)              :: ilow, ihi
@@ -1030,7 +1031,7 @@ subroutine kpno( opdmax, wl1, wl2, roe, lat, lon, nterp, rflag, oflag, zflag, vf
 
    ! bnr has been rewound - get title
    read(blun) title
-   write(6,111) 'BNR input file:'
+   write(6,111) 'BNR header:'
    write(6,112) trim(title)
 
    res = 0.0
@@ -1048,10 +1049,18 @@ subroutine kpno( opdmax, wl1, wl2, roe, lat, lon, nterp, rflag, oflag, zflag, vf
    if( allocated( amps ) )deallocate( amps )
    if( allocated( wavs ) )deallocate( wavs, awavs )
    allocate( amps( npfile ), wavs( npfile ), awavs( npfile ))
-   read (blun, err = 200) amps
+   !read (blun, err = 201) amps
+   !print *, 'R8 amps'
+   !goto 202
+
+201 allocate( amps4( npfile ))
+   read (blun, err = 200) amps4
+   print *, 'R4 amps'
+   amps(:) = real( amps4(:), 8 )
+   deallocate( amps4 )
 
    ! calculate wavenumbers
-   do i=1, npfile
+202 do i=1, npfile
        wavs(i)= real( i-1, 8 )
    end do
    wavs  = wavs*spac + wlow
