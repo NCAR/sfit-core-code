@@ -48,7 +48,7 @@
  fw.emission.normalized	     =	 	     F
  # Retrieval parameter
 
- rt                          =               T
+ rt                          =               F
  rt.lm                       =               T
  rt.lm.gamma_start           =           1.0e5
  rt.lm.gamma_inc             =           1.0e1
@@ -62,7 +62,7 @@
  rt.slope                    =               F
  rt.slope.apriori            =           0.000
  rt.slope.sigma              =           0.100
- rt.continuum                =T 
+ rt.continuum                =F 
  rt.continuum.order = 3
  rt.continuum.apriori = 0.0
  rt.continuum.sigma       = 1.0
