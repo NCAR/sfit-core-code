@@ -21,7 +21,7 @@
 .TRUE.
 #
 # next non-comment line is a path to the directory tree where the gas subdirectories are
-/data/linelist/
+/home/mathias/linelist/
 #
 # next non-comment entry is the number of path/files to look for
 2
@@ -35,7 +35,7 @@
 # 049_O2CIA/o2cia_20060420.101 - this file is a special case, molid & isotope
 #  ids are dealt with differently
 #
-006_CH4/06_kit15_2015-12-08.par
+006_CH4/06_kit15_2015-12-08_v1.par
 012_HNO3/12_hit08.par
 #
 #
@@ -45,7 +45,7 @@
 #
 # Line mixing parameters for 1st order expansion of line mixing
 1
-006_CH4/06_kit15_2015-12-08_LM1ST.par 
+006_CH4/06_kit15_2015-12-08_lm1st.par 
 #
 0
 0
