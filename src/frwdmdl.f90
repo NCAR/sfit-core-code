@@ -382,6 +382,11 @@
          CALL RETRIEVE_CHANNEL_PARMS (PARM)
 
 !  --- LOOP OVER BANDPASSES ----------------------------------------------------
+!     OPEN A FILE FOR WRITING OUT THE ILS
+      CALL FILEOPEN(97,1)
+      WRITE(97,*) 'APODISATION AND PHASE AS APPLIED TO THE ARTIFICIAL SPECTRUM'
+      WRITE(97,*) 'BAND X INST_APOD EMP_APOD FFT_APOD PHASE' 
+
          BAND: DO IBAND = 1, NBAND
             N = NSCAN(IBAND)
             IF (N == 0) CYCLE
@@ -726,7 +731,8 @@
 
             MXONE = MXONE + NM(IBAND)   ! INDEX IN TCO AND CROSS ARRAYS AS START OF CURRENT BAND
          END DO BAND
-
+         CALL FILECLOSE(97,1)
+         
          DO I = 1, NFIT
             FX = TOBS(I) - YC(I)
             SUMSQ = SUMSQ + FX*FX
