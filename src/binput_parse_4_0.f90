@@ -1098,6 +1098,8 @@ end subroutine read_file_section
           read(value,*)  XSC_DETAIL
        case ('g_matrix')
           read(value,*)  F_WRTG
+       case ('used_ils')
+          read(value,*)  F_USED_ILS
        case default
           WRITE(16,*) 'BINPUT_PARSE_4_0:READ_OUTPUT_SECTION: Key ', trim(keyword(2)), ' not contained in section : output'
           WRITE( 0,*) 'BINPUT_PARSE_4_0:READ_OUTPUT_SECTION: Key ', trim(keyword(2)), ' not contained in section : output'

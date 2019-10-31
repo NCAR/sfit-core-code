@@ -54,6 +54,7 @@
       LOGICAL :: F_WRTRAYTC          = .FALSE.
       LOGICAL :: F_WRTSOLSPEC        = .FALSE.
       LOGICAL :: F_WRTLM             = .FALSE.
+      LOGICAL :: F_USED_ILS          = .FALSE.
       LOGICAL :: XSC_DETAIL          = .FALSE.
 
       INTEGER :: OUTPUTLEVL    = 0
@@ -105,7 +106,8 @@
         F_WRTRAYTC          = .TRUE.
         F_WRTSOLSPEC        = .TRUE.
         F_WRTLM             = .TRUE.
-!        F_WRTPBP_KB         = .TRUE.
+        F_USEd_ILS          = .TRUE.
+        !        F_WRTPBP_KB         = .TRUE.
         XSC_DETAIL          = .TRUE.
      END IF
      IF (OUTPUTLEVL.GT.3) THEN

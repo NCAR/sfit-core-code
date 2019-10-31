@@ -129,12 +129,13 @@
          ELSE
             FACTOR = SIN(FACTOR)/FACTOR
          ENDIF
-         WRITE(97,*) IBAND, X, FACTOR, AP, APDZ(IBAND,X), PHI0 + EPHS(X,DX,PMAX(IBAND))
+         IF (F_USED_ILS) THEN
+            WRITE(97,*) IBAND, X, FACTOR, AP, APDZ(IBAND,X), PHI0 + EPHS(X,DX,PMAX(IBAND))
+         END IF
          IMGG(I+1)            = IMGG(I+1)*FACTOR*AP*APDZ(IBAND,X)
          IMGG(MPT(IBAND)+1-I) = IMGG(MPT(IBAND)+1-I)*FACTOR*AP*APDZ(IBAND,X)
       END DO
 
-      
       IMGG(NZ1:NZ2) = 0.D0
 
       ALLOCATE (IW(MFFT(IBAND)+1), STAT=NAERR)
