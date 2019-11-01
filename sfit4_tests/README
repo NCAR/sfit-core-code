@@ -1,0 +1,5 @@
+Running the testbed for sfit4.
+
+Go in the directory <sfit-core-code/sfit4_tests>
+
+python script/run_testcases.py 
