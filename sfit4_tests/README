@@ -1,5 +1,18 @@
+Mathias Palm 11.2019
+
+
 Running the testbed for sfit4.
 
 Go in the directory <sfit-core-code/sfit4_tests>
 
-python script/run_testcases.py 
+script/run_testcases.py [--nohbin]] [--nosfit4] [--noerror]
+
+NOTE: run_testcases.py runs only with python2.7
+
+In every single directory hbin, sfit4 and the error script needs to run.
+
+this can be tested for the single program by specifying the arguments above,
+which cause the script to not run hbin, sfit4 or the error calculation.
+
+But remeber, that sfit4 needs an hbin file to run.
+ 
