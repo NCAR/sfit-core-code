@@ -1,4 +1,4 @@
-#!/usr/bin/python 
+#!/usr/bin/python2.7
 
 # goes through all testcases, runs hbin, sfit4 and prints out some
 # numbers.  Intended to test a setup on a new computer, new compiler,
@@ -11,6 +11,7 @@
 import os,sys,string
 
 from libs import sfit4_ctl,summary,statevec, read_from_file
+from shutil import copy
 
 import numpy as np
 import subprocess
@@ -31,7 +32,7 @@ class test_sfit4:
             if len(key) == 0:
                 continue
             if len(l) < 2:
-                print 'No value for key '+key+'?'
+                print ('No value for key '+key+'?')
             if key.lower() == 'sfit4_dir':
                 self.sfit4_dir = l.rsplit('=')[1].strip()
                 continue
@@ -41,9 +42,12 @@ class test_sfit4:
             if key.lower() == 'resultfile':
                 self.resultfile = l.rsplit('=')[1].strip()
                 continue
+            if key.lower() == 'hbinfile':
+                self.hbinfile = l.rsplit('=')[1].strip()
+                continue
             if key.lower() == 'gas':
                 self.gases = l.rsplit('=')[1:][0].split()
-                print l
+                print (l)
                 for tc in self.gases:
                     tc = tc.strip()
                     self.results.update({tc:{}})
@@ -54,7 +58,7 @@ class test_sfit4:
             if len(subkeys) > 1:
 
                 if subkeys[0].strip() == 'gas' and len(self.results.keys()) == 0:
-                    print 'Gases must be defined before details'
+                    print ('Gases must be defined before details')
                     return(None)
                 gas = subkeys[1].strip()
                 if self.results.keys().count(gas) == 0:
@@ -74,7 +78,7 @@ class test_sfit4:
         extra_gas = filter(lambda x: self.gases.count(x) == 0, self.results.keys())
 
         if len(extra_gas) > 0:
-            print 'No details found for gas(es) '+ string.join(extra_gas)
+            print ('No details found for gas(es) '+ string.join(extra_gas))
         
     def run_sfit4_in_testcase(self, sfit4=True, hbin=True, error = True):
 
@@ -82,14 +86,16 @@ class test_sfit4:
         for tc in self.results.keys():
             print('Entering %s'%(self.results[tc]['dir']))            
             os.chdir(os.path.join(self.testcase_dir, self.results[tc]['dir']))
+            
             flag = False
             if hbin and self.results[tc]['hbin']:
                 print('Calling hbin')
+                copy(self.hbinfile,'.')
                 chbin = os.path.join(self.sfit4_dir,'src','hbin')
                 rhbin = subprocess.Popen(chbin,stdout=subprocess.PIPE,
                                          stderr=subprocess.PIPE).communicate()
                 if len(rhbin[1]):
-                    print 'hbin failed in %s'%(tc)
+                    print ('hbin failed in %s'%(tc))
 
                 for l in rhbin[0].split('\n'):
                     if l.find('Saving binary')>-1:
@@ -99,7 +105,7 @@ class test_sfit4:
                 if not flag:
                     print('Something wrong in %s'%tc)
                     print('hbin terminated with:')
-                    print rhbin[0]
+                    print(rhbin[0])
                     self.results[tc].update({hbin:False})
                     
                 ctl.replace_in_file('sfit4.ctl','file.in.linelist',fhbin)
@@ -126,7 +132,7 @@ class test_sfit4:
                 if not flag:
                     print('Something wrong in %s'%tc)
                     print('sfit4 terminated with:')
-                    print rsfit[1]
+                    print(rsfit[1])
                     self.results[tc].update({sfit4:False})
                             #
 #            sf4l0args = ['-i',tcpath,
@@ -179,17 +185,17 @@ class test_sfit4:
 
     def print_results(self):
         
-        print '\t\t\tThis run\t', 'Orinignal run\t', 'Difference in Percent'
+        print ('\t\t\tThis run\t', 'Orinignal run\t', 'Difference in Percent')
 
         for rs in self.results.keys():
-            print 'Testcase for:', rs
+            print ('Testcase for:', rs)
             if self.results[rs]['summary'] and self.results_orig[rs]['summary']:
-                print 'Target Apriori:\t\t', self.results[rs]['apriori'], '\t', self.results_orig[rs]['apriori'], '\t', 200*(self.results[rs]['apriori']-self.results_orig[rs]['apriori'])/(self.results[rs]['apriori']+self.results_orig[rs]['apriori']), '%'
-                print 'Target Retrieved:\t', self.results[rs]['retriev'], '\t', self.results_orig[rs]['retriev'], '\t', 200*(self.results[rs]['retriev']-self.results_orig[rs]['retriev'])/(self.results[rs]['retriev']+self.results_orig[rs]['retriev']), '%'
-                print 'CHI_Y_2:\t\t', self.results[rs]['chi_y_2'], '\t', self.results_orig[rs]['chi_y_2'], '\t', 200*(self.results[rs]['chi_y_2']-self.results_orig[rs]['chi_y_2'])/(self.results[rs]['chi_y_2']+self.results_orig[rs]['chi_y_2']), '%'
+                print ('Target Apriori:\t\t', self.results[rs]['apriori'], '\t', self.results_orig[rs]['apriori'], '\t', 200*(self.results[rs]['apriori']-self.results_orig[rs]['apriori'])/(self.results[rs]['apriori']+self.results_orig[rs]['apriori']), '%')
+                print ('Target Retrieved:\t', self.results[rs]['retriev'], '\t', self.results_orig[rs]['retriev'], '\t', 200*(self.results[rs]['retriev']-self.results_orig[rs]['retriev'])/(self.results[rs]['retriev']+self.results_orig[rs]['retriev']), '%')
+                print ('CHI_Y_2:\t\t', self.results[rs]['chi_y_2'], '\t', self.results_orig[rs]['chi_y_2'], '\t', 200*(self.results[rs]['chi_y_2']-self.results_orig[rs]['chi_y_2'])/(self.results[rs]['chi_y_2']+self.results_orig[rs]['chi_y_2']), '%')
                 #            print 'MEAN SQARE Diff. RETRIEVED VMR:', np.sqrt(np.mean((self.results[rs]['chi_y_2']-self.results_orig[rs]['chi_y_2'])**2))
             else:
-                print 'No new summary or original summary file found'
+                print ('No new summary or original summary file found')
 
 if __name__ == '__main__':
 
@@ -203,6 +209,11 @@ if __name__ == '__main__':
         runhbin = False
     if sys.argv.count('--noerror') > 0:
         error = False
+    script_path = os.path.dirname(os.path.realpath(__file__))
+    tc.sfit4_dir = os.path.join(script_path,'..','..')
+    tc.testcase_dir = os.path.join(script_path,'..')
+    tc.resultfile = os.path.join(script_path,'..','results.txt')
+    tc.hbinfile = os.path.join(script_path,'..','..','linelist','hbin.input.tag')
     tc.run_sfit4_in_testcase(sfit4=runsfit,hbin=runhbin,error=error)
     tc.read_summaries()
 #    tc.read_statevectors()
