@@ -1,3 +1,15 @@
+November 2019
+
+official release of stable version 1.0
+
+changes in sfit4.ctl since v0.9.4.4
+remove:
+kb.dwshift 
+kb.max_opd
+
+rt.apod_fcn.apriori = 1.0 -> rt.apod_fcn.apriori = 0.0
+rt.phase_fcn.apriori = 1.0 -> rt.phase_fcn.apriori = 0.0
+
 June 2014
 JWH
 - spec.f90: Fix bug where interpolation factor was being misinterpreted to change the
