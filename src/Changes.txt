@@ -7,9 +7,6 @@ remove:
 kb.dwshift 
 kb.max_opd
 
-rt.apod_fcn.apriori = 1.0 -> rt.apod_fcn.apriori = 0.0
-rt.phase_fcn.apriori = 1.0 -> rt.phase_fcn.apriori = 0.0
-
 June 2014
 JWH
 - spec.f90: Fix bug where interpolation factor was being misinterpreted to change the

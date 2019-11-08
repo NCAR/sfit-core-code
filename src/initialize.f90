@@ -959,7 +959,7 @@
             do kk = 1, NEAPRT
                write(PNAME(kk+NVAR),'(a10,i1)') 'EmpApdFcn_',kk
             end do
-            PARM(NVAR+1:NEAPRT+NVAR) = EAPPAR + 1.0D0
+            PARM(NVAR+1:NEAPRT+NVAR) = EAPPAR
             SPARM(NVAR+1:NEAPRT+NVAR) = SEAPPAR
             NVAR = NEAPRT + NVAR
          ENDIF
@@ -973,7 +973,7 @@
             DO KK = 1, NEPHSRT
                WRITE(PNAME(KK+NVAR),'(A10,I1)') TRIM('EmpPhsFcn_'),KK
             END DO
-            PARM(NVAR+1:NEPHSRT+NVAR) = EPHSPAR + 1.0D0
+            PARM(NVAR+1:NEPHSRT+NVAR) = EPHSPAR
             SPARM(NVAR+1:NEPHSRT+NVAR) = SEPHSPAR
             NVAR = NEPHSRT + NVAR
          ENDIF
