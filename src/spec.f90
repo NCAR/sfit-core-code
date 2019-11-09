@@ -1055,7 +1055,7 @@ subroutine kpno( opdmax, wl1, wl2, roe, lat, lon, nterp, rflag, oflag, zflag, vf
 
 201 allocate( amps4( npfile ))
    read (blun, err = 200) amps4
-   print *, 'R4 amps'
+   !print *, 'R4 amps'
    amps(:) = real( amps4(:), 8 )
    deallocate( amps4 )
 
@@ -1584,7 +1584,7 @@ subroutine calcsnr( wavs, amps, npfile, wlim1, wlim2, spac, opdmax, nterp, noise
 
   if( vflag .gt. 1 )then
       open(66,file='noisefit.txt')
-      write(66,*)'Nearest exact noise region in raw spectrum'
+      write(66,*)' 1. Nearest exact noise region in raw spectrum'
       w1 = psnr(1,k)
       w2 = psnr(2,k)
       ilow = minloc(( wavs-w1 ), mask=((wavs-w1) > 0.0D0))
@@ -1616,7 +1616,7 @@ subroutine calcsnr( wavs, amps, npfile, wlim1, wlim2, spac, opdmax, nterp, noise
    end if
 
    if( vflag .gt. 1 )then
-      write(66,*)'Extended noise region in raw spectrum'
+      write(66,*)'2. Extended noise region in raw spectrum'
       write(66,*) 2, iih - iil + 1
       do i=iil, iih
          write(66,*) wavs(i), amps(i)
@@ -1626,6 +1626,7 @@ subroutine calcsnr( wavs, amps, npfile, wlim1, wlim2, spac, opdmax, nterp, noise
    dnue   = spac
    wstart = wavs(iil)
    mean   = real(sum(amps(iil:iih)), 8) / real( np, 8 )
+   if(vflag .ge. 0 )write(6,102) 'Mean signal in snr region : ', mean
 
    ! assume horizontal band
    !noise = sqrt(dot_product(outspec(iil:iih)-mean, outspec(iil:iih)-mean) / real( np, 8 ) )
@@ -1646,8 +1647,10 @@ subroutine calcsnr( wavs, amps, npfile, wlim1, wlim2, spac, opdmax, nterp, noise
    enddo
 
    if( vflag .gt. 1 )then
-      write(66,*)'Exact noise region in resampled spectrum, i, w#, spec, fit, diff'
+      write(66,*)'3. Exact noise region in resampled spectrum, i, w#, spec, fit, diff'
       write(66,*) 4, np, iil*dnue + wstart, dnue
+      !write(6, *)'Exact noise region in resampled spectrum, i, w#, spec, fit, diff'
+      !write(6, *) 4, np, iil*dnue + wstart, dnue
       do i=1, np
          write(66,*) x(i), wavs(iil+i-1), amps(iil+i-1), &
               & (curve(1) + (curve(2) + (curve(3) + (curve(4) + curve(5)*x(i)) * x(i)) * x(i)) * x(i)), y(i)
@@ -1660,14 +1663,22 @@ subroutine calcsnr( wavs, amps, npfile, wlim1, wlim2, spac, opdmax, nterp, noise
       noise = noise + y(i) * y(i)
    enddo
    noise = sqrt( noise / real(np,8) )
-   opdm = 0.5d0 / spac
-   if( opdmax .lt. opdm )then
-      noise = noise * sqrt( opdmax / opdm ) * real(nterp,8)
-   endif
+   !print*,noise, spac, nterp
+   if(vflag .ge. 0 )write(6,102) 'RMS noise (this spectrum) : ', noise
+   !if(vflag .ge. 0 )write(6,102) 'SNR (this spectrum) : ', mean/noise
 
-   if(vflag .ge. 1 )write(6,102) 'Mean signal : ', mean
-   if(vflag .ge. 0 )write(6,102) 'RMS noise : ', noise
-   write(6,102) 'Mean SNR in snr region : ', mean/noise
+   opdm = 0.5d0 / spac
+   !print*, opdmax, opdm, sqrt( opdmax / opdm )
+   if(vflag .ge. 0 )write(6,102) 'Point ratio (min sampled) : ', opdmax / opdm
+
+   ! correct for oversampled spectra
+   if( opdmax .lt. opdm )then
+      k=1
+      if( nterp .gt. 0 )k = nterp
+      noise = noise * sqrt( opdm / opdmax ) * real(k,8)
+      if(vflag .ge. 0 )write(6,102) 'RMS noise (corrected) : ', noise
+      !if(vflag .ge. 0 )write(6,102) 'SNR in snr region (min sample): ', mean/noise
+   endif
 
    deallocate( x, y, curve )
 
@@ -1857,7 +1868,7 @@ subroutine calcsnr2( wavs, amps, npfile, wlim1, wlim2, spac, opdmax, nterp, nois
    enddo
    if( iih .eq. 0 )stop '3'
 
-  np = iih - iil +1
+   np = iih - iil +1
    mean = real(sum(outspec(iil:iih)), 8) / real( np, 8 )
 
    ! assume horizontal band
