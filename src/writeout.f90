@@ -412,7 +412,7 @@
          WRITE (18, 506) (T(I),I=1,NLEV)
       ENDIF
       WRITE (18, *)
-      WRITE (18, *) NRET
+      WRITE (18, *) NRET-NCELL
       DO I = 1, NRET - NCELL
          WRITE (18, 507) 'A Priori', NAME(IGAS(I))
          WRITE (18, 506) VOSUM(I,NLEV)
