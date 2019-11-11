@@ -291,6 +291,14 @@
          ELSE
             ! ORIGINAL FILE FORMAT
             READ (24, *) JEPHS
+            IF (IEPHS == 2) THEN
+               IF (JEPHS.NE.NEPHS+1) THEN
+                  WRITE(16,*) "FW.PHASE_FCN: THE NUMBER OF ENTRIES IN ", TRIM(TFILE(24)), " MUST BE FW.PHASE_FCN:ORDER + 1"
+                  WRITE(*,*) "FW.PHASE_FCN: THE NUMBER OF ENTRIES IN ", TRIM(TFILE(24)), " MUST BE FW.PHASE_FCN:ORDER + 1"
+                  CALL SHUTDOWN
+                  STOP 1
+               END IF
+            END IF
             READ (24, *) (EPHSF(I),I=1,JEPHS)
             WRITE (16, '(/A)') 'EMPIRICAL PHASE FUNCTION COEFFICIENTS'
             WRITE (16, *) (EPHSF(I),I=1,JEPHS)
@@ -966,16 +974,17 @@
       ENDIF
 
       !  --- EMPIRICAL PHASE FUNCTION
+      !  --- THE OFFSET IS ZEROTH'S ORDER, THAT IS WHY WE NEED POLYNOMILA ORDER +1
       IF( F_RTPHASE )THEN
          NEPHSRT = NEPHS
          IF (NEPHSRT > 0) THEN
             EPHSF0(:NEPHSRT) = EPHSF(:NEPHSRT)
-            DO KK = 1, NEPHSRT
-               WRITE(PNAME(KK+NVAR),'(A10,I1)') TRIM('EmpPhsFcn_'),KK
+            DO KK = 1, NEPHSRT+1
+               WRITE(PNAME(KK+NVAR),'(A10,I1)') TRIM('EmpPhsFcn_'),KK-1
             END DO
-            PARM(NVAR+1:NEPHSRT+NVAR) = EPHSPAR
-            SPARM(NVAR+1:NEPHSRT+NVAR) = SEPHSPAR
-            NVAR = NEPHSRT + NVAR
+            PARM(NVAR+1:NEPHSRT+1+NVAR) = EPHSPAR
+            SPARM(NVAR+1:NEPHSRT+1+NVAR) = SEPHSPAR
+            NVAR = NEPHSRT + 1+ NVAR
          ENDIF
       ENDIF
 
@@ -995,6 +1004,12 @@
       !  --- TOTAL NUMBER OF PHASE ERROR FITS=NPHASE
       NPHASE = 0
       IF( IFPHASE )THEN
+         IF (F_RTPHASE.EQV..TRUE.) THEN
+            WRITE(*,*) 'RT.PHASE = T. THE EMIRICAL PHASE FUNCTION IS RETRIEVED. THEREFOR SWITCH OFF THE PHASE RERIEVAL.'
+            WRITE(16,*) 'RT.PHASE = T. THE EMIRICAL PHASE FUNCTION IS RETRIEVED. THEREFOR SWITCH OFF THE PHASE RERIEVAL.'
+            CALL SHUTDOWN()
+            STOP 1
+         END IF
          DO I = 1, NBAND
             N = NSCAN(I)
             IF (N > 0) THEN

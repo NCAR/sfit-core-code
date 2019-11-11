@@ -163,8 +163,9 @@
 !  --- EMPIRICAL PHASE FUNCTION
          IF( F_RTPHASE )THEN
             IF (NEPHSRT > 0) THEN
-               EPHSF(:NEPHSRT) = EPHSF0(:NEPHSRT)*PARM(NCOUNT+1:NEPHSRT+NCOUNT)
-               NCOUNT = NEPHSRT + NCOUNT
+               ! NEED PLUS 1 BECAUSE OF THE O TH-ORDER
+               EPHSF(:NEPHSRT+1) = EPHSF0(:NEPHSRT+1)*PARM(NCOUNT+1:NEPHSRT+1+NCOUNT)
+               NCOUNT = NEPHSRT + 1 + NCOUNT
             ENDIF
          ENDIF
 
@@ -359,8 +360,14 @@
                   PRINT*, '    TALL', IPARM, NCOUNT
                ENDIF
             ENDIF
-            !print*, nmonsm, TCALC(1,:100)
+               !print*, nmonsm, TCALC(1,:100)
             !stop
+            IF( IFTEMP .and.iparm.eq.NVAR-8) THEN
+             write( 101,*) (tcalc(1,:NFIT))
+         END IF
+         IF( IFTEMP .and.iparm.eq.NVAR-9) THEN
+             write( 100,*) (tcalc(1,:NFIT))
+         END IF
          ELSE
             IF( BUG1 )PRINT*, '    TALL/DIFF', IPARM
             ! THERE COME SOME MORE OPERATIONS ON THE NEW SPECTRUM.
@@ -371,6 +378,8 @@
             TCALC(2,:NMONSM) = TCALC(1,:NMONSM)
          END IF
 
+
+  
          IF (ICOUNT.EQ.1) Y_INFTY(:NMONSM) = TCALC(2,:NMONSM)
 
     9    CONTINUE
@@ -385,7 +394,7 @@
 
          IF (F_USED_ILS) THEN
             !     OPEN A FILE FOR WRITING OUT THE ILS
-            
+            ! BUT ONLY IN THE LAST ITERATION
             CALL FILEOPEN(97,1)
             WRITE(97,*) 'APODISATION AND PHASE AS APPLIED TO THE ARTIFICIAL SPECTRUM'
             WRITE(97,*) 'BAND X INST_APOD EMP_APOD FFT_APOD PHASE' 
@@ -783,6 +792,7 @@
             !   KN(:NFIT,IPARM) = (YC(:NFIT)-YN)/DEL
             !ELSE
             KN(:NFIT,IPARM) = (YC(:NFIT)-YN)/DEL
+
             !END IF
             IF( BUG1 ) &
             WRITE(0,204) '   KN: ', tret, ICOUNT, IPARM, PARM(IPARM), SUM(KN(:NFIT,IPARM))/REAL(NFIT,8), &
@@ -823,6 +833,8 @@
          END DO SPEC1
       END DO BAND1
 
+
+      
  !  --- PRINT OUT PARM ARRAY BY ITERATION
       IF( F_WRTPARM ) THEN
          WRITE(89,261) ITER, PARM(:NVAR)

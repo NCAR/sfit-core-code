@@ -249,9 +249,11 @@
 
          CASE (2)
    ! --- EPHS IS A POLYNOMIAL WITH NEPHS TERMS
-            EPHS = 0.D0
-            DO I = 1, NEPHS
-               EPHS = EPHS + (EPHSF(I)-1.D0)*XP**I
+            !            EPHS = 0.D0
+            ephs = (EPHSF(1)-1.0D0)
+            DO I = 2, NEPHS
+               EPHS = EPHS + (EPHSF(I)-1.D0)*XP**(I-1)
+!               EPHS = EPHS + (EPHSF(I)-1.D0)*XP**I
             END DO
 
          CASE DEFAULT

@@ -7,6 +7,12 @@ remove:
 kb.dwshift 
 kb.max_opd
 
+The file file.in.phase_fcn contains a value for the 0-th order of the
+phase functiomn when the phase function is modelled by a polynomial.
+
+The file must contain 1 more value than the fw.phase_fcn.order.
+
+
 June 2014
 JWH
 - spec.f90: Fix bug where interpolation factor was being misinterpreted to change the
@@ -26,7 +32,7 @@ December 2013 Mathias Palm
 - changed the match of extra parameters (line mixing, beta for
   Galatry, SDV parameters for CO as given in HITRAN 2012) from
   wavenumber to quantum numbers in hbin.f90.
-  The Line mixing parameter file creatre by Frank Hase has been
+  The Line mixing parameter file created by Frank Hase has been
   modified accordingly.
 - kb matrices are calculated even if empirical apodisation and phase
   are not included into the forward model. Both functions are taken as
