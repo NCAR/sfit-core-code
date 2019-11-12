@@ -134,7 +134,7 @@ program pspec
    ! open output file
    open(unit=tlun, file='t15asc.4', status='unknown', err=555)
 
-   if( vflag .gt. 0 )open(unit=vlun,file='pspec_zero.dtl')
+
 
    ! loop over (# of spectra) x (# of windows)
    m = 0
@@ -153,6 +153,8 @@ program pspec
       ! date and time
       ! ckopus.c puts most of this in the bnr header except lat, lon and roe
       ! hence these are given here in pspec.inp
+
+     if( vflag .gt. 0 .and. j .eq. 1 .and. zflag .ne. 0 )open(unit=vlun,file='pspec_zero.dtl')
 
       write(6,101) "Opening bnr for input : ", bnrfile(1:len_trim(bnrfile))
       if( fflag .eq. 0 )then
