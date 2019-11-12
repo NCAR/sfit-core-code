@@ -63,7 +63,7 @@
          NS1, NS2
       LOGICAL :: XRET, TRET, FLINE, FSZA
 
-      REAL(DOUBLE) :: MEAS_BCK, filter_max
+      REAL(DOUBLE) :: MEAS_BCK, FILTER_AVG
       REAL(DOUBLE), DIMENSION(3)      :: B
       REAL(DOUBLE), DIMENSION(NMAX)   :: PARM
       REAL(DOUBLE), DIMENSION(MMAX)   :: YC
@@ -382,6 +382,15 @@
          CALL RETRIEVE_CHANNEL_PARMS (PARM)
 
 !  --- LOOP OVER BANDPASSES ----------------------------------------------------
+
+         IF (F_USED_ILS) THEN
+            !     OPEN A FILE FOR WRITING OUT THE ILS
+            
+            CALL FILEOPEN(97,1)
+            WRITE(97,*) 'APODISATION AND PHASE AS APPLIED TO THE ARTIFICIAL SPECTRUM'
+            WRITE(97,*) 'BAND X INST_APOD EMP_APOD FFT_APOD PHASE' 
+         END IF
+         
          BAND: DO IBAND = 1, NBAND
             N = NSCAN(IBAND)
             IF (N == 0) CYCLE
@@ -482,15 +491,16 @@
                N3 = NPRIM(IBAND)
 
                SMM = 0.D0
-               filter_max = 0.0d0
+               FILTER_AVG = 0.0d0
                
                if (F_MEAS_TRANSMIS) THEN
-                  do j = 1, N3
-                     ! norm filter transmission to 1
+                  DO J = 1, N3
+                     ! NORM FILTER TRANSMISSION TO 1
                      YS = (J - 1)*SPAC(IBAND)
-                     filter_max = max(filter_max,ftrans(ys+wstart(iband)))
-                  end do
-               end if
+                     FILTER_AVG = FILTER_AVG + FTRANS(YS+WSTART(IBAND))
+                  END DO
+               END IF
+               FILTER_AVG = FILTER_AVG / N3
                DO J = 1, N3
 
                   I = N1 + (J - 1)*NSPAC(IBAND)
@@ -508,7 +518,7 @@
 
                   ! CALCULATES (RETRIEVED) FILTER TRANSMISSION CURVE
                   if (F_MEAS_TRANSMIS) THEN
-                     MEAS_BCK = FTRANS(WAVE_X(JATMOS))/filter_max
+                     MEAS_BCK = FTRANS(WAVE_X(JATMOS))/FILTER_AVG
                   else
                      MEAS_BCK = 1.0D0
                   end if
@@ -725,7 +735,10 @@
 
             MXONE = MXONE + NM(IBAND)   ! INDEX IN TCO AND CROSS ARRAYS AS START OF CURRENT BAND
          END DO BAND
-
+         IF (F_USED_ILS) THEN
+            CALL FILECLOSE(97,1)
+         END IF
+         
          DO I = 1, NFIT
             FX = TOBS(I) - YC(I)
             SUMSQ = SUMSQ + FX*FX

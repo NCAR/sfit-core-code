@@ -76,6 +76,7 @@
 !                              TFIL94, &      ! xsections per altitude and spectral point
 !                              TFIL95, &      ! sum of xsections
 !                              TFIL96, &      ! file of filtertransmission
+!                              TFIL97, &      ! appodization functions as applied to art spectrum
 !                              LINDIR, &
 
       INTEGER :: NCHAR
@@ -244,6 +245,9 @@
 
 ! --- filter_transmission
       TFILE(96) = 'filter_transmission.dat'
+
+! --- apodisation and phase function
+      TFILE(97) = 'applied_ils.dat'
 
 
       RETURN
