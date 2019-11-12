@@ -1,0 +1,93 @@
+\documentclass[a4paper]{article}
+
+\begin{document}
+
+\section{Empirical apodisation and phase function}
+
+
+The empirical apodisation and phase deals with ILS errors due to
+misalignemt of the instrument.
+
+To switch it on set the following flags in the fw section:
+\begin{description}
+\item [fw.apod\_fcn] 
+  fw.apod\_function = T\\
+  fw.apod\_function.type = 0,1,2,3 or 4\\
+  fw.apod\_function.order = 1,2,3,\ldots
+\item [fw.phase\_fcn] 
+  fw.phase\_function = T\\
+  fw.phase\_function.type = 0,1,2 or 4 (3 does not exist)\\
+  fw.phase\_function.order = 0, 1,2,3,\ldots\\
+\item[rt.phase]
+  \begin{itemize}
+  \item set as apriori value in rt.phase.apriori
+  \item determines the constant phase offset
+  \item the function determines in fw.phase\_fcn is added to it
+  \end{itemize}
+\end{description}
+ 
+The structure of the files file.in.modulation\_fcn is
+
+\vspace{1cm}
+jeaps specifies the number of entries being read in\\
+eapf(1) eapf(2) ... eapf(jeap)\\
+$[$eapx(1) eapx(2) ... eapx(jeap)$]$\\
+\vspace{1cm}
+eapx is read only when ieap=1.
+\begin{itemize}
+\item   jeap simply specifies the length of the following vectors. eapf is the
+  vector of apodization parameters, whose meaning depends on ieap: 
+\end{itemize}
+
+The structure of the files file.in.phase\_fcn is
+
+\vspace{1cm}
+jephs specifies the number of entries being read in\\
+\begin{description}
+\item[fw.phase\_function.type = 2:] iephs(0) iephs(1) iephs(2) \ldots iephs(jeap-1)\\
+  NOTE: jephs must be fw.phase\_fcn.order + 1
+\item[[fw.phase\_function.type = 1:] two lines:
+  iephs(1) iephs(2) ... iephs(jeap)
+  eapx(1) eapx(2) ... eapx(jeap)\\
+\end{description}
+
+\begin{description}
+\item [fw.apod\_fcn.type=1:] eapf contains the values of the apodization function eapdz; 
+  in this case eapx contains the values of path difference at 
+  which the function is specified.
+\item[fw.apod\_fcn.type=2:] eapf contains the coefficients of a polynomial, defined
+  by
+\end{description}
+\begin{equation}
+  eapdz = 1 + (eapf(1)-1)*(x/xmax) + (eapf(2)-1)*(x/xmax)^2 + \ldots
+\end{equation}
+where $x$ is the path difference
+\begin{description}
+\item [fw.apod\_fcn.type=3:] eapf contains the coefficients of a Fourier series
+\end{description}
+\begin{eqnarray}
+  eapdz &=& 1 + (1-eapf(2))*sin(2*pi*eapf(1)*x/xmax) +\\
+        &&(1-eapf(3))*cos(2*pi*eapf(1)*x/xmax) +\\
+        &&(1-eapf(4))*sin(4*pi*eapf(1)*x/xmax) +\\
+        &&(1-eapf(5))*cos(4*pi*eapf(1)*x/xmax) +\ldots    
+\end{eqnarray}
+\begin{description}
+\item [fw.apod\_fcn.type=4:] file.in.modulation\_fcn is a file which contains the output of linefit (modulat.dat)
+\end{description}
+
+
+\begin{description}
+\item [fw.phase\_fcn.type=1:] file.in.phase\_fcn is a file which contains the values of the phase function at specified optical path differencesa 
+\item[fw.phase\_fcn.type=2:]  file.in.phase\_fcn contains the coefficients of a polynomial, defined
+  by
+\end{description}
+\begin{equation}
+  eapdz = ephs(0) + (eapf(1)-1)*(x/xmax) + (eapf(2)-1)*(x/xmax)^2 + \ldots
+\end{equation}
+where $x$ is the normalized path difference
+\begin{description}
+\item [fw.phase\_fcn.type=3:] does not exist.
+\item [fw.phase\_fcn.type=4:] file.in.phase\_fcn is a file which contains the output of linefit (modulat.dat)
+\end{description}
+
+\end{document}
