@@ -4,13 +4,23 @@ official release of stable version 1.0
 
 changes in sfit4.ctl since v0.9.4.4
 remove:
-kb.dwshift 
+kb.dwshift
 kb.max_opd
 
 The file file.in.phase_fcn contains a value for the 0-th order of the
-phase functiomn when the phase function is modelled by a polynomial.
+phase function when the phase function is modelled by a polynomial.  See sfit4_eapod_ephs.tex
+
 
 The file must contain 1 more value than the fw.phase_fcn.order.
+
+Add switch fw.tips = T or F
+
+IFOFF = 6 : Internally create the -P L1 matrix and scale by layer thickness and L1LAMBDA
+Set L1LAMBDA to use this functionality of program will stop
+Implemented by gas. L1 is multiplied by L1LAMBDA.
+
+
+
 
 
 June 2014

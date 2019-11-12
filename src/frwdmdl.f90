@@ -38,7 +38,7 @@
       CHARACTER (LEN=7), DIMENSION(MOLMAX) :: LM_GAS
 
     CONTAINS
-      
+
       !------------------------------------------------------------------------------
       SUBROUTINE FM(XN, YN, KN, NFIT, NVAR, KFLG, ITER, TFLG )
 
@@ -255,9 +255,9 @@
          CALL CALC_CONTINUUM(CONT_PARAM)
 
 
-         ! CHANNEL PARAMS INCLUDED BEFORE 
+         ! CHANNEL PARAMS INCLUDED BEFORE
          NCOUNT = NCOUNT + NCHAN
-         
+
 
 !  ---  UPDATE VMRS OF RETRIEVAL GASES
          DELTA_Y(:NFIT) = 0.0D0
@@ -303,8 +303,8 @@
             ENDIF
          END DO
 
-         
-         
+
+
 ! --- TEMPERATURE RETRIEVAL
          IF( IFTEMP ) THEN
             !IF( BUG1 )PRINT *, IFTEMP, IPARM, NCOUNT, NTEMP1, NTEMP, PARM(NCOUNT+1:NCOUNT+1)
@@ -360,14 +360,8 @@
                   PRINT*, '    TALL', IPARM, NCOUNT
                ENDIF
             ENDIF
-               !print*, nmonsm, TCALC(1,:100)
+            !print*, nmonsm, TCALC(1,:100)
             !stop
-            IF( IFTEMP .and.iparm.eq.NVAR-8) THEN
-             write( 101,*) (tcalc(1,:NFIT))
-         END IF
-         IF( IFTEMP .and.iparm.eq.NVAR-9) THEN
-             write( 100,*) (tcalc(1,:NFIT))
-         END IF
          ELSE
             IF( BUG1 )PRINT*, '    TALL/DIFF', IPARM
             ! THERE COME SOME MORE OPERATIONS ON THE NEW SPECTRUM.
@@ -378,8 +372,6 @@
             TCALC(2,:NMONSM) = TCALC(1,:NMONSM)
          END IF
 
-
-  
          IF (ICOUNT.EQ.1) Y_INFTY(:NMONSM) = TCALC(2,:NMONSM)
 
     9    CONTINUE
@@ -391,15 +383,6 @@
          CALL RETRIEVE_CHANNEL_PARMS (PARM)
 
 !  --- LOOP OVER BANDPASSES ----------------------------------------------------
-
-         IF (F_USED_ILS) THEN
-            !     OPEN A FILE FOR WRITING OUT THE ILS
-            ! BUT ONLY IN THE LAST ITERATION
-            CALL FILEOPEN(97,1)
-            WRITE(97,*) 'APODISATION AND PHASE AS APPLIED TO THE ARTIFICIAL SPECTRUM'
-            WRITE(97,*) 'BAND X INST_APOD EMP_APOD FFT_APOD PHASE' 
-         END IF
-         
          BAND: DO IBAND = 1, NBAND
             N = NSCAN(IBAND)
             IF (N == 0) CYCLE
@@ -488,7 +471,7 @@
                CALL FSPEC1 (IBAND, MONONE, MXONE)
                CALL FSPEC2 (IBAND, MONONE, PHI)
 
-               
+
 !  --- COMPUTE RESIDUALS
    16          CONTINUE
 
@@ -501,7 +484,7 @@
 
                SMM = 0.D0
                FILTER_AVG = 0.0d0
-               
+
                if (F_MEAS_TRANSMIS) THEN
                   DO J = 1, N3
                      ! NORM FILTER TRANSMISSION TO 1
@@ -520,10 +503,7 @@
                   YS = (J - 1)*SPAC(IBAND)
                   WAVE_X(JATMOS) = YS + WSTART(IBAND)
 
-                  
                   !APPLIES MEASURED TRANSMISSION TO THE SYNTHETIC SPECTRUM
-                  
-
 
                   ! CALCULATES (RETRIEVED) FILTER TRANSMISSION CURVE
                   if (F_MEAS_TRANSMIS) THEN
@@ -535,7 +515,6 @@
                   BKGND = BKGND*(1.0D0/(1.0D0 + ZSHIFT(IBAND,JSCAN)))
 
 
-                  
 !-- FIT CHANNEL PARMS IF NEEDED ----------------------------------------!PWJ
 
                   IF (NBEAM_OF_BAND(IBAND) /= 0) THEN
@@ -545,7 +524,7 @@
                      ENDIF
                   ELSE
                      YC(JATMOS) = BKGND*(DBLE(TCALI) + ZSHIFT(IBAND,JSCAN))
-                     
+
                   ENDIF
 !print *,jatmos, yc(jatmos)
                   SMM = SMM + YC(JATMOS)
@@ -655,7 +634,7 @@
                      ENDIF
                   ENDIF
                   WRITE(TITLE,710) 'REST', IBAND, JSCAN, ITER
-                  
+
                   OPEN(UNIT=80, FILE=GASFNAME, STATUS='REPLACE', ERR=555)
                   WRITE (80, 640) TITLE
                   WRITE (80, *) WA, WE, SP, N3
@@ -744,10 +723,7 @@
 
             MXONE = MXONE + NM(IBAND)   ! INDEX IN TCO AND CROSS ARRAYS AS START OF CURRENT BAND
          END DO BAND
-         IF (F_USED_ILS) THEN
-            CALL FILECLOSE(97,1)
-         END IF
-         
+
          DO I = 1, NFIT
             FX = TOBS(I) - YC(I)
             SUMSQ = SUMSQ + FX*FX
@@ -782,18 +758,11 @@
 
 !  --- UPDATE CALCULATED SPECTRUM ARRAY ON FIRST TRIP THROUGH UPDATE SPECTRA
             YN = YC(:NFIT)
-
          ELSE
 
-!print*, yc(:5)
-
 !  --- UPDATE ARRAY OF PARTIAL DERIVATIVES
-            !IF (ANALYTIC_K.AND.XRET) THEN
-            !   KN(:NFIT,IPARM) = (YC(:NFIT)-YN)/DEL
-            !ELSE
             KN(:NFIT,IPARM) = (YC(:NFIT)-YN)/DEL
 
-            !END IF
             IF( BUG1 ) &
             WRITE(0,204) '   KN: ', tret, ICOUNT, IPARM, PARM(IPARM), SUM(KN(:NFIT,IPARM))/REAL(NFIT,8), &
                          SQRT(SUM(KN(:NFIT,IPARM)**2))
@@ -827,14 +796,12 @@
                  KN( NS1:NS2 , NGIDX(KK,1,0): NGIDX(KK,2,0) ) = 0.0D0
                ELSE
                ENDIF
-               
+
 
             END DO RET1
          END DO SPEC1
       END DO BAND1
 
-
-      
  !  --- PRINT OUT PARM ARRAY BY ITERATION
       IF( F_WRTPARM ) THEN
          WRITE(89,261) ITER, PARM(:NVAR)

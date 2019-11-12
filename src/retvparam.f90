@@ -114,8 +114,8 @@
       REAL(DOUBLE),  DIMENSION(2)     :: CPRES
       REAL(DOUBLE),  DIMENSION(2)     :: CVMR
       REAL(DOUBLE),  DIMENSION(2)     :: CPATH
-      REAL(DOUBLE), DIMENSION(MOLMAX) :: TPLAMBDA ! Regularisation strength
-                                                  ! for TP method
+      REAL(DOUBLE), DIMENSION(MOLMAX) :: L1LAMBDA = -1.0D0     ! Regularisation strength
+                                                               ! for L1 (TP) method
 
       LOGICAL :: F_MEAS_TRANSMIS
       INTEGER :: NUM_FILTER

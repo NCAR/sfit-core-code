@@ -76,7 +76,7 @@
 !                              TFIL94, &      ! xsections per altitude and spectral point
 !                              TFIL95, &      ! sum of xsections
 !                              TFIL96, &      ! file of filtertransmission
-!                              TFIL97, &      ! appodization functions as applied to art spectrum
+!                              TFIL97, &      ! appodization functions as applied to spectrum
 !                              LINDIR, &
 
       INTEGER :: NCHAR
