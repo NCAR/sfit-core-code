@@ -8,16 +8,14 @@ testcase	tested with version:
 
 		      v0.9.4.5       V1.0
 		      14-11-2014     Nov 2019
-x.ch4
-x.ch4_L1                   X
-x.ch4_alt
+x.ch4_L1                             x
 x.clono2
 x.co		   x
-x.hcl		   x
-x.hcn		   x
+x.hcl		   x                 y
+x.hcn		   x                 y
 x.hf		   x
-x.hno3
-x.o3		   x
+x.hno3                               y
+x.o3		   x                 y
 
 
 
