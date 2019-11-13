@@ -978,13 +978,13 @@
       IF( F_RTPHASE )THEN
          NEPHSRT = NEPHS
          IF (NEPHSRT > 0) THEN
-            EPHSF0(:NEPHSRT) = EPHSF(:NEPHSRT)
+            EPHSF0(:NEPHSRT+1) = EPHSF(:NEPHSRT+1)
             DO KK = 1, NEPHSRT+1
                WRITE(PNAME(KK+NVAR),'(A10,I1)') TRIM('EmpPhsFcn_'),KK-1
             END DO
             PARM(NVAR+1:NEPHSRT+1+NVAR) = EPHSPAR
             SPARM(NVAR+1:NEPHSRT+1+NVAR) = SEPHSPAR
-            NVAR = NEPHSRT + 1+ NVAR
+            NVAR = NEPHSRT +1+ NVAR
          ENDIF
       ENDIF
 
