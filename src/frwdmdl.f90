@@ -362,12 +362,6 @@
             ENDIF
                !print*, nmonsm, TCALC(1,:100)
             !stop
-            IF( IFTEMP .and.iparm.eq.NVAR-8) THEN
-             write( 101,*) (tcalc(1,:NFIT))
-         END IF
-         IF( IFTEMP .and.iparm.eq.NVAR-9) THEN
-             write( 100,*) (tcalc(1,:NFIT))
-         END IF
          ELSE
             IF( BUG1 )PRINT*, '    TALL/DIFF', IPARM
             ! THERE COME SOME MORE OPERATIONS ON THE NEW SPECTRUM.
@@ -377,8 +371,6 @@
             TCALC(1,:NMONSM) = Y_INFTY(:NMONSM) + DELTA_Y(:NMONSM)*DEL
             TCALC(2,:NMONSM) = TCALC(1,:NMONSM)
          END IF
-
-
   
          IF (ICOUNT.EQ.1) Y_INFTY(:NMONSM) = TCALC(2,:NMONSM)
 

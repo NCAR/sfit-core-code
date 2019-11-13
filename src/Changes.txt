@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 November 2019
 
 official release of stable version 1.0
@@ -11,6 +12,9 @@ The file file.in.phase_fcn contains a value for the 0-th order of the
 phase functiomn when the phase function is modelled by a polynomial.
 
 The file must contain 1 more value than the fw.phase_fcn.order.
+=======
+Feb 2018
+>>>>>>> Pre-Release-v0_9_6
 
 
 June 2014

@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 *.dSYM
 sfit4
 hbin
 pspec
 *.mod
 *.o
+.DS_Store
+=======
+*.o
+*.mod
+>>>>>>> Dev_Jim

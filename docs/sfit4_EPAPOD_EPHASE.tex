@@ -4,6 +4,7 @@
 
 \section{Empirical apodisation and phase function}
 
+\subsection{sfit4.ctl}
 
 The empirical apodisation and phase deals with ILS errors due to
 misalignemt of the instrument.
@@ -18,27 +19,91 @@ To switch it on set the following flags in the fw section:
   fw.phase\_function = T\\
   fw.phase\_function.type = 0,1,2 or 4 (3 does not exist)\\
   fw.phase\_function.order = 0, 1,2,3,\ldots\\
-\item[rt.phase_fcn] retrieval of the empirical pahse function, only for polyinomials possible
-\item[rt.phase] NOTE: only either this or rt.phase_fcn is possible. 
+\item[rt.phase\_fcn = T ] retrieval of the empirical phase function, only
+  for polynomials possible
+  \begin{description}
+  \item[rt.phase\_fcn.apriori] scaling factor for the coefficients
+    (1.0 means the values read from file.in.phase\_fcn are used as
+    they are)
+  \item[rt.phase\_fcn.sigma] covariance for the retrieval 
+  \end{description}
+\item[rt.phase] NOTE: only either this or rt.phase\_fcn is possible.
   \begin{itemize}
-  \item set as apriori value in rt.phase.apriori
   \item determines the constant phase offset
-  \item the function determines in fw.phase\_fcn is added to it
   \end{itemize}
+  \begin{description}
+  \item[rt.phase.apriori] apriori scaling factor for the phase coefficient (1.0 means no change to the default)
+  \item[rt.phase.sigma] covariance for the retrieval 
+  \end{description}
+  \item 
 \end{description}
- 
-The structure of the files file.in.modulation\_fcn is
 
-\vspace{1cm}
-jeaps specifies the number of entries being read in\\
-eapf(1) eapf(2) ... eapf(jeap)\\
-$[$eapx(1) eapx(2) ... eapx(jeap)$]$\\
-\vspace{1cm}
-eapx is read only when ieap=1.
-\begin{itemize}
-\item   jeap simply specifies the length of the following vectors. eapf is the
-  vector of apodization parameters, whose meaning depends on ieap: 
-\end{itemize}
+The parameters for the emipical apodisationa and phase are given in
+the files file.in.modulation\_fcn and file.in.phase\_fcn. The
+structure of those files is described in the next sections. 
+
+
+
+
+\subsection{file.in.modulation\_fcn}
+
+The
+general structure is 
+\begin{description}
+\item[fw.apod\_fcn = 1]\hspace{2cm}
+  
+  \noindent
+  \begin{tabular}{ll}  
+    jeaps & number of values (columns) in this file\\
+    eapf(1) eapf(2) ... eapf(jeap)& at OPD given in row below\\
+    eapx(1) eapx(2) ... eapx(jeap) & OPD\\
+  \end{tabular}
+\item[fw.apod\_fcn = 2,3]\hspace{2cm}
+  
+  \noindent
+  \begin{tabular}{ll}  
+    jeaps & number of values (columns) in this file\\
+    eapf(1) eapf(2) ... eapf(jeap)& coefficients of polynom or Fourier series\\
+  \end{tabular}
+\begin{equation}
+  eapdz = 1 + (eapf(1)-1)*(x/xmax) + (eapf(2)-1)*(x/xmax)^2 + \ldots
+\end{equation}
+
+  The apodisation function $eapdz$ as Fourier series is given by
+  \begin{eqnarray}
+    eapdz &=& 1 + (1-eapf(2))*sin(2*pi*eapf(1)*x/xmax) +\\
+          &&(1-eapf(3))*cos(2*pi*eapf(1)*x/xmax) +\\
+          &&(1-eapf(4))*sin(4*pi*eapf(1)*x/xmax) +\\
+          &&(1-eapf(5))*cos(4*pi*eapf(1)*x/xmax) +\ldots    
+  \end{eqnarray}
+\item[fw.apod\_fcn=4] outputfile modulat.dat from linefit
+\end{description}
+
+\subsection{file.in.phase\_fcn}
+
+The general structure is
+\begin{description}
+\item[fw.apod\_fcn = 1]\hspace{2cm}
+  
+  \noindent
+  \begin{tabular}{ll}  
+    jephs & number of values (columns) in this file\\
+    ephsf(1) phsf(2) ... phsf(jephs)& at OPD given in row below\\
+    ephsx(1) phsx(2) ... phsx(jephs) & OPD\\
+  \end{tabular}
+\item[fw.apod\_fcn = 2] NOTE: 3 does not exist
+  
+  \noindent
+  \begin{tabular}{ll}  
+    jephs & number of values (columns) in this file\\
+    phsf(1) phsf(2) ... phsf(jphs)& coefficients of polynom or Fourier series\\
+  \end{tabular}
+  NOTE: jephs must be fw.phase\_fcn.order +1 because the first value
+  is the 0th order term.
+\item[fw.apod\_fcn=4] outputfile modulat.dat from linefit
+\end{description}
+
+
 
 The structure of the files file.in.phase\_fcn is
 
@@ -59,19 +124,10 @@ jephs specifies the number of entries being read in\\
 \item[fw.apod\_fcn.type=2:] eapf contains the coefficients of a polynomial, defined
   by
 \end{description}
-\begin{equation}
-  eapdz = 1 + (eapf(1)-1)*(x/xmax) + (eapf(2)-1)*(x/xmax)^2 + \ldots
-\end{equation}
 where $x$ is the path difference
 \begin{description}
 \item [fw.apod\_fcn.type=3:] eapf contains the coefficients of a Fourier series
 \end{description}
-\begin{eqnarray}
-  eapdz &=& 1 + (1-eapf(2))*sin(2*pi*eapf(1)*x/xmax) +\\
-        &&(1-eapf(3))*cos(2*pi*eapf(1)*x/xmax) +\\
-        &&(1-eapf(4))*sin(4*pi*eapf(1)*x/xmax) +\\
-        &&(1-eapf(5))*cos(4*pi*eapf(1)*x/xmax) +\ldots    
-\end{eqnarray}
 \begin{description}
 \item [fw.apod\_fcn.type=4:] file.in.modulation\_fcn is a file which contains the output of linefit (modulat.dat)
 \end{description}
