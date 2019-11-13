@@ -1,3 +1,5 @@
+Notes.txt for sfit4 NDACC testcases
+
 Not all testcases run through all steps:  pspec - hbin - sfit
 
 sfit only:           X
