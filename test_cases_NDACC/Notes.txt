@@ -1,15 +1,23 @@
-testcase	tested with version 
-		v0.9.4.5
-		14-11-2014
-x.co		x
-x.co2.f2	x
-x.hcl		x
-x.hcn		x
-x.hf		x
-x.no		x
-x.o3		x
+Not all testcases run through all steps:  pspec - hbin - sfit
+
+sfit only:           X
+hbin, sfit:          Y
+pspec, hbin, sfit:   Z
+
+testcase	tested with version:
+
+		      v0.9.4.5       V1.0
+		      14-11-2014     Nov 2019
+x.co		   x
+x.co2.f2	   x
+x.hcl		   x
+x.hcn		   x
+x.hf		   x
+x.no		   x
+x.o3		   x
 x.ccl4		x
-x.co2.f4        x
+x.co2.f4    x
+x.ch4_L1                   X
 
 
 If sfit-processing-environment is installed, the test cases can be run with error calculation
