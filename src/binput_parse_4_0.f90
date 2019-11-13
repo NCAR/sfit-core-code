@@ -216,23 +216,7 @@ end subroutine read_file_section
        end if
 
        select case (trim(adjustl(keyword(4))))
-       case ('regmethod')
-          if (len_trim(keyword(5)).eq.0) then
-             read(value,*) regmethod(nr)
-          else
-             select case (trim(adjustl(keyword(5))))
-             case ('lambda')
-                read(value,*) tplambda(nr)
-             case default
-                WRITE(16,*) 'BINPUT_PARSE_4_0:READ_GAS_SECTION: Key ', trim(keyword(5)), &
-                            ' not contained in section gas...regmethod'
-                WRITE( 0,*) 'BINPUT_PARSE_4_0:READ_GAS_SECTION: Key ', trim(keyword(5)), &
-                            ' not contained in section gas...regmethod'
-                CALL SHUTDOWN
-                STOP 1
-             end select
-          end if
-       case ('correlation')
+        case ('correlation')
           if (len_trim(keyword(5)).eq.0) then
              read(value,*) correlate(nr)
           else
@@ -245,6 +229,8 @@ end subroutine read_file_section
                 read(value,*) zgmin(nr)
              case ('maxalt')
                 read(value,*) zgmax(nr)
+             case ('lambda')
+                read(value,*) l1lambda(nr)
              case default
                 WRITE(16,*) 'BINPUT_PARSE_4_0:READ_GAS_SECTION: Key ', trim(keyword(5)), &
                             ' not contained in section gas...correlation'
@@ -1064,8 +1050,6 @@ end subroutine read_file_section
           read(value,*)  F_WRTSUMRY
        case ('pbpfile')
           read(value,*)  F_WRTPBP
-!       case ('pbpfile_kb')
-!          read(value,*)  F_WRTPBP_KB
        case ('channel')
           read(value,*)  F_WRTCHANNEL
        case ('parm_vectors')
@@ -1098,8 +1082,6 @@ end subroutine read_file_section
           read(value,*)  XSC_DETAIL
        case ('g_matrix')
           read(value,*)  F_WRTG
-       case ('used_ils')
-          read(value,*)  F_USED_ILS
        case default
           WRITE(16,*) 'BINPUT_PARSE_4_0:READ_OUTPUT_SECTION: Key ', trim(keyword(2)), ' not contained in section : output'
           WRITE( 0,*) 'BINPUT_PARSE_4_0:READ_OUTPUT_SECTION: Key ', trim(keyword(2)), ' not contained in section : output'

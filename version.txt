@@ -1,6 +1,10 @@
 Version Documentation for sfit4
 
--------------- Version PreRelease: 0.9.6 (March 2018) --------------
+-------------- Version Official Release: v1.0 (November 2019) --------------
+
+Added internal calculation of Tikonov-Philips L1 Regularization matrix
+Updated to HITRAN 16 (and ATM 2019) and TIPS 2016
+
 
 
 

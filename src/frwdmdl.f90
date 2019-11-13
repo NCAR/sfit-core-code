@@ -38,7 +38,7 @@
       CHARACTER (LEN=7), DIMENSION(MOLMAX) :: LM_GAS
 
     CONTAINS
-      
+
       !------------------------------------------------------------------------------
       SUBROUTINE FM(XN, YN, KN, NFIT, NVAR, KFLG, ITER, TFLG )
 
@@ -255,9 +255,9 @@
          CALL CALC_CONTINUUM(CONT_PARAM)
 
 
-         ! CHANNEL PARAMS INCLUDED BEFORE 
+         ! CHANNEL PARAMS INCLUDED BEFORE
          NCOUNT = NCOUNT + NCHAN
-         
+
 
 !  ---  UPDATE VMRS OF RETRIEVAL GASES
          DELTA_Y(:NFIT) = 0.0D0
@@ -303,8 +303,8 @@
             ENDIF
          END DO
 
-         
-         
+
+
 ! --- TEMPERATURE RETRIEVAL
          IF( IFTEMP ) THEN
             !IF( BUG1 )PRINT *, IFTEMP, IPARM, NCOUNT, NTEMP1, NTEMP, PARM(NCOUNT+1:NCOUNT+1)
@@ -360,8 +360,9 @@
                   PRINT*, '    TALL', IPARM, NCOUNT
                ENDIF
             ENDIF
-               !print*, nmonsm, TCALC(1,:100)
+            !print*, nmonsm, TCALC(1,:100)
             !stop
+
          ELSE
             IF( BUG1 )PRINT*, '    TALL/DIFF', IPARM
             ! THERE COME SOME MORE OPERATIONS ON THE NEW SPECTRUM.
@@ -371,7 +372,7 @@
             TCALC(1,:NMONSM) = Y_INFTY(:NMONSM) + DELTA_Y(:NMONSM)*DEL
             TCALC(2,:NMONSM) = TCALC(1,:NMONSM)
          END IF
-  
+
          IF (ICOUNT.EQ.1) Y_INFTY(:NMONSM) = TCALC(2,:NMONSM)
 
     9    CONTINUE

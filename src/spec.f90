@@ -1725,6 +1725,7 @@ subroutine calcsnr( wavs, amps, npfile, wlim1, wlim2, spac, opdmax, nterp, noise
 end subroutine calcsnr
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 !---------------------------------------------------------------------------------
 subroutine calcsnr2( wavs, amps, npfile, wlim1, wlim2, spac, opdmax, nterp, noise, vflag )
 
@@ -1956,6 +1957,5 @@ subroutine calcsnr2( wavs, amps, npfile, wlim1, wlim2, spac, opdmax, nterp, nois
 
 
 end subroutine calcsnr2
-=======
->>>>>>> Pre-Release-v0_9_6
+
 end module spec
