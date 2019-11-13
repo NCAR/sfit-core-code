@@ -291,6 +291,14 @@
          ELSE
             ! ORIGINAL FILE FORMAT
             READ (24, *) JEPHS
+            IF (IEPHS == 2) THEN
+               IF (JEPHS.NE.NEPHS+1) THEN
+                  WRITE(16,*) "FW.PHASE_FCN: THE NUMBER OF ENTRIES IN ", TRIM(TFILE(24)), " MUST BE FW.PHASE_FCN:ORDER + 1"
+                  WRITE(*,*) "FW.PHASE_FCN: THE NUMBER OF ENTRIES IN ", TRIM(TFILE(24)), " MUST BE FW.PHASE_FCN:ORDER + 1"
+                  CALL SHUTDOWN
+                  STOP 1
+               END IF
+            END IF
             READ (24, *) (EPHSF(I),I=1,JEPHS)
             WRITE (16, '(/A)') 'EMPIRICAL PHASE FUNCTION COEFFICIENTS'
             WRITE (16, *) (EPHSF(I),I=1,JEPHS)
@@ -966,16 +974,17 @@
       ENDIF
 
       !  --- EMPIRICAL PHASE FUNCTION
+      !  --- THE OFFSET IS ZEROTH'S ORDER, THAT IS WHY WE NEED POLYNOMIAL ORDER +1
       IF( F_RTPHASE )THEN
          NEPHSRT = NEPHS
          IF (NEPHSRT > 0) THEN
-            EPHSF0(:NEPHSRT) = EPHSF(:NEPHSRT)
-            DO KK = 1, NEPHSRT
-               WRITE(PNAME(KK+NVAR),'(A10,I1)') TRIM('EmpPhsFcn_'),KK
+            EPHSF0(:NEPHSRT+1) = EPHSF(:NEPHSRT+1)
+            DO KK = 1, NEPHSRT+1
+               WRITE(PNAME(KK+NVAR),'(A10,I1)') TRIM('EmpPhsFcn_'),KK-1
             END DO
-            PARM(NVAR+1:NEPHSRT+NVAR) = EPHSPAR
-            SPARM(NVAR+1:NEPHSRT+NVAR) = SEPHSPAR
-            NVAR = NEPHSRT + NVAR
+            PARM(NVAR+1:NEPHSRT+1+NVAR) = EPHSPAR
+            SPARM(NVAR+1:NEPHSRT+1+NVAR) = SEPHSPAR
+            NVAR = NEPHSRT +1+ NVAR
          ENDIF
       ENDIF
 
@@ -995,6 +1004,12 @@
       !  --- TOTAL NUMBER OF PHASE ERROR FITS=NPHASE
       NPHASE = 0
       IF( IFPHASE )THEN
+         IF (F_RTPHASE.EQV..TRUE.) THEN
+            WRITE(*,*) 'RT.PHASE = T. THE EMIRICAL PHASE FUNCTION IS RETRIEVED. THEREFORE SWITCH OFF THE PHASE RERIEVAL.'
+            WRITE(16,*) 'RT.PHASE = T. THE EMIRICAL PHASE FUNCTION IS RETRIEVED. THEREFORE SWITCH OFF THE PHASE RERIEVAL.'
+            CALL SHUTDOWN()
+            STOP 1
+         END IF
          DO I = 1, NBAND
             N = NSCAN(I)
             IF (N > 0) THEN
@@ -1238,17 +1253,19 @@
 
                   END DO
                END DO
-               ! --- READ IN FULL COVARIANCE FROM FILE
+               ! --- READ IN FULL FOR ONE GAS COVARIANCE FROM FILE
             CASE ( 4 )
                INQUIRE( UNIT=62, OPENED=FILOPEN )
                IF ( .NOT. FILOPEN )CALL FILEOPEN( 62, 3 )
                DO I = 1, NLAYERS
                   READ( 62,* ) (SA( I+INDXX, J+INDXX), J=1, N)
                END DO
-            CASE ( 0 )
-               IF (REGMETHOD(KK).EQ.'OEM') THEN
-                  PRINT *, ' PROFILE RETRIEVAL GAS: ', NAME(IGAS(KK)), ' NO OFF DIAGONAL VALUES SET.'
-               END IF
+            CASE ( 6 )
+               IF ( L1LAMBDA(KK) .LT. 0.0D0 ) THEN
+                  PRINT *, ' SET L1LAMBDA TO USE L1 REGULARIZATION FOR GAS: ', NAME(IGAS(KK))
+                  CALL SHUTDOWN
+                  STOP 2
+               ENDIF
             END SELECT
          ENDIF
          INDXX = INDXX + N

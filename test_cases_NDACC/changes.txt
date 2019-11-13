@@ -1,6 +1,16 @@
+
+------------------------------------------------
+November 2019
+
+x.ch4_L1
+   tested & updated for V1.0
+
+
+
+------------------------------------------------
 21.11.2013 Mathias Palm
 
-x.ch4 CH4 
+x.ch4 CH4
       - empirical apodization and phase
       - inverse SA matrix as input (L2 constraint)
 x.ccl4 CCL4
@@ -8,6 +18,8 @@ x.ccl4 CCL4
 x.hcl
       - uses GALATRY parameters and line shape
 
+
+------------------------------------------------
 20.11.2015
 
 x.o3

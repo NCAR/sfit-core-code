@@ -15,6 +15,7 @@
 .f90.o:
 	$(FC) -c $(FFLAGS) $<
 
+
 FC = gfortran
 
 # error check everything

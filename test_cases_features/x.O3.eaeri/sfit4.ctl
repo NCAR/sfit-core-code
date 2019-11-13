@@ -46,7 +46,7 @@
  rt.lm.gamma_dec             =           1.0e1
  rt.convergence              =           0.1
  rt.max_iteration            =              17
- rt.wshift                   =               F
+ rt.wshift                   =               T
  rt.wshift.type              = 3
  rt.wshift.apriori           =           0.000
  rt.wshift.sigma             =           0.100

@@ -49,12 +49,10 @@
       LOGICAL :: F_WRTSMEAS          = .FALSE.
       LOGICAL :: F_WRTSUMRY          = .FALSE.
       LOGICAL :: F_WRTPBP            = .FALSE.
-!      LOGICAL :: F_WRTPBP_KB         = .FALSE.
       LOGICAL :: F_WRTCHANNEL        = .FALSE.
       LOGICAL :: F_WRTRAYTC          = .FALSE.
       LOGICAL :: F_WRTSOLSPEC        = .FALSE.
       LOGICAL :: F_WRTLM             = .FALSE.
-      LOGICAL :: F_USED_ILS          = .FALSE.
       LOGICAL :: XSC_DETAIL          = .FALSE.
 
       INTEGER :: OUTPUTLEVL    = 0
@@ -106,8 +104,6 @@
         F_WRTRAYTC          = .TRUE.
         F_WRTSOLSPEC        = .TRUE.
         F_WRTLM             = .TRUE.
-        F_USEd_ILS          = .TRUE.
-        !        F_WRTPBP_KB         = .TRUE.
         XSC_DETAIL          = .TRUE.
      END IF
      IF (OUTPUTLEVL.GT.3) THEN
@@ -412,7 +408,7 @@
          WRITE (18, 506) (T(I),I=1,NLEV)
       ENDIF
       WRITE (18, *)
-      WRITE (18, *) NRET
+      WRITE (18, *) NRET-NCELL
       DO I = 1, NRET - NCELL
          WRITE (18, 507) 'A Priori', NAME(IGAS(I))
          WRITE (18, 506) VOSUM(I,NLEV)
