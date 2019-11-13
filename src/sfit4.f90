@@ -433,7 +433,8 @@
 
 !  --- CALCULATE DEGREES OF FREEDOM FOR SIGNAL USING APOSTERIORI SOLUTION
 !  --- ONLY IF REALLY RETRIEVED, SOME MATRICES ARE NOT CALCULATED
-      IF ( RETFLG ) CALL DOFS(NFIT,NVAR,ISMIX,NLEV)
+      !IF ( RETFLG )
+      CALL DOFS(NFIT,NVAR,ISMIX,NLEV)
 
       INDXX = ISMIX
       DO KK = 1, NRET
@@ -688,11 +689,11 @@
          NEAP = 3
          EAPF(:NEAP) = 1.0D0
          EAPPAR = 0.0D0
-         print *, 'KB apod function'
       end IF
       IF( F_KB_EPHS.AND..NOT.F_RTPHASE ) then
          F_RTPHASE = .TRUE.
          F_EPHASE = .TRUE.
+         IFPHASE = .FALSE.
          IEPHS = 2
          NEPHS = 3
          EPHSF(:NEPHS) = 1.0D0
