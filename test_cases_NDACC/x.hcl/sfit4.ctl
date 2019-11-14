@@ -27,11 +27,11 @@
  gas.profile.HCL.logstate             =               F
  gas.profile.HCL.scale = 1.0		
  gas.profile.HCL.sigma                =
- 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5
- 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5
- 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5
- 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5
- 0.5
+ 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1
+ 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1
+ 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1
+ 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1
+ 0.1
  gas.column.HDO.logstate            =               F
  gas.column.HDO.scale               = 1.0
  gas.column.HDO.sigma               = 1.0
@@ -76,7 +76,7 @@
  rt.curvature.apriori        =           0.000
  rt.curvature.sigma             =           0.100
  rt.dwshift                   =               F
- rt.temperature              =               T
+ rt.temperature              =               F
  rt.temperature.sigma                =
  0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01
  0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01
@@ -99,7 +99,7 @@
  band.1.omega= 2.3932
  band.1.apodization_code     =               0
  band.1.gasb                 = HCL O3 HDO
- band.1.tempretb = T
+ band.1.tempretb = F
  band.2.nu_start             =        2775.7000
  band.2.nu_stop              =        2775.8000
  band.2.zshift               =               F

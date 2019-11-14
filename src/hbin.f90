@@ -625,7 +625,7 @@ subroutine read_input( hasc, wstr, wstp, HFL, GLP, LFL, SDV ) !ELP
    logical, intent(inout)  :: hasc
    real(double)            :: wstr, wstp, wavnum
    integer                 :: lun, mo !, iso
-   character (len=10)      :: ifilename = 'hbin.input'
+   character (len=10)      :: ifilename = 'hbin.ctl'
    integer                 :: j, i, n, istat, ilun=9
    logical                 :: fexist
    character (len=160)     :: buffer, linebuffer, filename ! path
@@ -655,8 +655,10 @@ subroutine read_input( hasc, wstr, wstp, HFL, GLP, LFL, SDV ) !ELP
    end if
 
 5  continue
-   print *, 'Not a valid tagged hbin input, assume old input file version'
-   ctl_version = 1
+   !print *, 'Not a valid tagged hbin input, assume old input file version'
+   print *, 'Not a valid tagged hbin input, use tagged file version and name "hbin.ctl"'
+   !ctl_version = 1
+   stop
 
 6  continue
 

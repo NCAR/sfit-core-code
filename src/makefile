@@ -17,7 +17,6 @@
 
 
 FC = gfortran
-
 # error check everything
 FFLAGS = -Warray-bounds -Wcharacter-truncation -Wunused-parameter \
          -Wimplicit-interface -Wunderflow -Wconversion-extra \
