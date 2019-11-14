@@ -213,7 +213,7 @@ if __name__ == '__main__':
     tc.sfit4_dir = os.path.join(script_path,'..','..')
     tc.testcase_dir = os.path.join(script_path,'..')
     tc.resultfile = os.path.join(script_path,'..','results.txt')
-    tc.hbinfile = os.path.join(script_path,'..','..','linelist','hbin.input.tag')
+    tc.hbinfile = os.path.join(script_path,'..','hbin.ctl')
     tc.run_sfit4_in_testcase(sfit4=runsfit,hbin=runhbin,error=error)
     tc.read_summaries()
 #    tc.read_statevectors()
