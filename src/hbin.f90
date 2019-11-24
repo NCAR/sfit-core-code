@@ -656,7 +656,7 @@ subroutine read_input( hasc, wstr, wstp, HFL, GLP, LFL, SDV ) !ELP
 
 5  continue
    !print *, 'Not a valid tagged hbin input, assume old input file version'
-   print *, 'Not a valid tagged hbin input, use tagged file version and name "hbin.ctl"'
+   print *, 'Not a valid tagged hbin input, use tagged file version and rename it: "hbin.ctl"'
    !ctl_version = 1
    stop
 

@@ -1,6 +1,6 @@
 # Input file for pspec.f90
 # version V1.1 for sfit4 v0.9.5 October 1 2013
-# 
+#
 # pspec.f90 loops through this file and creates an ascii file with a spectra block for
 # each spectrum that will be fit by sfit4 - the t15asc.4 file
 # the observation lat lon and altitude are required for each spectrum
@@ -10,7 +10,7 @@
 105.24
 # Altitude of Observation [masl]
 1612.0
-# 
+#
 # output & verbosity flags
 # oflag  - output
 #     = 1 output t15asc file
@@ -20,38 +20,38 @@
 #     = 0 no output from baseline correct or zero bnr or block output for plotting
 #     = 1 verbose output from bc and zeroed bnr but no blockout
 #     = 2 verbose, zeroed bnr and blockout for plotting
-1    2    
-# 
+1    2
+#
 # filter bands and regions for calculating SNR (max 100)
 # noise value is calculate in the region below that is nearest to the fit microwindow
 #  SNR = (Peak signal in microwindow) / noise
-# 
-9 
-fa  4884.9   4885.0   
-f1  4038.727 4038.871 
-f2  3381.155 3381.536 
-f3  2924.866 2925.100 
-f4  2526.228 2526.618 
-fa  2369.000 2370.000 
-f5  2158.250 2158.358 
-f6  1139.075 1139.168 
-f8  907.854  907.977  
-# 
+#
+9
+fa  4884.9   4885.0
+f1  4038.727 4038.871
+f2  3381.155 3381.536
+f3  2924.866 2925.100
+f4  2526.228 2526.618
+fa  2369.000 2370.000
+f5  2158.250 2158.358
+f6  1139.075 1139.168
+f8  907.854  907.977
+#
 # number of BNR files
 1
-# 
+#
 # each block contains at least 2 lines:
 # bnr spectra file name
 # roe, nterp, rflag, fflag, zflag
-# 
+#
 # roe - radius of earth [km]
-# 
+#
 # nterp -  zero fill factor
 #     = 0 - skip resample & resolution degradation (regardless of sfit4.ctl:band.n.max_opd value)
 #     = 1 - minimally sample at opdmax
 #     > 1 - interpolate nterp-1 points upon minimal sampled spacing
 #     note: OPD is taken from sfit4.ctl:band.n.max_opd value
-# 
+#
 # rflag - ratio flag, to ratio the spectra with another low resolution spectral file (eg spectral envelope)
 #      = 0 - no ratio
 #      = 1 - ratio, file is a bnr of same type as fflag below, expected to be resolution of ~10cm-1
@@ -66,5 +66,5 @@ f8  907.854  907.977
 #
 # roe, nterp, rflag, fflag, zflag
 #
-/data1/fl0/20190919/180427.bnr
-6364.7    1    0    0    0    
+./20190919.180427.bnr
+6364.7    1    0    0    0

@@ -1,17 +1,19 @@
-# Filenames Section
-#v2 = Following Launch of the C2H6 global study (see doc file Launch of the C2H6 global study_v2.docx and LAUNCH folder)
+# v2 = Following Launch of the C2H6 global study (see doc file Launch of
+#      the C2H6 global study_v2.docx and LAUNCH folder)
 
- file.in.stalayers                   = /data/Campaign/FL0/local/station.layers
- file.in.refprofile                  = reference.prf
- file.in.spectrum                    = t15asc.4
- file.in.modulation_fcn              = /data/Campaign/FL0/ilsFiles/ils_poly2.mf
- file.in.phase_fcn                   = /data/Campaign/FL0/ilsFiles/ils_poly2.phs
- file.in.sa_matrix                   = sa.input
- file.in.isotope                     = /data1/ebaumer/fl0/c2h6/x.c2h6/isotope.input
- file.in.solarlines                  = /data/ebaumer/Code/sfit-linelist/linelist/solar/120621/solar.dat
- file.in.linelist                    = /data1/ebaumer/fl0/c2h6/x.c2h6/02972.601722-02991.008278.hbin
-#file.in.linelist                    = /data1/ebaumer/fl0/c2h6/x.c2h6/02972.619054-02990.990946.hbin       #v1
-#file.in.linelist                   = /data1/ebaumer/tab/c2h6/x.c2h6/02972.619056-02990.990944.hbin
+# Filenames Section
+
+ file.in.stalayers                   = ./station.layers
+ file.in.refprofile                  = ./reference.prf
+ file.in.spectrum                    = ./t15asc.4
+ file.in.modulation_fcn              = ./ils_poly2.mf
+ file.in.phase_fcn                   = ./ils_poly2.phs
+ file.in.sa_matrix                   =
+ file.in.isotope                     =
+ file.in.solarlines                  = ../solar.dat
+ file.in.linelist                    = ./02972.601722-02990.908278-2016.hbin
+# file.in.linelist                    = ./02972.601722-02990.908278-2008.hbin
+# file.in.linelist                    = ./02972.601722-02990.908278.hbin
 
 
  file.out.pbpfile                    = pbpfile
@@ -36,6 +38,8 @@
 # Definition for retrieval gases
 
  gas.layers                              = 44
+
+# Profiles
  gas.profile.list                        = C2H6 O3
  gas.profile.C2H6.correlation            = T
  gas.profile.C2H6.correlation.type       = 2
@@ -43,7 +47,7 @@
  gas.profile.C2H6.correlation.minalt     = 0.0
  gas.profile.C2H6.correlation.maxalt     = 120.0
  gas.profile.C2H6.logstate               = F
- #gas.profile.C2H6.scale                  = 3.0             #v1
+
  gas.profile.C2H6.scale                  = 2.7
  gas.profile.C2H6.sigma                  =
 0.2673 0.2949 0.3279 0.3492 0.3719 0.3962 0.4218
@@ -64,13 +68,14 @@ gas.profile.O3.logstate    = F
 gas.profile.O3.scale       = 1.0
 gas.profile.O3.sigma       =
 0.0792 0.0844  0.0901  0.0964  0.1034  0.1111  0.1195
-0.1283  0.1377  0.1466  0.1543  0.1606  0.1644 0.1667  
-0.1684  0.1709  0.1728  0.1754  0.1782 0.1803  0.1833  
-0.1857  0.1890  0.1925  0.1952 0.1990  0.2020  0.2064  
-0.2111  0.2150  0.2203 0.2247  0.2309  0.2375  0.2433  
-0.2510  0.2576 0.2668  0.2776  0.2863  0.2995  0.3147  
+0.1283  0.1377  0.1466  0.1543  0.1606  0.1644 0.1667
+0.1684  0.1709  0.1728  0.1754  0.1782 0.1803  0.1833
+0.1857  0.1890  0.1925  0.1952 0.1990  0.2020  0.2064
+0.2111  0.2150  0.2203 0.2247  0.2309  0.2375  0.2433
+0.2510  0.2576 0.2668  0.2776  0.2863  0.2995  0.3147
 0.3464  0.3563
 
+# actually use column scale for H2O (below)
 gas.profile.H2O.correlation         = T
 gas.profile.H2O.correlation.type    = 2
 gas.profile.H2O.correlation.width   = 4.0
@@ -88,15 +93,17 @@ gas.profile.H2O.sigma               =
 0.333870    0.342104    0.350955    0.357981    0.368161    0.376296
 0.388173    0.401286
 
- gas.column.list                     = H2O CH4 CH3CL
+# Columns
+ gas.column.list                     = CH4 CH3CL H2O
+
  gas.column.H2O.scale                = 1.0
  gas.column.H2O.sigma                = 1.0
  gas.column.O3.scale                 = 1.0
- gas.column.O3.sigma                 = 1.0
+ gas.column.O3.sigma                 = 0.1
  gas.column.CH4.scale                = 1.0
- gas.column.CH4.sigma                = 1.0
+ gas.column.CH4.sigma                = 0.4
  gas.column.CH3CL.scale              = 1.0
- gas.column.CH3CL.sigma              = 1.0
+ gas.column.CH3CL.sigma              = 0.1
 
 
 # Forward model parameters
@@ -104,16 +111,17 @@ gas.profile.H2O.sigma               =
  fw.raytonly                         = F
  fw.isotope_separation               = F
  fw.delnu                            = 0.1000
- fw.lshapemodel                      = 0
- fw.linemixing                       = T
+ fw.lshapemodel                      = 1
+ fw.linemixing                       = F
  fw.linemixing.gas                   = CO2
+ fw.tips                             = F
  fw.solar_spectrum                   = T
  fw.pressure_shift                   = T
  fw.apod_fcn                         = F
  fw.apod_fcn.type                    = 2
  fw.apod_fcn.order                   = 2
  fw.phase_fcn                        = F
- fw.phase_fcn.type                   = 4
+ fw.phase_fcn.type                   = 2
  fw.phase_fcn.order                  = 2
  fw.emission                         = F
 
@@ -140,7 +148,7 @@ gas.profile.H2O.sigma               =
  rt.curvature                        = F
  rt.curvature.apriori                = 0.000
  rt.curvature.sigma                  = 0.100
- rt.phase                            = T
+ rt.phase                            = F
  rt.phase.apriori                    = 0.000
  rt.phase.sigma                      = 0.200
  rt.apod_fcn                         = F
@@ -152,30 +160,27 @@ gas.profile.H2O.sigma               =
  rt.solshift                         = T
  rt.solshift.apriori                 = 0.000
  rt.solshift.sigma                   = 0.010
- rt.solstrnth                        = T
+ rt.solstrnth                        = F
  rt.solstrnth.apriori                = 0.000
  rt.solstrnth.sigma                  = 0.010
  rt.temperature                      = F
 
 
-
 # Kb derivative calculations
 
- kb                                  = T
+ kb                                  = F
  kb.temperature                      = T
  kb.slope                            = F
  kb.curvature                        = T
  kb.solshft                          = F
  kb.solstrnth                        = F
  kb.phase                            = F
- kb.dwshift                          = F
  kb.wshift                           = F
  kb.apod_fcn                         = T
  kb.phase_fcn                        = T
  kb.zshift                           = F
  kb.sza                              = T
  kb.omega                            = T
- kb.max_opd                          = T
  kb.line                             = T
  kb.line.type                        = 1
  kb.line.gas                         = retrieval
@@ -186,7 +191,6 @@ gas.profile.H2O.sigma               =
  band                                = 1 2 3
 
  band.1.nu_start                     = 2976.66
- #band.1.nu_stop                      = 2976.95                     #v1
  band.1.nu_stop                      = 2977.059
  band.1.zshift                       = F
  band.1.zshift.type                  = 1
@@ -197,12 +201,10 @@ gas.profile.H2O.sigma               =
  band.1.max_opd                      = 180.00
  band.1.omega                        = 2.3923
  band.1.apodization_code             = 0
- #band.1.gasb                         = C2H6 H2O O3 CH4             #v1
  band.1.gasb                         = C2H6 H2O O3 CH4 CH3CL
  band.1.tempretb                     = F
 
  band.2.nu_start                     = 2983.2000
- #band.2.nu_stop                      = 2983.5500                   #v1
  band.2.nu_stop                      = 2983.50
  band.2.zshift                       = F
  band.2.zshift.type                  = 1
@@ -213,12 +215,9 @@ gas.profile.H2O.sigma               =
  band.2.max_opd                      = 180.00
  band.2.omega                        = 2.3923
  band.2.apodization_code             = 0
- #band.2.gasb                         = C2H6 H2O O3 CH4             #v1
  band.2.gasb                         = C2H6 H2O O3 CH4 CH3CL
  band.2.tempretb                     = F
 
- #band.3.nu_start                     = 2986.5000                   #v1
- #band.3.nu_stop                      = 2986.950                    #v1
  band.3.nu_start                     = 2986.4500
  band.3.nu_stop                      = 2986.850
  band.3.zshift                       = F
@@ -230,10 +229,16 @@ gas.profile.H2O.sigma               =
  band.3.max_opd                      = 180.00
  band.3.omega                        = 2.3923
  band.3.apodization_code             = 0
- #band.3.gasb                         = C2H6 H2O O3 CH4             #v1
  band.3.gasb                         = C2H6 H2O O3 CH4 CH3CL
  band.3.tempretb                     = F
 
+
+# Spectrum Section
+
+ sp.snr =
+ sp.snr.1.nu_start = 2976.7
+ sp.snr.1.nu_stop  = 2976.9
+ sp.snr.1.snr  = 800.0
 
 
 # Output Files Section
@@ -243,9 +248,9 @@ gas.profile.H2O.sigma               =
  out.gas_spectra.type                = 1
  out.sa_matrix                       = T
  out.statevec                        = T
- out.g_matrix			             = T
+ out.g_matrix			                = T
  out.k_matrix                        = T
- out.shat_matrix                     = T                           #v1 =F
+ out.shat_matrix                     = T
  out.retprofiles                     = T
  out.aprprofiles                     = T
  out.ab_matrix                       = F
@@ -263,4 +268,3 @@ gas.profile.H2O.sigma               =
  out.solarspectrum                   = F
  out.levmardet                       = F
  out.xscdetail                       = F
-
