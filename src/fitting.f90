@@ -38,8 +38,8 @@ module fitting
     !----------------------
     private     ! Default all to private
     private      :: arith_mean
-    private      :: arith_mean_pure
-    private      :: lst_sqrs_poly_fun
+!    private      :: arith_mean_pure
+!    private      :: lst_sqrs_poly_fun
     private      :: lst_sqrs_poly_sub
     public       :: polyfit
 
@@ -203,82 +203,82 @@ contains
 !   --September, 2013 => Created by Eric Nussbaumer (ebaumer@ucar.edu)
 !
 !-----------------------------------------------------------------------------------------------------------------
-    function lst_sqrs_poly_fun( x,             & ! Input
-                                y,             & ! Input
-                                norder)        & ! Input
-                                result(coeff)    ! Output
-
-
-    !--------------------------------------------------------------------------
-    !                         -- TYPE DECLARATIONS --
-    !--------------------------------------------------------------------------
-    implicit none
-
-    ! Input variables
-    real(rd),    intent(in)               :: x(:), y(:)
-    integer(id), intent(in)               :: norder
-
-    ! Output variables
-    real(rd),dimension(:)                 :: coeff(norder+1)
-
-    ! Local Parameters
-    real(rd),dimension(:,:),allocatable   :: A, AT, ATA, ATA_inv
-    integer(id)                           :: npnts, i, j
-    !integer(id)                          :: ncoeff
-    integer(is)                           :: ncoeff
-
-
-    !--------------------------------------------------------------------------
-    !                         -- INITIALIZE VARS --
-    !--------------------------------------------------------------------------
-    npnts  = size(x)
-    ncoeff = size(coeff)
-
-    if ( size(x) /= size(y) ) then
-        write(0,*) 'Input vectors x and y are not the same size!!!'
-        stop
-    endif
-
-    allocate( A(npnts,ncoeff)        )
-    allocate( AT(ncoeff,npnts)       )
-    allocate( ATA(ncoeff,ncoeff)     )
-    allocate( ATA_inv(ncoeff,ncoeff) )
-
-    coeff   = 0.0_rd
-
-
-    !--------------------------------------------------------------------------
-    !                           -- Calculations --
-    !--------------------------------------------------------------------------
-    forall ( i = 0:norder, j = 1:npnts )
-        A(j,i+1) = x(j)**i
-    end forall
-
-    AT  = transpose(A)
-    ATA = matmul( AT, A )
-
-
-    !--------------------
-    ! Find inverse of ATA
-    !--------------------
-    !call inverse( ATA, ncoeff, ATA_inv  )    ! This is matrix inversion call for local procedure
-
-    call INVRT( ATA, ATA_inv, ncoeff )        ! This is matrix inversion call for procedure in matrix.f90
-
-
-    !----------------------
-    ! Find fit coefficients
-    !----------------------
-    coeff = matmul( matmul( ATA_inv, AT ), y )
-
-    !---------------
-    ! Release memory
-    !---------------
-    deallocate(ATA)
-    deallocate(AT)
-    deallocate(A)
-
-    end function lst_sqrs_poly_fun
+!     function lst_sqrs_poly_fun( x,             & ! Input
+!                                 y,             & ! Input
+!                                 norder)        & ! Input
+!                                 result(coeff)    ! Output
+!
+!
+!     !--------------------------------------------------------------------------
+!     !                         -- TYPE DECLARATIONS --
+!     !--------------------------------------------------------------------------
+!     implicit none
+!
+!     ! Input variables
+!     real(rd),    intent(in)               :: x(:), y(:)
+!     integer(id), intent(in)               :: norder
+!
+!     ! Output variables
+!     real(rd),dimension(:)                 :: coeff(norder+1)
+!
+!     ! Local Parameters
+!     real(rd),dimension(:,:),allocatable   :: A, AT, ATA, ATA_inv
+!     integer(id)                           :: npnts, i, j
+!     !integer(id)                          :: ncoeff
+!     integer(is)                           :: ncoeff
+!
+!
+!     !--------------------------------------------------------------------------
+!     !                         -- INITIALIZE VARS --
+!     !--------------------------------------------------------------------------
+!     npnts  = size(x)
+!     ncoeff = size(coeff)
+!
+!     if ( size(x) /= size(y) ) then
+!         write(0,*) 'Input vectors x and y are not the same size!!!'
+!         stop
+!     endif
+!
+!     allocate( A(npnts,ncoeff)        )
+!     allocate( AT(ncoeff,npnts)       )
+!     allocate( ATA(ncoeff,ncoeff)     )
+!     allocate( ATA_inv(ncoeff,ncoeff) )
+!
+!     coeff   = 0.0_rd
+!
+!
+!     !--------------------------------------------------------------------------
+!     !                           -- Calculations --
+!     !--------------------------------------------------------------------------
+!     forall ( i = 0:norder, j = 1:npnts )
+!         A(j,i+1) = x(j)**i
+!     end forall
+!
+!     AT  = transpose(A)
+!     ATA = matmul( AT, A )
+!
+!
+!     !--------------------
+!     ! Find inverse of ATA
+!     !--------------------
+!     !call inverse( ATA, ncoeff, ATA_inv  )    ! This is matrix inversion call for local procedure
+!
+!     call INVRT( ATA, ATA_inv, ncoeff )        ! This is matrix inversion call for procedure in matrix.f90
+!
+!
+!     !----------------------
+!     ! Find fit coefficients
+!     !----------------------
+!     coeff = matmul( matmul( ATA_inv, AT ), y )
+!
+!     !---------------
+!     ! Release memory
+!     !---------------
+!     deallocate(ATA)
+!     deallocate(AT)
+!     deallocate(A)
+!
+!     end function lst_sqrs_poly_fun
 
 
 !--------------------------------------------------------------------------------------------------------------
@@ -556,54 +556,54 @@ contains
 !                           Pure Version -for use in forall constructs
 !====================================================================================
 
-    pure function arith_mean_pure( x,             & ! Input
-                                   weights)       & ! Input,           Optional
-                                   result(x_bar)    ! Output
-
-    !#--------------------------------------------------------------------------#
-    !#                         -- TYPE DECLARATIONS --                          #
-    !#--------------------------------------------------------------------------#
-
-    implicit none
-    ! Input variables
-    real(rd),intent(in)               :: x(:)
-    real(rd),optional,intent(in)      :: weights(:)
-
-    ! Function results
-    real(rd)                          :: x_bar
-
-    ! Local Parameters
-    integer(id)                       :: N
-
-
-    !#--------------------------------------------------------------------------#
-    !#                     -- INITIALIZE RETURN VALUE --                        #
-    !#--------------------------------------------------------------------------#
-
-    x_bar = 0.0_rd
-
-
-    !#--------------------------------------------------------------------------#
-    !#                           -- CHECK INPUT --                              #
-    !#--------------------------------------------------------------------------#
-
-    N = size(x)
-
-
-    !#--------------------------------------------------------------------------#
-    !#                          -- Calculate Mean --                            #
-    !#--------------------------------------------------------------------------#
-
-    if ( present( weights ) ) then
-
-        x_bar = sum( weights * x ) / sum( weights )
-
-    else
-
-        x_bar = sum( x ) / N
-
-    endif
-    end function arith_mean_pure
+!     pure function arith_mean_pure( x,             & ! Input
+!                                    weights)       & ! Input,           Optional
+!                                    result(x_bar)    ! Output
+!
+!     !#--------------------------------------------------------------------------#
+!     !#                         -- TYPE DECLARATIONS --                          #
+!     !#--------------------------------------------------------------------------#
+!
+!     implicit none
+!     ! Input variables
+!     real(rd),intent(in)               :: x(:)
+!     real(rd),optional,intent(in)      :: weights(:)
+!
+!     ! Function results
+!     real(rd)                          :: x_bar
+!
+!     ! Local Parameters
+!     integer(id)                       :: N
+!
+!
+!     !#--------------------------------------------------------------------------#
+!     !#                     -- INITIALIZE RETURN VALUE --                        #
+!     !#--------------------------------------------------------------------------#
+!
+!     x_bar = 0.0_rd
+!
+!
+!     !#--------------------------------------------------------------------------#
+!     !#                           -- CHECK INPUT --                              #
+!     !#--------------------------------------------------------------------------#
+!
+!     N = size(x)
+!
+!
+!     !#--------------------------------------------------------------------------#
+!     !#                          -- Calculate Mean --                            #
+!     !#--------------------------------------------------------------------------#
+!
+!     if ( present( weights ) ) then
+!
+!         x_bar = sum( weights * x ) / sum( weights )
+!
+!     else
+!
+!         x_bar = sum( x ) / N
+!
+!     endif
+!     end function arith_mean_pure
 
 
 
@@ -725,95 +725,95 @@ contains
 !                        Alex G. (http://ww2.odu.edu/~agodunov/computing/programs/book2/Ch06/Inverse.f90)
 !
 !-----------------------------------------------------------------------------------------------------------------
-  subroutine inverse( a, &     ! Input
-                      n, &     ! Input
-                      a_inv  ) ! Output
-
-
-    !--------------------------------------------------------------------------
-    !                         -- TYPE DECLARATIONS --
-    !--------------------------------------------------------------------------
-    implicit none
-    integer(is),intent(in)   :: n
-    real(rd),intent(out)     :: a_inv(n,n)
-    real(rd)                 :: a(n,n), L(n,n), U(n,n), b(n), d(n), x(n)
-    real(rd)                 :: coeff
-    integer(id)              :: i, j, k
-
-    !--------------------------------------------------
-    ! step 0: initialization for matrices L and U and b
-    !--------------------------------------------------
-    L=0.0_rd
-    U=0.0_rd
-    b=0.0_rd
-
-    !----------------------------
-    ! step 1: forward elimination
-    !----------------------------
-    do k=1, n-1
-        do i=k+1,n
-            coeff=a(i,k)/a(k,k)
-            L(i,k) = coeff
-            do j=k+1,n
-                a(i,j) = a(i,j)-coeff*a(k,j)
-            end do
-        end do
-    end do
-
-    !----------------------------------------------------
-    ! Step 2: prepare L and U matrices
-    ! L matrix is a matrix of the elimination coefficient
-    ! + the diagonal elements are 1.0
-    !----------------------------------------------------
-    do i=1,n
-        L(i,i) = 1.0_rd
-    end do
-
-    !-------------------------------------------
-    ! U matrix is the upper triangular part of A
-    !-------------------------------------------
-    do j=1,n
-        do i=1,j
-            U(i,j) = a(i,j)
-        end do
-    end do
-
-    !------------------------------------------------
-    ! Step 3: compute columns of the inverse matrix C
-    !------------------------------------------------
-    do k=1,n
-        b(k)=1.0_rd
-        d(1) = b(1)
-        !---------------------------------------------------
-        ! Step 3a: Solve Ld=b using the forward substitution
-        !---------------------------------------------------
-        do i=2,n
-            d(i)=b(i)
-            do j=1,i-1
-                d(i) = d(i) - L(i,j)*d(j)
-            end do
-        end do
-        !------------------------------------------------
-        ! Step 3b: Solve Ux=d using the back substitution
-        !------------------------------------------------
-        x(n)=d(n)/U(n,n)
-        do i = n-1,1,-1
-            x(i) = d(i)
-            do j=n,i+1,-1
-                x(i)=x(i)-U(i,j)*x(j)
-            end do
-            x(i) = x(i)/u(i,i)
-        end do
-        !----------------------------------------------------
-        ! Step 3c: fill the solutions x(n) into column k of C
-        !----------------------------------------------------
-        do i=1,n
-            a_inv(i,k) = x(i)
-        end do
-        b(k)=0.0_rd
-    end do
-
-    end subroutine inverse
+ !  subroutine inverse( a, &     ! Input
+!                       n, &     ! Input
+!                       a_inv  ) ! Output
+!
+!
+!     !--------------------------------------------------------------------------
+!     !                         -- TYPE DECLARATIONS --
+!     !--------------------------------------------------------------------------
+!     implicit none
+!     integer(is),intent(in)   :: n
+!     real(rd),intent(out)     :: a_inv(n,n)
+!     real(rd)                 :: a(n,n), L(n,n), U(n,n), b(n), d(n), x(n)
+!     real(rd)                 :: coeff
+!     integer(id)              :: i, j, k
+!
+!     !--------------------------------------------------
+!     ! step 0: initialization for matrices L and U and b
+!     !--------------------------------------------------
+!     L=0.0_rd
+!     U=0.0_rd
+!     b=0.0_rd
+!
+!     !----------------------------
+!     ! step 1: forward elimination
+!     !----------------------------
+!     do k=1, n-1
+!         do i=k+1,n
+!             coeff=a(i,k)/a(k,k)
+!             L(i,k) = coeff
+!             do j=k+1,n
+!                 a(i,j) = a(i,j)-coeff*a(k,j)
+!             end do
+!         end do
+!     end do
+!
+!     !----------------------------------------------------
+!     ! Step 2: prepare L and U matrices
+!     ! L matrix is a matrix of the elimination coefficient
+!     ! + the diagonal elements are 1.0
+!     !----------------------------------------------------
+!     do i=1,n
+!         L(i,i) = 1.0_rd
+!     end do
+!
+!     !-------------------------------------------
+!     ! U matrix is the upper triangular part of A
+!     !-------------------------------------------
+!     do j=1,n
+!         do i=1,j
+!             U(i,j) = a(i,j)
+!         end do
+!     end do
+!
+!     !------------------------------------------------
+!     ! Step 3: compute columns of the inverse matrix C
+!     !------------------------------------------------
+!     do k=1,n
+!         b(k)=1.0_rd
+!         d(1) = b(1)
+!         !---------------------------------------------------
+!         ! Step 3a: Solve Ld=b using the forward substitution
+!         !---------------------------------------------------
+!         do i=2,n
+!             d(i)=b(i)
+!             do j=1,i-1
+!                 d(i) = d(i) - L(i,j)*d(j)
+!             end do
+!         end do
+!         !------------------------------------------------
+!         ! Step 3b: Solve Ux=d using the back substitution
+!         !------------------------------------------------
+!         x(n)=d(n)/U(n,n)
+!         do i = n-1,1,-1
+!             x(i) = d(i)
+!             do j=n,i+1,-1
+!                 x(i)=x(i)-U(i,j)*x(j)
+!             end do
+!             x(i) = x(i)/u(i,i)
+!         end do
+!         !----------------------------------------------------
+!         ! Step 3c: fill the solutions x(n) into column k of C
+!         !----------------------------------------------------
+!         do i=1,n
+!             a_inv(i,k) = x(i)
+!         end do
+!         b(k)=0.0_rd
+!     end do
+!
+!     end subroutine inverse
 
 end module fitting
 

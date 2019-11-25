@@ -16,6 +16,12 @@
 !    along with sfit.  If not, see <http://www.gnu.org/licenses/>
 !-----------------------------------------------------------------------------
 
+! November 2019
+! 1. fixed bug letting arrays of len=1 into zero fit regions
+! 2. added (arbitrary) limit of 0.05 or 5% zero as a maximum (amplitude).  So is a fitted zero level is greater then that
+!    it is disregarded.  If the Zero is greater then this there is a problem somewhere.
+! 3. Removed calcsnr2 routine as it was not being called.
+
 ! March 2015
 ! added option zflag=1 to uses same baseline correction as zflag=2 but use standard snr calculation
 !  zflag=2 uses baseline correction noise value - often is too low noise
@@ -307,6 +313,20 @@ end function bc4
 
 real(8) function bc2( sp, wavelength, n, wmid, vflag, noise ) result (zero)
 
+! Found snr regions with 1 point getting to a fit!
+! inserted at line 456 in spec.f90
+! if( k .lt. 3 )cycle  ! need at least 3 points! to fit a curve
+!
+! Added at line 688
+!       else if( abs(zero) .gt. zeromax )then
+!          write(6,302) 'Zero for this region too large: ', zero
+!          zero  = -999.0d0
+!          noise = 0.0d0
+!          sp(:) = real(initmax,4) * sp(:)
+!          print *, 'No zero offset applied, value found is too large...return now.'
+!
+! set zeromax to 0.05, arbitrary but if the code fails for any reason that yields a large offset something went wrong
+! reset zero and noise
 
 ! second improved but similar implmentation to orig
 ! added more points near 1000 for O3
@@ -337,7 +357,7 @@ real(8) function bc2( sp, wavelength, n, wmid, vflag, noise ) result (zero)
       integer, dimension(4,nsat) :: inband
       real(8), dimension(2,nsat) :: satarr
       real(8), dimension(nsat)   :: stdarr
-      real(8)                    :: temp, initmax, dstncmax, mean
+      real(8)                    :: temp, initmax, dstncmax, mean, zeromax
       real(8)                    :: stdev, meansw, runningsum, meanstd, runningmeanstd, distnc, mdwav, mdpnt, azer
       real(8), allocatable       :: wavewindow(:), specwindow(:), zeroed(:), ptwnd(:), newsp(:)
       real(8), allocatable       :: allsatwave(:), allsatspec(:)
@@ -351,6 +371,7 @@ real(8) function bc2( sp, wavelength, n, wmid, vflag, noise ) result (zero)
       if( vflag .gt. 1 )blockout = .true.
       !print*,blockout
       dstncmax = 50.0d0
+      zeromax = 0.05d0
       zero = 0.0d0
 ! quick check that we are in the right region
       if( wmid .lt. 760. .or. wmid .gt. 1340. )then
@@ -496,6 +517,7 @@ real(8) function bc2( sp, wavelength, n, wmid, vflag, noise ) result (zero)
             iih  = ihi(1) -1
 
             inband(2,l) = iih - iil +1
+
             ! special case for 10 mic - uses bc4
             !if( satarr(1,i) .eq. 1001.0 ) inband(2,l) = n10µ
             inband(3,l) = iil
@@ -513,10 +535,10 @@ real(8) function bc2( sp, wavelength, n, wmid, vflag, noise ) result (zero)
 
       if( count2 .eq. 0 )go to 667
       if( verbose )write(vlun,*) ''
-      if( verbose )write(vlun,304) ' ? sat points in spec : ', count2
-      if( verbose )write(vlun,304) ' ? sat bands in spec : ', count3
-      if( verbose )write(vlun,304) ' ? sat bands below midpt : ', below
-      if( verbose )write(vlun,304) ' ? sat bands above midpt : ', above
+      if( verbose )write(vlun,304) ' # sat points in spec : ', count2
+      if( verbose )write(vlun,304) ' # sat bands in spec : ', count3
+      if( verbose )write(vlun,304) ' # sat bands below midpt : ', below
+      if( verbose )write(vlun,304) ' # sat bands above midpt : ', above
       if( verbose )write(vlun,310) ' Closest sat band to midpt : ', distnc
 
 !0test
@@ -541,6 +563,8 @@ real(8) function bc2( sp, wavelength, n, wmid, vflag, noise ) result (zero)
          k   = inband(2,l)    ! # spectral points in this sat band
          iil = inband(3,l)
          iih = inband(4,l)
+
+         if( k .lt. 3 )cycle  ! need at least 3 points! to fit a curve
 
 ! --- reset the wavewindow and specwindow which will be used each time
          if( allocated(wavewindow) ) deallocate( wavewindow )
@@ -678,10 +702,16 @@ real(8) function bc2( sp, wavelength, n, wmid, vflag, noise ) result (zero)
 ! --- 40 gets o3 at 1002 and mid pt of 10µ region ~1025
       if(( above .eq. 0 .or. below .eq. 0 ) .and. distnc .gt. dstncmax )then
          write(6,302) 'Zero found for this region : ', zero
-         zero = 0.0d0
+         zero = -999.0d0
          sp(:) = real(initmax,4) * sp(:)
-         print *, 'No zero offset applied...return now.'
-      else
+         print *, '*** No zero offset applied...return now.'
+      else if( abs(zero) .gt. zeromax )then
+         write(6,302) 'Zero for this region : ', zero
+         zero = -999.0d0
+         noise = 0.0d0
+         sp(:) = real(initmax,4) * sp(:)
+         print *, '*** No zero offset applied, offset found is too large...return now.'
+     else
          print *, ''
          print *, 'Zero correcting this spectrum.'
 ! --- send back the entire spectrum zero level adjusted
@@ -1053,14 +1083,14 @@ subroutine kpno( opdmax, wl1, wl2, roe, lat, lon, nterp, rflag, oflag, zflag, vf
    !print *, 'R8 amps'
    !goto 202
 
-201 allocate( amps4( npfile ))
+   allocate( amps4( npfile ))
    read (blun, err = 200) amps4
    !print *, 'R4 amps'
    amps(:) = real( amps4(:), 8 )
    deallocate( amps4 )
 
    ! calculate wavenumbers
-202 do i=1, npfile
+   do i=1, npfile
        wavs(i)= real( i-1, 8 )
    end do
    wavs  = wavs*spac + wlow
@@ -1168,7 +1198,7 @@ subroutine kpno( opdmax, wl1, wl2, roe, lat, lon, nterp, rflag, oflag, zflag, vf
 
 
 
-! --- Step 4 : Interpolate if requested
+! --- Step 3 : Interpolate if requested
    ! back to the fit microwindow
    ! resample and / or degrade resolution
    ilow = minloc(( wavs-wlim1 ), mask=((wavs-wlim1) > 0.0D0))
@@ -1203,7 +1233,7 @@ subroutine kpno( opdmax, wl1, wl2, roe, lat, lon, nterp, rflag, oflag, zflag, vf
 
 
 
-! --- Step 5: Ratio if requested
+! --- Step 4: Ratio if requested
    !if( vflag .gt. 0 )write(6,109) 'Spectra segment before ratio : ',iil, wavs(iil), iih, wavs(iih), iih-iil
    if( rflag .eq. 1 ) call ratio( outspec, wstart, dnue, np )
 
@@ -1230,11 +1260,12 @@ subroutine kpno( opdmax, wl1, wl2, roe, lat, lon, nterp, rflag, oflag, zflag, vf
    !print*,wstart, wavs(iil), wavs(iih), wl1
 
 
-! --- Step 3 : Calculate SNR
+! --- Step 5 : Calculate SNR
    ! calculate snr at nearest interval
    if( vflag .gt. 0 )write(6,111) 'Calculate noise...'
    !noise=0.0 !0test
    !noise = -999
+   !print*, noise
    call calcsnr( awavs, amps, npfile, wlim1, wlim2, spac, opdmax, nterp, noise, vflag, zflag )
 
    wlow = wavs(iil)
@@ -1278,6 +1309,7 @@ subroutine kpno( opdmax, wl1, wl2, roe, lat, lon, nterp, rflag, oflag, zflag, vf
       write(nlun) wlow, whi, dnue, np
       !if( oflag .eq. 4 ) outspec(iil:iih) = outspec(iil:iih)/maxval(outspec(iil:iih))
       write(nlun) outspec(iil:iih)
+      !print*,  outspec(iil:iih)
       close(nlun)
 
    endif
@@ -1321,7 +1353,7 @@ integer, intent(out)              :: yy, mm, dd, hh, nn, ss
 real(8), intent(out)              :: sza, azm, dur, fov, res
 real(8)                           :: roe, hour, alt, lat, lon
 !real(4)                           :: opd
-character (len=3)                 :: apd, mstr
+character (len=3)                 :: mstr
 integer                           :: m = 0, i, h2, n2, s2
 
 ! from bnr.c
@@ -1435,7 +1467,6 @@ ss   = floor(mod(hour*60.0d0,1.0d0)*60.0d0)
 !print*, hh, nn, ss
 goto 10
 
-21 continue
 
 31 print*, 'spec:parsetitle: header read', m
 print*,yy, mm, dd, hh, nn, ss, sza, azm
@@ -1535,7 +1566,7 @@ subroutine calcsnr( wavs, amps, npfile, wlim1, wlim2, spac, opdmax, nterp, noise
    ! noise from zero is calculated with the initial spectrum
    !print*, ' before if', zflag, noise, (zflag - 2.0), tiny(0.0)
    if( noise .gt. tiny( 0.0d0 ) .and. abs((zflag - 2.0)) .le. tiny(0.0) )then
-      !print*, 'in if '
+      !print*, 'in if ', noise
       if( nterp .eq. 0 )return
       opdm = 0.5d0 / spac
       if( opdmax .lt. opdm )then
@@ -1924,4 +1955,5 @@ subroutine calcsnr2( wavs, amps, npfile, wlim1, wlim2, spac, opdmax, nterp, nois
 
 
 end subroutine calcsnr2
+
 end module spec

@@ -38,7 +38,7 @@
       CHARACTER (LEN=7), DIMENSION(MOLMAX) :: LM_GAS
 
     CONTAINS
-      
+
       !------------------------------------------------------------------------------
       SUBROUTINE FM(XN, YN, KN, NFIT, NVAR, KFLG, ITER, TFLG )
 
@@ -163,8 +163,9 @@
 !  --- EMPIRICAL PHASE FUNCTION
          IF( F_RTPHASE )THEN
             IF (NEPHSRT > 0) THEN
-               EPHSF(:NEPHSRT) = EPHSF0(:NEPHSRT)*PARM(NCOUNT+1:NEPHSRT+NCOUNT)
-               NCOUNT = NEPHSRT + NCOUNT
+               ! NEED PLUS 1 BECAUSE OF THE O TH-ORDER
+               EPHSF(:NEPHSRT+1) = EPHSF0(:NEPHSRT+1)*PARM(NCOUNT+1:NEPHSRT+1+NCOUNT)
+               NCOUNT = NEPHSRT + 1 + NCOUNT
             ENDIF
          ENDIF
 
@@ -254,9 +255,9 @@
          CALL CALC_CONTINUUM(CONT_PARAM)
 
 
-         ! CHANNEL PARAMS INCLUDED BEFORE 
+         ! CHANNEL PARAMS INCLUDED BEFORE
          NCOUNT = NCOUNT + NCHAN
-         
+
 
 !  ---  UPDATE VMRS OF RETRIEVAL GASES
          DELTA_Y(:NFIT) = 0.0D0
@@ -302,8 +303,8 @@
             ENDIF
          END DO
 
-         
-         
+
+
 ! --- TEMPERATURE RETRIEVAL
          IF( IFTEMP ) THEN
             !IF( BUG1 )PRINT *, IFTEMP, IPARM, NCOUNT, NTEMP1, NTEMP, PARM(NCOUNT+1:NCOUNT+1)
@@ -361,6 +362,7 @@
             ENDIF
             !print*, nmonsm, TCALC(1,:100)
             !stop
+
          ELSE
             IF( BUG1 )PRINT*, '    TALL/DIFF', IPARM
             ! THERE COME SOME MORE OPERATIONS ON THE NEW SPECTRUM.
@@ -383,13 +385,6 @@
 
 !  --- LOOP OVER BANDPASSES ----------------------------------------------------
 
-         IF (F_USED_ILS) THEN
-            !     OPEN A FILE FOR WRITING OUT THE ILS
-            
-            CALL FILEOPEN(97,1)
-            WRITE(97,*) 'APODISATION AND PHASE AS APPLIED TO THE ARTIFICIAL SPECTRUM'
-            WRITE(97,*) 'BAND X INST_APOD EMP_APOD FFT_APOD PHASE' 
-         END IF
          
          BAND: DO IBAND = 1, NBAND
             N = NSCAN(IBAND)
@@ -735,9 +730,7 @@
 
             MXONE = MXONE + NM(IBAND)   ! INDEX IN TCO AND CROSS ARRAYS AS START OF CURRENT BAND
          END DO BAND
-         IF (F_USED_ILS) THEN
-            CALL FILECLOSE(97,1)
-         END IF
+
          
          DO I = 1, NFIT
             FX = TOBS(I) - YC(I)
@@ -783,6 +776,7 @@
             !   KN(:NFIT,IPARM) = (YC(:NFIT)-YN)/DEL
             !ELSE
             KN(:NFIT,IPARM) = (YC(:NFIT)-YN)/DEL
+
             !END IF
             IF( BUG1 ) &
             WRITE(0,204) '   KN: ', tret, ICOUNT, IPARM, PARM(IPARM), SUM(KN(:NFIT,IPARM))/REAL(NFIT,8), &
@@ -823,6 +817,8 @@
          END DO SPEC1
       END DO BAND1
 
+
+      
  !  --- PRINT OUT PARM ARRAY BY ITERATION
       IF( F_WRTPARM ) THEN
          WRITE(89,261) ITER, PARM(:NVAR)

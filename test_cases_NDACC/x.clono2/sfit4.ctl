@@ -118,7 +118,7 @@
  out.level= 1
  out.smeas_matrix = T
  
- kb= F
+ kb= T
  kb.temperature= T
  kb.omega= T
  kb.zshift= T

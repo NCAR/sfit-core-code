@@ -22,7 +22,6 @@
       USE TRANSMIS
       USE SOLAR
       USE BANDPARAM
-      USE DATAFILES
 
       IMPLICIT NONE
 
@@ -111,7 +110,6 @@
 
 ! --- APODIZE AND FIELD OF VIEW CORRECTION
 
-
       DO I = 1, NZ1
          X = I/(MPT(IBAND)*DN(IBAND))
 ! --- MODEL EMPIRICAL APODIZATION
@@ -129,9 +127,6 @@
          ELSE
             FACTOR = SIN(FACTOR)/FACTOR
          ENDIF
-         IF (F_USED_ILS) THEN
-            WRITE(97,*) IBAND, X, FACTOR, AP, APDZ(IBAND,X), PHI0 + EPHS(X,DX,PMAX(IBAND))
-         END IF
          IMGG(I+1)            = IMGG(I+1)*FACTOR*AP*APDZ(IBAND,X)
          IMGG(MPT(IBAND)+1-I) = IMGG(MPT(IBAND)+1-I)*FACTOR*AP*APDZ(IBAND,X)
       END DO
@@ -229,7 +224,7 @@
          SELECT CASE (IEPHS)
 
          CASE (1, 4)
-            ! --- INTERPOLATE THE PHASE FUNCTION TO PATH DIFFERENCE X
+   ! --- INTERPOLATE THE PHASE FUNCTION TO PATH DIFFERENCE X
             IF( X .LT. (EPHSX(1) - DX) .OR. X .GT. (EPHSX(JEPHS) + DX) )THEN
                !PRINT *, X, EPHSX(1), DX, EPHSX(JEPHS)
                WRITE (16, *) 'PATH DIFFERENCE', X, ' IS OUT OF RANGE OF EPHSX'
@@ -249,10 +244,10 @@
 
          CASE (2)
    ! --- EPHS IS A POLYNOMIAL WITH NEPHS TERMS
-            EPHS = 0.D0
-            DO I = 1, NEPHS
-               EPHS = EPHS + (EPHSF(I)-1.D0)*XP**I
-            END DO
+         EPHS = (EPHSF(1)-1.0D0)
+         DO I = 2, NEPHS + 1
+            EPHS = EPHS + (EPHSF(I)-1.D0)*XP**(I-1)
+         ENDDO
 
          CASE DEFAULT
             EPHS = 0.D0

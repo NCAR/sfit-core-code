@@ -76,7 +76,7 @@
 !                              TFIL94, &      ! xsections per altitude and spectral point
 !                              TFIL95, &      ! sum of xsections
 !                              TFIL96, &      ! file of filtertransmission
-!                              TFIL97, &      ! appodization functions as applied to art spectrum
+!                              TFIL97, &      ! appodization functions as applied to spectrum
 !                              LINDIR, &
 
       INTEGER :: NCHAR
@@ -146,10 +146,10 @@
       TFILE(22) = TRIM(TFILE(18))//'.prc'
 
 ! --- EMPIRICAL MODULATION FUNCTION
-      TFILE(23) = 'ils.dat'
+      TFILE(23) = 'modulation.dat'
 
 ! --- EMPIRICAL PHASE FUNCTION
-      TFILE(24) = 'ils.dat'
+      TFILE(24) = 'phase.dat'
 
 ! --- CHANNEL OUTPUT
       TFILE(30) = 'chnspec1.output'

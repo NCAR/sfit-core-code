@@ -534,7 +534,7 @@
                   ! LIMIT SO ONLY GET EXPONENT < 664.0d0
                   TCALC_E(IPOINT,MADD+I-1,ALT) = 664.0d0
                ENDIF
-               call flush
+
                TCALC_E(IPOINT,MAdd+i-1,ALT) = exp(-TCALC_E(IPOINT,Madd+i-1,ALT))
             end DO
             TCALC(IPOINT, MADD+I-1) = 0.0D0

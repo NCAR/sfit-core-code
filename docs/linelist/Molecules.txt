@@ -1,0 +1,49 @@
+1  H2O      Water
+2  CO2      Carbon Dioxide
+3  O3       Ozone
+4  N2O      Nitrous Oxide
+5  CO       Carbon Monoxide
+6  CH4      Methane
+7  O2       Molecular Oxygen
+8  NO       Nitric Oxide
+9  SO2      Sulfur Dioxide
+10 NO2      Nitrogen Dioxide
+11 NH3      Ammonia
+12 HNO3     Nitric Acid
+13 OH       Hydroxyl Radical
+14 HF       Hydrogen Fluoride
+15 HCl      Hydrogen Chloride
+16 HBr      Hydrogen Bromide
+17 HI       Hydrogen Iodide
+18 ClO      Chlorine Monoxide
+19 OCS      Carbonyl Sulfide
+20 H2CO     Formaldehyde
+21 HOCl     Hypochlorous Acid
+22 N2       Molecular Nitrogen
+23 HCN      Hydrogen Cyanide
+24 CH3Cl    Methyl Chloride
+25 H2O2     Hydrogen Peroxide
+26 C2H2     Acetylene
+27 C2H6     Ethane
+28 PH3      Phosphine
+29 COF2     Carbonyl Fluoride
+30 SF6      Sulfur Hexafluoride
+31 H2S      Hydrogen Sulfide
+32 HCOOH    Formic Acid
+33 HO2      Hydroperoxyl Radical
+34 O        Oxygen Atom
+35 ClONO2   Chlorine Nitrate
+36 NO+      Nitric Oxide Cation
+37 HOBr     Hypobromous Acid
+38 C2H4     Ethylene
+39 CH3OH    Methanol
+40 CH3Br    Methyl Bromide
+41 CH3CN    Methyl Cyanide
+42 CF4      Carbon Tetrafluoride
+43 C4H2     Diacetylene
+44 HC3N     Cyanoacetylene
+45 H2       Molecular Hydrogen
+46 CS       Carbon Monosulfide
+47 SO3      Sulfur trioxide
+48 C2N2     Cyanogen
+49 COCl2    Phosgene

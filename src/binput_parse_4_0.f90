@@ -216,23 +216,7 @@ end subroutine read_file_section
        end if
 
        select case (trim(adjustl(keyword(4))))
-       case ('regmethod')
-          if (len_trim(keyword(5)).eq.0) then
-             read(value,*) regmethod(nr)
-          else
-             select case (trim(adjustl(keyword(5))))
-             case ('lambda')
-                read(value,*) tplambda(nr)
-             case default
-                WRITE(16,*) 'BINPUT_PARSE_4_0:READ_GAS_SECTION: Key ', trim(keyword(5)), &
-                            ' not contained in section gas...regmethod'
-                WRITE( 0,*) 'BINPUT_PARSE_4_0:READ_GAS_SECTION: Key ', trim(keyword(5)), &
-                            ' not contained in section gas...regmethod'
-                CALL SHUTDOWN
-                STOP 1
-             end select
-          end if
-       case ('correlation')
+        case ('correlation')
           if (len_trim(keyword(5)).eq.0) then
              read(value,*) correlate(nr)
           else
@@ -245,6 +229,8 @@ end subroutine read_file_section
                 read(value,*) zgmin(nr)
              case ('maxalt')
                 read(value,*) zgmax(nr)
+             case ('lambda')
+                read(value,*) l1lambda(nr)
              case default
                 WRITE(16,*) 'BINPUT_PARSE_4_0:READ_GAS_SECTION: Key ', trim(keyword(5)), &
                             ' not contained in section gas...correlation'
@@ -1064,8 +1050,6 @@ end subroutine read_file_section
           read(value,*)  F_WRTSUMRY
        case ('pbpfile')
           read(value,*)  F_WRTPBP
-!       case ('pbpfile_kb')
-!          read(value,*)  F_WRTPBP_KB
        case ('channel')
           read(value,*)  F_WRTCHANNEL
        case ('parm_vectors')
@@ -1098,8 +1082,6 @@ end subroutine read_file_section
           read(value,*)  XSC_DETAIL
        case ('g_matrix')
           read(value,*)  F_WRTG
-       case ('used_ils')
-          read(value,*)  F_USED_ILS
        case default
           WRITE(16,*) 'BINPUT_PARSE_4_0:READ_OUTPUT_SECTION: Key ', trim(keyword(2)), ' not contained in section : output'
           WRITE( 0,*) 'BINPUT_PARSE_4_0:READ_OUTPUT_SECTION: Key ', trim(keyword(2)), ' not contained in section : output'
@@ -1217,26 +1199,25 @@ end subroutine read_file_section
        character (len=*), intent(in) :: value
        character (len=*), dimension(*), intent(out) :: vallist
        integer, intent(out) :: nr_val
-
        integer :: pos
-
        character (len=4096) :: val
 
        val = value
 
        nr_val = 0
        pos = index(adjustl(val),' ')
-       !       write(*,*) val, pos
+       !write(*,*) val, 'pos ', pos
+
        if (pos.eq.0) return
        do
           if (len_trim(val).eq.0) exit
           nr_val = nr_val + 1
           if (pos.gt.0) then
              vallist(nr_val) = trim(adjustl(val(1:pos)))
-             !print*, vallist(nr_val)
+             !print*, 1, trim(vallist(nr_val))
           else
              vallist(nr_val) = trim(adjustl(val(1:len_trim(val))))
-             !print*, vallist(nr_val)
+             !print*, 2, trim(vallist(nr_val))
              exit
           end if
           val = adjustl(val(pos+1:len(val)))
