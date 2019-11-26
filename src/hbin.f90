@@ -119,6 +119,16 @@ program hbin
 
    do ifl = 1, gnml
 
+      ! --- get file info
+      inquire( glp(ifl)%lun, position=pos, opened=oped, iostat=iost, name=nam )
+      if( iost .ne. 0 )then
+         print *,''
+         print *, 'Galatry file error : ', trim(nam)
+         print *, glp(ifl)%lun, pos, oped, iost, trim(nam)
+         stop 'hbin error'
+      else
+         print *, 'Galatry file open : ', trim(nam)
+      end if
       ! --- first buf already read
       ! glp(ifl)%n = 1
       ! ! HITRAN 2012
@@ -138,7 +148,8 @@ program hbin
          ! HITRAN 2012
          ind = glp(ifl)%n
          glp(ifl)%beta(ind) = 0.0D0
-         read( buf, 108 ) glp(ifl)%mo(ind), glp(ifl)%is(ind), glp(ifl)%qa(ind), glp(ifl)%g0_air(ind), glp(ifl)%beta(ind)
+         read( buf, 108 )glp(ifl)%mo(ind), glp(ifl)%is(ind), glp(ifl)%qa(ind), glp(ifl)%g0_air(ind), glp(ifl)%beta(ind)
+!         print *, ifl, gnml, glp(ifl)%mo(ind), glp(ifl)%is(ind),glp(ifl)%qa(ind),glp(ifl)%beta(ind)
          if (glp(ifl)%beta(ind) .le. tiny(0.0D0)) cycle
          !print *, glp(ifl)%mo(ind), glp(ifl)%is(ind), glp(ifl)%qa(ind), glp(ifl)%g0_air(ind), glp(ifl)%beta(ind)
          glp(ifl)%n = glp(ifl)%n + 1
@@ -317,7 +328,7 @@ program hbin
                         hlp(ldx)%bt = real(glp(ifl)%beta(i),4)
                         hlp(ldx)%flag(GALATRY_FLAG) = .TRUE.
                         dum = flagoff + GALATRY_FLAG
-                        !print*, 'gal',  hlp(ldx)%mo, hlp(ldx)%is, hlp(ldx)%flag(GALATRY_FLAG), hlp(ldx)%qa, glp(ifl)%qa(i)
+                        print*, 'gal',  hlp(ldx)%mo, hlp(ldx)%is, hlp(ldx)%flag(GALATRY_FLAG), hlp(ldx)%qa, glp(ifl)%qa(i)
                         write( hfl(ldx)%buf(dum:dum), '(l1)' ) .TRUE.
                      endif
                   end if
@@ -807,7 +818,7 @@ subroutine read_input( hasc, wstr, wstp, HFL, GLP, LFL, SDV ) !ELP
          stop
       endif
 
-      lun = stlun + 1
+      lun = lun + 1
       open( lun, file=filename, status='old', iostat=istat )
 
       ! --- find starting wavenumber in file
