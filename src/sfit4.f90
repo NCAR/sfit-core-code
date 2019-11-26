@@ -687,8 +687,8 @@
          F_EAPOD  = .TRUE.
          IEAP = 2
          NEAP = 3
-         EAPF(:NEAP) = 1.0D0
-         EAPPAR = 0.0D0
+         EAPF0(:NEAP) = 1.0D0
+         EAPPAR = 1.0D0
       end IF
       IF( F_KB_EPHS.AND..NOT.F_RTPHASE ) then
          F_RTPHASE = .TRUE.
@@ -696,8 +696,8 @@
          IFPHASE = .FALSE.
          IEPHS = 2
          NEPHS = 3
-         EPHSF(:NEPHS) = 1.0D0
-         EPHSPAR = 0.0D0
+         EPHSF0(:NEPHS+1) = 1.0D0
+         EPHSPAR = 1.0D0
       end IF
       IF( F_KB_ZSHIFT )  THEN
          IZERO(:NBAND) = 1

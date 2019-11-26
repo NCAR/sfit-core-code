@@ -1199,26 +1199,25 @@ end subroutine read_file_section
        character (len=*), intent(in) :: value
        character (len=*), dimension(*), intent(out) :: vallist
        integer, intent(out) :: nr_val
-
        integer :: pos
-
        character (len=4096) :: val
 
        val = value
 
        nr_val = 0
        pos = index(adjustl(val),' ')
-       !       write(*,*) val, pos
+       !write(*,*) val, 'pos ', pos
+
        if (pos.eq.0) return
        do
           if (len_trim(val).eq.0) exit
           nr_val = nr_val + 1
           if (pos.gt.0) then
              vallist(nr_val) = trim(adjustl(val(1:pos)))
-             !print*, vallist(nr_val)
+             !print*, 1, trim(vallist(nr_val))
           else
              vallist(nr_val) = trim(adjustl(val(1:len_trim(val))))
-             !print*, vallist(nr_val)
+             !print*, 2, trim(vallist(nr_val))
              exit
           end if
           val = adjustl(val(pos+1:len(val)))

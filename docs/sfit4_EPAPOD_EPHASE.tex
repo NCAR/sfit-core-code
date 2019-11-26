@@ -55,16 +55,17 @@ general structure is
   \noindent
   \begin{tabular}{ll}  
     jeaps & number of values (columns) in this file\\
-    eapf(1) eapf(2) ... eapf(jeap)& at OPD given in row below\\
-    eapx(1) eapx(2) ... eapx(jeap) & OPD\\
+    eapf(1) eapf(2) ... eapf(jeaps)& at OPD given in row below\\
+    eapx(1) eapx(2) ... eapx(jeaps) & OPD\\
   \end{tabular}
 \item[fw.apod\_fcn = 2,3]\hspace{2cm}
-  
   \noindent
   \begin{tabular}{ll}  
     jeaps & number of values (columns) in this file\\
-    eapf(1) eapf(2) ... eapf(jeap)& coefficients of polynom or Fourier series\\
+    eapf(1) eapf(2) ... eapf(jeaps)& coefficients of polynom or Fourier series\\
   \end{tabular}
+
+  The apodisation function $eapdz$ as polynome series is given by
 \begin{equation}
   eapdz = 1 + (eapf(1)-1)*(x/xmax) + (eapf(2)-1)*(x/xmax)^2 + \ldots
 \end{equation}
@@ -76,8 +77,10 @@ general structure is
           &&(1-eapf(4))*sin(4*pi*eapf(1)*x/xmax) +\\
           &&(1-eapf(5))*cos(4*pi*eapf(1)*x/xmax) +\ldots    
   \end{eqnarray}
-\item[fw.apod\_fcn=4] outputfile modulat.dat from linefit
+\item[fw.apod\_fcn=4] outputfile modulat.dat created by linefit
 \end{description}
+The parameters are setup such that the term $n$ has no effect if
+eapf(n) is set to 1. It has been done so that the parameter value reflects the epadz at maximum OPD.
 
 \subsection{file.in.phase\_fcn}
 
@@ -88,63 +91,27 @@ The general structure is
   \noindent
   \begin{tabular}{ll}  
     jephs & number of values (columns) in this file\\
-    ephsf(1) phsf(2) ... phsf(jephs)& at OPD given in row below\\
-    ephsx(1) phsx(2) ... phsx(jephs) & OPD\\
+    ephsf(1) ephsf(2) ... ephsf(jephs)& at OPD given in row below\\
+    ephsx(1) ephsx(2) ... ephsx(jephs) & OPD\\
   \end{tabular}
 \item[fw.apod\_fcn = 2] NOTE: 3 does not exist
   
   \noindent
   \begin{tabular}{ll}  
     jephs & number of values (columns) in this file\\
-    phsf(1) phsf(2) ... phsf(jphs)& coefficients of polynom or Fourier series\\
+    ephsf(1) ephsf(2) ... ephsf(jephs)& coefficients of polynom or Fourier series\\
   \end{tabular}
-  NOTE: jephs must be fw.phase\_fcn.order +1 because the first value
-  is the 0th order term.
-\item[fw.apod\_fcn=4] outputfile modulat.dat from linefit
-\end{description}
-
-
-
-The structure of the files file.in.phase\_fcn is
-
-\vspace{1cm}
-jephs specifies the number of entries being read in\\
-\begin{description}
-\item[fw.phase\_function.type = 2:] iephs(0) iephs(1) iephs(2) \ldots iephs(jeap-1)\\
-  NOTE: jephs must be fw.phase\_fcn.order + 1
-\item[[fw.phase\_function.type = 1:] two lines:
-  iephs(1) iephs(2) ... iephs(jeap)
-  eapx(1) eapx(2) ... eapx(jeap)\\
-\end{description}
-
-\begin{description}
-\item [fw.apod\_fcn.type=1:] eapf contains the values of the apodization function eapdz; 
-  in this case eapx contains the values of path difference at 
-  which the function is specified.
-\item[fw.apod\_fcn.type=2:] eapf contains the coefficients of a polynomial, defined
-  by
-\end{description}
-where $x$ is the path difference
-\begin{description}
-\item [fw.apod\_fcn.type=3:] eapf contains the coefficients of a Fourier series
-\end{description}
-\begin{description}
-\item [fw.apod\_fcn.type=4:] file.in.modulation\_fcn is a file which contains the output of linefit (modulat.dat)
-\end{description}
-
-
-\begin{description}
-\item [fw.phase\_fcn.type=1:] file.in.phase\_fcn is a file which contains the values of the phase function at specified optical path differencesa 
-\item[fw.phase\_fcn.type=2:]  file.in.phase\_fcn contains the coefficients of a polynomial, defined
-  by
-\end{description}
+  The phase  function $ephsdz$ as polynome series is given by
 \begin{equation}
-  eapdz = ephs(0) + (eapf(1)-1)*(x/xmax) + (eapf(2)-1)*(x/xmax)^2 + \ldots
+  ephsdz = (ephsf(1) -1) + (ephs(2)-1)*(x/xmax) + (ephs(3)-1)*(x/xmax)^2 + \ldots
 \end{equation}
-where $x$ is the normalized path difference
-\begin{description}
-\item [fw.phase\_fcn.type=3:] does not exist.
-\item [fw.phase\_fcn.type=4:] file.in.phase\_fcn is a file which contains the output of linefit (modulat.dat)
+  NOTE: jephs must be fw.phase\_fcn.order +1 because the first value
+  is the 0th order term. The term $n$ has no effect if ephsf(n) us set to 1!
+  
+\item[fw.apod\_fcn=4] outputfile modulat.dat created by linefit
 \end{description}
+
+
+
 
 \end{document}
