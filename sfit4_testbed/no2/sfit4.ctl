@@ -156,3 +156,4 @@ kb.phase = T
 kb.omega = T 
 kb.zshift = T 
 kb.sza = T 
+fw.tips = F 

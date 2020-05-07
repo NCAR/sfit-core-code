@@ -140,3 +140,4 @@ kb.solshft = T
 kb.temperature = T 
 kb.omega = T 
 kb.zshift = T 
+fw.tips = F
