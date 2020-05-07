@@ -375,9 +375,9 @@
            IF (INDXX >= JMIN) THEN
               DO I = 1, NM(IBAND)
                  WAVE_NR = WSTART(IBAND) + (I-1)*DN(IBAND)
-                 IF( ABS( TCALC(IPOINT,MADD+I-1)) .GT. 664.0D0 ) THEN
+                 IF( ABS( TCALC(IPOINT,MADD+I-1)) .GT. 300.0D0 ) THEN
                     ! LIMIT SO ONLY GET EXPONENT < 664.0
-                    TCALC(IPOINT,MADD+I-1) = 664.0D0
+                    TCALC(IPOINT,MADD+I-1) = 300.0D0
                  ENDIF
                  IF (EMISSION_OBJECT.EQ.'M') THEN
                     TCALC(IPOINT, MADD+I-1) &
@@ -389,9 +389,9 @@
                          * EXP((-TCALC(IPOINT,MADD+I-1)))
                  END IF
                  DO K=1, KSMAX2
-                    IF( ABS( TCALC_E(IPOINT,MADD+I-1,K)) .GT. 664.0D0 ) THEN
-                       ! LIMIT SO ONLY GET EXPONENT < 664.0
-                       TCALC_E(IPOINT,MADD+I-1,K) = 664.0D0
+                    IF( ABS( TCALC_E(IPOINT,MADD+I-1,K)) .GT. 300.0D0 ) THEN
+                       ! LIMIT SO ONLY GET EXPONENT < 300.0
+                       TCALC_E(IPOINT,MADD+I-1,K) = 300.0D0
                     ENDIF
                     ! Transmission from altitude K to the ground
                     TCALC_E(IPOINT,MADD+I-1,K) = EXP(-TCALC_E(IPOINT,MADD+I-1,K))
@@ -425,9 +425,9 @@
         DO INDXX = 1, NSCANS
            IF (INDXX >= JMIN) THEN
               DO I = 1, NMON
-                 IF( ABS( TCALC(IPOINT,MADD+I-1)) .GT. 664.0 ) THEN
-                    ! LIMIT SO ONLY GET EXPONENT < 664.0
-                    TCALC(IPOINT,MADD+I-1) = 664.0D0
+                 IF( ABS( TCALC(IPOINT,MADD+I-1)) .GT. 300.0 ) THEN
+                    ! LIMIT SO ONLY GET EXPONENT < 300.0
+                    TCALC(IPOINT,MADD+I-1) = 300.0D0
                  ENDIF
                  TCALC(IPOINT,MADD+I-1) = EXP((-TCALC(IPOINT,MADD+I-1)))
               END DO
@@ -524,15 +524,15 @@
       MADD = MONONE
       DO I = 1, NMON
          WAVE_NR = WSTART(IBAND) + (i-1)*DN(IBAND)
-         if( ABS( TCALC(IPOINT,MADD+I-1)) .GT. 664.0 ) THEN
-            ! LIMIT SO ONLY GET EXPONENT < 664.0d0
-            TCALC(IPOINT,MADD+I-1) = 664.0d0
+         if( ABS( TCALC(IPOINT,MADD+I-1)) .GT. 300.0 ) THEN
+            ! LIMIT SO ONLY GET EXPONENT < 300.0d0
+            TCALC(IPOINT,MADD+I-1) = 300.0d0
          ENDIF
          if (IEMISSION.EQ.1) then
             DO ALT=1,KSMAX2
-               IF( ABS( TCALC_E(IPOINT,MADD+I-1,ALT)) .GT. 664.0 ) THEN
-                  ! LIMIT SO ONLY GET EXPONENT < 664.0d0
-                  TCALC_E(IPOINT,MADD+I-1,ALT) = 664.0d0
+               IF( ABS( TCALC_E(IPOINT,MADD+I-1,ALT)) .GT. 300.0 ) THEN
+                  ! LIMIT SO ONLY GET EXPONENT < 300.0d0
+                  TCALC_E(IPOINT,MADD+I-1,ALT) = 300.0d0
                ENDIF
 
                TCALC_E(IPOINT,MAdd+i-1,ALT) = exp(-TCALC_E(IPOINT,Madd+i-1,ALT))
@@ -589,9 +589,9 @@
 !  --- COMPUTE MONOCHROMATIC TRANSMITTANCES FROM CROSS SECTION SUMS
       MADD = MONONE
             DO I = 1, NMON
-               if( ABS( TCALC(IPOINT,MADD+I-1)) .GT. 664.0 ) THEN
+               if( ABS( TCALC(IPOINT,MADD+I-1)) .GT. 300.0 ) THEN
                   ! LIMIT SO ONLY GET EXPONENT < 300
-                  TCALC(IPOINT,MADD+I-1) = 664.0d0
+                  TCALC(IPOINT,MADD+I-1) = 300.0d0
                ENDIF
                TCALC(IPOINT,MADD+I-1) = EXP((-TCALC(IPOINT,MADD+I-1)))
             END DO

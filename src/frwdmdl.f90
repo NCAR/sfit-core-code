@@ -369,7 +369,15 @@
             ! NOT YET INVESTIGATED WHICH ARE LINEAR.
             ! DECREASE NEW SPECTRUM BY DEL, WORKS MORE EXACT WITH FURTHER
             ! OPERATIONS. MAY BE REMOVED LATER ON. MP
+!            write(150,*) Y_INFTY(:NMONSM)
+!            write(151,*) DELTA_Y(:NMONSM)
+!            call flush()
             TCALC(1,:NMONSM) = Y_INFTY(:NMONSM) + DELTA_Y(:NMONSM)*DEL
+!            do nr = 1,NMONSM
+!               print *, Y_INFTY(nr), DELTA_Y(nr)
+!               call flush()
+!               TCALC(1,nr) = Y_INFTY(nr) + DELTA_Y(nr)*DEL
+!            end do
             TCALC(2,:NMONSM) = TCALC(1,:NMONSM)
          END IF
 
