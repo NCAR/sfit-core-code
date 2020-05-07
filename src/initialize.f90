@@ -497,7 +497,6 @@
       NSCAN(:MAXSPE)         = 0
       ISCAN(:MAXBND,:MAXSPE) = 0
       ISPEC(:MAXSPE)         = 0
-
 ! --- LOOP OVER BANDS AND SAVE EACH FOUND SPECTRUM
 ! --- BANDS ARE DEFINED IN SFIT4 INPUT FILE
 ! --- ALL SPECTRA FOR A BAND MUST BE IN ORDER
@@ -619,6 +618,7 @@
 
          NPTSB = 0
          SMM   = 0.D0
+         ALLOCATE(TOBS(NPFILE),TOBS_ORIG(NPFILE))
          L5: DO I = 1, NPFILE
             READ (15, *, END=20) R4AMP
             IF (ISNAN(R4AMP))THEN
