@@ -618,7 +618,6 @@
 
          NPTSB = 0
          SMM   = 0.D0
-         ALLOCATE(TOBS(NPFILE),TOBS_ORIG(NPFILE))
          L5: DO I = 1, NPFILE
             READ (15, *, END=20) R4AMP
             IF (ISNAN(R4AMP))THEN
