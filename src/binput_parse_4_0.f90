@@ -219,6 +219,7 @@ end subroutine read_file_section
         case ('correlation')
           if (len_trim(keyword(5)).eq.0) then
              read(value,*) correlate(nr)
+print*, nr, correlate(nr)
           else
              select case (trim(adjustl(keyword(5))))
              case ('type')
