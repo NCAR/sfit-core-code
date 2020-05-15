@@ -76,6 +76,8 @@ contains
              tfile(72) = trim(adjustl(value))
           case ('transmission')
              tfile(96) = trim(adjustl(value))
+          case ('sbdflt')
+             ! not used in SFIT
           case default
              WRITE(16,*) 'BINPUT_PARSE_4_0:READ_FILE_SECTION: Key ', &
                   trim(keyword(3)), ' not contained in section file.in'
@@ -219,7 +221,7 @@ end subroutine read_file_section
         case ('correlation')
           if (len_trim(keyword(5)).eq.0) then
              read(value,*) correlate(nr)
-print*, nr, correlate(nr)
+!print*, nr, correlate(nr)
           else
              select case (trim(adjustl(keyword(5))))
              case ('type')
