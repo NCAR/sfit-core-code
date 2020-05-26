@@ -119,3 +119,4 @@ file.out.seinv_vector = seinv.out
 file.out.retprofiles = rprfs.table 
 file.out.aprprofiles = aprfs.table 
 file.out.summary = summary 
+fw.tips = F

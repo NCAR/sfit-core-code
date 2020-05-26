@@ -224,6 +224,9 @@ subroutine read_line_binput(keyword, nr_keyword, value, file_stat)
        if (line(1:1).eq.'.') then
           goto 1001
        end if
+       if (line(1:1).eq.'!') then
+          goto 1001
+       end if
        pos=index(line,'=')
        if(flag.and.index(line,'=').gt.0) then
           backspace(bp_nr)
