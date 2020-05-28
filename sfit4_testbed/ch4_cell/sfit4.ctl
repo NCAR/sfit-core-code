@@ -112,3 +112,4 @@ band.4.tempretb = T
 out.level = 1 
 out.gas_spectra = T 
 kb = T 
+fw.tips = F

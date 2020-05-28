@@ -84,3 +84,4 @@ kb.line.gas = CCL4
 kb.profile = T 
 kb.profile.gas = CO2 
 out.level = 1 
+fw.tips = F 

@@ -45,6 +45,9 @@ class test_sfit4:
             if key.lower() == 'hbinfile':
                 self.hbinfile = l.rsplit('=')[1].strip()
                 continue
+            if key.lower() == 'notips':
+                self.tips = l.rsplit('=')[1].strip()
+                continue
             if key.lower() == 'gas':
                 self.gases = l.rsplit('=')[1:][0].split()
                 print (l)
@@ -80,7 +83,7 @@ class test_sfit4:
         if len(extra_gas) > 0:
             print ('No details found for gas(es) '+ string.join(extra_gas))
         
-    def run_sfit4_in_testcase(self, sfit4=True, hbin=True, error = True):
+    def run_sfit4_in_testcase(self, sfit4=True, hbin=True, tips=False, error = True):
 
         ctl = sfit4_ctl()
         for tc in self.results.keys():
@@ -115,6 +118,10 @@ class test_sfit4:
                     ctl.replace_in_file('sfit4.ctl','kb','T')
                 else:
                     ctl.replace_in_file('sfit4.ctl','kb','F')
+                if tips:
+                    ctl.replace_in_file('sfit4.ctl','fw.tips','T')
+                else:
+                    ctl.replace_in_file('sfit4.ctl','fw.tips','F')
                 print('Calling sfit4')
                 csfit = os.path.join(self.sfit4_dir,'src','sfit4')
                 rsfit = subprocess.Popen(csfit,stdout=subprocess.PIPE,
@@ -187,9 +194,9 @@ class test_sfit4:
         str = ''
         for rs in self.results.keys():
             if self.results[rs]['converged']:
-                str += 'Testcase {0}: RUN OK'.format(rs)
+                str += 'Testcase {0}: RUN OK '.format(rs)
             else:
-                str += 'Testcase {0}: RUN NOT OK'.format(rs)
+                str += 'Testcase {0}: RUN NOT OK '.format(rs)
 
             diverge = self.results[rs]['chi_y_2'] - self.results_orig[rs]['chi_y_2']
             diverge = 2*diverge
@@ -199,6 +206,7 @@ class test_sfit4:
             else:
                 str += 'CHI_2_Y DIVERGES BY {1:1%} %'.format(rs, diverge)
 
+        str += '\n'
         print(str)
         
     def print_results(self):

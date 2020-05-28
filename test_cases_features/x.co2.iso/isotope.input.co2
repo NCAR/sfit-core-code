@@ -1,6 +1,6 @@
 6    42             ! number of isotope seperation species (blocks), # of VMR values
 CO2                 ! old name
-2 2 0               ! old molec id and isotope id
+2 2 0               ! old molec id and isotope id mix ratio flag
 O13CO               ! new name
 53 1 45.0 3 1. 1.   ! new molec id, isotope id, mass, mode, tdep, intensity scale
 1334,1,  649,2, 2283,1
