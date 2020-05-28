@@ -3,16 +3,23 @@ Mathias Palm 11.2019
 
 Running the testbed for sfit4.
 
-Go in the directory <sfit-core-code/sfit4_tests>
+Go in the directory <sfit-core-code/sfit4_testbed>
 
-script/run_testcases.py [--nohbin]] [--nosfit4] [--noerror]
+script/run_testcases.py [--nohbin]] [--nosfit4] [--noerror] [--tips]
 
-NOTE: run_testcases.py runs only with python2.7
+NOTES:
+- run_testcases.py runs only with python2.7
+- until now, the directory to the linelist in hbin.ctl has to be updated by
+  hand.
+- hbin.ctl in the sfit4_testbed directory is copied i every directory and run there.
+
+If --tips=False (defult) tips is not run. This speeds the code up considerably.
 
 In every single directory hbin, sfit4 and the error script needs to run.
 
 this can be tested for the single program by specifying the arguments above,
 which cause the script to not run hbin, sfit4 or the error calculation.
 
-But remeber, that sfit4 needs an hbin file to run.
- 
+But remeber, that sfit4 needs the correct hbin file to run.
+
+Finally, please report errors to mathias.palm@uni-bremen.de 

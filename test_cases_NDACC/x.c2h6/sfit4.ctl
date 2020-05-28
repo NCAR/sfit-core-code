@@ -4,6 +4,7 @@
 # Filenames Section
 
  file.in.stalayers                   = ./station.layers
+ file.in.sbdflt                       = /idon.t.kno.junk/sbdefault.ctl
  file.in.refprofile                  = ./reference.prf
  file.in.spectrum                    = ./t15asc.4
  file.in.modulation_fcn              = ./ils_poly2.mf
