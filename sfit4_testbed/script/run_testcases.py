@@ -166,7 +166,8 @@ class test_sfit4:
                 result = {'summary': True,
                           'apriori':sum_new.apriori[0],
                           'retriev':sum_new.retriev[0],
-                          'chi_y_2':sum_new.chi_y_2
+                          'chi_y_2':sum_new.chi_y_2,
+                          'converged':sum_new.converged
                 }
                 self.results[tc].update(result)
             else:
@@ -182,7 +183,24 @@ class test_sfit4:
         result = {'ret_profile': state.rt_vmr[0]}
         results[tc[0]].update(result)
 
+    def print_summary(self):
+        str = ''
+        for rs in self.results.keys():
+            if self.results[rs]['converged']:
+                str += 'Testcase {0}: RUN OK'.format(rs)
+            else:
+                str += 'Testcase {0}: RUN NOT OK'.format(rs)
 
+            diverge = self.results[rs]['chi_y_2'] - self.results_orig[rs]['chi_y_2']
+            diverge = 2*diverge
+            diverge /= self.results[rs]['chi_y_2'] + self.results_orig[rs]['chi_y_2']
+            if diverge > 0.01:
+                str += 'RESULTS OK'.format(rs)
+            else:
+                str += 'CHI_2_Y DIVERGES BY {1:1%} %'.format(rs, diverge)
+
+        print(str)
+        
     def print_results(self):
         
         print ('\t\t\tThis run\t', 'Orinignal run\t', 'Difference in Percent')
@@ -216,5 +234,6 @@ if __name__ == '__main__':
     tc.hbinfile = os.path.join(script_path,'..','hbin.ctl')
     tc.run_sfit4_in_testcase(sfit4=runsfit,hbin=runhbin,error=error)
     tc.read_summaries()
+    tc.print_summary()
 #    tc.read_statevectors()
-    tc.print_results()
+#    tc.print_results()
