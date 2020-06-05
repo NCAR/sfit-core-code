@@ -3,7 +3,13 @@ Mathias Palm 11.2019
 
 Running the testbed for sfit4.
 
+packages needed:
+numpy
+pathlib
+
 Go in the directory <sfit-core-code/sfit4_testbed>
+
+Edit test.cfg, make sure the absolute paths are right.
 
 script/run_testcases.py [--nohbin]] [--nosfit4] [--noerror] [--tips]
 

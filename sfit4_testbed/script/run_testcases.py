@@ -12,6 +12,7 @@ import os,sys,string
 
 from libs import sfit4_ctl,summary,statevec, read_from_file
 from shutil import copy
+from pathlib import Path
 
 import numpy as np
 import subprocess
@@ -36,8 +37,14 @@ class test_sfit4:
             if key.lower() == 'sfit4_dir':
                 self.sfit4_dir = l.rsplit('=')[1].strip()
                 continue
+            if key.lower() =='linelist_dir':
+                self.linelist_dir = l.rsplit('=')[1].strip()+'/'
+                continue
+            if key.lower() =='origtestcases_dir':
+                self.origtestcases_dir = l.rsplit('=')[1].strip()+'/'
+                continue
             if key.lower() == 'testdir':
-                self.testcase_dir = l.rsplit('=')[1].strip()
+                self.testcase_dir = l.rsplit('=')[1].strip()+'/'
                 continue
             if key.lower() == 'resultfile':
                 self.resultfile = l.rsplit('=')[1].strip()
@@ -86,6 +93,8 @@ class test_sfit4:
     def run_sfit4_in_testcase(self, sfit4=True, hbin=True, tips=False, error = True):
 
         ctl = sfit4_ctl()
+        hbin_ctl = sfit4_ctl()
+        
         for tc in self.results.keys():
             print('Entering %s'%(self.results[tc]['dir']))            
             os.chdir(os.path.join(self.testcase_dir, self.results[tc]['dir']))
@@ -94,7 +103,12 @@ class test_sfit4:
             if hbin and self.results[tc]['hbin']:
                 print('Calling hbin')
                 copy(self.hbinfile,'.')
+                hbin_ctl.replace_in_file('hbin.ctl','file.in.linelist', self.linelist_dir)
                 chbin = os.path.join(self.sfit4_dir,'src','hbin')
+                if not Path(chbin).is_file():
+                    print('{} does not exist'.format(chbin))
+                    exit()
+                    
                 rhbin = subprocess.Popen(chbin,stdout=subprocess.PIPE,
                                          stderr=subprocess.PIPE).communicate()
                 if len(rhbin[1]):
@@ -182,7 +196,7 @@ class test_sfit4:
 
     def read_statevectors(self):
         #Store values from statevec
-        state_orig = statevec(os.path.join(orig_testcases,'statevec.%s'%(tc[1])))
+        state_orig = statevec(os.path.join(self.origtestcases_dir,'statevec.%s'%(tc[1])))
         result = {'ret_profile': state_orig.rt_vmr[0]}
         results_orig[tc[0]].update(result)
         
@@ -194,34 +208,48 @@ class test_sfit4:
         str = ''
         for rs in self.results.keys():
             if self.results[rs]['converged']:
-                str += 'Testcase {0}: RUN OK'.format(rs)
+                str += 'Testcase {0}: RUN OK '.format(rs)
             else:
-                str += 'Testcase {0}: RUN NOT OK'.format(rs)
+                str += 'Testcase {0}: RUN NOT OK '.format(rs)
 
             diverge = self.results[rs]['chi_y_2'] - self.results_orig[rs]['chi_y_2']
             diverge = 2*diverge
             diverge /= self.results[rs]['chi_y_2'] + self.results_orig[rs]['chi_y_2']
             if diverge > 0.01:
-                str += 'RESULTS OK'.format(rs)
+                str += 'RESULTS OK \n'.format(rs)
             else:
-                str += 'CHI_2_Y DIVERGES BY {1:1%} %'.format(rs, diverge)
+                str += 'CHI_2_Y DIVERGES BY {1:1%} %\n'.format(rs, diverge)
 
         print(str)
         
     def print_results(self):
-        
-        print ('\t\t\tThis run\t', 'Orinignal run\t', 'Difference in Percent')
 
-        for rs in self.results.keys():
-            print ('Testcase for:', rs)
-            if self.results[rs]['summary'] and self.results_orig[rs]['summary']:
-                print ('Target Apriori:\t\t', self.results[rs]['apriori'], '\t', self.results_orig[rs]['apriori'], '\t', 200*(self.results[rs]['apriori']-self.results_orig[rs]['apriori'])/(self.results[rs]['apriori']+self.results_orig[rs]['apriori']), '%')
-                print ('Target Retrieved:\t', self.results[rs]['retriev'], '\t', self.results_orig[rs]['retriev'], '\t', 200*(self.results[rs]['retriev']-self.results_orig[rs]['retriev'])/(self.results[rs]['retriev']+self.results_orig[rs]['retriev']), '%')
-                print ('CHI_Y_2:\t\t', self.results[rs]['chi_y_2'], '\t', self.results_orig[rs]['chi_y_2'], '\t', 200*(self.results[rs]['chi_y_2']-self.results_orig[rs]['chi_y_2'])/(self.results[rs]['chi_y_2']+self.results_orig[rs]['chi_y_2']), '%')
-                #            print 'MEAN SQARE Diff. RETRIEVED VMR:', np.sqrt(np.mean((self.results[rs]['chi_y_2']-self.results_orig[rs]['chi_y_2'])**2))
-            else:
-                print ('No new summary or original summary file found')
+        with open(self.resultfile, 'w') as fid:
+            fid.write('Quantity\tThis run\t Original run\t Difference in Percent\n')
 
+            for rs in self.results.keys():
+                if self.results[rs]['summary'] and self.results_orig[rs]['summary']:
+                    fid.write('Gas {}\n'.format(rs))
+                    fid.write('Apriori\t\t')
+                    fid.write('{}\t'.format(self.results[rs]['apriori']))
+                    fid.write('{}\t'.format(self.results_orig[rs]['apriori']))
+                    fid.write('{} %\n'.format(200*(self.results[rs]['apriori']-self.results_orig[rs]['apriori'])/(self.results[rs]['apriori']+self.results_orig[rs]['apriori'])))
+                    
+                    fid.write('Retrieved:\t')
+                    fid.write('{}\t'.format(self.results[rs]['retriev']))
+                    fid.write('{}\t'.format(self.results_orig[rs]['retriev']))
+                    fid.write('{} %\n'.format(200*(self.results[rs]['retriev']-self.results_orig[rs]['retriev'])/(self.results[rs]['retriev']+self.results_orig[rs]['retriev'])))
+
+                    
+                    fid.write('CHI_Y_2:\t')
+                    fid.write('{}\t'.format(self.results[rs]['chi_y_2']))
+                    fid.write('{}\t'.format(self.results_orig[rs]['chi_y_2']))
+                    fid.write('{} %\n'.format(200*(self.results[rs]['chi_y_2']-self.results_orig[rs]['chi_y_2'])/(self.results[rs]['chi_y_2']+self.results_orig[rs]['chi_y_2'])))
+                    #            print 'MEAN SQARE Diff. RETRIEVED VMR:', np.sqrt(np.mean((self.results[rs]['chi_y_2']-self.results_orig[rs]['chi_y_2'])**2))
+                else:
+                    fid.write('No new summary or original summary file found')
+    
+                
 if __name__ == '__main__':
 
     tc = test_sfit4('test.cfg')
@@ -235,12 +263,8 @@ if __name__ == '__main__':
     if sys.argv.count('--noerror') > 0:
         error = False
     script_path = os.path.dirname(os.path.realpath(__file__))
-    tc.sfit4_dir = os.path.join(script_path,'..','..')
-    tc.testcase_dir = os.path.join(script_path,'..')
-    tc.resultfile = os.path.join(script_path,'..','results.txt')
-    tc.hbinfile = os.path.join(script_path,'..','hbin.ctl')
     tc.run_sfit4_in_testcase(sfit4=runsfit,hbin=runhbin,error=error)
     tc.read_summaries()
     tc.print_summary()
-#    tc.read_statevectors()
-#    tc.print_results()
+ #   tc.read_statevectors()
+    tc.print_results()
