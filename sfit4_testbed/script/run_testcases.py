@@ -12,7 +12,7 @@ import os,sys,string
 
 from libs import sfit4_ctl,summary,statevec, read_from_file
 from shutil import copy
-from pathlib import Path
+from pathlib2 import Path
 
 import numpy as np
 import subprocess
@@ -167,7 +167,7 @@ class test_sfit4:
         # Store values from summary
         for tc in self.results:
 
-            sum_file = os.path.join(self.testcase_dir,
+            sum_file = os.path.join(self.origtestcases_dir,
                                     'summary.%s'%(tc.lower()))
             if os.path.exists(sum_file):
                 sum_orig = summary(sum_file)
