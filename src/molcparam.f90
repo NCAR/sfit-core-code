@@ -18,6 +18,9 @@
 
       MODULE molcparam
 
+! May 2020 - JWH
+!  - Completed inclusion of N2SCIA #52
+
 ! November 2018 - JWH
 ! update for HITRAN 2016
 !  - CO2 has 12 isotopes
@@ -129,7 +132,7 @@
         'COF2',    'COCLF',   'C2H6',   'C2H4',    'C2H2',    & ! 40
         'N2',      'CHF2CL',  'COCL2',  'CH3BR',   'CH3I',    &
         'HCOOH',   'H2S',     'CHCL2F', 'O2CIA',   'SF6',     & ! 50
-        'NF3',     'OTHER',   'OTHER',  'OTHER',   'OTHER',   &
+        'NF3',     'N2CIA',   'OTHER',  'OTHER',   'OTHER',   &
         'OTHER',   'OTHER',   'OCLO',   'F134A',   'C3H8',    & ! 60
         'F142B',   'CFC113',  'F141B',  'CH3OH',   'OTHER',   &
         'OTHER',   'PAN',     'CH3CHO ','CH3CN',   'CHF3',    & ! 70
@@ -151,7 +154,7 @@
             1.5,       1.5,       1.9,       1.5,       1.0, & ! 40
             1.0,       1.5,       1.5,       1.5,       1.5, &
             1.5,       1.5,       1.5,       1.0,       1.5, & ! 50
-            1.5,       0.0,       0.0,       0.0,       0.0, &
+            1.5,       1.0,       0.0,       0.0,       0.0, &
             0.0,       0.0,       1.5,       1.5,       1.5, & ! 60
             2.0,       2.0,       2.0,       1.5,       0.0, & ! 2.0 i.o. 1.5 for F141B
             0.0,       1.5,       1.5,       1.5,       1.5, & ! 70
