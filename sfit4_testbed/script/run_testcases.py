@@ -265,7 +265,7 @@ if __name__ == '__main__':
     if sys.argv.count('--noerror') > 0:
         error = False
     if sys.argv.count('--notips') > 0:
-        tips = false
+        tips = False
     script_path = os.path.dirname(os.path.realpath(__file__))
     tc.run_sfit4_in_testcase(sfit4=runsfit,hbin=runhbin,tips=tips,error=error)
     tc.read_summaries()
