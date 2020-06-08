@@ -1,19 +1,19 @@
- SFIT4:v1.0.6   :Off-Release -- May 2020 RUNTIME:20200606-09:56:20 RETRIEVAL SUMMARY 
+ SFIT4:v1.0.6   :Off-Release -- May 2020 RUNTIME:20200608-12:40:46 RETRIEVAL SUMMARY 
 
          1
  JJB-S12C01AF.DAT 01 DEC 2012  6.1000mK 2.50 mm Ap.ZA=80.257 S/N= 1264 h= 9.18194
 
          4
  IRET   GAS_NAME  IFPRF IFCELL APR_COLUMN    RET_COLUMN
-    1       CCL4      T      F      1.15199E+15   1.12969E+15
-    2        H2O      T      F      3.81350E+20   9.06430E+20
-    3         O3      T      F      8.26884E+18   8.25622E+18
-    4        CO2      F      F      5.26084E+21   3.31157E+21
+    1       CCL4      T      F      1.15199E+15   1.12961E+15
+    2        H2O      T      F      3.81350E+20   9.07415E+20
+    3         O3      T      F      8.26905E+18   8.24574E+18
+    4        CO2      F      F      5.26084E+21   3.30962E+21
 
          1
 IBAND       NUSTART        NUSTOP         SPACE     NPTSB     PMAX    FOVDIA   MEAN_FIT_SNR  NSCAN  JSCAN     INIT_SNR     EFF_SNR      FIT_SNR
-    1     785.00000     807.00000   0.006100016      3606    81.97  5.981000      65.938568      1
-                                                                                                        1      150.000      150.000       65.939
+    1     785.00000     807.00000   0.006100016      3606    81.97  5.981000      65.945991      1
+                                                                                                        1      150.000      150.000       65.946
 
        FITRMS       CHI_2_Y      DOFS_ALL      DOFS_TRG      DOFS_TPR      ITER  MAX_ITER CONVERGED   DIVWARN
-     1.516353      5.173483      12.351        1.121        0.000         4        15          T         F
+     1.516182      5.172319      12.352        1.121        0.000         4        15          T         F
