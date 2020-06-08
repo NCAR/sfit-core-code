@@ -220,6 +220,7 @@ class test_sfit4:
             else:
                 str += 'CHI_2_Y DIVERGES BY {1:1%} %\n'.format(rs, diverge)
 
+        str += '\n'
         print(str)
         
     def print_results(self):
