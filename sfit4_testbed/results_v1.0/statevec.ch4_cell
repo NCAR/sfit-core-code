@@ -1,4 +1,4 @@
-  SFIT4:v0.9.7.4 :Pre-Release -- December 2018 RUNTIME:20190122-15:59:34 STATE VECTOR
+  SFIT4:v1.0.6   :Off-Release -- May 2020 RUNTIME:20200606-09:41:24 STATE VECTOR
     0    4   30    F    T    F
  z (Mid-points, Find layer boundaries in station.layers)
 
@@ -7,9 +7,9 @@
  t
 
 
-           1
+           0
 
            1
  IWNumShft_1   
      0.0000E+00
-     2.1225E-07
+     4.1228E-08
