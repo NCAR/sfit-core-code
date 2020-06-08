@@ -52,7 +52,7 @@ class test_sfit4:
             if key.lower() == 'hbinfile':
                 self.hbinfile = l.rsplit('=')[1].strip()
                 continue
-            if key.lower() == 'notips':
+            if key.lower() == 'tips':
                 self.tips = l.rsplit('=')[1].strip()
                 continue
             if key.lower() == 'gas':
@@ -256,14 +256,17 @@ if __name__ == '__main__':
     runsfit = True
     runhbin = True
     error = True
+    tips = True
     if sys.argv.count('--nosfit4') > 0:
         runsfit = False
     if sys.argv.count('--nohbin') > 0:
         runhbin = False
     if sys.argv.count('--noerror') > 0:
         error = False
+    if sys.argv.count('--notips') > 0:
+        tips = false
     script_path = os.path.dirname(os.path.realpath(__file__))
-    tc.run_sfit4_in_testcase(sfit4=runsfit,hbin=runhbin,error=error)
+    tc.run_sfit4_in_testcase(sfit4=runsfit,hbin=runhbin,tips=tips,error=error)
     tc.read_summaries()
     tc.print_summary()
  #   tc.read_statevectors()
