@@ -40,17 +40,20 @@ class test_sfit4:
             if key.lower() =='linelist_dir':
                 self.linelist_dir = l.rsplit('=')[1].strip()+'/'
                 continue
-            if key.lower() =='origtestcases_dir':
-                self.origtestcases_dir = l.rsplit('=')[1].strip()+'/'
-                continue
             if key.lower() == 'testdir':
                 self.testcase_dir = l.rsplit('=')[1].strip()+'/'
                 continue
+            if key.lower() =='origtestcases_dir':
+                ll = l.rsplit('=')[1].strip()+'/'
+                self.origtestcases_dir = os.path.join(self.testcase_dir,ll)
+                continue
             if key.lower() == 'resultfile':
-                self.resultfile = l.rsplit('=')[1].strip()
+                ll = l.rsplit('=')[1].strip()+'/'
+                self.resultfile = os.path.join(self.testcase_dir,ll)
                 continue
             if key.lower() == 'hbinfile':
-                self.hbinfile = l.rsplit('=')[1].strip()
+                ll = l.rsplit('=')[1].strip()
+                self.hbinfile = os.path.join(self.testcase_dir,ll)
                 continue
             if key.lower() == 'tips':
                 self.tips = l.rsplit('=')[1].strip()
