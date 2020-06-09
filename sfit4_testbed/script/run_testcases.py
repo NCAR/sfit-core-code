@@ -48,7 +48,7 @@ class test_sfit4:
                 self.origtestcases_dir = os.path.join(self.testcase_dir,ll)
                 continue
             if key.lower() == 'resultfile':
-                ll = l.rsplit('=')[1].strip()+'/'
+                ll = l.rsplit('=')[1].strip()
                 self.resultfile = os.path.join(self.testcase_dir,ll)
                 continue
             if key.lower() == 'hbinfile':
