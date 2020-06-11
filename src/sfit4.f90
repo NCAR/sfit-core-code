@@ -613,7 +613,8 @@
       CHARACTER (LEN=255) :: VAL
       LOGICAL             :: HFLG, IFPRF_1_ORIG
       INTEGER             :: I, J, K, L1, L2, L3, ORIG_NVAR, POS, NL = 1
-
+      INTEGER             :: ORIG_ISMIX
+      
       WRITE(16,254)
       WRITE( 6,254)
 
@@ -768,6 +769,7 @@
 ! --- SETUP NEW PARM ARRAY
       ORIG_PNAME(:NVAR) = PNAME(:NVAR)
       ORIG_NVAR = NVAR
+      ORIG_ISMIX = ISMIX
       RETFLG = .FALSE.
       CALL INIT_PARM()
 
@@ -873,7 +875,7 @@
          WRITE(92,*) NLEV, COUNT(IS_IN_KB(:NVAR),1), -1, -1
          WRITE(92,260) ADJUSTR( PACK( PNAME(:NVAR), IS_IN_KB(:NVAR) ))
          DO J=1, NLEV
-            WRITE(92,261) PACK(A(J+ISMIX, :), IS_IN_KB(:NVAR))
+            WRITE(92,261) PACK(A(J+ORIG_ISMIX, :), IS_IN_KB(:NVAR))
          ENDDO
          CALL FILECLOSE( 92, 1 )
       ENDIF
