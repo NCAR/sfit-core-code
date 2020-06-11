@@ -1,3 +1,10 @@
+June 2020
+
+write out of AB fixed (request of Dan Smale)
+division by zero bug in raytrace resolved
+
+sfit4 prints out the version string if any command line argument is given (will become more specific, only use -v or --version)
+
 November 2019
 
 official release of stable version 1.0
@@ -6,6 +13,8 @@ changes in sfit4.ctl since v0.9.4.4
 remove:
 kb.dwshift
 kb.max_opd
+
+introduced sfit4_testbed
 
 The file file.in.phase_fcn contains a value for the 0-th order of the
 phase function when the phase function is modelled by a polynomial.  See sfit4_eapod_ephs.tex
