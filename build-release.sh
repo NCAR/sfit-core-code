@@ -7,20 +7,22 @@
 
 basedirname='SFIT4-Official-Release-1-0'
 
+git clean -f
+
 cd docs
 find . -name '*.tex' -exec pdflatex {} ';'
 cd ..
 
-git archive -o $basedirname.tar --prefix $basedirname\/ V1.0.8 
+git archive --worktree-attributes -o $basedirname.tar Official_Release_1.0 #V1.0.8 
 
 # The documentation is created from the tex files
 
 
 # Append the created pdf files to the release archive
 
-find docs -name '*.pdf' -exec tar --transform 's,^\.,$basedirname,' f $basedirname.tar {} ';'
+find docs -name '*.pdf' -exec tar -rf $basedirname.tar {} ';'
 
 # compress tar file
-gzip  -f SFIT4-Official-Release-1-0.tar
+#gzip  -f SFIT4-Official-Release-1-0.tar
 
 
