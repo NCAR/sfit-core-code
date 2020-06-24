@@ -1,5 +1,5 @@
 */*.tex export-ignore
-*/.git* export-ignore
+.git* export-ignore
 pre-commit.sh export-ignore
 */*.hasc export-ignore
 */*.hbin export-ignore
