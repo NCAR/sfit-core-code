@@ -3,7 +3,13 @@ Mathias Palm 11.2019
 
 Running the testbed for sfit4.
 
+packages needed:
+numpy
+pathlib
+
 Go in the directory <sfit-core-code/sfit4_testbed>
+
+Edit test.cfg, make sure the absolute paths are right.
 
 script/run_testcases.py [--nohbin]] [--nosfit4] [--noerror] [--tips]
 
@@ -17,9 +23,9 @@ If --tips=False (defult) tips is not run. This speeds the code up considerably.
 
 In every single directory hbin, sfit4 and the error script needs to run.
 
-this can be tested for the single program by specifying the arguments above,
+The single program can be tested by specifying the arguments above,
 which cause the script to not run hbin, sfit4 or the error calculation.
+In this case the comparisons of the numbers may be wrong.
 
-But remeber, that sfit4 needs the correct hbin file to run.
 
-Finally, please report errors to mathias.palm@uni-bremen.de 
+Finally, please report errors or submit wishes to mathias.palm@uni-bremen.de 
