@@ -122,7 +122,6 @@ hbin: hbin.o hitran.o $(OBJS)
 pspec: pspec.o spec.o fitting.o  $(OBJS)
 	$(FC) -o $@ $^ $(FFLAGS) $(LIBS) $(VLIB)
 
-#params.o binput_4_0.o binput_parse_4_0.o datafiles.o bandparam.o
 
 clean:
 	\rm -f *.o *.mod *.lst
