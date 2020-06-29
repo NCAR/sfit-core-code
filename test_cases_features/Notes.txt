@@ -8,10 +8,10 @@ pspec, hbin, sfit:   Z
 
 testcase	tested with version:
 
-      		      v0.9.4.5       V1.0
-		            14-11-2014     Nov 2019
-x.hno3.emis
-x.ch4.cell                       Y
+      		      v0.9.4.5       V1.0       V1.0.8
+		      14-11-2014     Nov 2019   June 2020
+x.hno3.emis                x          x          x
+x.ch4.cell                 y
 x.ccl4
 x.pan
 x.O3.eaeri
