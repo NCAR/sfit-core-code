@@ -17,7 +17,6 @@
 !-----------------------------------------------------------------------------
 
     MODULE SFIT4
-
       USE PARAMS
       USE VIBFCN
       USE RETVPARAM
@@ -50,7 +49,7 @@
 
       IMPLICIT NONE
 
-      INTEGER :: NLEV = 0, NAERR = 0 !, SVAR=1
+      INTEGER :: NLEV = 0, NAERR = 0, ICELL !, SVAR=1
       INTEGER :: KZMAXLAY, INDXX, KVERT, ITER=0, NEGFLAG
       INTEGER :: I, IBAND, IND, J, K, KK, N
       INTEGER, DIMENSION(MAXSPE) :: NLAY
@@ -80,7 +79,7 @@
       KMAX = NLEV
 
 ! --- PRINT INVERSION PARAMETERS NOW THAT WE HAVE NLEV
-!     ISOTOPE
+!     ISOTOPE, CELL
       CALL READCK1( NLEV, NEGFLAG )
 
 ! --- PRINT OUT FM, RT PARAMETERS
@@ -101,14 +100,23 @@
       CALL SETUP1( )
 
 ! --- ALLOCATE MASS PATH VECTORS BEFORE RAYTRACE CALL
-      ALLOCATE( CCC(NSPEC+1,NLEV), CORG(NSPEC+1,NLEV) )
+      ALLOCATE( CCC(NSPEC+1,NPATH), CORG(NSPEC+1,NPATH) )
 
 ! --- PERFORM RAYTRACE FOR ALL SZA'S (NSPEC)
       IF( RAYOUTTYPE .GE. 2 )THEN
          CALL FILEOPEN( 73, 2 )
          WRITE(73,*) TRIM(TAG), ' RAYTRACE DETAIL FILE'
       ENDIF
-      CALL LBLATM( 0, NLEV )
+
+! --- OPTIONS ARE ATMOSPHERE ONLY, ATMOSPHERE + CELL(S), CELL(S) ONLY
+      IF( NLEV .GT. 0 )THEN
+         CALL LBLATM( 0, NLEV )
+      ENDIF
+
+! --- FILL T, P, FXGAS, CCC FOR CELL OPTICAL PATHS
+      IF( NCELL .NE. 0 )THEN
+         CALL FILLCELL( NLEV )
+      ENDIF
 
       IF( RAYTONLY )THEN
          IF( RAYOUTTYPE .GE. 2 )CALL FILECLOSE( 73, 1 )
@@ -118,31 +126,6 @@
          STOP '3'
       ENDIF
       IF( NLEV .LT. KMAX ) KMAX = NLEV
-      
-      ! --- ZENITH AIRMASS VECTOR IN CCC
-      KVERT = NSPEC +1
-      
-      ! IF CELL SPECTRA, REPLACE PRESSURE AND TEMPERATURE,
-      ! RAYTRACE IS NEEDED FOR SETTING UP THE GAS STRUCTURES,
-      ! SHOULD BE SKIPPED ALTOGETHER
-      IF (IS_CELLSPECTRA) THEN
-         NLEV = 1
-         KMAX = 1
-         NSPEC = 1
-         KVERT = NSPEC +1
-         ! internal unit is atm
-         P(1) = pressure_cell/1013.25D0
-         T(1) = temperature_cell
-         Torg(1) = T(1)
-         ! calculate the airmass in m*m*m?
-         CCC(2,1) = P(1)*1013.25D0/(T(1)*c_Boltz)
-         ! dont know where the constant comes from. Possibly by definition of units
-         CCC(1,1) = CCC(2,1) * 3.9892374148014247D-20
-         ! Divide by 100 because definition uses Pa not hPa
-         CCC(:,1) = CCC(:,1) * length_cell / 100.0D0
-         CORG(:,1) = CCC(:,1)
-      END IF
-
 
 ! --- ZENITH AIRMASS VECTOR IN CCC
       KVERT = NSPEC +1
@@ -178,7 +161,8 @@
 ! --- KZTAN STILL USED
       DO K = 1, NSPEC
          NLAY(K)  = KMAX
-         KZTAN(K) = NLAY(K)   ! # LAYERS IN THIS MASSPATH
+         ! INCLUDE NCELL FOR ALL SPEC
+         KZTAN(K) = NLAY(K) + NCELL   ! # LAYERS IN THIS MASSPATH
          KZMAXLAY = KZTAN(K)
       END DO
 
@@ -257,7 +241,7 @@
       WRITE(16,*)''
 
       WRITE (*, *) ' BEGIN ITERATIVE RETRIEVAL LOOP...'
-      CALL OPT_3(Y, PARM, XHAT, YHAT, NFIT, NVAR, CONVERGE, ITRMAX, TOL, RETFLG, DIVWARN, ITER, ISMIX, NLEV )
+      CALL OPT_3(Y, PARM, XHAT, YHAT, NFIT, NVAR, CONVERGE, ITRMAX, TOL, RETFLG, DIVWARN, ITER, ISMIX, NLEV, NCELL )
 
       CALL FILECLOSE( 91, 1 )
 
@@ -290,7 +274,7 @@
       IND = 0
       DO I = 1, NBAND
          ! Normalized if emission is switched off or the emission spectra are normalized
-         IF (IEMISSION.EQ.0.OR.IENORM.EQ.1) THEN
+         IF (IEMISSION.EQ.0.OR.IENORM(I).EQ.1) THEN
             N = NSCAN(I)
             DO K = 1, N
                YMAX = 0.D0
@@ -420,17 +404,24 @@
       CALL PRINT_CHANNEL_PARMS( 16 )
 
 !  --- SUM UP COLUMNS
+      ICELL = 0
       DO I = 1, NRET
-         VERSUM(I,1) = X(I,1)*CCC(KVERT,1)
-         VOSUM(I,1)  = XORG(I,1)*CCC(KVERT,1)
-         IF( IFPRF(I) ) FX(I) = (SIG(1,I)*CCC(KVERT,1))**2
-         DO K = 2, KMAX
-            VERSUM(I,K) = VERSUM(I,K-1) + X(I,K)*CCC(KVERT,K)
-            VOSUM(I,K)  = VOSUM(I,K-1)  + XORG(I,K)*CCC(KVERT,K)
-            IF( IFPRF(I) ) FX(I) = FX(I) + (SIG(K,I)*CCC(KVERT,K))**2
-         END DO
-         IF( IFPRF(I) ) FX(I) = SQRT(ABS(FX(I)))
-         IF( I == 1 ) SERR = 100.0D0*FX(I)/VERSUM(I,KMAX)
+         IF( IFCELL(I) )THEN
+            ICELL = ICELL + 1
+            VERSUM(I,KMAX+1) = X(I,ICELL)*CCC(KVERT,KMAX+ICELL)
+            VOSUM(I,KMAX+1)  = XORG(I,ICELL)*CCC(KVERT,KMAX+ICELL)
+         ELSE
+            VERSUM(I,1) = X(I,1)*CCC(KVERT,1)
+            VOSUM(I,1)  = XORG(I,1)*CCC(KVERT,1)
+            IF( IFPRF(I) ) FX(I) = (SIG(1,I)*CCC(KVERT,1))**2
+            DO K = 2, KMAX
+               VERSUM(I,K) = VERSUM(I,K-1) + X(I,K)*CCC(KVERT,K)
+               VOSUM(I,K)  = VOSUM(I,K-1)  + XORG(I,K)*CCC(KVERT,K)
+               IF( IFPRF(I) ) FX(I) = FX(I) + (SIG(K,I)*CCC(KVERT,K))**2
+            END DO
+            IF( IFPRF(I) ) FX(I) = SQRT(ABS(FX(I)))
+            IF( I == 1 ) SERR = 100.0D0*FX(I)/VERSUM(I,KMAX)
+         ENDIF
       END DO
       AIRCOL = 0.0D0
       DO K = 1, KMAX
@@ -496,12 +487,12 @@
 
 
 !  --- WRITE OUT A SUMMARY OF RETRIEVAL PARAMETERS
-      print *, RETFLG
-      IF( RETFLG .AND. F_WRTSUMRY ) CALL WRTSMRY( DOF, ITER, CHI_2_Y, FOVDIA, RMS, NLEV, VOSUM, VERSUM )
-
+      !print *, RETFLG
+      !IF( RETFLG .AND. F_WRTSUMRY ) CALL WRTSMRY( DOF, ITER, CHI_2_Y, FOVDIA, RMS, NLEV, VOSUM, VERSUM )
+      IF( F_WRTSUMRY ) CALL WRTSMRY( DOF, ITER, CHI_2_Y, FOVDIA, RMS, NLEV, VOSUM, VERSUM )
 
 !  --- PRINT A SHORT SUMMARY TO THE CONSOLE
-      IF( NRET .NE. 0 )THEN
+      IF( NRET .NE. 0 .AND. NLEV .NE. 0)THEN
          PRINT *,''
          PRINT 460, ( NAME(IGAS(I)), IFPRF(I), I=1, NRET )
          PRINT 461, (  VOSUM(I,NLEV), I=1, NRET )
@@ -510,6 +501,14 @@
          PRINT 463, ITER, ITRMAX, RMS, NVAR, CONVERGE, DIVWARN, DOF(2), SNR, CHI_2_Y!, AIRCOL
          PRINT *,''
       ENDIF
+
+      IF( NCELL .NE. 0 )THEN
+         PRINT 460, ( NAME(IGAS(I)), IFCELL(I), I=1, NRET )
+         PRINT 461, (  VOSUM(I,NLEV+1), I=1, NRET )
+         PRINT 461, ( VERSUM(I,NLEV+1), I=1, NRET )
+         PRINT 463, ITER, ITRMAX, RMS, NVAR, CONVERGE, DIVWARN, DOF(2), SNR, CHI_2_Y!, AIRCOL
+      ENDIF
+
 
 ! --- UNCOMMENT NEXT LINE TO ACTIVATE OUTPUT OF RETRIEVED MIX FILE
 !      CALL MIXOUT (KZMAXLAY, KVERT)
@@ -551,9 +550,6 @@
   250 FORMAT(/,' CAN ONLY RETRIEVE APODIZATION PARAMETERS FOR POLYNOMIAL FW.APOD_FCN.TYPE=2')
   251 FORMAT(/,' CAN ONLY RETRIEVE PHASE PARAMETERS FOR POLYNOMIAL FW.PHASE_FCN.TYPE=2')
   253 FORMAT(/,  '.END OF RETRIEVAL.')
-  254 FORMAT(/, 'BEGIN KB CALCULATIONS:',/)
-  260 FORMAT( 2000( 12X, A14 ))
-  261 FORMAT( 2000ES29.18E3 )
   262 FORMAT( 5X,2000( 12X, A14 ))
   263 FORMAT( 2000I26 )
 
@@ -614,6 +610,7 @@
       INTEGER             :: I, J, K, L1, L2, L3, ORIG_NVAR, POS, NL = 1
 
       WRITE(16,254)
+      WRITE( 6,254)
 
 ! ---  SET DETAILED OUTPUT FILES TO FALSE
       HFLG         = .FALSE.
@@ -625,38 +622,39 @@
       F_WRTRAYTC   = .FALSE.
       XSC_DETAIL   = .FALSE.
 
-      ifprf_1_orig = ifprf(1)
+      IFPRF_1_ORIG = IFPRF(1)
 
-      ! Define new statevector for calculating KB-matrix
-      if (f_kb_profile) then
-         ! is the first retrieval gas already retrieved by column?
-         val = adjustl(trim(s_kb_profile_gases))
-         nrlgas = 0
-         pos = index(adjustl(val),' ')
-         do
-            !                 print *,val
-            if (len_trim(val).eq.0) exit
-            nrprfgas = nrprfgas + 1
-            if (pos.gt.0) then
-               read(val(1:pos),*) s_kb_prf_gas(nrprfgas)
-            else
-               read(val(1:len_trim(adjustl(val))),*) s_kb_prf_gas(nrprfgas)
-               exit
-            end if
-            val = adjustl(val(pos+1:len(val)))
-            pos = index(trim(adjustl(val)),' ')
-         end do
-         do k = 1,nrprfgas
-            do j = 1,nret
-               if (trim(adjustl(s_kb_prf_gas(k))).eq.trim(adjustl(gas(j)))) then
-                  ! only calculated if originally it was not a profile
-                  if(.not.ifprf(j)) ifprf_kb(j) = .true.
-                  ! but now it needs to be set to profile in order to setup correctly
-                  ifprf(j) = .true.
-               end if
-            end do
-         end do
-      end if
+      
+      ! DEFINE NEW STATEVECTOR FOR CALCULATING KB-MATRIX
+      IF (F_KB_PROFILE) THEN
+         ! IS THE FIRST RETRIEVAL GAS ALREADY RETRIEVED BY COLUMN?
+         VAL = ADJUSTL(TRIM(S_KB_PROFILE_GASES))
+         NRLGAS = 0
+         POS = INDEX(ADJUSTL(VAL),' ')
+         DO
+            !                 PRINT *,VAL
+            IF (LEN_TRIM(VAL).EQ.0) EXIT
+            NRPRFGAS = NRPRFGAS + 1
+            IF (POS.GT.0) THEN
+               READ(VAL(1:POS),*) S_KB_PRF_GAS(NRPRFGAS)
+            ELSE
+               READ(VAL(1:LEN_TRIM(ADJUSTL(VAL))),*) S_KB_PRF_GAS(NRPRFGAS)
+               EXIT
+            END IF
+            VAL = ADJUSTL(VAL(POS+1:LEN(VAL)))
+            POS = INDEX(TRIM(ADJUSTL(VAL)),' ')
+         END DO
+         DO K = 1,NRPRFGAS
+            DO J = 1,NRET
+               IF (TRIM(ADJUSTL(S_KB_PRF_GAS(K))).EQ.TRIM(ADJUSTL(GAS(J)))) THEN
+                  ! ONLY CALCULATED IF ORIGINALLY IT WAS NOT A PROFILE
+                  IF(.NOT.IFPRF(J)) IFPRF_KB(J) = .TRUE.
+                  ! BUT NOW IT NEEDS TO BE SET TO PROFILE IN ORDER TO SETUP CORRECTLY
+                  IFPRF(J) = .TRUE.
+               END IF
+            END DO
+         END DO
+      END IF
 
 ! ---  DEFINE NEW STATEVECTOR FOR CALCULATING KB-MATRIX
       IF( F_KB_SLOPE .AND. NBACK.LT.2 ) then
@@ -679,21 +677,22 @@
       IF( F_KB_PHASE .AND..NOT. F_KB_EPHS)   IFPHASE = .TRUE.
       IF( F_KB_TEMP )                        IFTEMP = .TRUE.
       IF( F_KB_IFDIFF )                      IFDIFF = .TRUE.
-      IF( F_KB_EAP.AND..NOT.F_EAPOD ) then
+      IF( F_KB_EAP.AND..NOT.F_RTAPOD ) then
          F_RTAPOD = .TRUE.
          F_EAPOD  = .TRUE.
          IEAP = 2
          NEAP = 3
          EAPF(:NEAP) = 1.0D0
-         EAPPAR = 1.0D0
+         EAPPAR = 0.0D0
+         print *, 'KB apod function'
       end IF
-      IF( F_KB_EPHS.AND..NOT.F_EPHASE ) then
+      IF( F_KB_EPHS.AND..NOT.F_RTPHASE ) then
          F_RTPHASE = .TRUE.
          F_EPHASE = .TRUE.
          IEPHS = 2
          NEPHS = 3
          EPHSF(:NEPHS) = 1.0D0
-         EPHSPAR = 1.0D0
+         EPHSPAR = 0.0D0
       end IF
       IF( F_KB_ZSHIFT )  THEN
          IZERO(:NBAND) = 1
@@ -720,46 +719,46 @@
          ENDIF
       ENDDO
 
-      if( f_kb_line )then
-         ifline = 1
-         ! --- find for which gases are Kb for line parameters are calculated
-         select case (trim(adjustl(s_kb_line_gases)))
-         case ('target')
-            s_kb_line_gas(1) = trim(adjustl(gas(1)))
-            niline = 1
-            npline = 1
-            ntline = 1
-            nrlgas = 1
-         case ('retrieval')
-            do k = 1,nret
-               s_kb_line_gas(k) = trim(adjustl(gas(k)))
-            end do
-            niline = nret
-            npline = nret
-            ntline = nret
-            nrlgas = nret
-         case default
-            val = adjustl(trim(s_kb_line_gases))
-            nrlgas = 0
-            pos = index(adjustl(val),' ')
-            do
-!                 print *,val
-               if (len_trim(val).eq.0) exit
-               nrlgas = nrlgas + 1
-               if (pos.gt.0) then
-                  read(val(1:pos),*) s_kb_line_gas(nrlgas)
-               else
-                  read(val(1:len_trim(adjustl(val))),*) s_kb_line_gas(nrlgas)
-                  exit
-               end if
-               val = adjustl(val(pos+1:len(val)))
-               pos = index(trim(adjustl(val)),' ')
-            end do
-            niline = nrlgas
-            npline = nrlgas
-            ntline = nrlgas
-         end select
-      end if
+      IF( F_KB_LINE )THEN
+         IFLINE = 1
+         ! --- FIND FOR WHICH GASES ARE KB FOR LINE PARAMETERS ARE CALCULATED
+         SELECT CASE (TRIM(ADJUSTL(S_KB_LINE_GASES)))
+         CASE ('TARGET')
+            S_KB_LINE_GAS(1) = TRIM(ADJUSTL(GAS(1)))
+            NILINE = 1
+            NPLINE = 1
+            NTLINE = 1
+            NRLGAS = 1
+         CASE ('RETRIEVAL')
+            DO K = 1,NRET
+               S_KB_LINE_GAS(K) = TRIM(ADJUSTL(GAS(K)))
+            END DO
+            NILINE = NRET
+            NPLINE = NRET
+            NTLINE = NRET
+            NRLGAS = NRET
+         CASE DEFAULT
+            VAL = ADJUSTL(TRIM(S_KB_LINE_GASES))
+            NRLGAS = 0
+            POS = INDEX(ADJUSTL(VAL),' ')
+            DO
+!                 PRINT *,VAL
+               IF (LEN_TRIM(VAL).EQ.0) EXIT
+               NRLGAS = NRLGAS + 1
+               IF (POS.GT.0) THEN
+                  READ(VAL(1:POS),*) S_KB_LINE_GAS(NRLGAS)
+               ELSE
+                  READ(VAL(1:LEN_TRIM(ADJUSTL(VAL))),*) S_KB_LINE_GAS(NRLGAS)
+                  EXIT
+               END IF
+               VAL = ADJUSTL(VAL(POS+1:LEN(VAL)))
+               POS = INDEX(TRIM(ADJUSTL(VAL)),' ')
+            END DO
+            NILINE = NRLGAS
+            NPLINE = NRLGAS
+            NTLINE = NRLGAS
+         END SELECT
+      END IF
 
 ! --- SET THE ENTRIES OF THE STATEVECTOR AS A PRIORI IN THE NEW PARM VECTOR TO MAKE
 !     SURE THE KB MATRICES ARE CALCULATED AS DEVIATIONS FROM THE RETRIEVED STATE
@@ -771,27 +770,27 @@
       CALL INIT_PARM()
 
       IS_IN_KB(:NVAR) = .TRUE.
-      do k=1, NVAR
-         do i=1, ORIG_NVAR
+      DO K=1, NVAR
+         DO I=1, ORIG_NVAR
             ! --- DWNUMSHIFT IS SET TO RETRIEVED PARAMETER OF IWNUMSHIFT
-            if( ORIG_PNAME(i)(:9) .eq. 'IWNumShft' .and. PNAME(k)(:9) .eq. 'DWNumShft' )then
-               print *, PNAME(k)
-               parm(k) = xhat(i)
-               IS_IN_KB(k) = .false.
-               !               exit
-            end if
+            if( ORIG_PNAME(I)(:9) .EQ. 'IWNumShft' .AND. PNAME(k)(:9) .EQ. 'DWNumShft' )THEN
+!               PRINT *, PNAME(k)
+               PARM(K) = XHAT(I)
+               IS_IN_KB(K) = .FALSE.
+               !               EXIT
+            END IF
             ! --- IWNUMSHIFT GETS SET TO RETRIEVED VALUE OF SWNUMSHIFT
-            if( ORIG_PNAME(i)(:9) .eq. 'SWNumShft' .and. PNAME(k)(:9) .eq. 'IWNumShft' )then
-               ORIG_PNAME(i) = ''
-               parm(k) = xhat(i)
-               IS_IN_KB(k) = .false.
-               exit
-            end if
+            if( ORIG_PNAME(I)(:9) .EQ. 'SWNumShft' .AND. PNAME(K)(:9) .EQ. 'IWNumShft' )THEN
+               ORIG_PNAME(I) = ''
+               PARM(K) = XHAT(I)
+               IS_IN_KB(K) = .FALSE.
+               EXIT
+            END IF
 ! --- DON'T COMPUTE K FOR RETRIEVED B
-            if (ORIG_PNAME(i).eq.PNAME(k)) then
-               ORIG_PNAME(i) = ''
-               parm(k) = xhat(i)
-               IS_IN_KB(k) = .false.
+            IF (ORIG_PNAME(I).EQ.PNAME(K)) THEN
+               ORIG_PNAME(I) = ''
+               PARM(K) = XHAT(I)
+               IS_IN_KB(K) = .FALSE.
                ! CHECK IF THE ORIGINALLY RETRIEVED GAS IS A COLUMN
                DO J = 1,NRET
                   ! IF SO, CALCULATE A KB ENTRY FOR THIS GAS AS A PROFILE
@@ -800,16 +799,16 @@
                      PARM(K:K+NLEV) = XHAT(I)
                   END IF
                END DO
-               exit
-            end if
-         end do
-      end do
+               EXIT
+            END IF
+         END DO
+      END DO
 
 
 !         PRINT *, PNAME
-!         print *, XHAT(:ORIG_NVAR)
-!         print *, PARM(:NVAR)
-!         print *, IS_IN_KMATRIX(:NVAR)
+!         PRINT *, XHAT(:ORIG_NVAR)
+!         PRINT *, PARM(:NVAR)
+!         PRINT *, IS_IN_KMATRIX(:NVAR)
 
 
       WRITE(16,250)
@@ -826,6 +825,7 @@
       !write(100,*) YHAT(:NFIT)
       !close(100)
 
+
       ! APPEND NAMES ILINE ENTRIES IN KB MATRIX WITH GASNAMES
       ! MIGTH BE BETTER IN THE SUBFUNCTION INIT_PARM, BUT ALL IMPLICATIONS HAVE TO BE CHECKED!!!
 
@@ -835,18 +835,18 @@
       DO I = 1,NVAR
          SELECT CASE (PNAME(i))
          CASE ('LineInt')
-            PNAME(I) = 'LineInt'//'_'//trim(s_kb_line_gas(L1))
+            PNAME(I) = 'LineInt'//'_'//TRIM(s_kb_line_gas(L1))
             L1 = L1 + 1
          CASE ('LinePAir')
-            PNAME(I) = 'LinePAir'//'_'//trim(s_kb_line_gas(L2))
+            PNAME(I) = 'LinePAir'//'_'//TRIM(s_kb_line_gas(L2))
             L2 = L2 + 1
          CASE ('LineTAir')
-            PNAME(I) = 'LineTAir'//'_'//trim(s_kb_line_gas(L3))
+            PNAME(I) = 'LineTAir'//'_'//TRIM(s_kb_line_gas(L3))
             L3 = L3 + 1
          END SELECT
       END DO
 
-         
+
 
       CALL FILEOPEN(90,1)
       WRITE(90,*) TRIM(TAG), ' KB VECTORS FOR MODEL PARAMETERS BI'

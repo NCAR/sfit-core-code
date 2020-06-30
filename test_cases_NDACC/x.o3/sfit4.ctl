@@ -4,12 +4,12 @@
  file.in.refprofile             = reference.prf
  file.in.spectrum               = spectrum
  file.in.isotope                = isotope.input
- file.in.solarlines             = /home/mathias/sfit-core-code/linelist/solar/120621/solar.dat
+ file.in.solarlines             = solar.dat
  file.in.linelist               = 00778.501722-01008.558278.hbin
  
  # Definition for retrieval gases
  
- gas.layers                  =              41
+ gas.layers                  =              47
  gas.profile.list            = O3 H2O O3668 O3686
  gas.column.list             = CO2 C2H4 
  gas.profile.O3.correlation          =               F
@@ -24,7 +24,8 @@
  0.20000   0.20000   0.20000   0.20000   0.20000
  0.20000   0.20000   0.20000   0.20000   0.20000
  0.20000   0.20000   0.20000   0.20000   0.20000
- 0.2
+ 0.20000   0.20000   0.20000   0.20000   0.20000	
+ 0.20000   0.20000
  gas.profile.H2O.correlation         =               F
  gas.profile.H2O.logstate            =               F
  gas.profile.H2O.scale               =             1.0
@@ -36,8 +37,9 @@
  0.1   0.1   0.1   0.1   0.1
  0.1   0.1   0.1   0.1   0.1
  0.1   0.1   0.1   0.1   0.1
- 0.1   0.1   0.1   0.1   0.1  
- 0.1
+ 0.1   0.1   0.1   0.1   0.1
+ 0.1   0.1   0.1   0.1   0.1
+ 0.1   0.1  
  gas.profile.O3668.correlation         =               F
  gas.profile.O3668.scale               = 0.1
  gas.profile.O3668.sigma               =
@@ -49,7 +51,8 @@
  0.2   0.2   0.2   0.2   0.2
  0.2   0.2   0.2   0.2   0.2
  0.2   0.2   0.2   0.2   0.2
- 0.2
+ 0.2   0.2   0.2   0.2   0.2
+ 0.2   0.2   
  gas.profile.O3686.correlation         =               F
  gas.profile.O3686.logstate            =               F
  gas.profile.O3686.scale               =             0.1
@@ -62,7 +65,8 @@
  0.2   0.2   0.2   0.2   0.2
  0.2   0.2   0.2   0.2   0.2
  0.2   0.2   0.2   0.2   0.2
- 0.2
+ 0.2   0.2   0.2   0.2   0.2
+ 0.2   0.2 
  gas.column.CO2.scale               = 1.0
  gas.column.CO2.sigma               = 1.0
  gas.column.C2H4.scale              = 1.0
@@ -113,7 +117,8 @@
  0.2   0.2   0.2   0.2   0.2
  0.2   0.2   0.2   0.2   0.2
  0.2   0.2   0.2   0.2   0.2
- 0.2
+ 0.2   0.2   0.2   0.2   0.2
+ 0.2   0.2 
 
  
  # Microwindows and their parameters
@@ -200,6 +205,5 @@
  kb.temperature= T
  kb.phase= T
  kb.omega= T
- kb.max_opd= T
  kb.zshift= T
  kb.sza= T

@@ -110,14 +110,13 @@
  band.1.apodization_code     =               0
  band.1.gasb                 = CCL4   H2O    O3     CO2
 
- kb = F 
+ kb = T 
  kb.temperature = T
  kb.slope = T
  kb.curvature = T 
  kb.solshft = T
  kb.solstrnth = T 
  kb.phase = T
- kb.dwshift = T 
  kb.wshift = T
  kb.apod_fcn = T
  kb.phase_fcn = T 
@@ -132,5 +131,3 @@
  kb.profile.gas = CO2 
 
  out.level = 1
- out.gas_spectra = T
-

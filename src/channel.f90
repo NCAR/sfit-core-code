@@ -176,13 +176,17 @@
                NVAR = NVAR + 1
                SELECT CASE (K)
                CASE (1)
-                  PNAME(NVAR) = 'PEAK_AMP'
+                  !PNAME(NVAR) = 'PEAK_AMP'
+                  WRITE(PNAME(NVAR), '(A8,I1)'), 'PeakAmp_', IBAND
                CASE (2)
-                  PNAME(NVAR) = 'CHAN_SEP'
+                  !PNAME(NVAR) = 'CHAN_SEP'
+                  WRITE(PNAME(NVAR), '(A8,I1)'), 'ChanSep_', IBAND
                CASE (3)
-                  PNAME(NVAR) = 'ZERO_PH_REF'
+                  !PNAME(NVAR) = 'ZERO_PH_REF'
+                  WRITE(PNAME(NVAR), '(A8,I1)'), 'ZroPhsR_', IBAND
                CASE (4)
-                  PNAME(NVAR) = 'DELTA_PEAK_AMP'
+                  !PNAME(NVAR) = 'DELTA_PEAK_AMP'
+                  WRITE(PNAME(NVAR), '(A8,I1)'), 'DlPkAmp_' , IBAND
                END SELECT
                PARM(NVAR)  = 1.0D0
                SPARM(NVAR) = SCHAN_SCALE(IBAND,IBEAM,K)

@@ -29,6 +29,7 @@
       USE RETVPARAM
       USE WRITEOUT
       USE INITIALIZE
+      USE CONTINUUM
 
       IMPLICIT NONE
 
@@ -52,7 +53,7 @@
       REAL(DOUBLE), INTENT(OUT) :: YN(NFIT)
       REAL(DOUBLE), INTENT(OUT) :: KN(NFIT,NVAR)
 
-      LOGICAL :: BUG1 = .FALSE., IFCOSAVE=.FALSE.,TALL_FLAG=.FALSE.
+      LOGICAL :: BUG1 = .FALSE., IFCOSAVE=.FALSE., TALL_FLAG=.FALSE.
 
       CHARACTER :: GASFNAME*(IFLNMSZ)
       CHARACTER :: TITLE*(80)
@@ -72,7 +73,7 @@
       REAL(DOUBLE), DIMENSION(MAXSPE)   :: YCAVE, YCMAX, WSCALE
       REAL(DOUBLE) :: DEL, SUMSQ, WA, WE, SP, DWAVE, DSHIFT, FRACS, PHI, SMM, YS, &
          BKGND, FX, TEMPP!, STDEV
-      REAL(DOUBLE) , DIMENSION(:,:), allocatable    :: store_line
+      REAL(DOUBLE) , DIMENSION(:,:), ALLOCATABLE    :: STORE_LINE
 
       COMPLEX(DBLE_COMPLEX) :: TCALL, TCALH, TCALI
 
@@ -95,11 +96,11 @@
 
       TFLG = .FALSE.
       BUG1 = .FALSE. !.TRUE.
-      ! if line parameters are disturbed, get some space to store original ones
-      if (nrlgas /= 0 .and. .not. allocated(store_line)) then
-         allocate(store_line(4,LNMAX)) 
-         store_line(:,:) = 0.0d0
-      end if
+      ! IF LINE PARAMETERS ARE DISTURBED, GET SOME SPACE TO STORE ORIGINAL ONES
+      IF (NRLGAS /= 0 .AND. .NOT. ALLOCATED(STORE_LINE)) THEN
+         ALLOCATE(STORE_LINE(4,LNMAX))
+         STORE_LINE(:,:) = 0.0D0
+      END IF
       IF (KFLG) THEN
          NVAR1 = NVAR + 1
       ELSE
@@ -183,84 +184,74 @@
             K = ICOUNT - NCOUNT -1
             KK = NILINE + NPLINE + NTLINE + 2
             FLINE = .FALSE.
-            ! setup3 one time more than perturbation, the last time with the original line parameters again.
-            if ((K.gt.0).and.(k.lt.kk)) then
-                  do k = 1, nrlgas
+            ! SETUP3 ONE TIME MORE THAN PERTURBATION, THE LAST TIME WITH THE ORIGINAL LINE PARAMETERS AGAIN.
+            IF ((K.GT.0).AND.(K.LT.KK)) THEN
+                  DO K = 1, NRLGAS
                      DO I=LINE1(1), LINE2(NBAND)
-                        IF( TRIM(s_kb_line_gas(k)) .EQ.  TRIM(NAME(ICODE(LGAS(I)))))THEN
-                           !                        print *, i, k, AZERO(i), ST296(i), ICODE(LGAS(I)), trim(NAME(ICODE(LGAS(I)))), ' ', trim(s_kb_line_gas(k))
-                           store_line(2,i) = ST296(i)
-                           store_line(3,i) = AAA(i)
-                           store_line(4,i) = TDLIN(i)
-                           if (niline /= 0) ST296(i) = ST296(i)* (1.0d0 + parm(ncount+k))
-                           if (npline /= 0) AAA(i) = AAA(i)* (1.0d0 + parm(ncount+niline+k))
-                           if (ntline /= 0) TDLIN(i) = TDLIN(i)* (1.0d0 + parm(ncount+niline+npline+k))
-                        end IF
-                     end do
-                  end DO
+                        IF( TRIM(S_KB_LINE_GAS(K)) .EQ.  TRIM(NAME(ICODE(LGAS(I)))))THEN
+                           STORE_LINE(2,I) = ST296(I)
+                           STORE_LINE(3,I) = AAA(I)
+                           STORE_LINE(4,I) = TDLIN(I)
+                           IF (NILINE /= 0) ST296(I) = ST296(I)* (1.0D0 + PARM(NCOUNT+K))
+                           IF (NPLINE /= 0) AAA(I) = AAA(I)* (1.0D0 + PARM(NCOUNT+NILINE+K))
+                           IF (NTLINE /= 0) TDLIN(I) = TDLIN(I)* (1.0D0 + PARM(NCOUNT+NILINE+NPLINE+K))
+                        END IF
+                     END DO
+                  END DO
                   CALL SETUP3( XSC_DETAIL, -1 )
-                  ! set back line parameters
-                  do k = 1, nrlgas
+                  ! SET BACK LINE PARAMETERS
+                  DO K = 1, nrlgas
                      DO I=LINE1(1), LINE2(NBAND)
-                        IF( TRIM(s_kb_line_gas(k)) .EQ.  TRIM(NAME(ICODE(LGAS(I)))))THEN
+                        IF( TRIM(S_KB_LINE_GAS(K)) .EQ.  TRIM(NAME(ICODE(LGAS(I)))))THEN
                            !                        print *, i, k, AZERO(i), ST296(i), ICODE(LGAS(I)), trim(NAME(ICODE(LGAS(I)))), ' ', trim(s_kb_line_gas(k))
-                           ST296(i) = store_line(2,i)
-                           AAA(i)   = store_line(3,i)
-                           TDLIN(i) = store_line(4,i)
-                        end IF
-                     end do
-                  end DO
-                  FLINE = .true.
-               end if
+                           ST296(I) = STORE_LINE(2,I)
+                           AAA(I)   = STORE_LINE(3,I)
+                           TDLIN(I) = STORE_LINE(4,i)
+                        END IF
+                     END DO
+                  END DO
+                  FLINE = .TRUE.
+               END IF
                NCOUNT = NCOUNT + NILINE + NPLINE + NTLINE
             end if
-         FSZA = .false.
-         if (ifsza /= 0) then
-            ! setup2 and setup3 must run one time more than perturbation sza in order to get the old state again
-            k = ICOUNT - NCOUNT -1
-            do kk = 1,nspec
-               astang(kk) = astang0(kk)*(1.0d0+parm(ncount+kk))
-            end do
-            if (k.gt. 0 .and. k.lt.nspec+2) THEN
+
+         FSZA = .FALSE.
+         IF (IFSZA /= 0) THEN
+            ! SETUP2 AND SETUP3 MUST RUN ONE TIME MORE THAN PERTURBATION SZA IN ORDER TO GET THE OLD STATE AGAIN
+            K = ICOUNT - NCOUNT -1
+            DO KK = 1,NSPEC
+               ASTANG(KK) = ASTANG0(KK)*(1.0D0+PARM(NCOUNT+KK))
+            END DO
+            IF (K.GT. 0 .AND. K.LT.NSPEC+2) THEN
                CALL LBLATM( 0, KMAX )
                CALL SETUP3( XSC_DETAIL, -1 )
-               FSZA = .true.
-            end if
+               FSZA = .TRUE.
+            END IF
             NCOUNT = NCOUNT + NSPEC
-         end if
+         END IF
 
-         do k = 1,nband
-            ! Error in Field of View
-            if (iffov /= 0) then
-               ncount = ncount + 1
-               OMEGA(k) = OMEGA0(k)*(1.0d0 + parm(ncount))
-            end if
-            ! Error in Field of MaxOPD
-            if (ifopd /= 0) then
-               ncount = ncount + 1
-               if (ICOUNT == NCOUNT+1) then
-                  ! usual DEL = 0.1D-5 is to small to cause any KB.
-                  parm(ncount) = parm(ncount) - DEL + 0.1
-                  DEL = 0.1
-               end if
-               PMAX(k) = PMAX0(k) * (1.0d0 + parm(ncount))
-            end if
-         end do
+         DO K = 1,NBAND
+            ! ERROR IN FIELD OF VIEW
+            IF (IFFOV /= 0) THEN
+               NCOUNT = NCOUNT + 1
+               OMEGA(K) = OMEGA0(K)*(1.0D0 + PARM(NCOUNT))
+            END IF
+         END DO
 
-         ! continuum absorption
-         tall_flag = .false.
-!         print *,'u1',pname(ncount+1),'u2',pname(iparm),' ',iparm, ' ',icount,' ',ncount
-         if (f_contabs) then
-            if (iparm.eq.0.or.(iparm.ge.ncount+1.and.iparm.le.ncount+n_contabs+1)) then
-!               print *,'l1',pname(ncount+1),'l2',pname(iparm),' ',iparm,' ',icount,' ',ncount
-               do k = 1,n_contabs
-                  cont_param(k) = parm(ncount+k)
-               end do
-               call calc_continuum(cont_param)
-               tall_flag = .true.
-            end if
-            ncount = ncount + n_contabs
-         end if
+! CONTINUUM ABSORPTION
+         TALL_FLAG = .FALSE.
+         !         PRINT *,'U1',PNAME(NCOUNT+1),'U2',PNAME(IPARM),' ',IPARM, ' ',ICOUNT,' ',NCOUNT
+         IF (F_CONTABS) THEN
+            IF (IPARM.EQ.0.OR.(IPARM.GE.NCOUNT+1.AND.IPARM.LE.NCOUNT+N_CONTABS+1)) THEN
+               DO K = 1,N_CONTABS
+                  CONT_PARAM(K) = PARM(NCOUNT+K)
+               END DO
+               CALL CALC_CONTINUUM(CONT_PARAM)
+               TALL_FLAG = .TRUE.
+            END IF
+            NCOUNT = NCOUNT + N_CONTABS
+         END IF
+
 
 !  ---  UPDATE VMRS OF RETRIEVAL GASES
          DELTA_Y(:NFIT) = 0.0D0
@@ -300,7 +291,9 @@
 
 ! --- SCALING VERTICAL DISTRIBUTION
                NCOUNT = NCOUNT + 1
-               X(KK,:KMAX) = PARM(NCOUNT)*XORG(KK,:KMAX)
+               X(KK,:NPATH) = PARM(NCOUNT)*XORG(KK,:NPATH)
+
+               !print*, 'fwdmdl ', ncount, kmax, npath, kk, X(KK,:NPATH), PARM(NCOUNT), XORG(KK,:NPATH)
             ENDIF
          END DO
 
@@ -309,17 +302,18 @@
             !IF( BUG1 )PRINT *, IFTEMP, IPARM, NCOUNT, NTEMP1, NTEMP, PARM(NCOUNT+1:NCOUNT+1)
             TRET = .FALSE.
             ! --- ONLY CONSIDERING PROFILE FIT
-            K = IPARM - NCOUNT 
-            IF( K .GE. 1 .AND. K .LE. KMAX)THEN
-               !IF( NCOUNT+1 .GE. NTEMP1 .AND. NCOUNT+1 .LT. NTEMP1 + NTEMP )THEN
+            K = IPARM - NCOUNT
+            ! --- KMAX + 1 PASSES TO UN-PERTURB FINAL TEMPERATURE
+            !IF( K .GE. 1 .AND. K .LE. KMAX + 1 )THEN
+            IF( K .GE. 1 .AND. K .LE. NPATH + 1 )THEN
                TRET = .TRUE.
-               !if(ntemp1 .eq. ncount+1) print*, k, t(k), torg(k)
-               !print*, ncount+1, ntemp1, k
-               T(:KMAX) = PARM(NCOUNT+1:NCOUNT+KMAX) * TORG(:KMAX)
-               !print*,PARM(NCOUNT+1:NCOUNT+KMAX)
-               !if(ntemp1 .eq. ncount+1) print*, k, t(k), torg(k), ITER, KMAX
-               NCOUNT = NCOUNT + KMAX
+               !T(:KMAX) = PARM(NCOUNT+1:NCOUNT+KMAX) * TORG(:KMAX)
+               !NCOUNT = NCOUNT + KMAX
+               T(:NPATH) = PARM(NCOUNT+1:NCOUNT+NPATH) * TORG(:NPATH)
+               NCOUNT = NCOUNT + NPATH
                   !CALL LBLATM( ITER, KMAX )
+                  !IF (K .GT. KMAX) K = KMAX
+                  IF (K .GT. NPATH) K = NPATH
                   CALL MASSPATH( K )
                   CALL SETUP3( XSC_DETAIL, K )
             ENDIF ! K
@@ -349,9 +343,15 @@
 !  --- ANAYLITC K-MATICES MAY BE CHOSEN IN PARAM_M.F90 MP
     8    CONTINUE
 
-         IF ((.NOT.ANALYTIC_K).OR.(.NOT.XRET).OR.(TRET).OR.(ICOUNT.EQ.1).or.FLINE.or.FSZA) THEN
+         IF ((.NOT.ANALYTIC_K).OR.(.NOT.XRET).OR.(TRET).OR.(ICOUNT.EQ.1).or.FLINE.or.FSZA.or.TALL_FLAG) THEN
             CALL TALL
-            IF( BUG1 )PRINT*, '    TALL', IPARM
+            IF( BUG1 )THEN
+               IF(ICOUNT.GT.1) THEN
+                  PRINT*, '    TALL', IPARM, PNAME(IPARM)
+               ELSE
+                  PRINT*, '    TALL', IPARM, NCOUNT
+               ENDIF
+            ENDIF
             !print*, nmonsm, TCALC(1,:100)
             !stop
          ELSE
@@ -439,10 +439,11 @@
                   KZERO = KZERO + 1
                   ZSHIFT(IBAND,JSCAN) = PARM(NBKFIT+NSHIFT+KZERO)
                   ZSHIFTSAV(JSCAN) = ZSHIFT(IBAND,JSCAN)
-               ELSE IF (IZERO(IBAND) == 2 ) THEN
+               ELSE IF (IZERO(IBAND) == 2 .AND. NZERO .GT. 0) THEN
                   ! if we're not calculating it then use shift from band from this spec that we are fitting
                   ZSHIFT(IBAND,JSCAN) = ZSHIFTSAV(JSCAN)
                ENDIF
+               !print* , IBAND, JSCAN, IZERO(IBAND), ZSHIFT(IBAND,JSCAN)
 
 !  --- DETERMINE PHASE ERROR TO APPLY
                PHI = 0.D0
@@ -498,14 +499,14 @@
                   SMM = SMM + YC(JATMOS)
                END DO
 
-               ! -- normalization of spectra only when absorption
-               ! spectra only or normalization is explicitely
-               ! required for emission spectra. mp
-               IF (IEMISSION.EQ.0 .OR. IENORM.NE.0) THEN
+               ! -- NORMALIZATION OF SPECTRA ONLY WHEN ABSORPTION
+               ! SPECTRA ONLY OR NORMALIZATION IS EXPLICITELY
+               ! REQUIRED FOR EMISSION SPECTRA. MP
+               IF (IEMISSION.EQ.0 .OR. IENORM(IBAND).NE.0) THEN
                   YCAVE(IBAND) = SMM/N3
                   YC(JATMOS-N3+1:JATMOS) = YC(JATMOS-N3+1:JATMOS)/YCAVE(IBAND)
                ELSE
-                  YCAVE = 1.0D0
+                  YCAVE(IBAND) = 1.0D0
                END IF
 
 !  --- WRITE SPECTRA BY GAS, BAND, SCAN & ITERATION
@@ -559,7 +560,7 @@
 
 !  --- LOOP OVER GASES IN BAND
                   DO NR = 1, NRETB(IBAND)
-                    !print*, iband, nr, nretb(iband), igasb(iband,nr),  icount, NGASB(iband,nr), GASB(IBAND,NR)
+                     !print*, iband, nr, nretb(iband), igasb(iband,nr),  icount, NGASB(iband,nr), GASB(IBAND,NR)
                      NGB = NGASB(IBAND,NR)
                      CALL GASNTRAN(NGB,IBAND,JSCAN,2,MONONE,MXONE)
 !  --- COMPUTE FFTS
@@ -795,8 +796,8 @@
  18   FORMAT(/,' !!! ABORT !!! TCALC ARRAY OVERFLOW : ',/,' N1    =',I10, &
          ' N2    =',I10,' IBAND =',I6,/,' NSTART=',I6,' MSHIFT=',I10, &
          ' MONONE=',I6,/,' NPRIM =',I6,' NSPAC =',I6)
- 26   FORMAT(/,' ITER=',I2,' AVGSNR=',F12.4,' RMS(%)=',F10.7,' NVAR=',I3,' NFIT=',I6)
- 27   FORMAT(/,' FINAL:   AVGSNR=',F12.4,' RMS(%)=',F10.7,' NVAR=',I3,' NFIT=',I6)
+ 26   FORMAT(/,' ITER=',I0,'  MEAN_SNR= ',F0.4, '  MEAN_FIT_RMS(%)= ',F0.5,'  NVAR= ',I0,'  NFIT= ',I0)
+ 27   FORMAT(/,' FINAL:    MEAN_SNR= ', F0.4,'  MEAN_FIT_RMS(%)= ', F0.5,'  NVAR= ',I0,'  NFIT= ',I0)
 ! 28   FORMAT(/,/,' ITER=',I2,' RMS(%)=',F10.7)
 
  !162  FORMAT(/,' EFFECTIVE APODIZATION PARAMETER =',F8.3)

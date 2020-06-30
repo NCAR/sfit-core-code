@@ -43,7 +43,7 @@
 
       CONTAINS
 
-      SUBROUTINE OPT_3(Y, XA, XHAT, YHAT, M, N, CONVERGE, MAXITER, TOL, RETFLG, DIVWARN, ITER, ISMIX, NLEV  )
+      SUBROUTINE OPT_3(Y, XA, XHAT, YHAT, M, N, CONVERGE, MAXITER, TOL, RETFLG, DIVWARN, ITER, ISMIX, NLEV, NCELL  )
 
 ! 17SEP02
 !    - OUTPUT FORMAT OF KFILE 2000E16.8 - COMPATIBLE W/ IDL
@@ -64,7 +64,7 @@
 ! SUBROUTINE (MULTDIAG) HAS BEEN ADDED
 
       LOGICAL, INTENT(INOUT)      :: CONVERGE, RETFLG, DIVWARN
-      INTEGER, INTENT(IN)         :: N, M, ISMIX, MAXITER, NLEV
+      INTEGER, INTENT(IN)         :: N, M, ISMIX, MAXITER, NLEV, NCELL
       INTEGER, INTENT(INOUT)      :: ITER
       REAL(DOUBLE), INTENT(IN)    :: TOL
       REAL(DOUBLE), INTENT(INOUT) :: XA(N) ! PARM ON INPUT
@@ -87,7 +87,7 @@
 
       ! NEED TWO EXTRA VECTORS OF SIZE N FOR LEVENBERG MARQUARDT -- MP
       REAL(DOUBLE), DIMENSION(:), ALLOCATABLE   :: KSDYMKDX_LM, GSAINVDX, G
-      REAL(DOUBLE), DIMENSION(:,:), ALLOCATABLE :: GSAINV, SPKSKINV
+      REAL(DOUBLE), DIMENSION(:,:), ALLOCATABLE :: GSAINV, SPKSKINV, C2Y
 
       ! FOR CALCULATING AVK WHEN LM
       REAL(DOUBLE), DIMENSION(:,:), ALLOCATABLE :: IDNN, T2, T3, T4
@@ -114,9 +114,10 @@
       ALLOCATE( KS(N,M), KSK(N,N), SPKSKINV(N,N), STAT=NAERR )
       ALLOCATE( KHAT(M,N), G_LM(N,M), STAT=NAERR )
       ALLOCATE( SNR_CLC(NBAND, MAXVAL(NSCAN(:NBAND))) )
-      ALLOCATE( C2Y(NBAND, MAXVAL(NSCAN(:NBAND))) )
       ALLOCATE( SNR_THE(NBAND, MAXVAL(NSCAN(:NBAND))) )
+      ALLOCATE( C2Y(NBAND, MAXVAL(NSCAN(:NBAND))) )
 
+      SNR_CLC = 0.0
       YN = 0.0D0
       DY = 0.0D0
       XN = 0.0D0
@@ -200,7 +201,7 @@
          IF( F_WRTK )THEN
             CALL FILEOPEN( 66, 2 )
             WRITE(66,*) TRIM(TAG), ' K MATRIX M SPECTRA ROWS X N PARAM COLUMNS'
-            WRITE(66,*) M, N, ISMIX, NLEV
+            WRITE(66,*) M, N, ISMIX, NLEV, NCELL
             WRITE(66,260) ADJUSTR(PNAME(:N))
             DO I = 1, M
                WRITE(66,261) (KHAT(I,J),J=1,N)
@@ -237,8 +238,8 @@
          WRITE( 70,* ) "GAMMA                 = ", GAMMA
          WRITE( 70,* ) "RED GAMMA             = ", RED_GAMMA
          WRITE( 70,* ) "INC GAMMA             = ", INC_GAMMA
-         WRITE(70, '(7(A10,1X))') 'CHI_2_X', 'CHI_2_Y', 'CHI_2', 'D_CHI_2', &
-                    'CHI_2_LIN', 'DIFF_LIN_EXACT', 'RATIO_D_CHI'
+         WRITE(70, '(7(A10,1X))') 'CHI^2_X', 'CHI^2_Y', 'CHI^2', 'D_CHI^2', &
+                    'CHI^2_LIN', 'DIFF_LIN_EXACT', 'RATIO_D_CHI'
       END IF
 
       CHI_2_OLD = HUGE(CHI_2_OLD)
@@ -249,7 +250,7 @@
       WRITE(16,26) SNR, N, M
       WRITE(6,26) SNR, N, M
 
-      WRITE(6,313) 'ITER', 'RMS', 'GAMMA','CHI_2_X','CHI_2_Y','CHI_2','CHI_2_OLD','D_CHI_2'
+      WRITE(6,313) 'ITER', 'FIT_RMS', 'GAMMA','CHI^2_X','CHI^2_Y','CHI^2','CHI^2_OLD','  DCHI^2'
 
    10 CONTINUE
       ITER = ITER + 1
@@ -296,37 +297,41 @@
       CHI_2_Y_OLD_SE = DOT_PRODUCT( DY(:M), SEINVDY_OLD_SE(:M) )
       CHI_2_Y_OLD_SE = CHI_2_Y_OLD_SE / M
 
-      CHI_2 = CHI_2_X + CHI_2_Y
+      CHI_2        = CHI_2_X + CHI_2_Y
       CHI_2_OLD_SE = CHI_2_X + CHI_2_Y_OLD_SE
 
       IF (ITER.GT.1)THEN
-         D_CHI_2 = CHI_2_OLD - CHI_2
+         D_CHI_2        = CHI_2_OLD - CHI_2
          D_CHI_2_OLD_SE = CHI_2_OLD - CHI_2_OLD_SE
          DO IBAND=1,NBAND
             IF( IFCALCSE ) THEN
-               WRITE(*,314) ITER, RMS, GAMMA, CHI_2_X, CHI_2_Y,        CHI_2,        CHI_2_OLD, D_CHI_2
-               WRITE(*,315)                 CHI_2_Y_OLD_SE, CHI_2_OLD_SE,            D_CHI_2_OLD_SE
+               WRITE(*,314) ITER, RMS, GAMMA, CHI_2_X,        CHI_2_Y,      CHI_2,        CHI_2_OLD, D_CHI_2
+               !WRITE(*,315)                   CHI_2_Y_OLD_SE, CHI_2_OLD_SE, D_CHI_2_OLD_SE
                PRTFLG = .TRUE.
                EXIT
             ENDIF
          ENDDO
          IF (.NOT.PRTFLG) THEN
-            WRITE(*,314) ITER, RMS, GAMMA, CHI_2_X, CHI_2_Y, CHI_2, CHI_2_OLD, D_CHI_2
+            WRITE(*,314) ITER, RMS, GAMMA, CHI_2_X, CHI_2_Y, CHI_2, CHI_2_OLD, D_CHI_2 !, D_CHI_2_OLD_SE
          ENDIF
       ELSE
          WRITE(*,314) ITER, RMS, GAMMA, CHI_2_X, CHI_2_Y
       ENDIF
 
+ 314  FORMAT(I4,1X,F9.4,1X,ES9.2,1X,4(F9.3,1X),2(F12.6,1X))
+ 313  FORMAT(A4,1X,6(A9,1X),7(A12,1X))
+
       WRITE(16, '(A)') 'COST FUNCTION'
-      WRITE(16, '(4(A,1X))') 'CHI_2_X', 'CHI_2_Y', 'CHI_2', 'CHI_2_OLD-CHI_2'
+      WRITE(16, '(4(A,1X))') 'CHI^2_X', 'CHI^2_Y', 'CHI^2', 'CHI^2_OLD-CHI^2'
       WRITE(16, '(4ES11.3)') CHI_2_X, CHI_2_Y, CHI_2, D_CHI_2
 
       IF( ITER.GT.1 &
          .AND. (CONVERGENCE .GT. 0.0) &
          .AND. (D_CHI_2_OLD_SE .LT. CONVERGENCE) &
-         .AND. ((CHI_2_OLD.GT.CHI_2_OLD_SE) .OR. (ABS(D_CHI_2_OLD_SE).LT.1.0E-5) .OR. (ABS(D_CHI_2).LT. 1.0E-5))) THEN
+         !.AND. ((CHI_2_OLD.GT.CHI_2_OLD_SE) .OR. (ABS(D_CHI_2_OLD_SE).LT.1.0E-5) .OR. (ABS(D_CHI_2).LT. 1.0E-5))) THEN
+         .AND. ((D_CHI_2_OLD_SE .GT. 0.0D0) .OR. (ABS(D_CHI_2_OLD_SE) .LT. 1.0D-5) .OR. (ABS(D_CHI_2) .LT. 1.0D-5))) THEN
          ! CONVERGED
-         !PRINT*, "CONVERGE = .TRUE."
+         !PRINT*, "CONVERGE = .TRUE.", CONVERGENCE, D_CHI_2_OLD_SE, D_CHI_2
          CONVERGE = .TRUE.
          GOTO 20
       END IF
@@ -344,6 +349,7 @@
             YN(:M)    = YN_OLD(:M)
             KN(:M*N)  = KN_OLD(:M*N)
             CHI_2     = CHI_2_OLD
+            !print*,'Changing SEINV:', SEINV(1), seinv_old(1)
             SEINV(:M) = SEINV_OLD(:M)
             ! CHI_2_LIN = CHI_2_LIN_OLD;
 ! --- THOSE HAVE TO BE RECALULATED, CAN SURELY BE SHORTCUT A LITTLE BIT.
@@ -361,6 +367,7 @@
 ! --- END CALCULATION COST FUNCTION
 ! --- KEEP OLD STATE INFORMATION -- MP
       XN_OLD(:N)   = XN(:N)
+! --- WE UNDO THIS NEXT LINE IN THE CASE OF NO CONVERGENCE
       YN_OLD(:M)   = YN(:M)
       KN_OLD(:M*N) = KN(:M*N)
       CHI_2_OLD    = CHI_2;
@@ -403,7 +410,7 @@
                VQRMS = SQRT(1.D0/SQRMS)
                SEINV(IYDX1:IYDX2) = SQRMS
                DELY(IYDX1:IYDX2)  = VQRMS
-               WRITE(*,305) IBAND, JSCAN, SQRT(SQRMS)
+               !WRITE(*,305) IBAND, JSCAN, 1.0D0/SQRT(SQRMS)
             ENDDO SPC
          ENDDO BND
       ENDIF
@@ -496,7 +503,9 @@
                   EXIT
                ENDIF
                CONVERGE = .TRUE.
-               GOTO 20 
+               ! GET LAST ITERATION
+               YN(:M) = YN_OLD(:M)
+               GOTO 20
             END DO
          ELSE
             DO I = 1, M
@@ -507,6 +516,8 @@
                   EXIT
                ENDIF
                CONVERGE = .TRUE.
+               ! GET LAST ITERATION
+               YN(:M) = YN_OLD(:M)
                GOTO 20
             END DO
          ENDIF
@@ -520,6 +531,8 @@
          WRITE(6,307) ITER
          SNR = SQRT(SUM(SEINV(:M))/M)
          CONVERGE = .FALSE.
+         ! GET LAST ITERATION
+         YN(:M) = YN_OLD(:M)
          GO TO 20
       ELSE
          XN(:N) = XNP1(:N)
@@ -539,7 +552,11 @@
       IF( F_WRTK )THEN
          CALL FILEOPEN( 66, 2 )
          WRITE(66,*) TRIM(TAG), ' K MATRIX M SPECTRA ROWS X N PARAM COLUMNS'
-         WRITE(66,*) M, N, ISMIX, NLEV
+         IF( IFPRF(1) )THEN
+            WRITE(66,*) M, N, ISMIX, NLEV, NCELL
+         ELSE
+            WRITE(66,*) M, N, ISMIX, 0, NCELL
+         ENDIF
          WRITE(66,260) ADJUSTR(PNAME(:N))
          DO I = 1, M
             WRITE(66,261) (KHAT(I,J),J=1,N)
@@ -582,6 +599,7 @@
 
 !  --- CALCULATE THE SNR FOR THE RESULT PER BAND AND SCAN
       WRITE(6,303)
+      !WRITE(6,323)
       DO IBAND = 1, NBAND
          NS = NSCAN(IBAND)
          IF (NS == 0) CYCLE
@@ -591,7 +609,8 @@
             SQRMS = (IYDX2-IYDX1)/DOT_PRODUCT(DY(IYDX1:IYDX2),DY(IYDX1:IYDX2))
             SNR_CLC(IBAND,JSCAN) = SQRT(SQRMS)
             C2Y(IBAND,JSCAN) = DOT_PRODUCT( DY(IYDX1:IYDX2), SEINVDY(IYDX1:IYDX2) ) / (IYDX2 - IYDX1)
-            WRITE(*,305) IBAND, JSCAN, SCNSNR(IBAND,JSCAN), sqrt(SQRMS), C2Y(IBAND,JSCAN)
+            !WRITE(*,305) IBAND, JSCAN, SCNSNR(1,IBAND,JSCAN), sqrt(SQRMS), C2Y(IBAND,JSCAN)
+            WRITE(*,315) IBAND, JSCAN, SCNSNR(1:2,IBAND,JSCAN), SNR_CLC(IBAND,JSCAN), C2Y(IBAND,JSCAN)
          ENDDO
       ENDDO
 
@@ -634,22 +653,25 @@
       DEALLOCATE( XNP1, XN, DX, DX_OLD, KSDYMKDX, DELX )
       DEALLOCATE( SPKSKINV )
 
+      IF( ALLOCATED( C2Y )) DEALLOCATE( C2Y )
+
       RETURN
 
- 26   FORMAT(/,' AVGSNR=',F12.4,' NVAR=',I3,' NFIT=',I6,/)
+ 26   FORMAT(/,' MEAN_SNR= ', F0.4,'  NVAR= ', I0,'  NFIT= ', I0, /)
 
  260 FORMAT( 2000( 12X, A14 ))
  261 FORMAT( 2000ES26.18 )
  300  FORMAT( 3(A16, ES11.4 ))
- 303 FORMAT(/,'   BAND   SCAN   RMSSNR (CALCULATED) (RETRIEVED) CHI_2_Y(BAND)')
+ !303 FORMAT(/,'   BAND   SCAN   RMSSNR (CALCULATED) (RETRIEVED) CHI_2')
+ !323 FORMAT(/,'   BAND   SCAN      INIT_SNR       EFF_SNR       FIT_SNR')
+ 303 FORMAT(/,'   BAND   SCAN   RMSSNR (CALCULATED)   (EFFECTIVE)   (RETRIEVED)         CHI^2')
 ! 304  FORMAT( "    BAND    SCAN      SEINV         DELY         SNR" )
- 305  FORMAT( 2I7,F20.2,F14.2,F14.2 )
+ !305  FORMAT( 2I7,F20.2,F14.2, F7.2 )
+ 315  FORMAT( 2I7,8X,5F14.2 )
 ! 306  FORMAT( A20, 2ES12.4 )
  307  FORMAT(/, ' NO CONVERGENCE AFTER', I4, ' ITERATIONS')
 ! 308  FORMAT( A20, ES12.4 )
- 313  FORMAT(A4,1X,14(A9,1X))
- 314  FORMAT(I4,1X,F9.4,1X,ES9.2,1X,12(F9.3,1X))
- 315  FORMAT(2(F12.6,1X)13x,9F12.6)
+! 315  FORMAT(2(F12.6,1X)13x,9F12.6)
 
       END SUBROUTINE OPT_3
 
@@ -723,7 +745,6 @@ SUBROUTINE GETSAINV( ISMIX )
       IF( ALLOCATED( KSK )) DEALLOCATE( KSK )
       IF( ALLOCATED( SAINV )) DEALLOCATE( SAINV )
       IF( ALLOCATED( SNR_CLC )) DEALLOCATE( SNR_CLC )
-      IF( ALLOCATED( C2Y )) DEALLOCATE( C2Y )
       IF( ALLOCATED( KS )) DEALLOCATE( KS )
 
 

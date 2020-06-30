@@ -1,0 +1,18 @@
+# MD5SUM of spectral data files using old hbin.input (version and tag based hbin.input
+# Pre-Release-MP, v0.9.4.5, NOV 14 2014
+# test_cases_NDACC/
+
+# test with md5sum -c md5sum
+
+MD5 (./x.hcl/02723.671422-02930.058578.hbin) = 686ed07a975efe397f73de7207f5a094
+MD5 (./x.co/02053.641622-02163.208378.hbin) = 56d002184c7eeb2835bdb2b5849f73ef
+MD5 (./x.co2.f2/02031.021722-02039.778278.hbin) = 36d6e706b999e20fda2c61f99c15efc2
+MD5 (./x.ch4/02609.659356-02908.070644.hbin) = b2fcf0aacb5a9bc63cfab154ffbeced7
+MD5 (./x.hf/04034.641422-04114.258578.hbin) = 8a12f548dade23b72af905a083046ac3
+MD5 (./x.no/01895.821722-01916.908278.hbin) = a06a14894161cfa2a6acb294f0dbed37
+MD5 (./x.o3/00778.501722-01008.558278.hbin) = 67ee5e27131f7beaab95b2e40e1b11a8
+MD5 (./x.hcn/03263.959056-03291.520944.hbin) = b87ff96e4011f1d62b983c7dfb44c955
+MD5 (./x.co2.f4/02616.491422-02634.008578.hbin) = ead86105da3b1ad69415039e83a8789e
+MD5 (./x.ccl4/00780.871900-00811.128100.hbin) = 3e4ad20f7ae59aafb263a351bfbc4935
+
+

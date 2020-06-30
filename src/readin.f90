@@ -47,13 +47,34 @@
       INTEGER, INTENT(OUT)  :: NLEV
       INTEGER, INTENT(OUT)  :: NEGFLAG
 
-      INTEGER   :: I, NRMAX, NPGAS, J, N
+      INTEGER   :: I, NRMAX, NPGAS, J, N, II
 
       NRMAX = MOLMAX
       NPGAS = 0
 
-! -- CHECK THAT EVERY GAS IS ONLY ONCE IN THE RETRIEVAL LIST
+! --- CHECK IF WE HAVE A CELL OPTICAL PATH
+      IF( NCELL .NE. 0 )THEN
+         WRITE(06, 420) NCELL
+         WRITE(06, 421)
+         DO I=1, NCELL
+            CGASID(I) = -999
+            DO J=1, MOLTOTAL
+               IF( TRIM(NAME(J)) .EQ. TRIM(CGAS(I)) )THEN
+                  CGASID(I) = J
+                  EXIT
+               ENDIF
+            ENDDO
+            WRITE(06, 422) I, ADJUSTR(CGAS(I)), CGASID(I), CTEMP(I), CPRES(I), CVMR(I)
+            IF( CGASID(I) .EQ. -999 )THEN
+               WRITE(00, 423) CGAS(I), I
+               CALL SHUTDOWN
+               STOP '3'
+            ENDIF
+         ENDDO
+      ENDIF
 
+! -- CHECK THAT EVERY GAS IS ONLY ONCE IN THE RETRIEVAL LIST
+      !print *, gas(:nret)
       DO I=1, NRET
          DO J=1, NRET
             if ((I.ne.J).and.(GAS(I).EQ.GAS(J))) THEN
@@ -63,7 +84,7 @@
             end if
          end DO
       end DO
-! --- DOUBLE CHECK CHECK THAT PROFILE REIEVALS ARE AHEAD OF COLUMNS IN LIST
+! --- DOUBLE CHECK THAT PROFILE REIEVALS ARE AHEAD OF COLUMNS IN LIST
       I=0
       DO J=1, NRET
         IF( IFPRF(J) ) I=I+1
@@ -93,13 +114,14 @@
 
 ! --- SEE IF WE NEED TO SEPARATE OUT ISOTOPES
       IF ( USEISO ) CALL RDISOFILE( 16 )
-
+      !print *, nrmax, nret
       IF( NRET .LE. NRMAX .AND. NRET .GE. 1 )THEN
          DO J = 1, NRET
             WRITE (16, 600) J, GAS(J)
             !print *,J, GAS(J)
             DO I = 1, MOLTOTAL
-!               write(*,*) gas(j), name(i)
+               II = I
+               !write(*,*) i, j, '  ', gas(j), name(i)
                IF (GAS(J) == NAME(I)) GO TO 176
             END DO
             WRITE (16, 610) GAS(J)
@@ -108,7 +130,11 @@
             STOP '2'
 
   176       CONTINUE
-            IGAS(J) = I
+            IGAS(J) = II
+            DO I=1, NCELL
+               IF( TRIM(NAME(IGAS(J))) .EQ. TRIM(CGAS(I)) )IFCELL(J) = .TRUE.
+            ENDDO
+            WRITE (16, 602) IFCELL(J)
             WRITE (16, 601) IFPRF(J)
             IF( .NOT. IFPRF(J) )THEN
 ! --- FOR COLUMN RETRIEVAL THE LOG FUNCTION IS SHUT OFF AUTOMATICALLY
@@ -206,6 +232,10 @@
 
       ELSE IF( NRET .EQ. 0 )THEN
          WRITE(16,630)
+      ELSE
+         WRITE(16,605) NRMAX
+         CALL SHUTDOWN
+         STOP '2'
       ENDIF
 
       RETURN
@@ -216,10 +246,6 @@
          CALL SHUTDOWN
          STOP '2'
       ENDIF
-
-!      WRITE (16, 605) NRMAX
-!      CLOSE(16)
-!      STOP
 
   301 CONTINUE
       WRITE (16, 606) NPGAS, MAXPRF
@@ -234,10 +260,16 @@
   401 FORMAT(  ' COLUMN RETRIEVAL SCALE AND VARIANCE        : ',2F10.5)
   403 FORMAT(/,' OFF DIAGNOAL COEFFICIENTS SET TO ZERO')
 
+  420 FORMAT(/,'NUMBER OF CELL OPTICAL PATHS TO INCLUDE : ',I5)
+  421 FORMAT(' PATHID      GAS  GASID  TEMPERATURE    PRESSURE           VMR')
+  422 FORMAT( I7, 2X, A7, I6, 5X, F8.3, 4X, F8.5, 2X, E12.4 )
+  423 FORMAT(' GAS NAME ', A7, ' OR ID FOR CELL ', I3, ' IS OUT OF RANGE.')
+
   600 FORMAT(/,' RETRIEVAL GAS #      ',I2, '                    : ', A7)
   601 FORMAT(  ' PROFILE RETRIEVAL CODE                     : ',L5 )
+  602 FORMAT(  ' CELL RETRIEVAL CODE                     : ',L5 )
 
-!  605 FORMAT(' ABORT -- NUMBER OF RETRIEVAL GASES EXCEEDS',I2)
+  605 FORMAT(/' ABORT -- NUMBER OF RETRIEVAL GASES EXCEEDS ',I2)
   606 FORMAT(' ABORT -- NUMBER OF PROFILE RETRIEVALS (NPGAS=',I2,&
          ') EXCEEDS MAXIMUM (MAXPRF=',I2,')')
   610 FORMAT(' READCK1: RETRIEVAL GAS : ', A7, ' NOT IN INPUT LIST *** ABORT')
@@ -258,6 +290,7 @@
  ! 622 FORMAT(  ' LINESHAPE MODEL                          : ', I5, /, &
  !              ' 1-VOIGT, 2-GALATRY, 0-GALATRY IF B0 EXISTS' )
   630 FORMAT(/,'NO GASES BEING RETRIEVED.')
+ ! 631 FORMAT(/,'NUMBER OF GASES BEING RETRIEVED EXCEEDS NRMAX PARAMETER...ABORT')
   650 FORMAT(/,' MAXIMUM NUMBER OF ITERATIONS               : ', I5)
   651 FORMAT(' CONVERGENCE VARIABLE MUST BE GREATER THEN 0')
       RETURN
@@ -297,7 +330,7 @@
 ! --- INITIAL SCALES AND VARIANCES FOR FITTED PARAMETERS
       WRITE (16, 109)
       WRITE (16, 110) WSHFT, SWSHFT, BCKSL, SBCKSL, BCKCRV, SBCKCRV, CIPARM(4), &
-                        SCPARM(4), PHS, SPHS, SZERO(1), EAPPAR, SEAPPAR, EPHSPAR, SEPHSPAR
+                      SCPARM(4), PHS, SPHS, SZERO(1), EAPPAR, SEAPPAR, EPHSPAR, SEPHSPAR
 
       IF( F_LM )THEN
          WRITE(16,107)
@@ -413,12 +446,13 @@
          ENDIF
 
          WRITE (16, 101) I
-         WRITE (16, 102) WAVE3(I), WAVE4(I), ZSHIFT(I,1), IZERO(I), NRETB(I)
+         WRITE (16, 102) WAVE3(I), WAVE4(I), F_ZSHIFT(I), IZERO(I), ZSHIFT(I,1), NRETB(I)
          WRITE (16, 113) OMEGA(I), FOVDIA(I)
 
 ! --- CHECK F_ZSHIFT SWITCH AND DEFEAT IZERO IF NECESSARY
-         IF( .NOT. F_ZSHIFT(I) ) IZERO(I) = 0
-         IF( F_ZSHIFT(I) .AND. IZERO(I) .EQ. 1 ) NKZERO = I
+         !IF( .NOT. F_ZSHIFT(I) ) IZERO(I) = 0
+         ! F_ZERO IS TRUE IF ANY BAND IS FITTING ZERO SHIFT
+         !IF( F_ZSHIFT(I) .AND. IZERO(I) .EQ. 1 ) F_ZERO = .TRUE.
 
 ! --- CHECK GASES TO RETRIEVE IN BAND
          K = NRETB(I)
@@ -433,7 +467,7 @@
                WRITE (16, 104) GASB(I,J)
             ENDIF
             DO N = 1, NRET
-               !print *, i, j, n, k, gasb(i,j)
+               !print *, i, j, n, k, '  -', gasb(i,j), IGAS(N), '   +', NAME(IGAS(N))
                IF (GASB(I,J) == NAME(IGAS(N))) GO TO 43
             END DO
             WRITE (16, 105) TRIM(GASB(I,J)), WAVE3(I), WAVE4(I)
@@ -515,7 +549,7 @@
 
  101  FORMAT(/,' BANDPASS           : ',I5)
  102  FORMAT(  ' WAVENUMBER RANGE                     : ', F12.6, ' - ', F12.6, /, &
-               ' ZERO LEVEL SHIFT AND SWITCH          : ', F12.6, ', ', I5, /, &
+               ' ZERO LEVEL FIT, TYPE, APRIORI        : ', L4, I5, F12.6, /, &
                ' NUMBER OF RETRIEVAL GASES            : ', I5)
 
 
