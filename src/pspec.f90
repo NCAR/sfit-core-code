@@ -18,10 +18,11 @@
 
 program pspec
 
+
 ! simple program to prepare the ascii spectral file that sfit4 expects
 ! reads ascii input file "pspec.inp"
 ! in that are names of binary spectra files and spectral window regions
-! output is the 't15asc' file for tan sfit4 run.
+! output is the 't15asc' file for sfit4 run.
 
 ! the work is done by spec.f90:
 ! each binary file is read & the window extracted, the spectral resolution is
@@ -96,7 +97,7 @@ program pspec
      ! = 0 not
 
    call date_and_time (cdate, ztime, zone)
-   write (tag,*) trim(version), ' runtime:', cdate(1:8), '-', ztime(1:2), ':', ztime(3:4), ':', ztime(5:6)
+   write (tag,*) trim(version), ' pspec:Jan2020', ' runtime:', cdate(1:8), '-', ztime(1:2), ':', ztime(3:4), ':', ztime(5:6)
    write (6,  *) trim(tag)
 
    open (unit=ilun, file='pspec.input', status='old', err=668)
