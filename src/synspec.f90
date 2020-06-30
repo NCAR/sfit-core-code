@@ -49,6 +49,7 @@
 
       INTEGER, DIMENSION(MAXBND)      :: IAP
       REAL(DOUBLE), DIMENSION(MMAX)   :: TOBS, TOBS_ORIG
+!      REAL(DOUBLE), DIMENSION(:), ALLOCATABLE   :: TOBS, TOBS_ORIG
       REAL(DOUBLE) :: RMS
 
       REAL(DOUBLE) :: C0, C1, C2, C4
@@ -71,7 +72,7 @@
       REAL(DOUBLE) :: WMEAN, DX, PHI0, X, AP, FACTOR, T2, T4, T6, T8
       !REAL(DOUBLE) , EXTERNAL :: EPHS, EAPDZ, APDZ
 
-!      REAL*4 TOBS
+!      REAL*4 TOSB
 
 !  --- RETRIEVE NORTON AND BEER APODIZING COEFFICIENTS
       IF (IAP(IBAND)>=0 .AND. IAP(IBAND)<4) THEN
@@ -244,10 +245,10 @@
 
          CASE (2)
    ! --- EPHS IS A POLYNOMIAL WITH NEPHS TERMS
-            EPHS = 0.D0
-            DO I = 1, NEPHS
-               EPHS = EPHS + (EPHSF(I)-1.D0)*XP**I
-            END DO
+         EPHS = (EPHSF(1)-1.0D0)
+         DO I = 2, NEPHS + 1
+            EPHS = EPHS + (EPHSF(I)-1.D0)*XP**(I-1)
+         ENDDO
 
          CASE DEFAULT
             EPHS = 0.D0

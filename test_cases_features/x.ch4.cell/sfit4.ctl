@@ -10,7 +10,7 @@
 # file.in.linelist               = 02390.441722-02709.558278.hbin.kit01.all
 # file.in.linelist               = 02390.441722-03008.558278.hbin.009
 #  file.in.linelist               = 02390.441722-02709.558278.hbin.kit01.all
- file.in.linelist               =  02895.941722-02954.058278.hbin
+ file.in.linelist               = 02916.941672-02925.658328.hbin 
 # Definition for retrieval gases
  
  gas.layers                  =              0
@@ -72,7 +72,7 @@
  cell.1.vmr = 0.00498
  cell.1.path = 4017.5
 
- rt                          = T
+ rt                          = F
  rt.lm                               = F
  rt.lm.gamma_start                   = 1.0e5
  rt.lm.gamma_inc                     = 10.0

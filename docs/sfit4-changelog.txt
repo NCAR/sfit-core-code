@@ -1,0 +1,61 @@
+**Change Log for SFIT4, Linelist, Documentation & auxiliary codes**
+
+
+--------------------
+Jan 2019  -jwh
+Added switch for on/off of TIPS fw.tips = T/F (TIPS is very slow)
+
+--------------------
+
+Nov 2018 -jwh
+working version 0.9.6 from MP, leading to release of V1.0 in 2019
+
+added CFC's to molcparam, vibfcn
+   - Used data from H Nakajima &  M. Takeda for F134A, CHF3, CCL3F, CCL2F2, COCL2, F141B
+   - removed ch3cnpl & c2h6pl as separate species. For C2H6 lines from Harrison have superseded these and
+      we no longer need to specify a separate species for testing different linelists.  CH3CN also has HIT lines
+      but needs to be tested.
+      - checked iso # and mode #'s
+
+added HITRAN16 and ATM2018 line lists
+   - edited gggmol and hitmolf90 codes to parse out combined ATM and HIT line list files to individual gases
+   - used 160 char for all lists to include quanta data.
+   - moved individual files to linelist.all for testing (not in release yet)
+   - edited hbin to accommodate new isotopes
+   - edited mol id map in hitran.f90
+   - added Linelist_Map.xlsx into linelist directory to keep track of lines available.
+   - increase value buffer in binput_4_0 and downstream from 2048 to 4096 for linelist filenames
+   - completed initial test of both full HIT16 & ATM18
+
+added TIPS 2017
+   - edited lineparam and xsection for testing
+   - changed debug prints in xsection for better comparisons with TIPS & VIBFCN
+   - edited binput_parse for print statements of hitran & auxiliary finle reads
+   - reformatted tips to f90
+   - lots of edited in tips_2017.f90 : combined commons and include files, edited big IF to a CASE,
+      modified id numbers for SFIT after #21
+   - initial test with x.co2.iso
+   - TIPS processing is slow
+
+
+-------------------
+
+
+version v0.6 MP
+
+- many bugfixes in the output files
+
+new features
+
+sfit4
+
+- inclusion of the transmission curvature possible (fw.transmission = T)
+- new lineshapes (Tran line shape, fw.lineshape = 4)
+- line mixing first order (fw.lineshape = 4, fw.linemixing = T), only if line mixing data are available
+- sdv lineshape (fw.lineshape = 4, fw.lineshape.sdv = T), only if sdv parameters are available
+- absorbing layer in emission calculation (fw.emission=T, fw.continuum = T, see sfit4_init for more details)
+
+hbin
+
+- input files can be tag = value, old format is still read in too
+- inclusion of additional line parameters (linemixing 1st order, line narrowing, additional parameters for pCqHDC lineshape)

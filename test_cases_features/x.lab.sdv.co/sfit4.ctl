@@ -4,19 +4,23 @@
  file.in.stalayers              = station.layers
  file.in.refprofile             = reference.prf
  file.in.isotope                = isotope.inp
- file.in.spectrum               = B0051.2b.asc
- file.in.solarlines             = /home/mathias/linelist/solar/120621/solar.dat
+ file.in.spectrum               = B0052.2b.asc
+ file.in.solarlines             = solar.dat
  file.in.linelist               = 04095.941722-04404.058278.hbin
  
 
  
  # Definition for retrieval gases
  
- gas.layers                  =              1
+ gas.layers                  =              0
 
- gas.column.list                         = COO1 COO2 COO3 COO4
+ gas.column.list             = COO1 COO2 #COO3 COO4
  gas.profile.list                         = 
  
+
+ gas.column.CO.logstate             =               F
+ gas.column.CO.scale             =              1.0
+ gas.column.CO.sigma               = 1.0 
 
  gas.column.COO1.logstate             =               F
  gas.column.COO1.scale             =              1.0
@@ -38,12 +42,10 @@
  # Forward model parameters
  
  fw.delnu                    =           0.10000
- fw.lshapemodel              =               0
- fw.lshapemodel.sdv          = F
- fw.lshapemodel.dicke        = T
- fw.lshapemodel.corr         = T
- fw.linemixing = T
- fw.linemixing.gas = COO1 COO2 COO3 COO4
+ fw.lshapemodel              =   4            
+ fw.lshapemodel.sdv          = T
+ fw.linemixing = F
+ fw.linemixing.gas = CO # COO1 COO2 COO3 COO4
  fw.solar_spectrum	     =               F
  fw.pressure_shift           =               T
  fw.apod_fcn                 =               F
@@ -53,22 +55,27 @@
  fw.emission.object	     =  	    .e.
  fw.emission.normalized	     =	 	     F
  fw.isotope_separation       =               T
- fw.lab = T
- fw.lab.length = 0.4076
-# B0052.2b.asc
-# fw.lab.pressure = 133.1487
-# fw.lab.temperature = 150.0
-# B0051.2b.asc
- fw.lab.pressure = 943.46
- fw.lab.temperature = 298.0
+
+ cell = 1 2
+ cell.1.temperature = 151.2
+ cell.1.pressure = 133.1487
+ cell.1.gas = COO1
+ cell.1.vmr = 0.0702
+ cell.1.path = 40.760
+ cell.2.temperature = 151.2
+ cell.2.pressure = 133.1487
+ cell.2.gas = COO2
+ cell.2.vmr = 0.0702
+ cell.2.path = 40.760
+
 
  # Retrieval parameter
 
  kb = F
- rt                          =              T
+ rt                          =            T
  rt.max_iteration = 15
  rt.convergence = 0.1
- rt.wshift = F
+ rt.wshift = T
  rt.wshift.type = 3
  rt.wshift.apriori = 0.0
  rt.wshift.sigma = 0.1  
@@ -91,8 +98,8 @@
  band.1.max_opd    = 180
  band.1.omega  = 1.2
  band.1.apodization_code                  =               0
- band.1.gasb                 = COO1 COO2 COO3 COO4
- band.1.tempretb = T 
+ band.1.gasb                 = COO1 COO2 
+ band.1.tempretb = F
 
  out.level = 1
  out.gas_spectra = F

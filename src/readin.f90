@@ -52,26 +52,6 @@
       NRMAX = MOLMAX
       NPGAS = 0
 
-! --- CHECK IF WE HAVE A CELL OPTICAL PATH
-      IF( NCELL .NE. 0 )THEN
-         WRITE(06, 420) NCELL
-         WRITE(06, 421)
-         DO I=1, NCELL
-            CGASID(I) = -999
-            DO J=1, MOLTOTAL
-               IF( TRIM(NAME(J)) .EQ. TRIM(CGAS(I)) )THEN
-                  CGASID(I) = J
-                  EXIT
-               ENDIF
-            ENDDO
-            WRITE(06, 422) I, ADJUSTR(CGAS(I)), CGASID(I), CTEMP(I), CPRES(I), CVMR(I)
-            IF( CGASID(I) .EQ. -999 )THEN
-               WRITE(00, 423) CGAS(I), I
-               CALL SHUTDOWN
-               STOP '3'
-            ENDIF
-         ENDDO
-      ENDIF
 
 ! -- CHECK THAT EVERY GAS IS ONLY ONCE IN THE RETRIEVAL LIST
       !print *, gas(:nret)
@@ -114,6 +94,29 @@
 
 ! --- SEE IF WE NEED TO SEPARATE OUT ISOTOPES
       IF ( USEISO ) CALL RDISOFILE( 16 )
+
+      ! --- CHECK IF WE HAVE A CELL OPTICAL PATH
+      IF( NCELL .NE. 0 )THEN
+         WRITE(06, 420) NCELL
+         WRITE(06, 421)
+         DO I=1, NCELL
+            CGASID(I) = -999
+            DO J=1, MOLTOTAL
+               IF( TRIM(NAME(J)) .EQ. TRIM(CGAS(I)) )THEN
+                  CGASID(I) = J
+                  EXIT
+               ENDIF
+            ENDDO
+            WRITE(06, 422) I, ADJUSTR(CGAS(I)), CGASID(I), CTEMP(I), CPRES(I), CVMR(I)
+            IF( CGASID(I) .EQ. -999 )THEN
+               WRITE(00, 423) CGAS(I), I
+               CALL SHUTDOWN
+               STOP '3'
+            ENDIF
+         ENDDO
+      ENDIF
+
+
       !print *, nrmax, nret
       IF( NRET .LE. NRMAX .AND. NRET .GE. 1 )THEN
          DO J = 1, NRET
@@ -193,9 +196,11 @@
                WRITE (16, 618 ) N, N, TRIM( TFILE(62) )
                WRITE (16, 612) (SIG(I,J),I=1,NLAYERS)
                !SIG( 1:N, J ) = 0.0D0
+            CASE (6)    ! AN L1 REGULARIZATION MATRIX IS CREATED IN OPT AS AN SAINVERS IF L1 LAMBDA IS IN SFIT4.CTL
+               WRITE(16,625) J, IFOFF(J), L1LAMBDA(J)
             CASE DEFAULT
-               WRITE(16,*) ' READCK1: FLAG IFOFF MUST BE ONE OF 0, 1, 2, 4, 5'
-               WRITE(00,*) ' READCK1: FLAG IFOFF MUST BE ONE OF 0, 1, 2, 4, 5'
+               WRITE(16,*) ' READCK1: FLAG IFOFF MUST BE ONE OF 0, 1, 2, 4, 5, 6'
+               WRITE(00,*) ' READCK1: FLAG IFOFF MUST BE ONE OF 0, 1, 2, 4, 5, 6'
                CALL SHUTDOWN
                STOP '2'
             END SELECT
@@ -204,24 +209,6 @@
          END DO
 
          WRITE (16, 620) DELNU
-
-         WRITE(16,*)''
-         WRITE(16,*) ' LINE SHAPE MODEL:'
-         SELECT CASE ( LSHAPEMODEL )  ! USER CHOICE OF LINE SHAPE MODEL
-            CASE (0)
-               WRITE (16,*) '  0 = USE PCQSDHC MODEL FOR ALL LINES'
-            CASE (1)
-               WRITE (16,*) '  1 = FORCE VOIGT FOR ALL LINES'
-            CASE (2)
-               WRITE (16,*) '  2 = USE GALATRY FOR LINES WITH PARAMETERS, VOIGT ELSE'
-            CASE (3)
-               WRITE (16,*) '  3 = USE SDV & LINE MIXING FOR LINES WITH PARAMETERS VOIGT ELSE'
-            CASE DEFAULT
-               WRITE(16,*)' LINE SHAPE MODEL FLAG OUT OF RANGE MUST BE 0, 1, 2, 3, 4)'
-               WRITE(00,*)' LINE SHAPE MODEL FLAG OUT OF RANGE MUST BE 0, 1, 2, 3, 4)'
-               CALL SHUTDOWN
-               STOP '2'
-         END SELECT
 
          NEGFLAG = -1
          IF( ITRMAX .LT. 0 ) THEN
@@ -267,7 +254,7 @@
 
   600 FORMAT(/,' RETRIEVAL GAS #      ',I2, '                    : ', A7)
   601 FORMAT(  ' PROFILE RETRIEVAL CODE                     : ',L5 )
-  602 FORMAT(  ' CELL RETRIEVAL CODE                     : ',L5 )
+  602 FORMAT(  ' CELL RETRIEVAL CODE                        : ',L5 )
 
   605 FORMAT(/' ABORT -- NUMBER OF RETRIEVAL GASES EXCEEDS ',I2)
   606 FORMAT(' ABORT -- NUMBER OF PROFILE RETRIEVALS (NPGAS=',I2,&
@@ -287,6 +274,7 @@
   618 FORMAT( " READING IN",I3," x",I3," INVERSE COVARIANCE MATRIX FROM FILE : ", A )
   619 FORMAT( " ILOGRETRIEVAL FLAG : ", I2)
   620 FORMAT(/,' HALF WIDTH OF INTEGRATION INTERVAL(CM-1)   : ', F10.7 )
+  625  FORMAT(" RETRIEVAL GAS # :",I3, " HAS IFOFF FLAG:", I3, " CREATING L1 REGULARIZATION MATRIX WITH LAMDA : ", F10.2 )
  ! 622 FORMAT(  ' LINESHAPE MODEL                          : ', I5, /, &
  !              ' 1-VOIGT, 2-GALATRY, 0-GALATRY IF B0 EXISTS' )
   630 FORMAT(/,'NO GASES BEING RETRIEVED.')
@@ -298,9 +286,10 @@
       END SUBROUTINE READCK1
 
 
-      SUBROUTINE READCK2( CPNAM )
+      SUBROUTINE READCK2( )
+      !SUBROUTINE READCK2( CPNAM )
 
-      CHARACTER(LEN=14), DIMENSION(5) :: CPNAM
+      !CHARACTER(LEN=14), DIMENSION(5) :: CPNAM
 
 ! --- TEMPERATURE RETRIEVAL
       WRITE(16,120) IFTEMP
@@ -313,7 +302,27 @@
       IF( .NOT. F_EAPOD ) IEAP = 0
       IF( .NOT. F_EPHASE ) IEPHS = 0
       WRITE(16, 101)
-      WRITE(16, 102) IFCO, FPS, F_EAPOD, IEAP, NEAP, F_EPHASE, IEPHS, NEPHS, IEMISSION
+      WRITE(16, 102) IFCO, FPS, USE_TIPS, F_EAPOD, IEAP, NEAP, F_EPHASE, IEPHS, NEPHS, IEMISSION, LSHAPEMODEL
+
+      WRITE(16,*)''
+      WRITE(16,*) ' LINE SHAPE MODEL:'
+      SELECT CASE ( LSHAPEMODEL )  ! USER CHOICE OF LINE SHAPE MODEL
+         CASE (0)
+            WRITE (16,*) '  0 = CHOOSE MODEL DEPENDING ON EXISTANCE OF PARAMETERS'
+         CASE (1)
+            WRITE (16,*) '  1 = FORCE VOIGT FOR ALL LINES'
+         CASE (2)
+            WRITE (16,*) '  2 = USE GALATRY FOR LINES WITH PARAMETERS, VOIGT ELSE'
+         CASE (3)
+            WRITE (16,*) '  3 = VOIGT + LINE MIXING FOR LINES WITH PARAMETERS'
+         CASE (4)
+            WRITE (16,*) '  4 = USE PCQSDHC (Tran2013)'
+         CASE DEFAULT
+            WRITE(16,*)' LINE SHAPE MODEL FLAG OUT OF RANGE MUST BE 0, 1, 2, 3)'
+            WRITE(00,*)' LINE SHAPE MODEL FLAG OUT OF RANGE MUST BE 0, 1, 2, 3)'
+            CALL SHUTDOWN
+            STOP '2'
+      END SELECT
 
       IF( IEMISSION /= 0 )THEN
          WRITE(16,103)
@@ -337,19 +346,6 @@
          WRITE(16,108) GAMMA_START, GAMMA_DEC, GAMMA_INC, CONVERGENCE
       END IF
 
-! --- SOLAR SPECTRUM PARAMETERS
-!      IF( IFCO )THEN
-! --- DEFINE NAMES OF SOLAR PARAMETERS
-         CPNAM(1) = 'Sol - n/a'
-         CPNAM(2) = 'Sol - n/a'
-         CPNAM(3) = 'Sol - n/a'
-         CPNAM(4) = 'SolLnShft'
-         CPNAM(5) = 'SolLnStrn'
-! --- ADD ONE TO WAVENUMBER SHIFT PARAMETER TO AVOID THE CASE OF ZERO
-! --- INITIAL SHIFT
-!         CIPARM(:) = CIPARM(:) + 1.D0
-!         CPARM(:)  = CIPARM(:)
-!      ENDIF
 
 ! --- PRINT OUT GAS FILES
       IF( F_WRTGASSPC )THEN
@@ -371,9 +367,11 @@
  101  FORMAT(/,' FORWARD MODEL SWITCHES:')
  102  FORMAT( '  INCLUDE SOLAR LINES                       : ', L5, /, &
               '  INCLUDE PRESSURE SHIFT                    : ', L5, /, &
+              '  USE TIPS IF APPLICABLE                    : ', L5, /, &
               '  EFFECTIVE MODULATION FUNCTION TYPE        : ', L5, I5, '   # TERMS : ', I5, /, &
               '  EFFECTIVE PHASE FUNCTION TYPE             : ', L5, I5, '   # TERMS : ', I5, /, &
-              '  COMPUTE EMISSION COMPONENT                : ', I5 )
+              '  COMPUTE EMISSION COMPONENT                : ', I5, /, &
+              '  LINE SHAPE MODEL INDEX                    : ', I5 )
 
  103  FORMAT(/,' EMISSION PARAMETERS:')
  104  FORMAT( '  BACKGROUND TEMPERATURE                    : ', F12.4, / &
@@ -383,8 +381,8 @@
 
  105  FORMAT(/,' RETRIEVAL SWITCHES: ')
  106  FORMAT( '  FIT SOLAR SHIFT                           : ', L5, /, &
-              '  FIT WAVENUMBER SHIFT                      : ', L5, '   TYPE       : ', I5, /, &
-              '  FIT BACKGROUND                            : ', L5, '   TYPE       : ', I5, /, &
+              '  FIT WAVENUMBER SHIFT                      : ', L5, '          TYPE : ', I5, /, &
+              '  FIT BACKGROUND                            : ', L5, '          TYPE : ', I5, /, &
               '  FIT DIFFERENT SHIFT BY GAS                : ', L5, /, &
               '  FIT SIMPLE PHASE CORRECTION               : ', L5, /, &
               '  FIT MODULATION FUNCTION                   : ', L5, /, &
@@ -435,6 +433,7 @@
       DO I = 1, NBAND
 
 ! --- CONVERT FOV DIAMETER FROM MILLIRADIANS TO SOLID ANGLE SAVE FOVDIA FOR SOLAR
+! --- OMEGA = APT DIAMETER / COLLIMATOR FOCAL LENGTH (416MM IN A BRUKER 120/5HR)
          FOVDIA(I) = OMEGA(I)
          OMEGA(I) = 2.0D0*PI*(1.D0 - COS(1.D-03*OMEGA(I)/2.D0))
 

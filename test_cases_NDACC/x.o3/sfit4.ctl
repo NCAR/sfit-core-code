@@ -107,19 +107,13 @@
  rt.phase.apriori            =           0.000
  rt.phase.sigma              =           0.200
  rt.dwshift                  =               F
- rt.temperature = F
- rt.temperature.sigma =
- 0.2   0.2   0.2   0.2   0.2
- 0.2   0.2   0.2   0.2   0.2
- 0.2   0.2   0.2   0.2   0.2
- 0.2   0.2   0.2   0.2   0.2
- 0.2   0.2   0.2   0.2   0.2
- 0.2   0.2   0.2   0.2   0.2
- 0.2   0.2   0.2   0.2   0.2
- 0.2   0.2   0.2   0.2   0.2
- 0.2   0.2   0.2   0.2   0.2
- 0.2   0.2 
-
+ rt.temperature              =               F
+ rt.temperature.sigma                =
+ 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001
+ 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001
+ 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001
+ 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001
+ 0.001
  
  # Microwindows and their parameters
  
@@ -127,17 +121,21 @@
  band.1.nu_start             =        782.56
  band.1.nu_stop              =        782.86
  band.1.zshift		     =	      F
- band.1.beam                 =               0
+ band.1.beam                 = 1
+ band.1.beam.model          = PS
+ band.1.beam.1.apriori       = 0.01 0.02 782.56 1.0
+ band.1.beam.1.sigma         = 1.0  0.0 1.0 0.0
  band.1.calc_point_space     =       0.500E-03
  band.1.wave_factor          =           1.000
  band.1.max_opd= 180.0000
  band.1.omega= 2.3923
  band.1.apodization_code =               0
  band.1.gasb                 = O3  H2O    CO2 O3668 O3686
+ band.1.tempretb = F
  band.2.nu_start             =        788.85
  band.2.nu_stop              =        789.37
  band.2.zshift		     =	      F
- band.2.beam                 =               0
+ band.2.beam                 =               
  band.2.calc_point_space                   =       0.500E-03
  band.2.wave_factor              =           1.000
  band.2.max_opd= 180.0000
@@ -147,7 +145,7 @@
  band.3.nu_start             =        993.3
  band.3.nu_stop              =        993.8
  band.3.zshift		     =	      F
- band.3.beam                 =               0
+ band.3.beam                 =               
  band.3.calc_point_space                   =       0.500E-03
  band.3.wave_factor               =           1.000
  band.3.max_opd= 180.0000
@@ -160,7 +158,7 @@
  band.4.zshift.type          = 1
  band.4.zshift.apriori       =           0.000
  band.4.zshift.sigma         =           0.200
- band.4.beam                 =               0
+ band.4.beam                 =               
  band.4.calc_point_space     =       0.500E-03
  band.4.wave_factor          =           1.000
  band.4.max_opd= 180.0000
@@ -180,7 +178,6 @@
 
  out.level= 1
  out.smeas_matrix = T
- 
  out.gas_spectra= T
  out.k_matrix= T
  out.ak_matrix= T
@@ -207,3 +204,6 @@
  kb.omega= T
  kb.zshift= T
  kb.sza= T
+ kb.line = T
+ kb.line.type = 1
+ kb.line.gas = retrieval

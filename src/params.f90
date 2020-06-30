@@ -32,26 +32,25 @@
 
 !  --- VERSION STRING - NO SPACES: USE AS FIRST WORD IN OUTPUT FILE TAG
 !      CHARACTER(len=10) :: BUILDDATE = BDATE
-      CHARACTER (LEN=15),  PARAMETER :: VERSION1 = 'SFIT4:v0.9.7.0'
-      CHARACTER (LEN=100),  PARAMETER :: VERSION2 = 'Dev_Mathias -- April 2016'
+      CHARACTER (LEN=15),    PARAMETER :: VERSION1 = 'SFIT4:v1.0.8'
+      CHARACTER (LEN=100),   PARAMETER :: VERSION2 = ':Off-Release -- June 2020'
       CHARACTER (LEN=255) :: VERSION = VERSION1//VERSION2
-      CHARACTER (LEN=255)            :: TAG              ! OUTPUT FILE TAG IS VERSION + RUNTIME
+      CHARACTER (LEN=255) :: TAG                  ! OUTPUT FILE TAG IS VERSION + RUNTIME
 
 !      LOGICAL, PARAMETER :: BUG = .TRUE.
       LOGICAL, PARAMETER :: BUG = .FALSE.
       LOGICAL, PARAMETER :: ANALYTIC_K = .TRUE.
-!      LOGICAL, PARAMETER :: ANALYTIC_K = .FALSE.
 
-      ! mp: For emission some of the predefault numbers seem to small (LNMAX, MAXGAS,LAYMAX)
+      ! mp: For emission some of the predefault numbers seem to small (LNMAX, MAXGAS, LAYMAX)
 
       INTEGER, PARAMETER :: MMAX = 8*131072       ! MAXIMUM NUMBER OF SPECTRAL DATA POINTS
-      INTEGER, PARAMETER :: NMAX = 255            ! MAXIMUM NUMBER OF FITTING PARAMETERS
+      INTEGER, PARAMETER :: NMAX = 512            ! MAXIMUM NUMBER OF FITTING PARAMETERS
       INTEGER, PARAMETER :: MOLMAX = 20           ! MAXIMUM NUMBER OF RETRIEVAL GASES
       INTEGER, PARAMETER :: LAYMAX = 100          ! MAXIMUM NUMBER OF ATMOSPHERIC LAYERS
       INTEGER, PARAMETER :: MAXSPE = 40           ! MAXIMUM NUMBER OF SPECTRA (SCANS)
-      INTEGER, PARAMETER :: MAXGAS = 99          ! MAXIMUM NUMBER OF GASES IN BANDPASS
-      INTEGER, PARAMETER :: LNMAX = 8*131072      ! MAXIMUM NUMBER OF LINES
-      INTEGER, PARAMETER :: MAXPRF = 10            ! MAXIMUM NUMBER OF PROFILE RETRIEVALS
+      INTEGER, PARAMETER :: MAXGAS = 99           ! MAXIMUM NUMBER OF GASES IN BANDPASS
+      INTEGER, PARAMETER :: LNMAX = 32*131072      ! MAXIMUM NUMBER OF LINES
+      INTEGER, PARAMETER :: MAXPRF = 10           ! MAXIMUM NUMBER OF PROFILE RETRIEVALS
       INTEGER, PARAMETER :: MAXBND = 125          ! MAXIMUM NUMBER OF BANDPASSES
 !      INTEGER MAXCROSS                           ! MAXIMUM NUMBER OF MONOCHROMATIC
 !                                                 !  POINTS/BANDPASS (NOW SET AT RUNTIME)
@@ -85,8 +84,12 @@
       REAL(DOUBLE), PARAMETER :: c_planck = 6.58211928D-34! Planck's constant
 
 
+! ********************************************************************
+!      parameters used ind h2o_continuum
+! ********************************************************************
 
-
+      integer, parameter :: N_ABSRB=100000, IPTS=100000, IPTS2=100000
+      real(double) , parameter  :: RADCN2 = 1.4387752 ! value from NIST.
 
 !  ********************************************************************
 !   CMPEPSILON is the epsilon used in floating point comparisons

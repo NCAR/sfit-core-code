@@ -2,7 +2,7 @@ file.in.stalayers = station.layers
 file.in.refprofile = reference.prf 
 file.in.spectrum = spectrum 
 file.in.isotope = isotope.input 
-file.in.solarlines = ../../linelist/solar/120621/solar.dat 
+file.in.solarlines = solar.dat 
 file.in.linelist = 04034.641422-04114.258578.hbin
 file.out.pbpfile = pbpfile 
 file.out.statevec = statevec 
@@ -26,7 +26,15 @@ gas.profile.list = HF
 gas.profile.HF.correlation = F 
 gas.profile.HF.logstate = F 
 gas.profile.HF.scale = 1.0d0 
-gas.profile.HF.sigma = 1.000000    1.000000    1.000000    1.000000    1.000000    1.000000 1.000000    1.000000    1.000000    1.000000    1.000000    1.000000 1.000000    1.000000    1.000000    1.000000    1.000000    1.000000 1.000000    1.000000    1.000000    1.000000    1.000000    1.000000 1.000000    1.000000    1.000000    1.000000    1.000000    1.000000 1.000000    1.000000    1.000000    1.000000    1.000000    1.000000 1.000000    1.000000    1.000000    1.000000    1.000000    1.000000 1.000000    1.000000    1.000000    1.000000    1.000000 
+gas.profile.HF.sigma =
+1.000000 1.000000 1.000000 1.000000 1.000000 1.000000 1.000000
+1.000000 1.000000 1.000000 1.000000 1.000000 1.000000 1.000000
+1.000000 1.000000 1.000000 1.000000 1.000000 1.000000 1.000000
+1.000000 1.000000 1.000000 1.000000 1.000000 1.000000 1.000000
+1.000000 1.000000 1.000000 1.000000 1.000000 1.000000 1.000000
+1.000000 1.000000 1.000000 1.000000 1.000000 1.000000 1.000000
+1.000000 1.000000 1.000000 1.000000 1.000000
+
 gas.column.list = H2O CH4 HDO 
 gas.column.H2O.scale = 0.2d0 
 gas.column.H2O.sigma = 0.1d0 
@@ -34,6 +42,7 @@ gas.column.HDO.scale = 0.2d0
 gas.column.HDO.sigma = 0.01d0 
 gas.column.CH4.scale = 1.0d0 
 gas.column.CH4.sigma = 0.1d0 
+
 fw.isotope_separation = T 
 fw.delnu = 0.100 
 fw.lshapemodel = 0
@@ -44,7 +53,8 @@ fw.pressure_shift = T
 fw.apod_fcn = F 
 fw.phase_fcn = F 
 fw.emission = F 
-rt = F
+
+rt = T 
 rt.lm = F 
 rt.convergence = 0.1 
 rt.max_iteration = 30 
@@ -75,6 +85,7 @@ rt.solstrnth = F
 rt.solstrnth.apriori = 0.000 
 rt.solstrnth.sigma = 0.500 
 rt.temperature = F 
+
 kb = T
 kb.temperature = T 
 kb.slope = T 
@@ -88,12 +99,12 @@ kb.phase_fcn = F
 kb.zshift = T 
 kb.sza = T 
 kb.omega = T 
-kb.max_opd = T 
 kb.line = T 
 kb.line.type = 1 
 kb.line.gas = HF
 kb.profile = T
 kb.profile.gas = H2O 
+
 band = 1 2 
 band.1.nu_start = 4038.7 
 band.1.nu_stop = 4039.2 
@@ -117,6 +128,7 @@ band.2.apodization_code = 0
 band.2.beam = 0 
 band.2.gasb = HF H2O HDO CH4 
 band.2.tempretb = F 
+
 out.level = 1 
 out.gas_spectra = T 
 out.gas_spectra.type = 1 

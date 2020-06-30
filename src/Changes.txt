@@ -1,3 +1,48 @@
+June 2020
+
+official release of stable version 1.0
+
+write out of AB fixed (request of Dan Smale)
+division by zero bug in raytrace resolved
+
+sfit4 prints out the version string if any command line argument is given (will become more specific, only use -v or --version) (requested by Bavo Langerock)
+
+November 2019
+
+changes in sfit4.ctl since v0.9.4.4
+removed keys:
+kb.dwshift
+kb.max_opd
+
+prints out the version when sfit4 -v (or --version)
+
+The internal spectrscopy for some gases have changed. This is important for
+retrieval of PAN and should not affect the other gases.
+
+introduced sfit4_testbed
+
+The file file.in.phase_fcn contains a value for the 0-th order of the
+phase function when the phase function is modelled by a polynomial.  See sfit4_eapod_ephs.tex
+
+The file must contain 1 more value than the fw.phase_fcn.order.
+
+Feb 2018
+
+Add switch fw.tips = T or F, Use the official TIPS routine to calculate the
+internal partition function, instead of an approximation. This can be very time consuming and has only little effect.
+
+IFOFF = 6 : Internally create the -P L1 matrix and scale by layer thickness and L1LAMBDA
+Set L1LAMBDA to use this functionality of program will stop
+Implemented by gas. L1 is multiplied by L1LAMBDA.
+
+
+
+
+Use the Nov 2019 linelist with V1.0!
+Must use the tagged hbin.ctl file as input to hbin.
+
+
+
 June 2014
 JWH
 - spec.f90: Fix bug where interpolation factor was being misinterpreted to change the
@@ -17,7 +62,7 @@ December 2013 Mathias Palm
 - changed the match of extra parameters (line mixing, beta for
   Galatry, SDV parameters for CO as given in HITRAN 2012) from
   wavenumber to quantum numbers in hbin.f90.
-  The Line mixing parameter file creatre by Frank Hase has been
+  The Line mixing parameter file created by Frank Hase has been
   modified accordingly.
 - kb matrices are calculated even if empirical apodisation and phase
   are not included into the forward model. Both functions are taken as

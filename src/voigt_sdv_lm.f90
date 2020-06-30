@@ -56,7 +56,8 @@
     PRIVATE
 
     real(double) :: fac_dx, a1,a2,a3,a4,a5,a6,a7,a8,a9,a10,a11,a12,adop
-    real(double) :: dnu,doppler, ds2,g2,eta0,eta2,rtln2,rtpinv, z1,y_keep
+    real(double) :: ds2,g2,eta2,rtln2,rtpinv, z1,y_keep
+    !real(double) :: dnu,doppler,eta0
     real(double) :: mixval, sqrtdelta, alphadelta,pshift, normalize
 
     PUBLIC :: sdv_misc, sdvmix, voigtmix
@@ -116,18 +117,18 @@
          a3 = eta2/a1
          a4 = a2*a2-a3*a3
          a5 = 2.d0*a2*a3
-         
+
          xy = 0.5d0/adop
          xy2 = xy*xy
-         
+
          a8 = xy2*a4
          a9 = xy2*a5
-         
+
          a6 = a2*lorwidth - 1.5d0 + a8 + eta0*a3
          a7 = lorwidth*a3 - eta0*a2 + a9
-         
+
          xz = -a3
-         
+
          z1 = 0.195d0*dabs(xz)-0.176d0
 
 
@@ -138,11 +139,11 @@
          else
             z1 = a9/dabs(a9)
          endif
-         
+
          a10 = dsqrt(a8*a8+a9*a9)
          a11 = dsqrt(a10+a8)*ds2
          a12 = z1*dsqrt(a10-a8)*ds2
-         
+
          fac_dx = a1
       end if
       y_keep = lorwidth * adop

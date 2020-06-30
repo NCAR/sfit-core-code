@@ -40,6 +40,7 @@
       LOGICAL                         :: F_WSHIFT             ! RETRIEVAL OF WAVENUMBER SHIFT
       LOGICAL                         :: F_BACKG              ! RETRIEVAL OF BACKGROUND SLOPE OR CURVE
       LOGICAL, DIMENSION(MAXBND)      :: F_ZSHIFT
+      LOGICAL                         :: F_CONTABS = .FALSE. ! RETRIEVE CONTINUUM
       INTEGER, DIMENSION(MAXBND)      :: IZERO
       REAL(DOUBLE), DIMENSION(MAXBND,MAXSPE) :: ZSHIFT ! ZERO SHIFTS BY BAND AND SCAN
       REAL(DOUBLE), DIMENSION(MAXBND) :: SZERO  !
@@ -111,9 +112,51 @@
       REAL(DOUBLE),  DIMENSION(2)     :: CPRES
       REAL(DOUBLE),  DIMENSION(2)     :: CVMR
       REAL(DOUBLE),  DIMENSION(2)     :: CPATH
+      REAL(DOUBLE), DIMENSION(MOLMAX) :: L1LAMBDA = -1.0D0     ! Regularisation strength
+                                                               ! for L1 (TP) method
+
+      LOGICAL :: F_MEAS_TRANSMIS
+      INTEGER :: NUM_FILTER
+      REAL (DOUBLE), ALLOCATABLE :: FILTERTRANS (:,:)
 
 
-      CONTAINS
+    CONTAINS
+
+      real(double) function FTRANS(WNUM)
+        ! INTERPOLATES THE CURVE IN FILTERTRANS TO THE WAVENUMBER WNUM
+
+        implicit none
+
+        integer :: nr, ind_min, ind_max
+        real(double) :: wnum
+        logical :: flag
+
+        flag = .false.
+        do nr = 1,num_filter
+           if (filtertrans(1,nr).le.wnum &
+                .and.filtertrans(1,nr+1).gt.wnum) then
+              ind_min = nr
+              ind_max = nr+1
+              flag = .true.
+              exit
+           end if
+        end do
+
+        if (.not.flag) then
+           WRITE(16,*) "FILTER MEASUREMENT DOES NOT COVER MEASUREMENT, SET TO 1.0"
+           WRITE(0,*) "FILTER MEASUREMENT DOES NOT COVER MEASUREMENT, SET TO 1.0"
+           ftrans = 1.0d0
+           return
+        end if
+
+
+        ftrans = ((wnum - filtertrans(1,ind_min)) * filtertrans(2,ind_max) &
+             + ((filtertrans(1,ind_max) - wnum) * filtertrans(2,ind_min))) &
+             / (filtertrans(1,ind_max) - filtertrans(1,ind_min))
+
+        return
+      end function FTRANS
+
 
       SUBROUTINE RELEASE_MEM_RTP
 
@@ -128,6 +171,7 @@
       IF( ALLOCATED( SNR_CLC ))DEALLOCATE( SNR_CLC )
       IF( ALLOCATED( CCC ))DEALLOCATE( CCC )
       IF( ALLOCATED( CORG ))DEALLOCATE( CORG )
+      IF( ALLOCATED( FILTERTRANS ))DEALLOCATE( FILTERTRANS )
 
       END SUBROUTINE RELEASE_MEM_RTP
 

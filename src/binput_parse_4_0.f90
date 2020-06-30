@@ -32,12 +32,14 @@ module binput_parse_4_0
   use writeout
   use continuum
   use hitran
+  use tips
+
 
   implicit none;
   save
 
   character (len=255), dimension(5) :: keyword
-  character (len=2048) :: value
+  character (len=4096) :: value
   character (len=7), dimension(10) :: gas_prf, gas_col
   logical, dimension(10) :: gas_detail=.false.
   logical :: f_gasprf=.false., f_gascol=.false.
@@ -73,6 +75,10 @@ contains
              tfile(10) = trim(adjustl(value))
           case ('refprofile')
              tfile(72) = trim(adjustl(value))
+          case ('transmission')
+             tfile(96) = trim(adjustl(value))
+          case ('sbdflt')
+             ! not used in SFIT
           case default
              WRITE(16,*) 'BINPUT_PARSE_4_0:READ_FILE_SECTION: Key ', &
                   trim(keyword(3)), ' not contained in section file.in'
@@ -213,9 +219,10 @@ end subroutine read_file_section
        end if
 
        select case (trim(adjustl(keyword(4))))
-       case ('correlation')
+        case ('correlation')
           if (len_trim(keyword(5)).eq.0) then
              read(value,*) correlate(nr)
+!print*, nr, correlate(nr)
           else
              select case (trim(adjustl(keyword(5))))
              case ('type')
@@ -226,6 +233,8 @@ end subroutine read_file_section
                 read(value,*) zgmin(nr)
              case ('maxalt')
                 read(value,*) zgmax(nr)
+             case ('lambda')
+                read(value,*) l1lambda(nr)
              case default
                 WRITE(16,*) 'BINPUT_PARSE_4_0:READ_GAS_SECTION: Key ', trim(keyword(5)), &
                             ' not contained in section gas...correlation'
@@ -318,12 +327,27 @@ end subroutine read_file_section
     integer pos
 
     select case (trim(adjustl(keyword(2))))
+    case( 'tips')
+       if (len_trim(keyword(3)).eq.0) then
+          read(value, *) use_tips
+       endif
     case ('isotope_separation')
        read(value,*) useiso
     case ('delnu')
        read(value,*) delnu
     case('lshapemodel')
-       read(value,*) lshapemodel
+       if (len_trim(keyword(3)).eq.0) then
+          read(value,*) lshapemodel
+       else
+          select case (trim(adjustl(keyword(3))))
+          case('sdv')
+             read(value,*) lsm_sdv
+          case default
+             write(*,*) 'BINPUT_PARSE_4_0:READ_FW_SECTION: Parameter ', trim(keyword(3)), 'not defined for fm.lshapemodel'
+             write(16,*) 'BINPUT_PARSE_4_0:READ_FW_SECTION: Parameter ', trim(keyword(3)), 'not defined for fm.lshapemodel'
+             stop
+          end select
+       end if
     case('linemixing')
        if (len_trim(keyword(3)).eq.0) then
           read(value, *) use_lm
@@ -415,6 +439,36 @@ end subroutine read_file_section
        end if
     case ('raytonly')
        read(value,*) raytonly
+    case ('filter_transmission')
+       read(value,*) f_meas_transmis
+    case ('continuum')
+       if (len_trim(keyword(3)).eq.0) then
+          read(value,*) f_continuum
+       else
+          select case (trim(adjustl(keyword(3))))
+          case ('type')
+             read(value,*) abscont_type
+          case ('order')
+             read(value,*) abscont_order
+          case ('strength')
+             ! be default, all coefficients get the same strength = apriori and
+             ! sigma, this may change later on it definitely should be
+             ! changed when calculating the KB-matrix the meaning of
+             ! abscont_param changes depending on the type of the
+             ! continuum.  type 0-2 polynomial type 3 an absorbing
+             ! layer at altitude z_cloud with an absorption strength
+             ! of abscont_param(1) which is retrieved.
+             read(value,*) abscont_param(1)
+             abscont_param(:) = abscont_param(1)
+          case('z')
+             read(value,*) cont_z_abs
+          case default
+             WRITE(16,*) 'BINPUT_PARSE_4_0:READ_FW_SECTION: Key ', trim(keyword(3)), ' not contained in section fw.continuum'
+             WRITE( 0,*) 'BINPUT_PARSE_4_0:READ_FW_SECTION: Key ', trim(keyword(3)), ' not contained in section fw.continuum'
+             CALL SHUTDOWN
+             STOP 1
+          end select
+       end if
     case default
        WRITE(16,*) 'BINPUT_PARSE_4_0:READ_FW_SECTION: Key ', trim(keyword(2)), ' not contained in section : fw'
        WRITE( 0,*) 'BINPUT_PARSE_4_0:READ_FW_SECTION: Key ', trim(keyword(2)), ' not contained in section : fw'
@@ -509,7 +563,7 @@ end subroutine read_file_section
     character (len=*), intent(in) :: value
 
     character (len=255) :: tmpstr
-    integer :: nr
+    !integer :: nr
     logical :: tflag
 
     if (len_trim(keyword(2)).eq.0) then
@@ -518,30 +572,13 @@ end subroutine read_file_section
     end if
 
     select case (trim(adjustl(keyword(2))))
-    case ('continuum')
-       if (len_trim(keyword(3)).eq.0) then
-          read(value,*) f_contabs
-       else
-          select case (trim(adjustl(keyword(3))))
-          case ('order')
-             read(value,*) abscont_order
-          case ('apriori')
-             ! be default, all coefficients get the same apriori and sigma, this may change later on
-             ! it definitely should be changed when calculating the KB-matrix
-             read(value,*) abscont_param(1)
-             abscont_param(:) = abscont_param(1)
-          case ('sigma')
-             read(value,*) abscont_sparam(1)
-             abscont_sparam(:) = abscont_sparam(1)
-          end select
-       endif
     case ('temperature')
        if (len_trim(keyword(3)).eq.0) then
           read(value,*) iftemp
        else
           select case (trim(adjustl(keyword(3))))
           case ('sigma')
-             read(value,*) tsigma(1:nlayers+ncell)
+             if (iftemp) read(value,*) tsigma(1:nlayers+ncell)
           end select
        end if
     case ('lm')
@@ -680,6 +717,15 @@ end subroutine read_file_section
        read(value, *) ifcalcse
     case ('dwshift')
        read(value, *) ifdiff
+    case ('continuum')
+       if (len_trim(keyword(3)).eq.0) then
+          read(value,*) f_contabs
+       else
+          select case (trim(adjustl(keyword(3))))
+          case ('sigma')
+             read(value,*) abscont_sparam(1)
+          end select
+       end if
     case default
        WRITE(16,*) 'BINPUT_PARSE_4_0:READ_RT_SECTION: Key ', trim(keyword(3)), ' not contained in section : rt'
        WRITE( 0,*) 'BINPUT_PARSE_4_0:READ_RT_SECTION: Key ', trim(keyword(3)), ' not contained in section : rt'
@@ -825,7 +871,7 @@ end subroutine read_file_section
        read(value,*) scnsnr(1,nr_band,1)
        scnsnr(1,nr_band,2:maxspe) = scnsnr(1,nr_band,1)
     case ('gasb')
-       val = value
+       val = trim(value)
        pos = index(adjustl(trim(val)),' ')
        if (pos.eq.0) write(*,*) 'No gas given in band ', nr_band, '?'
        nretb(nr_band) = 0
@@ -1008,8 +1054,6 @@ end subroutine read_file_section
           read(value,*)  F_WRTSUMRY
        case ('pbpfile')
           read(value,*)  F_WRTPBP
-!       case ('pbpfile_kb')
-!          read(value,*)  F_WRTPBP_KB
        case ('channel')
           read(value,*)  F_WRTCHANNEL
        case ('parm_vectors')
@@ -1057,31 +1101,32 @@ end subroutine read_file_section
        character (len=*), dimension(*),intent(in) :: keyword
        character (len=*), intent(in) :: value
        integer :: nr_files
-       
+
        select case (trim(adjustl(keyword(2))))
        case ('nr')
           read(value, *) nhit_files
        case ('files')
           call read_string_list(value, hitran_files, nr_files)
           if (nr_files.ne.nhit_files) then
-             print *, 'Wrong number of hitran files entries'
-             print *, nr_files, nhit_files
+             write(6,100) 'Expected and found number of hitran files do not match : ', nhit_files, nr_files
           end if
        case default
           WRITE( 0,*) 'BINPUT_PARSE_4_0:READ_HBIN_HITRAN_SECTION: Key ', trim(keyword(2)), ' not contained in section : HITRAN'
        end select
 
+ 100  format(a70, 2i6)
+
      end subroutine read_hbin_hitran_section
 
-     subroutine read_hbin_aux_section(keyword, value)     
+     subroutine read_hbin_aux_section(keyword, value)
        implicit none
        character (len=*), dimension(*),intent(in) :: keyword
        character (len=*), intent(in) :: value
 
        integer :: nr_aux, nr_files
        character (len=10), dimension(4) :: aux_param
-       
-       if (len_trim(keyword(2)).eq.0) then       
+
+       if (len_trim(keyword(2)).eq.0) then
           call read_string_list(value, aux_param, nr_aux)
           return
        end if
@@ -1093,8 +1138,7 @@ end subroutine read_file_section
           case ('files')
              call read_string_list(value, gal_files, nr_files)
           if (nr_files.ne.ngal_files) then
-             print *, 'Wrong number of galatry files entries'
-             print *, nr_files, ngal_files
+             write(6,100) 'Expected and found number of galatry files do not match : ', ngal_files, nr_files
           end if
           case default
              WRITE( 0,*) 'BINPUT_PARSE_4_0:READ_AUX_HITRAN_SECTION: Key ', trim(keyword(3)), ' not contained in section : AUX.GAL'
@@ -1106,9 +1150,8 @@ end subroutine read_file_section
           case ('files')
              call read_string_list(value, lm_files, nr_files)
              if (nr_files.ne.nlm_files) then
-                print *, 'Wrong number of line mixing files entries'
-                print *, nr_files, nlm_files
-             end if
+             write(6,100) 'Expected and found number of line mixing files do not match : ', nlm_files, nr_files
+          end if
           case default
              WRITE( 0,*) 'BINPUT_PARSE_4_0:READ_AUX_HITRAN_SECTION: Key ', trim(keyword(3)), ' not contained in section : AUX.LM'
           end select
@@ -1119,9 +1162,8 @@ end subroutine read_file_section
           case ('files')
              call read_string_list(value, sdv_files, nr_files)
              if (nr_files.ne.nsdv_files) then
-                print *, 'Wrong number of line mixing files entries'
-                print *, nr_files, nsdv_files
-             end if
+             write(6,100) 'Expected and found number of SDV files do not match : ', nsdv_files, nr_files
+          end if
           case default
              WRITE( 0,*) 'BINPUT_PARSE_4_0:READ_AUX_HITRAN_SECTION: Key ', trim(keyword(3)), ' not contained in section : AUX.SDV'
           end select
@@ -1129,9 +1171,11 @@ end subroutine read_file_section
           WRITE( 0,*) 'BINPUT_PARSE_4_0:READ_AUX_HITRAN_SECTION: Key ', trim(keyword(3)), ' not contained in section : AUX'
        end select
 
+ 100  format(a70, 2i6)
+
      end subroutine read_hbin_aux_section
 
-     subroutine read_hbin_file_section(keyword, value)     
+     subroutine read_hbin_file_section(keyword, value)
        character (len=*), dimension(*),intent(in) :: keyword
        character (len=*), intent(in) :: value
 
@@ -1159,24 +1203,25 @@ end subroutine read_file_section
        character (len=*), intent(in) :: value
        character (len=*), dimension(*), intent(out) :: vallist
        integer, intent(out) :: nr_val
-
        integer :: pos
-
-       character (len=2048) :: val
+       character (len=4096) :: val
 
        val = value
-       
+
        nr_val = 0
        pos = index(adjustl(val),' ')
-       !       write(*,*) val, pos
+       !write(*,*) val, 'pos ', pos
+
        if (pos.eq.0) return
        do
           if (len_trim(val).eq.0) exit
           nr_val = nr_val + 1
           if (pos.gt.0) then
              vallist(nr_val) = trim(adjustl(val(1:pos)))
+             !print*, 1, trim(vallist(nr_val))
           else
              vallist(nr_val) = trim(adjustl(val(1:len_trim(val))))
+             !print*, 2, trim(vallist(nr_val))
              exit
           end if
           val = adjustl(val(pos+1:len(val)))
@@ -1184,7 +1229,7 @@ end subroutine read_file_section
        end do
 
        return
-       
+
      end subroutine read_string_list
 
    end module binput_parse_4_0

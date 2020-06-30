@@ -61,7 +61,7 @@
          CALL FILEOPEN( 93, 2 )
          WRITE(93,'(A,A)' )TRIM(TAG), ' GAIN MATRIX FOR FULL STATEVECTOR: '
          WRITE(93,*) N, M, ISMIX, NLEV
-         WRITE(93,10) ADJUSTR(PNAME(:N))
+         WRITE(93,10) (trim(ADJUSTL(PNAME(i))),i=1,N)
          DO I=1,N
             WRITE(93,TRIM(CFORMAT)) ( G(I,J), J=1, M )
          ENDDO

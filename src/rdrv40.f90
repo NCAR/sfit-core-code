@@ -29,6 +29,14 @@
       CHARACTER (LEN=8)    :: CDATE='        '
       REAL(8)              :: START_TIME=0.0, END_TIME=0.0
 
+      integer :: count
+      COUNT = COMMAND_ARGUMENT_COUNT()
+      IF( COUNT .NE. 0 ) THEN 
+         PRINT *, TRIM(VERSION)
+         STOP 0
+      END IF
+
+
       CALL FILESETUP
 
 ! --- DETAIL FILE

@@ -1,5 +1,8 @@
 # To remove all the objects but leave the executables use the
-# command line 	make -f makefile clean
+# %make -f makefile clean
+
+# To remove everything
+# %make cleaner
 
 # Note: object channel.o is added by WUJIAN PENG in July, 2002
 #       object planck.o added by M. Palm in 2008
@@ -8,23 +11,11 @@
 
 .SUFFIXES: .f .f90 .o .mod .F
 
-# Fixed source, if any:
-#.f.o:
-#	$(FC) -c $(FFLAGS) $<
-#
-#.F.o:
-#	$(FC) -c $(FFLAGS) $<
-
-#.f90.mod:
-#	$(FC) -c $(FFLAGS) $<
-
 # Free form source:
 .f90.o:
 	$(FC) -c $(FFLAGS) $<
 
-#%.mod %.o: %,f90
-#	$(FC) -c $(FFLAGS) $<
-
+#FC = gfortran-8
 FC = gfortran
 
 # error check everything
@@ -34,16 +25,21 @@ FFLAGS = -Warray-bounds -Wcharacter-truncation -Wunused-parameter \
          -fcheck=all -fimplicit-none -fwhole-file -fall-intrinsics -fno-automatic \
          -fstack-arrays -frepack-arrays \
          -std=gnu -pedantic \
+         -freal-4-real-8
          -ffpe-trap=invalid,zero,overflow,underflow -g -fbacktrace -fsanitize=address
 
 # -Warray-temporaries too many...
 
 #error check a lot
 FFLAGS = -Wall -fno-automatic -fcheck=all -ffpe-trap=invalid,zero,overflow,underflow -Warray-bounds \
-         -fbounds-check -fbacktrace -g -ffree-line-length-none #-mcmodel=medium
+         -fbounds-check -fbacktrace -g -ffree-line-length-none
 
 # optimize -Ofast v4.8
-#FFLAGS = -Wall -fno-automatic -frepack-arrays  -ffree-line-length-none
+#FFLAGS = -Ofast -Wall -fno-automatic -frepack-arrays  -ffree-line-length-none
+#FFLAGS = -g -Wall -fno-automatic -frepack-arrays  -ffree-line-length-none # -Wno-unused-function -Wno-unused-variable -Wno-conversion
+#FFLAGS = -Ofast -Wall -fno-automatic -frepack-arrays  -ffree-line-length-none -mcmodel=small
+FFLAGS = -g -Wall -fno-automatic -frepack-arrays  -ffree-line-length-none 
+
 
 # supply compile date:
 # -cpp -DBDATE="\"`date +%Y%m%d`"\" -O2 -fno-automatic
@@ -51,7 +47,6 @@ FFLAGS = -Wall -fno-automatic -fcheck=all -ffpe-trap=invalid,zero,overflow,under
 # intel
 #FC = ifort
 #FFLAGS = -fpe-all=0  -O0 -debug full
-
 #FFLAGS = -debug full
 
 
@@ -59,12 +54,11 @@ FFLAGS = -Wall -fno-automatic -fcheck=all -ffpe-trap=invalid,zero,overflow,under
 #FC = pgf90
 #FFLAGS = ${PGBUG} ${PGTRAP}
 #FFLAGS = -traceback -g -Kieee  ${PGTRAP} ${PGBUG}
+#PGTRAP = -Ktrap=divz -Ktrap=align -Ktrap=denorm  -Ktrap=inv -Ktrap=ovf -Ktrap=unf
+#PGBUG = -Mbounds -Mchkfpstk -Mchkptr -Mchkstk -Mpgicoff
+#PGOPT = -fast
 
-PGTRAP = -Ktrap=divz -Ktrap=align -Ktrap=denorm  -Ktrap=inv -Ktrap=ovf -Ktrap=unf
-PGBUG = -Mbounds -Mchkfpstk -Mchkptr -Mchkstk -Mpgicoff
-PGOPT = -fast
-
-# use intermnal matrix inversion (not lapack)
+# use internal matrix inversion (not lapack)
 # no eigenvector output
 # mac:
 #VLIB = -Wl,-framework -Wl,vecLib
@@ -89,6 +83,7 @@ hitran.o \
 initialize.o \
 isotope.o \
 lineparam.o \
+lineshape_pcqsdhc.o\
 matrix.o \
 molcparam.o \
 opt.o \
@@ -99,7 +94,7 @@ readin.o \
 sfit4.o \
 solar.o \
 synspec.o \
-tips.o \
+tips_2017.o \
 transmis.o \
 vibfcn.o \
 voigt.o \
@@ -114,6 +109,8 @@ gen_lineshape.o
 
 all : sfit4 hbin pspec # convert_rdrv_394
 
+
+
 sfit4: $(OBJS) rdrv40.o
 	$(FC) -o $@ $^ $(FFLAGS) $(LIBS) $(VLIB)
 
@@ -126,7 +123,6 @@ hbin: hbin.o hitran.o $(OBJS)
 pspec: pspec.o spec.o fitting.o  $(OBJS)
 	$(FC) -o $@ $^ $(FFLAGS) $(LIBS) $(VLIB)
 
-#params.o binput_4_0.o binput_parse_4_0.o datafiles.o bandparam.o
 
 clean:
 	\rm -f *.o *.mod *.lst
@@ -165,6 +161,11 @@ convert_old_data_files.o \
 convert_rdrv_394.o \
 : datafiles.o params.o binput_4_0.o convert_old_data_files.o
 
+
+continuum.o\
+: params.o xsections.o retvparam.o
+
+
 datafiles.o \
 : params.o
 
@@ -172,7 +173,8 @@ diagnostic.o \
 : opt.o retvparam.o
 
 frwdmdl.o \
-: params.o transmis.o datafiles.o molcparam.o solar.o synspec.o channel.o bandparam.o retvparam.o writeout.o initialize.o continuum.o
+: params.o transmis.o datafiles.o molcparam.o solar.o synspec.o channel.o bandparam.o retvparam.o \
+	writeout.o initialize.o continuum.o
 
 galatry.o \
 : params.o
@@ -230,7 +232,7 @@ solar.o \
 synspec.o \
 : params.o transmis.o solar.o bandparam.o
 
-tips.o \
+tips_2017.o \
 : params.o
 
 transmis.o \
@@ -250,4 +252,4 @@ writeout.o \
 : params.o datafiles.o retvparam.o molcparam.o isotope.o bandparam.o
 
 xsections.o \
-: params.o retvparam.o vibfcn.o tips.o isotope.o lineparam.o bandparam.o molcparam.o voigt_sdv_lm.o gen_lineshape.o
+: params.o retvparam.o vibfcn.o tips_2017.o isotope.o lineparam.o bandparam.o molcparam.o voigt_sdv_lm.o lineshape_pcqsdhc.o

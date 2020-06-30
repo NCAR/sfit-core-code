@@ -18,6 +18,22 @@
 
       MODULE molcparam
 
+! May 2020 - JWH
+!  - Completed inclusion of N2SCIA #52
+
+! November 2018 - JWH
+! update for HITRAN 2016
+!  - CO2 has 12 isotopes
+!  - H2O has 7
+!  - other species as well, also checked mass values against HITRAN values, round to nearest AMU
+
+! December 2017 - EM@ULIEGE
+! add CHF3/HFC-23 - Based on GCT information (available on mark4sun)
+! Modification of the rotation partition function exponent from 1.5 to 2.0 for F141B
+
+!id      name        mass           nmode    symbol      # lines     result
+!70      HFC-23      70.01          9        CHF3        28000
+
 ! June 2013
 ! add isotopes to N2O # 6 7 8 / from Toth via ggg linelist
 
@@ -67,7 +83,7 @@
 
       IMPLICIT NONE
 
-      INTEGER, PARAMETER                      :: NI=9
+      INTEGER, PARAMETER                      :: NI=12   ! MAX NUMBER OF ISOTOPES
       REAL(DOUBLE), DIMENSION(MOLTOTAL)       :: TDEP    ! DEFAULT COEFFICIENT TEMP.
                                                          ! DEP. AIR H-W
       REAL(DOUBLE), DIMENSION(NI,MOLTOTAL)    :: XMASS   ! MOLECULAR MASS FOR ALL ISOTOPES
@@ -116,10 +132,10 @@
         'COF2',    'COCLF',   'C2H6',   'C2H4',    'C2H2',    & ! 40
         'N2',      'CHF2CL',  'COCL2',  'CH3BR',   'CH3I',    &
         'HCOOH',   'H2S',     'CHCL2F', 'O2CIA',   'SF6',     & ! 50
-        'NF3',     'OTHER',   'OTHER',  'OTHER',   'OTHER',   &
+        'NF3',     'N2CIA',   'OTHER',  'OTHER',   'OTHER',   &
         'OTHER',   'OTHER',   'OCLO',   'F134A',   'C3H8',    & ! 60
-        'F142B',   'CFC113',  'F141B',  'CH3OH',   'CH3CNPL', &
-        'C2H6PL',  'PAN',     'CH3CHO ','CH3CN',   'OTHER',   & ! 70
+        'F142B',   'CFC113',  'F141B',  'CH3OH',   'OTHER',   &
+        'OTHER',   'PAN',     'CH3CHO ','CH3CN',   'CHF3',    & ! 70
         'CH3COOH', 'C5H8',    'MVK',    'MACR',    'C3H6',    &
         'C4H8',    'OTHER',   'OTHER',  'OTHER',   'OTHER',   & ! 80
         'OTHER',   'OTHER',   'OTHER',  'OTHER',   'OTHER',   &
@@ -138,10 +154,10 @@
             1.5,       1.5,       1.9,       1.5,       1.0, & ! 40
             1.0,       1.5,       1.5,       1.5,       1.5, &
             1.5,       1.5,       1.5,       1.0,       1.5, & ! 50
-            1.5,       0.0,       0.0,       0.0,       0.0, &
+            1.5,       1.0,       0.0,       0.0,       0.0, &
             0.0,       0.0,       1.5,       1.5,       1.5, & ! 60
-            2.0,       2.0,       1.5,       1.5,       1.5, &
-            1.9,       1.5,       1.5,       1.5,       0.0, & ! 70
+            2.0,       2.0,       2.0,       1.5,       0.0, & ! 2.0 i.o. 1.5 for F141B
+            0.0,       1.5,       1.5,       1.5,       1.5, & ! 70
             1.5,       1.5,       1.5,       1.5,       1.5, &
             1.5,       0.0,       0.0,       0.0,       0.0, & ! 80
             0.0,       0.0,       0.0,       0.0,       0.0, &
@@ -150,136 +166,137 @@
             0.0,       0.0,       0.0,       0.0             / ! 99
 
       DATA ((XMASS(JISO,IMOLM),JISO=1,NI),IMOLM=1,10)/ &
-       18.D0,  20.D0,  19.D0,  19.D0,  21.D0,  20.D0,  3*0.D0,       & !H2O
-       44.D0,  45.D0,  46.D0,  45.D0,  47.D0,  46.D0,  48.D0,  47.D0, 49.D0, & !CO2
-       48.D0,  50.D0,  50.D0,  49.D0,  49.D0, 4*0.D0,                & !O3
-!       48.D0,  8*0.D0,                                               & !O3
-       44.D0,  45.D0,  45.D0,  46.D0,  45.D0,  46.D0,  47.D0,  47.D0, 0.D0,  & !N2O
-       28.D0,  29.D0,  30.D0,  29.D0,  31.D0,  30.D0, 3*0.D0,        & !CO
-       16.D0,  17.D0,  17.D0,  18.D0,  5*0.D0,                       & !CH4
-       32.D0,  34.D0,  33.D0, 6*0.D0,                                & !O2
-       30.D0,  31.D0,  32.D0, 6*0.D0,                                & !NO
-       64.D0,  66.D0, 7*0.D0,                                        & !SO2
-       46.D0, 8*0.D0/                                                  !NO2
+       18.D0,  20.D0,  19.D0,  19.D0,  21.D0,  20.D0,  20.D0, 5*0.D0, & !H2O
+
+       44.D0,  45.D0,  46.D0,  45.D0,  47.D0,  46.D0,  48.D0, 47.D0, 46.D0, 49.D0, 48.D0, 47.D0, & !CO2
+
+       48.D0,  50.D0,  50.D0,  49.D0,  49.D0, 7*0.D0,                 & !O3
+       44.D0,  45.D0,  45.D0,  46.D0,  45.D0,  46.D0,  47.D0, 47.D0, 4*0.D0,  & !N2O
+       28.D0,  29.D0,  30.D0,  29.D0,  31.D0,  30.D0, 6*0.D0,         & !CO
+       16.D0,  17.D0,  17.D0,  18.D0,  8*0.D0,                        & !CH4
+       32.D0,  34.D0,  33.D0, 9*0.D0,                                 & !O2
+       30.D0,  31.D0,  32.D0, 9*0.D0,                                 & !NO
+       64.D0,  66.D0, 10*0.D0,                                        & !SO2
+       46.D0, 11*0.D0/                                                  !NO2
 
       DATA ((XMASS(JISO,IMOLM),JISO=1,NI),IMOLM=11,20)/ &
-       17.D0,  18.D0, 7*0.D0,                                        & !NH3
-       63.D0, 8*0.D0,                                                & !HNO3
-       17.D0,  19.D0,  18.D0, 6*0.D0,                                & !OH
-       20.D0,  22.D0, 7*0.D0,                                        & !HF
-       36.D0,  38.D0, 38.D0,  40.D0, 5*0.D0,                         & !HCL
-       80.D0,  82.D0, 7*0.D0,                                        & !HBR
-      128.D0, 8*0.D0,                                                & !HI
-       51.D0,  53.D0, 7*0.D0,                                        & !CLO
-       60.D0,  62.D0,  61.D0,  61.D0,  62.D0,  4*0.D0,               & !OCS
-       30.D0,  31.D0,  32.D0, 6*0.D0/                                  !H2CO
+       17.D0,  18.D0, 10*0.D0,                                        & !NH3
+       63.D0,  64.D0, 10*0.D0,                                        & !HNO3
+       17.D0,  19.D0,  18.D0, 9*0.D0,                                 & !OH
+       20.D0,  22.D0, 10*0.D0,                                        & !HF
+       36.D0,  38.D0,  37.D0,  39.D0, 8*0.D0,                         & !HCL
+       80.D0,  82.D0,  81.D0,  83.D0, 8*0.D0,                         & !HBR
+      128.D0, 129.D0, 10*0.D0,                                        & !HI
+       51.D0,  53.D0, 10*0.D0,                                        & !CLO
+       60.D0,  62.D0,  61.D0,  61.D0,  62.D0,  7*0.D0,                & !OCS
+       30.D0,  31.D0,  32.D0, 9*0.D0/                                   !H2CO
 
       DATA ((XMASS(JISO,IMOLM),JISO=1,NI),IMOLM=21,30)/ &
-       52.D0,  54.D0, 7*0.D0,                                        & !HOCL
-       33.D0,  8*0.D0,                                               & !HO2
-       34.D0,  8*0.D0,                                               & !H2O2
-       47.D0,  8*0.D0,                                               & !HONO
-       79.D0,  8*0.D0,                                               & !HO2NO2
-      108.D0,  8*0.D0,                                               & !N2O5      PL
-       97.D0,  99.D0, 7*0.D0,                                        & !CLONO2    PL
-       27.D0,  28.D0,  28.D0, 6*0.D0,                                & !HCN
-       34.D0,  8*0.D0,                                               & !CH3F
-       50.D0,  52.D0, 7*0.D0/                                          !CH3CL
+       52.D0,  54.D0, 10*0.D0,                                        & !HOCL
+       33.D0,  11*0.D0,                                               & !HO2
+       34.D0,  11*0.D0,                                               & !H2O2
+       47.D0,  11*0.D0,                                               & !HONO       no lines
+       79.D0,  11*0.D0,                                               & !HO2NO2     no lines
+      108.D0,  11*0.D0,                                               & !N2O5       PL
+       97.D0,  99.D0, 10*0.D0,                                        & !CLONO2     PL
+       27.D0,  28.D0, 28.D0, 9*0.D0,                                  & !HCN
+       34.D0,  11*0.D0,                                               & !CH3F
+       50.D0,  52.D0, 10*0.D0/                                          !CH3CL
 
       DATA ((XMASS(JISO,IMOLM),JISO=1,NI),IMOLM=31,40)/ &
-       88.D0,  8*0.D0,                                               & !CF4       PL
-      1.21D2,  8*0.D0,                                               & !CCL2F2    PL
-      1.36D2,  8*0.D0,                                               & !CCL3F     PL
-      1.44D2,  8*0.D0,                                               & !CH3CCL3
-      1.52D2,  8*0.D0,                                               & !CCL4      PL
-       66.D0,  8*0.D0,                                               & !COF2
-       82.D0,  8*0.D0,                                               & !COCLF     PL
-       30.D0,  31.D0, 7*0.D0,                                        & !C2H6
-       28.D0,  29.D0, 7*0.D0,                                        & !C2H4
-       26.D0,  27.D0, 7*0.D0/                                          !C2H2
+       88.D0,  11*0.D0,                                               & !CF4        PL
+      1.21D2,  11*0.D0,                                               & !CCL2F2     PL
+      1.36D2,  11*0.D0,                                               & !CCL3F      PL
+      1.44D2,  11*0.D0,                                               & !CH3CCL3    no lines
+      1.52D2,  11*0.D0,                                               & !CCL4       PL
+       66.D0,  67.D0, 10*0.D0,                                        & !COF2
+       82.D0,  11*0.D0,                                               & !COCLF      PL
+       30.D0,  31.D0, 10*0.D0,                                        & !C2H6
+       28.D0,  29.D0, 10*0.D0,                                        & !C2H4
+       26.D0,  27.D0, 27.D0, 9*0.D0/                                    !C2H2
 
       DATA ((XMASS(JISO,IMOLM),JISO=1,NI),IMOLM=41,50)/ &
-       28.D0,  8*0.D0,                                               & !N2
-       86.D0,  8*0.D0,                                               & !CHF2CL
-       98.D0,  8*0.D0,                                               & !COCL2
-       95.D0,  97.0D0, 7*0.D0,                                       & !CH3BR
-      1.40D2,  8*0.D0,                                               & !CH3I
-       46.D0,  8*0.D0,                                               & !HCOOH
-       34.D0,  36.D0, 35.D0, 6*0.D0,                                 & !H2S
-      1.03D2,  8*0.D0,                                               & !CHCL2F
-       32.D0,  32.0D0, 7*0.D0,                                       & !O2CIA     PL
-      1.46D2,  8*0.D0/                                                 !SF6       PL
+       28.D0,  29.D0, 10*0.D0,                                        & !N2
+       86.D0,  11*0.D0,                                               & !CHF2CL     PL
+       98.D0,  100.D0, 102.D0, 9*0.D0,                                & !COCL2      PL & HIT16
+       94.D0,  96.0D0, 10*0.D0,                                       & !CH3BR
+      1.40D2,  11*0.D0,                                               & !CH3I       no lines
+       46.D0,  11*0.D0,                                               & !HCOOH
+       34.D0,  36.D0, 35.D0, 9*0.D0,                                  & !H2S
+      1.03D2,  11*0.D0,                                               & !CHCL2F     no lines
+       32.D0,  32.0D0, 10*0.D0,                                       & !O2CIA      PL
+      1.46D2,  11*0.D0/                                                 !SF6        PL
 
       DATA ((XMASS(JISO,IMOLM),JISO=1,NI),IMOLM=51,60)/ &
-       71.D0,  8*0.D0,                                               & !NF3       PL
-       9*0.D0,                                                       & !OTHER
-       9*0.D0,                                                       & !OTHER
-       9*0.D0,                                                       & !OTHER
-       9*0.D0,                                                       & !OTHER
-       9*0.D0,                                                       & !OTHER
-       9*0.D0,                                                       & !OTHER
-       67.D0,  8*0.D0,                                               & !OCLO
-       83.D0,  8*0.D0,                                               & !F134A
-       44.D0,  8*0.D0/                                                 !C3H8      PL
+       71.D0,  11*0.D0,                                               & !NF3        PL
+       28.D0,  28.D0,  10*0.D0,                                       & !N2CIA      PL
+        0.D0,  11*0.D0,                                               & !OTHER
+        0.D0,  11*0.D0,                                               & !OTHER
+        0.D0,  11*0.D0,                                               & !OTHER
+        0.D0,  11*0.D0,                                               & !OTHER
+        0.D0,  11*0.D0,                                               & !OTHER
+       67.D0,  11*0.D0,                                               & !OCLO       no lines
+       83.D0,  11*0.D0,                                               & !F134A      no lines
+       44.D0,  11*0.D0/                                                 !C3H8       PL
 
       DATA ((XMASS(JISO,IMOLM),JISO=1,NI),IMOLM=61,70)/ &
-      100.D0,  8*0.D0,                                               & !F142B     PL
-      187.D0,  8*0.D0,                                               & !CFC113    PL
-      117.D0,  8*0.D0,                                               & !F141B     PL
-     32.04D0,  8*0.D0,                                               & !CH3OH
-     41.05D0,  8*0.D0,                                               & !CH3CNPL   PL
-       30.D0,  8*0.D0,                                               & !C2H6PL    PL
-      121.D0,  8*0.D0,                                               & !PAN       PL
-       44.D0,  8*0.D0,                                               & !CH3CHO    PL
-     41.05D0,  8*0.D0,                                               & !CH3CN     PL
-        0.D0,  8*0.D0/                                                 !OTHER
+      100.D0,  11*0.D0,                                               & !F142B      PL
+      187.D0,  11*0.D0,                                               & !CFC113     PL
+      117.D0,  11*0.D0,                                               & !F141B      no lines
+       32.D0,  11*0.D0,                                               & !CH3OH
+        0.D0,  11*0.D0,                                               & !OTHER
+        0.D0,  11*0.D0,                                               & !OTHER
+      121.D0,  11*0.D0,                                               & !PAN        PL
+       44.D0,  11*0.D0,                                               & !CH3CHO     PL
+       41.D0,  11*0.D0,                                               & !CH3CN
+       70.D0,  11*0.D0/                                                 !CHF3       no lines
 
       DATA ((XMASS(JISO,IMOLM),JISO=1,NI),IMOLM=71,80)/ &
-       60.D0,  8*0.D0,                                               & !CH3COOH   PL
-       68.D0,  8*0.D0,                                               & !C5H8      PL
-       70.D0,  8*0.D0,                                               & !MVK       PL
-       70.D0,  8*0.D0,                                               & !MACR      PL
-       42.D0,  8*0.D0,                                               & !C3H6      PL
-       56.D0,  8*0.D0,                                               & !C4H8      PL
-        0.D0,  8*0.D0,                                               & !OTHER
-        0.D0,  8*0.D0,                                               & !OTHER
-        0.D0,  8*0.D0,                                               & !OTHER
-        0.D0,  8*0.D0/                                                 !OTHER
+       60.D0,  11*0.D0,                                               & !CH3COOH    PL
+       68.D0,  11*0.D0,                                               & !C5H8       PL
+       70.D0,  11*0.D0,                                               & !MVK        PL
+       70.D0,  11*0.D0,                                               & !MACR       PL
+       42.D0,  11*0.D0,                                               & !C3H6       PL
+       56.D0,  11*0.D0,                                               & !C4H8       PL
+        0.D0,  11*0.D0,                                               & !OTHER
+        0.D0,  11*0.D0,                                               & !OTHER
+        0.D0,  11*0.D0,                                               & !OTHER
+        0.D0,  11*0.D0/                                                 !OTHER
 
       DATA ((XMASS(JISO,IMOLM),JISO=1,NI),IMOLM=81,90)/ &
-        0.D0,  8*0.D0,                                               & !OTHER
-        0.D0,  8*0.D0,                                               & !OTHER
-        0.D0,  8*0.D0,                                               & !OTHER
-        0.D0,  8*0.D0,                                               & !OTHER
-        0.D0,  8*0.D0,                                               & !OTHER
-        0.D0,  8*0.D0,                                               & !OTHER
-        0.D0,  8*0.D0,                                               & !OTHER
-        0.D0,  8*0.D0,                                               & !OTHER
-        0.D0,  8*0.D0,                                               & !OTHER
-        0.D0,  8*0.D0/                                                 !OTHER
+        0.D0,  11*0.D0,                                               & !OTHER
+        0.D0,  11*0.D0,                                               & !OTHER
+        0.D0,  11*0.D0,                                               & !OTHER
+        0.D0,  11*0.D0,                                               & !OTHER
+        0.D0,  11*0.D0,                                               & !OTHER
+        0.D0,  11*0.D0,                                               & !OTHER
+        0.D0,  11*0.D0,                                               & !OTHER
+        0.D0,  11*0.D0,                                               & !OTHER
+        0.D0,  11*0.D0,                                               & !OTHER
+        0.D0,  11*0.D0/                                                 !OTHER
 
       DATA ((XMASS(JISO,IMOLM),JISO=1,NI),IMOLM=91,MOLTOTAL)/ &
-        0.D0,  8*0.D0,                                               & !OTHER
-        0.D0,  8*0.D0,                                               & !OTHER
-        0.D0,  8*0.D0,                                               & !OTHER
-        0.D0,  8*0.D0,                                               & !OTHER
-        0.D0,  8*0.D0,                                               & !OTHER
-        0.D0,  8*0.D0,                                               & !OTHER
-        0.D0,  8*0.D0,                                               & !OTHER
-        0.D0,  8*0.D0,                                               & !OTHER
-        0.D0,  8*0.D0/                                                 !OTHER 99
+        0.D0,  11*0.D0,                                               & !OTHER
+        0.D0,  11*0.D0,                                               & !OTHER
+        0.D0,  11*0.D0,                                               & !OTHER
+        0.D0,  11*0.D0,                                               & !OTHER
+        0.D0,  11*0.D0,                                               & !OTHER
+        0.D0,  11*0.D0,                                               & !OTHER
+        0.D0,  11*0.D0,                                               & !OTHER
+        0.D0,  11*0.D0,                                               & !OTHER
+        0.D0,  11*0.D0/                                                 !OTHER 99
 
 
       DATA NHIISO/ &
-        6,  9,  5,  8,  6,  4,  3,  3,  2,  1,                       & !1-10
-        2,  1,  3,  2,  4,  2,  1,  2,  5,  3,                       & !11-20
-        2,  1,  1,  1,  1,  1,  2,  3,  1,  2,                       & !21-30
-        1,  1,  1,  1,  1,  1,  1,  2,  2,  2,                       & !31-40
-        1,  1,  1,  2,  1,  1,  3,  1,  2,  1,                       & !41-50
-        1,  1,  0,  0,  0,  0,  0,  1,  1,  1,                       & !51-60
-        1,  1,  1,  1,  1,  1,  1,  1,  1,  0,                       & !61-70
-        1,  1,  1,  1,  1,  1,  0,  0,  0,  0,                       & !71-80
-        0,  0,  0,  0,  0,  0,  0,  0,  0,  0,                       & !81-90
-        0,  0,  0,  0,  0,  0,  0,  0,  0/                             !91-99
+        7,  12,  5,  8,  6,  4,  3,  3,  2,  1,                       & !1-10
+        2,  2,   3,  2,  4,  4,  2,  2,  5,  3,                       & !11-20
+        2,  1,   1,  1,  1,  1,  2,  3,  1,  2,                       & !21-30
+        1,  1,   1,  1,  1,  2,  1,  2,  2,  3,                       & !31-40
+        2,  1,   3,  2,  1,  1,  3,  1,  2,  1,                       & !41-50
+        1,  2,   0,  0,  0,  0,  0,  1,  1,  1,                       & !51-60
+        1,  1,   1,  1,  0,  0,  1,  1,  1,  1,                       & !61-70
+        1,  1,   1,  1,  1,  1,  0,  0,  0,  0,                       & !71-80
+        0,  0,   0,  0,  0,  0,  0,  0,  0,  0,                       & !81-90
+        0,  0,   0,  0,  0,  0,  0,  0,  0/                             !91-99
 
       END MODULE MOLCPARAM

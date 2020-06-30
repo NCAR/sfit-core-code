@@ -1,0 +1,15 @@
+Tool to correct matrices which habe lines of more than 10000 numbers. Newer versions of sfit4 adapt the line length dynamically not to contain linebreaks.
+
+to change all matrices in 2015 (e.g. May to September)
+
+copy all g.out to g.out.orig
+
+find 2015* -name 'g.out' -exec cp {} {}.orig ';'
+
+reformat matrices:
+for i in 20150*; do cd $i; ~/sfit-core-code/tools/correct_matrix/correct_matrices; cd ..; done
+
+reformatted matrices are in g.out.new
+
+copy all new matrices to g.out
+find 2015* -name 'g.out' -exec cp {}.new {} ';'

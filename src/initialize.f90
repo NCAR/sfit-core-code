@@ -47,8 +47,8 @@
       REAL(DOUBLE), DIMENSION(MMAX)    :: WWV
       REAL(DOUBLE), DIMENSION(MAXSNR)  :: WWV0, WWV1, GSTNR
 
-      CHARACTER (LEN=14), DIMENSION(NMAX) :: PNAME
-      CHARACTER (LEN=14), DIMENSION(NMAX) :: ORIG_PNAME
+      CHARACTER (LEN=16), DIMENSION(NMAX) :: PNAME
+      CHARACTER (LEN=16), DIMENSION(NMAX) :: ORIG_PNAME
       REAL(DOUBLE), DIMENSION(NMAX)       :: PARM  = 0.0D0
       REAL(DOUBLE), DIMENSION(NMAX)       :: SPARM = 0.0D0
       CHARACTER (LEN=14), DIMENSION(5)    :: CPNAM
@@ -101,6 +101,10 @@
 
       CALL GETSPEC()
 
+      IF (F_MEAS_TRANSMIS) THEN
+         CALL GETFILTERTRANSMISSION()
+      END IF
+
       WRITE(16,105) NATMOS
 
 !  --- COMPUTE INTERVAL FOR MONOCHROMATIC CALCULATIONS FOR EACH BANDPASS
@@ -145,7 +149,7 @@
       NMONSM = DOT_PRODUCT(NM(:NBAND),NSCAN(:NBAND))
 
       NCONT = 0
-      IF (F_CONZABS) NCONT = 1
+      IF (F_CONTINUUM) NCONT = 1
 
       ALLOCATE (CROSS(NRET+1+NCONT,KMAX+NCELL,NCROSS), STAT=NAERR)
       IF (NAERR /= 0) THEN
@@ -289,6 +293,14 @@
          ELSE
             ! ORIGINAL FILE FORMAT
             READ (24, *) JEPHS
+            IF (IEPHS == 2) THEN
+               IF (JEPHS.NE.NEPHS+1) THEN
+                  WRITE(16,*) "FW.PHASE_FCN: THE NUMBER OF ENTRIES IN ", TRIM(TFILE(24)), " MUST BE FW.PHASE_FCN:ORDER + 1"
+                  WRITE(*,*) "FW.PHASE_FCN: THE NUMBER OF ENTRIES IN ", TRIM(TFILE(24)), " MUST BE FW.PHASE_FCN:ORDER + 1"
+                  CALL SHUTDOWN
+                  STOP 1
+               END IF
+            END IF
             READ (24, *) (EPHSF(I),I=1,JEPHS)
             WRITE (16, '(/A)') 'EMPIRICAL PHASE FUNCTION COEFFICIENTS'
             WRITE (16, *) (EPHSF(I),I=1,JEPHS)
@@ -418,6 +430,47 @@
       END SUBROUTINE SETUP3
 
 !-------------------------------------------------------------------------------
+      SUBROUTINE GETFILTERTRANSMISSION()
+        ! READS THE FILTER TRANSMISSION CURVE
+        ! THE FILE IS BASICALLY IN THE SAME FORMAT AS THE SPECTRAL FILE, BUT THE HEADER LINES
+        ! ARE IGNORED. ALSO, ONLY ONE MICROWINDOW IS ALLOWED
+
+        INTEGER            :: I !, MXMAX
+        REAL(DOUBLE)       :: WHI, WLOW, SPACE, R4AMP
+        CHARACTER(LEN = 80):: TITLE
+
+
+        CALL FILEOPEN( 96, 3 )
+        READ(96, 888) TITLE
+        READ(96, 888) TITLE
+        READ(96, 888) TITLE
+
+        READ (96, *) WLOW, WHI, SPACE, NUM_FILTER
+
+        WRITE(16,*) "TRANSMISSION CURVE READ IN: ", TRIM(TITLE)
+        WRITE(0,*) "TRANSMISSION CURVE READ IN: ", TRIM(TITLE)
+
+        ALLOCATE(FILTERTRANS(2,NUM_FILTER))
+
+        print *, WLOW
+        DO I = 1, NUM_FILTER
+           READ (96, *) R4AMP
+           IF (ISNAN(R4AMP))THEN
+              WRITE(16,*) "NAN DETECTED IN TAPE 96 (FILTER TRANSMISSION)"
+              WRITE(0,*) "NAN DETECTED IN TAPE 96 (FILTER TRANSMISSION)"
+              CALL SHUTDOWN
+              STOP 2
+           END IF
+           FILTERTRANS(1,I) = WLOW + REAL((I - 1),8)*SPACE
+           FILTERTRANS(2,I) = R4AMP
+        ENDDO
+
+        CALL FILECLOSE(96,2)
+
+888     FORMAT(A80)
+      END SUBROUTINE GETFILTERTRANSMISSION
+
+!-------------------------------------------------------------------------------
 
       SUBROUTINE GETSPEC( )
 
@@ -446,12 +499,12 @@
       NSCAN(:MAXSPE)         = 0
       ISCAN(:MAXBND,:MAXSPE) = 0
       ISPEC(:MAXSPE)         = 0
-
 ! --- LOOP OVER BANDS AND SAVE EACH FOUND SPECTRUM
 ! --- BANDS ARE DEFINED IN SFIT4 INPUT FILE
 ! --- ALL SPECTRA FOR A BAND MUST BE IN ORDER
 ! --- POINT SPACING FOR THE FIRST SPECTRA BLOCK IN A BAND DEFINES THE SPACING FOR THAT BAND
 ! --- HERE SZA1 IS ASTRONOMICAL SZA --- RAYTRACE HAS NOT BEEN RUN
+
 
       L3: DO IBAND = 1, NBAND
 
@@ -459,7 +512,6 @@
          READ(15, *, END=21) SZA1, ROE1, LAT1, LON1, BSNR
          READ(15, *, END=21) YYYY, MO, DD, HH, MI, SECS
          READ(15, 888) TITLE
-
 ! CHECK THAT ALL NUMBERS ARE FINITE
          IF (ISNAN(SZA1).OR.ISNAN(ROE1).OR.ISNAN(LAT1).OR.ISNAN(LON1).OR.ISNAN(BSNR).OR.&
               ISNAN(SECS)) THEN
@@ -470,11 +522,11 @@
          END IF
          GO TO 22
 
-   21    CONTINUE
+21       CONTINUE
          REWIND(15)
          CYCLE L3
 
-   22    CONTINUE
+22       CONTINUE
          READ (15, *) WLOW, WHI, SPACE, NPFILE
          IF (ISNAN(WLOW).OR.ISNAN(WHI).OR.ISNAN(SPACE))THEN
             WRITE(16,*) "NAN DETECTED IN TAPE 15 (SPECTRUM)"
@@ -485,6 +537,7 @@
 
          WLIM1 = WAVE3(IBAND)
          WLIM2 = WAVE4(IBAND)
+
 
 ! -- IF NOT THIS BAND THEN DUMMY READ BLOCK AND GET NEXT
          IF( WLIM1>WHI .OR. WLIM2<WLOW )THEN
@@ -747,6 +800,7 @@
                   DO K = 1, NSTNR
                      IF ((WWV(IW) .LT. WWV0(K)) .OR. (WWV(IW) .GT. WWV1(K))) CYCLE
                      IF ((IEMISSION .EQ. 0) .OR.( IENORM(IBAND) .eq. 1)) THEN
+                        IF (GSTNR(K).LT.TINY(GSTNR(K))) GSTNR(K)=1.0D0
                         STNR(IW) = 1.0D0 / GSTNR(K)
                      ELSE
                         STNR(IW) = GSTNR(K)
@@ -872,25 +926,34 @@
       NZERO = 0
       DO I = 1, NBAND
          IF (F_ZSHIFT(I)) THEN
-            IF (IZERO(I) .NE. 1 ) CYCLE
+            IF (IZERO(I) .NE. 1 ) THEN
+               IZERO(I) = 2
+               CYCLE
+            END IF
             N = NSCAN(I)
             IF (N > 0) THEN
                DO KK = 1, N
-                  WRITE(PNAME(KK+NVAR),'(A8,I1)') 'ZeroLev_',KK
+                  WRITE(PNAME(KK+NVAR),'(A8,I1,A1,I1)') 'ZeroLev_',I,'_',KK
                END DO
                PARM(NVAR+1:N+NVAR) = ZSHIFT(I,1)
                SPARM(NVAR+1:N+NVAR) = SZERO(I)
                NVAR = N + NVAR
                NZERO = N + NZERO
-            ENDIF
+            END IF
          ELSE
-            IF( IZERO(I) .NE. 2 ) IZERO(I) = 0
+            IZERO(I) = 0
          END IF
       ENDDO
 
       !  --- SOLAR LINES INCLUSION
       NSOLAR = 0
       IF( IFCO )THEN
+! --- DEFINE NAMES OF SOLAR PARAMETERS
+         CPNAM(1) = 'Sol - n/a'
+         CPNAM(2) = 'Sol - n/a'
+         CPNAM(3) = 'Sol - n/a'
+         CPNAM(4) = 'SolLnShft'
+         CPNAM(5) = 'SolLnStrn'
          DO I = 1, 5
             IF( .NOT. F_RTSOL(I) )CYCLE
             NVAR = NVAR + 1
@@ -910,23 +973,24 @@
             do kk = 1, NEAPRT
                write(PNAME(kk+NVAR),'(a10,i1)') 'EmpApdFcn_',kk
             end do
-            PARM(NVAR+1:NEAPRT+NVAR) = EAPPAR + 1.0D0
+            PARM(NVAR+1:NEAPRT+NVAR) = EAPPAR
             SPARM(NVAR+1:NEAPRT+NVAR) = SEAPPAR
             NVAR = NEAPRT + NVAR
          ENDIF
       ENDIF
 
       !  --- EMPIRICAL PHASE FUNCTION
+      !  --- THE OFFSET IS ZEROTH'S ORDER, THAT IS WHY WE NEED POLYNOMIAL ORDER +1
       IF( F_RTPHASE )THEN
          NEPHSRT = NEPHS
          IF (NEPHSRT > 0) THEN
-            EPHSF0(:NEPHSRT) = EPHSF(:NEPHSRT)
-            DO KK = 1, NEPHSRT
-               WRITE(PNAME(KK+NVAR),'(A10,I1)') TRIM('EmpPhsFcn_'),KK
+            EPHSF0(:NEPHSRT+1) = EPHSF(:NEPHSRT+1)
+            DO KK = 1, NEPHSRT+1
+               WRITE(PNAME(KK+NVAR),'(A10,I1)') TRIM('EmpPhsFcn_'),KK-1
             END DO
-            PARM(NVAR+1:NEPHSRT+NVAR) = EPHSPAR + 1.0D0
-            SPARM(NVAR+1:NEPHSRT+NVAR) = SEPHSPAR
-            NVAR = NEPHSRT + NVAR
+            PARM(NVAR+1:NEPHSRT+1+NVAR) = EPHSPAR
+            SPARM(NVAR+1:NEPHSRT+1+NVAR) = SEPHSPAR
+            NVAR = NEPHSRT +1+ NVAR
          ENDIF
       ENDIF
 
@@ -946,11 +1010,17 @@
       !  --- TOTAL NUMBER OF PHASE ERROR FITS=NPHASE
       NPHASE = 0
       IF( IFPHASE )THEN
+         IF (F_RTPHASE.EQV..TRUE.) THEN
+            WRITE(*,*) 'RT.PHASE = T. THE EMIRICAL PHASE FUNCTION IS RETRIEVED. THEREFORE SWITCH OFF THE PHASE RERIEVAL.'
+            WRITE(16,*) 'RT.PHASE = T. THE EMIRICAL PHASE FUNCTION IS RETRIEVED. THEREFORE SWITCH OFF THE PHASE RERIEVAL.'
+            CALL SHUTDOWN()
+            STOP 1
+         END IF
          DO I = 1, NBAND
             N = NSCAN(I)
             IF (N > 0) THEN
                DO KK = 1, N
-                  WRITE(PNAME(KK+NVAR),'(A8,I1)') 'SPhsErr_',I
+                  WRITE(PNAME(KK+NVAR),'(A8,I1,A1,I1)') 'SPhsErr_',KK,'_',I
                END DO
                PARM(NVAR+1:N+NVAR) = PHS
                SPARM(NVAR+1:N+NVAR) = SPHS
@@ -992,7 +1062,7 @@
 
       DO I = 1,NBAND
          IF (IFFOV /= 0) THEN
-            WRITE(PNAME(NVAR+1:NVAR+2), '(A4,I1)'), 'FOV_', I
+            WRITE(PNAME(NVAR+1:NVAR+2), '(A4,I1)') 'FOV_', I
             PARM(NVAR+1:NVAR+2)  = 0.0D0
             SPARM(NVAR+1:NVAR+2) = 1.0D0
             NVAR = NVAR + 1
@@ -1008,32 +1078,47 @@
             STOP 1
          END IF
          IF (ANY(IENORM(1:NBAND).LT.0)) then
-            WRITE(*,*) 'EMISSION: SPECTRA NORMALISED? SET FW.EMISSION.NORM TO TRUE OR FALSE.'
-            WRITE(16,*) 'EMISSION: SPECTRA NORMALISED? SET FW.EMISSION.NORM TO TRUE OR FALSE.'
+            WRITE(*,*) 'EMISSION: SPECTRA NORMALISED? SET FW.EMISSION.NORMALIZED TO TRUE OR FALSE.'
+            WRITE(16,*) 'EMISSION: SPECTRA NORMALISED? SET FW.EMISSION.NORMALIZED TO TRUE OR FALSE.'
             CALL SHUTDOWN()
             STOP 1
          END IF
       END IF
       ! CONTINUUM ABSORPTION
-      IF (F_CONTABS) THEN
+      IF ((.NOT.F_CONTINUUM).AND.(F_CONTABS)) THEN
+         WRITE(*,*) 'RETRIEVAL OF CONTINUUMS ABSORPTION ONLY POSSIBLE IF CONTINUUM IS CALCULATED (FW.CONTINUUM = T)'
+         WRITE(16,*) 'RETRIEVAL OF CONTINUUMS ABSORPTION ONLY POSSIBLE IF CONTINUUM IS CALCULATED (FW.CONTINUUM = T)'
+         CALL SHUTDOWN()
+         STOP 1
+      END IF
+
+      IF (F_CONTINUUM) THEN
          IF (IEMISSION.EQ.0) THEN
             WRITE(*,*) 'CONTINUUM ABSORPTION ONLY WORKING IN EMISSION MODE.'
             WRITE(16,*) 'CONTINUUM ABSORPTION ONLY WORKING IN EMISSION MODE.'
             CALL SHUTDOWN()
             STOP 1
          END IF
+         IF (ABSCONT_TYPE.EQ.2) ABSCONT_PARAM(1) = -LOG(MAX(ABSCONT_PARAM(1),TINY(ABSCONT_PARAM(1))))
          N_CONTABS = ABSCONT_ORDER + 1 ! 0-TH ORDER ALREADY NEEDS ONE PARAM.
          IF (ALLOCATED(CONT_PARAM)) DEALLOCATE(CONT_PARAM)
          ALLOCATE(CONT_PARAM(N_CONTABS))
          DO I = 1,N_CONTABS
-            WRITE(PNAME(NVAR+I:NVAR+1+I), '(A10,I1)'), 'CONTINUUM_', I-1
+            CONT_PARAM(I) = ABSCONT_PARAM(1)
          END DO
-         PARM(NVAR+1:NVAR+N_CONTABS)  = ABSCONT_PARAM(1)
-         SPARM(NVAR+1:NVAR+N_CONTABS) = ABSCONT_SPARAM(1)
-         NVAR = NVAR + N_CONTABS
+         if (F_CONTABS) THEN
+            DO I = 1,N_CONTABS
+               WRITE(PNAME(NVAR+I:NVAR+1+I), '(A10,I1)') 'CONTINUUM_', I-1
+            END DO
+            PARM(NVAR+1:NVAR+N_CONTABS)  = ABSCONT_PARAM(1)
+            SPARM(NVAR+1:NVAR+N_CONTABS) = ABSCONT_SPARAM(1)
+            NVAR = NVAR + N_CONTABS
+         END if
       END IF
 
+
       ! --- INSERT  CHANNEL PARAMETERS INTO STATE VECTOR PARM()
+      NCHAN = 0
       CALL INSERT_CHANNEL_PARMS (NVAR, PARM, PNAME, SPARM)
 
       !  ---  RETRIEVAL GAS MIXING RATIOS
@@ -1134,12 +1219,12 @@
       INTEGER                       :: I, J, KK, N, JROW, JCOL, INDXX
       REAL(DOUBLE)                  :: TSAHWD, DELZ = 0.0D0, RHO  = 0.0D0
 
-!  --- FILL DIAGONAL ELEMENTS OF SA
+      !  --- FILL DIAGONAL ELEMENTS OF SA
       DO I = 1, NVAR
          SA(I,I) = SPARM(I)*SPARM(I)
       ENDDO
 
-!  --- OFF DIAGONAL ELEMENTS OF SA MATRIX (A PRIORI COMPONENTS)
+      !  --- OFF DIAGONAL ELEMENTS OF SA MATRIX (A PRIORI COMPONENTS)
       INDXX = ISMIX
       DO KK = 1, NRET
          !print *, 'fill off diag ', kk, IFPRF(KK)
@@ -1148,46 +1233,50 @@
             N = NLAYERS
             SELECT CASE ( IFOFF(KK) )
             CASE ( 1:3 )
-!  --- FILL OFF DIAGONAL ELEMENTS OF SA
-            DO I = 1, NLAYERS
-              DO J = 1, NLAYERS
-                IF (I == J) CYCLE
-                JROW = I + INDXX
-                JCOL = J + INDXX
-                IF( ZBAR(I) < ZGMIN(KK) ) CYCLE
-                IF( ZBAR(J) < ZGMIN(KK) ) CYCLE
-                IF( ZBAR(I) > ZGMAX(KK) ) CYCLE
-                IF( ZBAR(J) > ZGMAX(KK) ) CYCLE
+               !  --- FILL OFF DIAGONAL ELEMENTS OF SA
+               DO I = 1, NLAYERS
+                  DO J = 1, NLAYERS
+                     IF (I == J) CYCLE
+                     JROW = I + INDXX
+                     JCOL = J + INDXX
+                     IF( ZBAR(I) < ZGMIN(KK) ) CYCLE
+                     IF( ZBAR(J) < ZGMIN(KK) ) CYCLE
+                     IF( ZBAR(I) > ZGMAX(KK) ) CYCLE
+                     IF( ZBAR(J) > ZGMAX(KK) ) CYCLE
 
-                DELZ = ZBAR(I) - ZBAR(J)
+                     DELZ = ZBAR(I) - ZBAR(J)
 
-                SELECT CASE ( IFOFF(KK) )
-                CASE (1)       !gaussian
-                  RHO = (ALOGSQ*DELZ/ZWID(KK))**2
-                  RHO = MIN( RHO, 90.0D0 )
-                  SA(JROW,JCOL) = SPARM(JROW)*SPARM(JCOL)*EXP(-RHO)
-                CASE (2)       !exponential
-                  RHO = ABS(ALOGSQ*DELZ/ZWID(KK))
-                  RHO = MIN( RHO, 90.0D0 ) !664
-                  SA(JROW,JCOL) = SPARM(JROW)*SPARM(JCOL)*EXP(-RHO)
-                CASE (3)
-                  WRITE(16,*) "IFOFF=3 NOT SUPPORTED"
-                  WRITE(00,*) "IFOFF=3 NOT SUPPORTED"
-                  CALL SHUTDOWN
-                  STOP 2
-                END SELECT
+                     SELECT CASE ( IFOFF(KK) )
+                     CASE (1)       !gaussian
+                        RHO = (ALOGSQ*DELZ/ZWID(KK))**2
+                        RHO = MIN( RHO, 90.0D0 )
+                        SA(JROW,JCOL) = SPARM(JROW)*SPARM(JCOL)*EXP(-RHO)
+                     CASE (2)       !exponential
+                        RHO = ABS(ALOGSQ*DELZ/ZWID(KK))
+                        RHO = MIN( RHO, 90.0D0 ) !664
+                        SA(JROW,JCOL) = SPARM(JROW)*SPARM(JCOL)*EXP(-RHO)
+                     CASE (3)
+                        WRITE(16,*) "IFOFF=3 NOT SUPPORTED"
+                        WRITE(00,*) "IFOFF=3 NOT SUPPORTED"
+                        CALL SHUTDOWN
+                        STOP 2
+                     END SELECT
 
-              END DO
-            END DO
-! --- READ IN FULL COVARIANCE FROM FILE
+                  END DO
+               END DO
+               ! --- READ IN FULL FOR ONE GAS COVARIANCE FROM FILE
             CASE ( 4 )
                INQUIRE( UNIT=62, OPENED=FILOPEN )
                IF ( .NOT. FILOPEN )CALL FILEOPEN( 62, 3 )
                DO I = 1, NLAYERS
                   READ( 62,* ) (SA( I+INDXX, J+INDXX), J=1, N)
                END DO
-            CASE ( 0 )
-               PRINT *, ' PROFILE RETRIEVAL GAS: ', NAME(IGAS(KK)), ' NO OFF DIAGONAL VALUES SET.'
+            CASE ( 6 )
+               IF ( L1LAMBDA(KK) .LT. 0.0D0 ) THEN
+                  PRINT *, ' SET L1LAMBDA TO USE L1 REGULARIZATION FOR GAS: ', NAME(IGAS(KK))
+                  CALL SHUTDOWN
+                  STOP 2
+               ENDIF
             END SELECT
          ENDIF
          INDXX = INDXX + N
@@ -1196,41 +1285,43 @@
       CALL FILECLOSE( 62, 2 )
 
 
-!  --- FILL OFF DIAGONAL ELEMENTS OF SA of T
+      !  --- FILL OFF DIAGONAL ELEMENTS OF SA of T
       IF( IFTEMP )THEN
-         INDXX = NTEMP1 - 1
-            DO I = 1, NLAYERS
-              DO J = 1, NLAYERS
-                IF (I == J) CYCLE
-                JROW = I + INDXX
-                JCOL = J + INDXX
-                DELZ = ZBAR(I) - ZBAR(J)
-                TSAHWD = 20.0D0
-                SELECT CASE ( 1 )
-                CASE (1)       !gaussian
+         INDXX = NTEMP1
+         DO I = 1, NLAYERS
+            DO J = 1, NLAYERS
+               IF (I == J) CYCLE
+               JROW = I + INDXX
+               JCOL = J + INDXX
+               DELZ = ZBAR(I) - ZBAR(J)
+               TSAHWD = 20.0D0
+               SELECT CASE ( 1 )
+               CASE (1)       !gaussian
                   RHO = (ALOGSQ*DELZ/TSAHWD)**2
                   RHO = MIN( RHO, 90.0D0 )
                   SA(JROW,JCOL) = SPARM(JROW)*SPARM(JCOL)*EXP(-RHO)
-                CASE (2)       !exponential
+               CASE (2)       !exponential
                   RHO = ABS(ALOGSQ*DELZ/TSAHWD)
                   RHO = MIN( RHO, 90.0D0 ) !664
                   SA(JROW,JCOL) = SPARM(JROW)*SPARM(JCOL)*EXP(-RHO)
-                CASE (3)
+               CASE (3)
                   WRITE(16,*) "IFOFF=3 NOT SUPPORTED"
                   WRITE(00,*) "IFOFF=3 NOT SUPPORTED"
                   CALL SHUTDOWN
                   STOP 2
-                END SELECT
-              END DO
+               END SELECT
             END DO
-       ENDIF
+         END DO
+      ENDIF
+      WRITE(16,'(A22,A3)') "REGULARISATION METHOD"
 
-!  --- WRITE OUT FULL SA MATRIX
+
+      !  --- WRITE OUT FULL SA MATRIX
       IF (F_WRTSA) THEN
          CALL FILEOPEN( 63, 1 )
          WRITE(63,*) TRIM(TAG), ' FULL INITIAL STATE VECTOR COVARIANCE N X N MATRIX'
          WRITE(63,*) NVAR, NVAR
-         WRITE(63,260) ADJUSTR(PNAME(:NVAR))
+         WRITE(63,260) (trim(ADJUSTL(PNAME(i))),I=1,NVAR)
          DO I=1,NVAR
             WRITE(63,261) (SA(I,J),J=1,NVAR)
          END DO
@@ -1239,18 +1330,16 @@
 
       RETURN
 
-  260 FORMAT( 2000( 12X, A14 ))
-  261 FORMAT( 2000ES26.18 )
+260   FORMAT( 2000( 12X, A14 ))
+261   FORMAT( 2000ES26.18 )
 
 
-      END SUBROUTINE FILSA
-
+    END SUBROUTINE FILSA
 
 
 
 !-------------------------------------------------------------------------------
       SUBROUTINE RELEASE_MEM_INT
-
       IF( ALLOCATED( CROSS )       )DEALLOCATE (CROSS)
       IF( ALLOCATED( CROSS_FACMAS ))DEALLOCATE (CROSS_FACMAS)
       IF( ALLOCATED( TCO )         )DEALLOCATE (TCO)

@@ -45,7 +45,7 @@
  
  # Retrieval parameter
  
- rt                          =               F
+ rt                          =               T
  rt.lm                       =               F
  rt.convergence              =           0.1
  rt.max_iteration            =              15
@@ -71,16 +71,17 @@
  band.1.nu_stop              =        870.0
  band.1.zshift		     =	      F
  band.1.beam                 =               0
- band.1.calc_point_space     =       0.500E-02
+ band.1.calc_point_space     =       0.500E-03
  band.1.wave_factor          =           1.000
- band.1.max_opd= 8.1
- band.1.omega= 16.2
+ band.1.max_opd= 180.0000
+ band.1.omega= 4.0670
  band.1.apodization_code =               0
  band.1.gasb                 = HNO3 H2O OCS NH3
  
  out.level= 1
  out.smeas_matrix = T
- kb= F
+ 
+ kb= T
  kb.slope = F
  kb.curvature = F
  kb.solshft= T

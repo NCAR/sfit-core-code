@@ -49,7 +49,6 @@
       LOGICAL :: F_WRTSMEAS          = .FALSE.
       LOGICAL :: F_WRTSUMRY          = .FALSE.
       LOGICAL :: F_WRTPBP            = .FALSE.
-!      LOGICAL :: F_WRTPBP_KB         = .FALSE.
       LOGICAL :: F_WRTCHANNEL        = .FALSE.
       LOGICAL :: F_WRTRAYTC          = .FALSE.
       LOGICAL :: F_WRTSOLSPEC        = .FALSE.
@@ -105,7 +104,6 @@
         F_WRTRAYTC          = .TRUE.
         F_WRTSOLSPEC        = .TRUE.
         F_WRTLM             = .TRUE.
-!        F_WRTPBP_KB         = .TRUE.
         XSC_DETAIL          = .TRUE.
      END IF
      IF (OUTPUTLEVL.GT.3) THEN
@@ -218,9 +216,11 @@
       END DO
 
       WRITE(20,101) NBAND
-      WRITE(20,'(A,A)') 'IBAND       NUSTART        NUSTOP         SPACE     NPTSB     PMAX    FOVDIA   MEAN_FIT_SNR  NSCAN  JSCAN     INIT_SNR     EFF_SNR      FIT_SNR'
+      WRITE(20,'(A,A)') 'IBAND       NUSTART        NUSTOP         SPACE     NPTSB     PMAX    FOVDIA &
+         &  MEAN_FIT_SNR  NSCAN  JSCAN     INIT_SNR     EFF_SNR      FIT_SNR'
       DO I=1, NBAND
-         WRITE(20,103) I, WAVE3(I), WAVE4(I), SPAC(I), NPRIM(I), PMAX(I), FOVDIA(I), SUM(SNR_CLC(I,1:NSCAN(I)))/DBLE(NSCAN(I)), NSCAN(I)
+         WRITE(20,103) I, WAVE3(I), WAVE4(I), SPAC(I), NPRIM(I), PMAX(I), FOVDIA(I), &
+              & SUM(SNR_CLC(I,1:NSCAN(I)))/DBLE(NSCAN(I)), NSCAN(I)
          DO J=1,NSCAN(I)
             WRITE(20,104) J, SCNSNR(:2,I,J), SNR_CLC(I,J)
          ENDDO
@@ -386,7 +386,7 @@
 
       IMPLICIT NONE
 
-      CHARACTER (LEN=14), DIMENSION(NMAX), INTENT(IN)    :: PNAME
+      CHARACTER (LEN=16), DIMENSION(NMAX), INTENT(IN)    :: PNAME
       REAL(DOUBLE),DIMENSION(NMAX), INTENT(IN)           :: XHAT, XAPR
       REAL(DOUBLE), DIMENSION(MOLMAX,LAYMAX), INTENT(IN) :: VERSUM, VOSUM
       INTEGER, INTENT(IN)      :: NLEV, ITER, ISMIX
@@ -408,7 +408,7 @@
          WRITE (18, 506) (T(I),I=1,NLEV)
       ENDIF
       WRITE (18, *)
-      WRITE (18, *) NRET
+      WRITE (18, *) NRET-NCELL
       DO I = 1, NRET - NCELL
          WRITE (18, 507) 'A Priori', NAME(IGAS(I))
          WRITE (18, 506) VOSUM(I,NLEV)

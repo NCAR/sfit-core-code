@@ -488,6 +488,7 @@ END SUBROUTINE READLAYRS
 
       CALL ATMPTH( NSPEC+1, 999,  00.0D0, 6390.D0, 2500.D0, ITER, NLEV )
 
+
       CALL CPU_TIME(TSTP)
 
       !WRITE(0,905)  "  RAYTRACE PROCESS TIME : ", TSTP-TSRT
@@ -1518,7 +1519,7 @@ END SUBROUTINE READLAYRS
 ! ---  CUMULATIVE AMOUNT FOR THAT LAYER AND ABOVE IN LESS THAN
 ! ---  0.1 PERCENT OF THE TOTAL
 
-         WRITE(IPR,*)'CALL FPACK'
+         ! WRITE(IPR,*)'CALL FPACK'
          CALL FPACK (H1,H2,HMID,LEN,IEMIT,NOZERO)
 
 ! --- OUTPUT THE FINAL PROFILE IN COLUMN DENSITY AND MIXING RATIO FROM DRY AIR IN ZFIN GRID
@@ -1950,7 +1951,7 @@ END SUBROUTINE READLAYRS
          FXGAS(CGASID(I),NLEV+I) = CVMR(I)
          CCC(:NSPEC,NLEV+I)      = ALOSMT * (PMB(NLEV+I) / PZERO) * (TZERO / T(NLEV+I)) * CPATH(I) * T(NLEV+I) / CONVCONST! MASS IN ATM-CM
          CCC(NSPEC+1,NLEV+I)     = ALOSMT * (PMB(NLEV+I) / PZERO) * (TZERO / T(NLEV+I)) * CPATH(I) ! MASS IN MOLEC/CM2
-         write(06,100), I, CCC(:NSPEC,NLEV+I), CCC(NSPEC+1,NLEV+I)
+         write(06,100) I, CCC(:NSPEC,NLEV+I), CCC(NSPEC+1,NLEV+I)
          !print*, pzero, bar, tzero, cpath(i)
          print*, I,  HMOLS(NLEV+I), CGASID(I), FXGAS(CGASID(I),NLEV+I)
       ENDDO
@@ -1995,7 +1996,8 @@ END SUBROUTINE READLAYRS
          !CCC(JSPEC,IL)  = TBAR(LMAX-IL+1)*WETAIR(LMAX-IL+1)/CONVCONST
          CCC(JSPEC,IL)  = TBAR(LMAX-IL+1)*DRAIRL(LMAX-IL+1)/CONVCONST
          CORG(JSPEC,IL) = CCC(JSPEC,IL)
-      END DO
+!       print *, TBAR(1), DRAIRL(1), CONVCONST, CCC(JSPEC,LMAX),LMAX
+     END DO
 
 ! --- VERTICAL PATH IS IN MOLEC/CM^2, KODE 999, JSPEC = NSPEC +1
       IF( IREAD .EQ. 999 )THEN
@@ -2501,7 +2503,6 @@ END SUBROUTINE READLAYRS
            HMOD(3) = "TMOSPHER"
            CALL LNGMDL ( NMOL, IMMAX )
            TM0(:IMMAX) = TM(:IMMAX)
-
             !PRINT *, IREAD, LMAX, KMAX, IMMAX
             !PRINT *, ZMDL(:IMMAX)
             !PRINT *,''
@@ -2509,7 +2510,7 @@ END SUBROUTINE READLAYRS
             !PRINT *,''
             !PRINT *, PM(:IMMAX)
 
-        ! TESTING FOR LONG VERSION OF TEMOPERATURE RETRIEVAL NOT USED -JWH
+        ! TESTING FOR LONG VERSION OF TEMPERATURE RETRIEVAL NOT USED -JWH
         ELSE IF( IREAD .EQ. 1 )THEN
 
             !PRINT *, IREAD, LMAX, KMAX, IMMAX
@@ -2531,9 +2532,8 @@ END SUBROUTINE READLAYRS
             !PRINT *,''
             !write(*, '(3f10.3)') (x(im), y(im), y0(im), im=1, kmax+1)
 
-            ! CHANGE MODEL T TO PERTURBED T
-            CALL SPLINE (KMAX, X, Y, B, C, D)
-
+          ! CHANGE MODEL T TO PERTURBED T
+          CALL SPLINE (KMAX, X, Y, B, C, D)
             DO IM = 1, IMMAX
                TM(IM) = SEVAL (KMAX, ZMDL(IM), X, Y, B, C, D)
             ENDDO
@@ -2547,6 +2547,8 @@ END SUBROUTINE READLAYRS
            CALL SHUTDOWN
            STOP '3'
         ENDIF
+
+!        print *, TM(:IMMAX)
 
         IF( NOPRNT .GE. 0 )THEN
            WRITE(IPR,901)"CONVERT UNITS AND CALCULATE AMOUNTS & RH"
@@ -4376,6 +4378,8 @@ END SUBROUTINE READLAYRS
       REAL (8), EXTERNAL :: ANDEX
       REAL (8), DIMENSION(MXMOL) :: HDEN, DENA, DENB
 
+      LOGICAL :: TMPFLG
+
       DATA EPSILN / 1.0D-5 /
 
 !     INITIALIZE VARIABLES FOR THE CALCULATION OF THE PATH
@@ -4422,8 +4426,12 @@ END SUBROUTINE READLAYRS
           DO 40 K = 1, NMOL
               DENA(K) = DENP(K,J)
               DENB(K) = DENP(K,J+1)
-              IF ((DENA(K).EQ.0.0D0.OR.DENB(K).EQ.0.0D0).OR.                &
-     &            (ABS(1.0-DENA(K)/DENB(K)).LE.EPSILN)) THEN
+              TMPFLG = .FALSE.
+              IF (DENB(K).GT.TINY(0.0D0)) THEN
+                   IF (ABS(1.0-DENA(K)/DENB(K)).LE.EPSILN) TMPFLG = .TRUE.
+              ENDIF
+              IF ((DENA(K).LE.TINY(0.0D0).OR.DENB(K).LE.TINY(0.0D0)).OR.                &
+     &            TMPFLG) THEN
 !
 !                 USE LINEAR INTERPOLATION
 !
@@ -4517,7 +4525,13 @@ END SUBROUTINE READLAYRS
             RHOPSM(J) = RHOPSM(J)+0.5D0*DS*(RHOA+RHOB)
          ENDIF
          DO 130 K = 1, NMOL
-            IF ((HDEN(K).EQ.0.0).OR.(ABS(DH/HDEN(K)).LT.EPSILN)) THEN
+            TMPFLG = .TRUE.
+            IF (HDEN(K).GT.TINY(HDEN(K))) THEN
+               IF (ABS(DH/HDEN(K)).GE.EPSILN) TMPFLG = .FALSE.
+            ELSE
+               TMPFLG = .TRUE.
+            ENDIF
+            IF (TMPFLG) THEN
 !
 !                 LINEAR INTERPOLATION
 !                 1.0E05 FACTOR CONVERTS UNITS KM TO CM
