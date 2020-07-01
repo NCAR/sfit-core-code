@@ -36,7 +36,7 @@ class test_sfit4:
                 print ('No value for key '+key+'?')
             if key.lower() == 'sfit4_dir':
                 self.sfit4_dir = l.rsplit('=')[1].strip()
-                if self.sfit4_dir == '<SFIT-DIR>' or not Path(self.sfit4_dir).is_dir():
+                if self.sfit4_dir == '<SFIT4-DIR>' or not Path(self.sfit4_dir).is_dir():
                     self.sfit4_dir = raw_input('Please specify the sfit-core-code directory\n')
                 while not Path(self.sfit4_dir).is_dir():
                     self.sfit4_dir = raw_input('{} does not exist or is no directory. Please try again.\n>'.format(self.sfit4_dir))
@@ -44,7 +44,7 @@ class test_sfit4:
                 continue
             if key.lower() =='linelist_dir':
                 self.linelist_dir = l.rsplit('=')[1].strip()
-                if self.linelist_dir == '<LINELISTDIR>' or not Path(self.linelist_dir).is_dir():
+                if self.linelist_dir == '<LINELIST-DIR>' or not Path(self.linelist_dir).is_dir():
                     self.linelist_dir = str(raw_input('Please specify the linelistdir\n'))
                 while not Path(self.linelist_dir).is_dir():
                     self.linelist_dir = raw_input('{} does not exist or is no directory. Please try again.\n>'.format(self.linelist_dir))
@@ -52,7 +52,7 @@ class test_sfit4:
                 continue
             if key.lower() == 'testdir':
                 self.testcase_dir = l.rsplit('=')[1].strip()
-                if self.testcase_dir == '<TESTCASE-DIR>' or not Path(self.testcase_dir).is_dir():
+                if self.testcase_dir == '<TESTBED-DIR>' or not Path(self.testcase_dir).is_dir():
                     self.testcase_dir = raw_input('Please specify the testcase directory\n')
                 while not Path(self.testcase_dir).is_dir():
                     self.testcase_dir = raw_input('{} does not exist or is no directory. Please try again.\n>'.format(self.testcase_dir))
