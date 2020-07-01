@@ -11,7 +11,8 @@ file.out.ascii = T
 #
 # Path to the directory tree where the gas subdirectories are
 #
-file.in.linelist = /home/mathias/linelist-core/
+#file.in.linelist = /home/mathias/linelist-core/
+file.in.linelist = /Users/jamesw/FDP/sfit/400/linelist-core/
 #
 # Then the next lines are paths to each gas file that will be searched for lines in the
 # desired wavenember region.  The id numbers are in sfit order - not HITRAN, BUT KEEP
@@ -42,7 +43,7 @@ hitran.files =
 013_OH/013_OH.hit16.20181107
 014_HF/014_HF.hit16.20181107
 015_HCL/015_HCl.hit16.20181107
-016_HBR/016_HBR.hit16.20181107
+016_HBR/016_HBr.hit16.20181107
 017_HI/017_HI.hit16.20181107
 018_CLO/018_ClO.hit16.20181107
 019_OCS/019_OCS.hit16.20181107
@@ -130,21 +131,22 @@ hitran.files =
 #
 # Galatry parameters
 # molecule id numbers in these files have to match the sfit molecule id
-aux = gal sdv lm
+aux = gal sdv
+# gal sdv lm
 aux.gal.nr = 2
-aux.gal.files = 
+aux.gal.files =
 014_HF/14_hit16_Galatry.txt
 015_HCL/15_hit16_Galatry.txt
+#
+# Speed Dependent Voigt parameter files --- not yet!
+aux.sdv.nr = 1
+aux.sdv.files =
+005_CO/05_hit16_SDV.txt
 #
 #
 # CO2 Line mixing parameters for Boone implementation
 aux.lm.nr = 1
-aux.lm.files = 
+aux.lm.files =
 002_CO2/02_hit08_f53_LM1ST.par
 #
-#
-# Speed Dependent Voigt parameter files --- not yet!
-aux.sdv.nr = 1
-aux.sdv.files = 
-005_CO/05_hit16_SDV.txt
 #
