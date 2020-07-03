@@ -29,7 +29,7 @@ hitran.nr = 99
 #
 hitran.files =
 001_H2O/001_H2O.hit16.20181107
-002_CO2/02_hit08_f53.par
+002_CO2/002_CO2.hit16.20181107
 003_O3/003_O3.hit16.20181107
 004_N2O/004_N2O.hit16.20181107
 005_CO/005_CO.hit16.20181107
@@ -138,15 +138,15 @@ aux.gal.files =
 014_HF/14_hit16_Galatry.txt
 015_HCL/15_hit16_Galatry.txt
 #
-# Speed Dependent Voigt parameter files --- not yet!
+# Speed Dependent Voigt parameter files
 aux.sdv.nr = 1
 aux.sdv.files =
 005_CO/05_hit16_SDV.txt
 #
 #
-# CO2 Line mixing parameters for Boone implementation
+# CO2 Line mixing parameters
 aux.lm.nr = 1
 aux.lm.files =
-002_CO2/02_hit08_f53_LM1ST.par
+002_CO2/002_CO2.hit16_LM1ST.par
 #
 #
