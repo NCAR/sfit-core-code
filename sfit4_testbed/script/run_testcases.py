@@ -231,9 +231,9 @@ class test_sfit4:
                 str += 'Testcase {0}: RUN NOT OK '.format(rs)
 
             diverge = self.results[rs]['chi_y_2'] - self.results_orig[rs]['chi_y_2']
-            diverge = 2*diverge
+            diverge *= 2
             diverge /= self.results[rs]['chi_y_2'] + self.results_orig[rs]['chi_y_2']
-            if diverge > 0.01:
+            if diverge < 0.01:
                 str += 'RESULTS OK \n'.format(rs)
             else:
                 str += 'CHI_2_Y DIVERGES BY {1:1%} %\n'.format(rs, diverge)
