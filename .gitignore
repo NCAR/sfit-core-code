@@ -5,3 +5,4 @@ pspec
 *.mod
 *.o
 .DS_Store
+._*
