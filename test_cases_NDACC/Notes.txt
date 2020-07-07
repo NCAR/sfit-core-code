@@ -8,15 +8,15 @@ pspec, hbin, sfit:   Z
 
 testcase	tested with version:
 
-		      v0.9.4.5       V1.0
-		      14-11-2014     Nov 2019
+		      v0.9.4.5       V1.0	V1.0.8
+		      14-11-2014     Nov 2019	July 2020
 x.ch4_L1                             x
 x.clono2
 x.co		   x
 x.hcl		   x                 y
 x.hcn		   x                 y
 x.hf		   x
-x.hno3                               y
+x.hno3                               y		Y
 x.o3		   x                 y
 
 

@@ -4373,6 +4373,8 @@ END SUBROUTINE READLAYRS
       REAL (8), EXTERNAL :: ANDEX
       REAL (8), DIMENSION(MXMOL) :: HDEN, DENA, DENB
 
+      LOGICAL :: TMPFLG
+
       DATA EPSILN / 1.0D-5 /
 
 !     INITIALIZE VARIABLES FOR THE CALCULATION OF THE PATH
@@ -4419,8 +4421,12 @@ END SUBROUTINE READLAYRS
           DO 40 K = 1, NMOL
               DENA(K) = DENP(K,J)
               DENB(K) = DENP(K,J+1)
-              IF ((DENA(K).EQ.0.0D0.OR.DENB(K).EQ.0.0D0).OR.                &
-     &            (ABS(1.0-DENA(K)/DENB(K)).LE.EPSILN)) THEN
+              TMPFLG = .FALSE.
+              IF (DENB(K).GT.TINY(0.0D0)) THEN
+                   IF (ABS(1.0-DENA(K)/DENB(K)).LE.EPSILN) TMPFLG = .TRUE.
+              ENDIF
+              IF ((DENA(K).LE.TINY(0.0D0).OR.DENB(K).LE.TINY(0.0D0)).OR.                &
+     &            TMPFLG) THEN
 !
 !                 USE LINEAR INTERPOLATION
 !
@@ -4514,7 +4520,13 @@ END SUBROUTINE READLAYRS
             RHOPSM(J) = RHOPSM(J)+0.5D0*DS*(RHOA+RHOB)
          ENDIF
          DO 130 K = 1, NMOL
-            IF ((HDEN(K).EQ.0.0).OR.(ABS(DH/HDEN(K)).LT.EPSILN)) THEN
+            TMPFLG = .TRUE.
+            IF (HDEN(K).GT.TINY(HDEN(K))) THEN
+               IF (ABS(DH/HDEN(K)).GE.EPSILN) TMPFLG = .FALSE.
+            ELSE
+               TMPFLG = .TRUE.
+            ENDIF
+            IF (TMPFLG) THEN
 !
 !                 LINEAR INTERPOLATION
 !                 1.0E05 FACTOR CONVERTS UNITS KM TO CM
