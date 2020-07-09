@@ -1,0 +1,148 @@
+\pdfminorversion=4
+\documentclass[notes=hide]{beamer}
+%\includeonlyframes{results}
+\usepackage[overlay,absolute]{textpos}
+\usepackage{natbib,tikz}
+\tikzstyle{every picture}+=[remember picture]
+\tikzstyle{na} = [baseline=-.5ex]
+\setlength{\TPHorizModule}{\paperwidth}
+\setlength{\TPVertModule}{\paperheight}
+\definecolor{UniGray}{RGB}{94, 94, 87}
+\definecolor{UniRed}{RGB}{90, 0, 20}
+\setbeamercolor{alert}{fg=red}
+\setbeamercolor{block title}{bg=white}
+\setbeamercolor{block body}{bg=white}
+\newcommand{\mpoint}[1]{
+  {\usebeamercolor[fg]{alert}#1}
+}
+\setbeamerfont{small}{size=\scriptsize}
+{
+\mode<presentation>
+{
+  \usetheme[footheight=0.3cm]{boxes}
+  \addfootboxtemplate{\color{UniGray}}{\hspace{0.0cm}
+    \color{white}
+    \includegraphics[height=0.8cm]{figures/IUP-Logo.pdf}
+    \hspace{2cm}
+    Mathias Palm 
+    \hfill
+    \hspace{2cm}
+%    \includegraphics[height=0.8cm]{RAM-Logo.eps}
+%    \hfill\color{white}\insertshorttitle\hfill
+%    \insertshortauthor
+    \insertframenumber / \inserttotalframenumber
+    \hfill
+  } 
+  % or ...
+
+  \setbeamercovered{transparent=0}
+}
+
+\beamertemplatenavigationsymbolsempty
+
+\usepackage[english]{babel}
+\usepackage[latin1]{inputenc}
+\usepackage{graphicx, colortbl}
+\usepackage{times}
+\usepackage[T1]{fontenc}
+
+% \defbeamertemplate{background}{world-ndacc}
+% {
+% \includegraphics[height=\paperheight,width=\paperwidth]{ftir_ndacc.pdf}
+% }
+
+
+\title {SFIT4 -- Quickstart HOWTO}
+
+\author[Mathias Palm]{Mathias Palm} 
+
+
+\date{Bremen, 2020}
+
+\begin{document}
+
+\begin{frame}
+\maketitle
+\end{frame}
+
+\begin{frame}
+  \frametitle{Introduction}
+  \framesubtitle{Absorption spectroscopy}
+  \begin{columns}
+    \begin{column}[t]{0.5\textwidth}
+      \vspace{-1cm}
+      \begin{figure}[!h]
+        \centering
+        \includegraphics<1->[scale=0.5]{figures/Spectro_Principle_Atm.pdf}
+        \label{fig:meas_principle}
+      \end{figure}
+      Measurements in solar or lunar absorption and emission possible 
+    \end{column}
+    \begin{column}[t]{0.5\textwidth}
+      \uncover<2->{
+
+        Received spectrum given by the sum of all absorption along the
+        path of sight.}
+        \begin{overlayarea}{\textwidth}{0.7\textheight}
+          \only<2>{
+            \includegraphics<2>[width=\textwidth]{figures/meas_spec_3900_4400.pdf}
+            
+            Envelope defined by band filter 3900 - 4400 $cm^{-1}$
+            }
+          \only<3>{
+          \includegraphics<3>[width=\textwidth]{figures/meas_spec_4235_4236.pdf}
+          
+          Microwindow containing a CO-line
+          }
+          \only<4>{
+            \includegraphics<4>[width=\textwidth,height=0.4\textheight]{figures/CO_main_gases.pdf}
+
+            Contribution of gases and solar lines not calculated for
+            this particular spectrum
+            }
+        \end{overlayarea}
+      \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Introduction}
+  \framesubtitle{Principle of a Fourier transform spectrometer}
+  \begin{columns}
+    \begin{column}{0.6\textwidth}
+      \includegraphics[width=1.2\textwidth,height=0.8\textheight]{figures/Principle-fts.png}
+    \end{column}
+    \begin{column}{0.4\textwidth}
+      \vspace{-2cm}
+      \begin{itemize}
+      \item apertures define and restrict field of view
+      \item aperture influences resolution
+      \item filter restricts wavelength sensitivity
+      \end{itemize}
+     \end{column}
+    \end{columns}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Contents}
+  \begin{itemize}
+  \item <1-4> Files needed and where to get them
+  \item <1-4> How to modify sfit4.ctl
+  \item <1-4> Create the spectral file xxx-xxx.hbin
+  \item <1-4> Run SFIT4
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Files needed and where to get them} The section file.in
+  contains the names of the input files. The structure of the files is
+  described on extra slides later on.
+  \begin{description}
+  \item[file.in.spectrum] The measured spectrum. This file is created using pspec or any other tool.
+  \item[file.in.stalayers] The file containing the altitude bins for the forward model and the retrieval. This file defines the altitude grid which is used in SFIT4.
+    \item[file.in.refprofile] Contains the atmosphere and is created by the processing environment or elsewhere. The atmosphere used in SFTI4 is interpolated to the altitudes given in file.in.stalayers, i.e. its range has to be equal or larger
+  \end{description}
+\end{frame}
+
+
+\end{document}

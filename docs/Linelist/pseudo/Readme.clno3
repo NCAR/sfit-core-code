@@ -1,0 +1,142 @@
+            ClNO3 PSEUDO-LINELIST
+
+INTRODUCTION.
+This documents the ClNO3 pseudo-linelist derived at JPL
+in November 2000 from the laboratory spectra of Manfred
+Birk and Georg Wagner, whose work was described at the
+2000 HITRAN conference. The measurement conditions for
+each of these spectra are tabulated below. Each of these
+spectra covers the 690 to 1330 cm-1 region.
+
+ #  P_tot  P_clno3  Temp    Resn  Noise  File
+-----------------------------------------------------
+ 1  1.068  1.0680  297.02  .0020  0.000  "missing   "
+ 2  0.558  0.5577  297.20  .0020  0.497  "297_000.xy"
+ 3  95.08  1.0161  297.39  .0020  0.198  "297_100.xy"
+ 4  44.76  1.0065  297.44  .0040  0.331  "297_050.xy"
+ 5  23.91  1.0121  297.13  .0020  0.305  "297_025.xy"
+ 6  1.013  1.0131  297.00  .00094 0.000  "missing   "
+ 7  0.321  0.3206  189.58  .0020  0.433  "190_000.xy"
+ 8  96.24  0.6041  189.58  .0055  0.000  "missing   "
+ 9  94.59  0.3027  189.58  .0055  0.573  "190_100.xy"
+10  44.96  0.3015  189.58  .0040  0.382  "190_050.xy"
+11  24.57  0.3061  189.58  .0020  0.542  "190_025.xy"
+12  75.73  0.3017  189.70  .0055  1.000  "190_075.xy"
+13  12.74  0.2999  189.70  .0020  0.717  "190_012.xy"
+14  155.8  0.3022  189.70  .0055  0.480  "190_150.xy"
+15  0.603  0.6028  189.60  .00094 0.000  "missing   "
+16  95.42  0.6209  219.24  .0055  0.285  "219_100.xy"
+17  0.303  0.3026  219.00  .0020  0.761  "219_000.xy"
+18  154.2  0.3044  218.93  .0083  0.924  "219_150.xy"
+19  53.40  0.3058  218.95  .0040  1.504  "219_050.xy"
+20  26.10  0.3061  218.94  .0020  0.940  "219_025.xy"
+21  12.83  0.3033  218.95  .0020  1.060  "219_012.xy"
+22  5.225  0.3007  218.95  .0020  0.752  "219_005.xy"
+23  147.8  0.3029  249.25  .0083  0.516  "249_150.xy"
+24  98.30  0.6034  249.24  .0055  0.425  "249_100.xy"
+25  25.59  0.3135  249.23  .0020  1.590  "249_025.xy"
+26  53.53  0.6078  249.24  .0040  0.346  "249_050.xy"
+27  12.72  0.3032  248.41  .0020  1.295  "249_012.xy"
+28  0.303  0.3025  248.27  .0020  1.607  "249_000.xy"
+29  13.86  0.3028  204.42  .0020  1.000  "204_012.xy"
+-----------------------------------------------------
+P_tot is the total pressure in mbar
+P_clno3 is the ClNO3 partial pressure in mbar
+
+DESCRIPTION.
+First, the cross-sections were converted back into transmittance
+spectra from knowledge of the cell length and gas concentrations.
+In transmittance, the noise will be much whiter than in absorptance,
+especially considering that in some of the spectra, the strength of
+the 780 cm-1 Q-branch is over 80%. The resulting 25 transmittance
+spectra were then simultaneously fitted (using the GFIT algorithm)
+by iteratively adjusting the strengths and ground-state energies of
+the pseudo-lines.
+
+PSEUDO-LINE SPACING.
+After trying various line spacings, an interval of 0.01 cm-1 was
+finally chosen.  This difficult choice was a trade-off between:
+   1) minimizing the number of ClNO3 pseudo lines,
+   2) adequately representing the ClNO3 spectral structure,
+   3) getting the correct slant column abundances of ClNO3.
+
+Having more pseudolines (e.g. 0.002 cm-1 spacing) provides better
+representation of the spectral structure observed in the low pressure
+laboratory spectra, and gives slightly more accurate representation of
+their slant column abundances, but the differences were small ( < 1% ).
+
+But most of the atmospheric ClNO3 resides at pressures (25-75 mbar)
+at which this fine structure is smeared by pressure-broadening. So
+in terms of correctly representing the ClNO3 absorption in spectra
+of the Earth's atmosphere, 0.01 cm-1 spacing seems to be adequate.
+
+DISCUSSION:
+Although the new laboratory ClNO3 measurements of Birk and Wagner
+are clearly the best to date, they are not perfect. Some minor
+deficiencies became apparent during the fitting of the laboratory
+spectra, that users of the raw cross-sections should be aware of:
+1) Channel fringes of up to +/- 1% amplitude.
+2) HNO3 absorptions of up to 2% depth are noticable in the 1310-
+   1330 cm-1 region of spectrum #2 (297K; no air broadening).
+3) H2O absorption lines are noticable in the 1312-1321 cm-1
+   region of most spectra. # 16 (219K and 95 mbar) is especially
+   prominant; the 1318.929 cm-1 H2O line attaining 8% in depth.
+   Note that these H2O lines are formed at room temperature and
+   at low pressure (inside the FTIR ?), not in the cell containing
+   the ClNO3.
+To minimize propagation of these artifacts into the ClNO3 pseudo-
+linelist, channel fringes, H2O, and HNO3 were all fitted during
+the pseudo-line iteration process. Otherwise, when analyzing
+atmospheric spectra in the 1320 cm-1 region, H2O and HNO3
+absorptions would be misidentified as ClNO3, and vice versa.
+
+IMPLEMENTATION.
+To make accurate use of these pseudo-lines, the assumed ClNO3
+Doppler width must be approximately equal to the 0.01 cm-1
+pseudo-line spacing. Otherwise the ClNO3 spectrum will start
+to appear "spikey" in the upper stratosphere. If your analysis
+software calculates the Doppler width based on the molecular
+weight of ClNO3, I suggest reducing it from 97 to 1.
+   Of course, this problem could have been completely avoided by
+having the ClNO3 pseudo-lines on a 0.001 grid, but then there would
+have been 40 Mbyte ClNO3 pseudo-linelist, rather than just 4 Mbyte.
+
+CALCULATION OF S AND E"
+At each line frequency, an effective strength and ground-state energy
+was derived by non-linear least squares fitting to the 25 spectra.
+Prior to this a PBHW of 0.078 cm-1/atm had been chosen since it gave
+the best overall fits to the pressure dependence of the 780 cm-1
+Q-branch region. As part of the fitting, the strengths and ground-state
+energies were both constrained to be +ve.
+
+After deriving the pseudo-line strengths, we noticed that in certain
+spectral regions ( 880-965, 1005-1090 and 1130-1215 cm-1) the
+strengths were all very small. We therefore deleted all the lines
+from these intervals to minimize the size of the pseudo-linelist
+and to save time when performing line-by-line calculations in those
+spectral regions.
+
+Since the Birk laboratory spectra stop at 1330 cm-1, the new ClNO3
+pseudo-linelist still contains the old pseudo-lines for the 1680-
+1790 cm-1 region, which were based on the measurents of Ballard et al.
+Note that the 1330-1340 cm-1 region, which was previously covered by
+Ballard's cross-section, is no longer represented in the new list.
+
+The new ClNO3 pseudo-linelist therefore contains lines in the
+following 5 intervals: 
+
+       V_start  V_stop     N_lines  Delta_nu   Spectra
+        690  -  880 cm-1    19000    0.01    Birk & Wagner
+        965  - 1005 cm-1     4000    0.01    Birk & Wagner
+       1090  - 1130 cm-1     4000    0.01    Birk & Wagner
+       1215  - 1330 cm-1    11500    0.01    Birk & Wagner
+       1680  - 1790 cm-1     1540    0.07142 Ballard et al.
+
+Comparisons of ClNO3 retrievals from MkIV balloon spectra in the 780 cm-1
+region, suggest that the new pseudo-linelist produces 5-10% smaller ClNO3
+amounts than either the Bell linelist or the previous pseudo-linelist
+derived from the Ballard cross-sections. 
+Furthermore, the new cross-sections of Birk and Wagner provide much
+better consistency between ClNO3 amounts derived from the 780 and
+1290 cm-1 regions (previously the latter gave 15% smaller amounts).
+----------------------------------------------------------------------

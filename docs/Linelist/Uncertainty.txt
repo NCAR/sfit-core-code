@@ -1,0 +1,25 @@
+Uncertainty codes
+
+The uncertainty codes used by the HITRAN database are described in Table 5 of the HITRAN2004 paper [1],
+which is reproduced here. There are two types of uncertainty code corresponding to absolute
+uncertainty in cm-1 (used for the line position and air pressure-induced line shift parameters)
+and relative uncertainty in % (used for the line intensity and broadening parameters).
+
+
+Code	Absolute Uncertainty range	Code	Relative Uncertainty range
+
+0	≥ 1 or Unreported	0	Unreported or unavailable
+1	≥ 0.1 and < 1	                  1	Default or constant
+2	≥ 0.01 and < 0.1	               2	Average or estimate
+3	≥ 0.001 and < 0.01	            3	≥ 20 %
+4	≥ 0.0001 and < 0.001	            4	≥ 10 % and < 20 %
+5	≥ 0.00001 and < 0.0001	         5	≥ 5 % and < 10 %
+6	≥ 0.000001 and < 0.00001	      6	≥ 2 % and < 5 %
+7	≥ 0.0000001 and < 0.000001	      7	≥ 1 % and < 2 %
+8	≥ 0.00000001 and < 0.0000001	   8	< 1 %
+9	≥ 0.000000001 and < 0.00000001
+
+
+References
+[1] L. S. Rothman, et al., "The HITRAN 2004 molecular spectroscopic database", J.
+Quant. Spectrosc. Radiat. Transfer 96, 139-204 (2005). [link to article] [ADS]
