@@ -10,7 +10,10 @@ basedirname='SFIT4-Official-Release-1-0'
 git clean -f
 
 cd docs
-find . -name '*.tex' -exec pdflatex {} ';'
+for i in *; do
+    cd $i
+    find . -name '*.tex' -exec pdflatex {} ';'
+    cd ..
 cd ..
 
 git archive --worktree-attributes -o $basedirname.tar Official_Release_1.0 #V1.0.8 
