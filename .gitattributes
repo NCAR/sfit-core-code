@@ -3,3 +3,4 @@
 pre-commit.sh export-ignore
 */*.hasc export-ignore
 */*.hbin export-ignore
+docs* export-ignore
