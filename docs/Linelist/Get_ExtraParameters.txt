@@ -1,4 +1,4 @@
-For CO2
+Linemixing Parameters for CO2
 
 Download LM.zip from the HITRAN webpage (Supplemental) and unpack
 
@@ -34,3 +34,5 @@ quantum number does not work. The format of the linemixing file is
 
 The result copy in the linelist folder e.g.
 as 002_CO2.hit16_LM1ST.par
+
+

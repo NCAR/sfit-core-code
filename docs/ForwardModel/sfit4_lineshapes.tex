@@ -1,6 +1,7 @@
 \documentclass[12pt, letterpaper]{article}
 
 % font
+\usepackage{natbib}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage[sfdefault,scaled=.85]{FiraSans}
@@ -8,10 +9,10 @@
 \usepackage{lineno}
 \usepackage{xargs}                      % Use more than one optional parameter in a new commands
 
-%\newcommand{\myreferences}{/home/mathias/Articles/All_Articles.bib}
+\newcommand{\myreferences}{/home/mathias/Articles/All_Articles.bib}
 %\bibliographystyle{agufull08}
-\bibliographystyle{authfirst}
-%\bibliographystyle{plain}
+%\bibliographystyle{authfirst}
+\bibliographystyle{plain}
 
 
 % math
@@ -154,33 +155,50 @@
 \section{Introduction} 
 \label{sec:intro}
 
-Lineshapes are cool.
+Originally SFIT4 used a pure line-by-line model. That means all lines
+were calculated separately using the Voigt lineshape. Later came the
+option to use the Galatry approximation, if Galatry parameters where
+given. Theoretical discussions are found in the document
+Workshop2019-Palm-sfit4-fwdmodel-params.pdf.
+
+This document summarizes, how they work together and how they are used in SFIT4.
 
 %% Implementation
 \section{Implementation} 
 \label{sec:implement}
 
-\improvement[inline]{Talk about codes for Voigt, Tran. \cite{Tran:2013} \cite{Drayson:1976}  \cite{Hartmann:2013}.}   For instance the original Voigt uses a function from Drayson,  when using Boone for linemixing it uses its own based on Humlicek, as does Galatry. 
+\improvement[inline]{Talk about codes for Voigt,
+  Tran. \cite{Tran:2013} \cite{Drayson:1976} \cite{Hartmann:2013}.}
+For instance the original Voigt uses a function from Drayson, when
+using Boone for linemixing it uses its own based on Humlicek, as does
+Galatry.  The lineshape published by \cite{Tran:2013} calculates the
+most complete line shape and the real and imaginary part. The real and
+imaginary part are used to calculate the Rosenkrantz approximation of
+the linemixing.
 
 \subsection{\sfi Lineshape Options}
 
 \improvement[inline]{Talk about switches and how they work together.}
 
-\noindent A brief introduction to the switches used in the \textit{sfit4.ctl} file is given in the \textit{sfit4\_init.pdf} tables.
+\noindent A brief introduction to the switches used in the
+\textit{sfit4.ctl} file is given in the \textit{sfit4\_init.pdf}
+tables.
 
-\noindent To implement a lineshape model use the forward model flag \textit{fw.lshapemodel =} and set to one of the switches described in Table \ref{tab:shape_flags}:
+\noindent To implement a lineshape model use the forward model flag
+\textit{fw.lshapemodel =} and set to one of the switches described in
+Table \ref{tab:shape_flags}:
 
 \begin{table}[H]
 \begin{tabularx}\linewidth{ p{15pt} X } \\
-\hline
-\textbf{Flag} & \textbf{Functionality} \T \\
-\hline \hline \B \T
-0  & The lineshape used for a given gas is not forced.  It depends on the spectroscopic values given supplied to SFIT4 from the hbin file, and on the specific switches for linemixing and SDV below \B \\
-1  & Force using the default Voigt lineshape model regardless of parameters supplied in the hbin file, \B \\
-2  & Use the Galatry if BETA\_T is given, if not use Voigt, \B \\
-3  & Line Mixing calculation using the Voigt profile as implemented by \cite{Boone:2013}, \B \\
-4  & Use the pCqSDHC lineshape model \cite{Tran:2013}, \B \\ 
-\hline \\
+  \hline
+  \textbf{Flag} & \textbf{Functionality} \T \\
+  \hline \hline \B \T
+  0  & The lineshape used for a given gas is not forced.  It depends on the spectroscopic values given supplied to SFIT4 from the hbin file, and on the specific switches for linemixing and SDV below \B \\
+  1  & Force using the default Voigt lineshape model regardless of parameters supplied in the hbin file, \B \\
+  2  & Use the Galatry if BETA\_T is given, if not use Voigt, \B \\
+  3  & Line Mixing calculation using the Voigt profile as implemented by \cite{Boone:2013}, \B \\
+  4  & Use the pCqSDHC lineshape model \cite{Tran:2013}, \B \\
+  \hline \\
 \end{tabularx} 
 \caption{\textit{Lineshape flags to control how SFIT4 implements different lineshapes for different species.}
 \label{tab:shape_flags}}
@@ -236,17 +254,17 @@ from it. Detailed knowledge about the spectroscopy is also required to do so.
   \hline
   \textbf{Gas} & \textbf{Data file} & \textbf{Origin} & \textbf{Usage} \T\B \\
   \hline \hline
-  \coo & 02\_hit08\_f53.par               & \cite{Lamouroux:2010}   & main linelist based on HITRAN 08, \B \\
-   & 02\_hit08\_f53\_LM1ST.par & \cite{Lamouroux:2010} & 1$^{st}$ order Rosenkranz linemixing parameters corresponding to the linelist above , \B \\
+  \coo & 002\_CO2.hit16.20181107              & \cite{Gordon:2017} & main linelist based on HITRAN 08, \B \\
+   & 002\_CO2.hit16\_LM1ST.par  & \cite{Lamouroux:2010} & 1$^{st}$ order Rosenkranz linemixing parameters corresponding to the linelist above , \B \\
   \hline
-  \co & 05\_hit16.par              & HITRAN 2016   & HITRAN parameters for \co, \B  \\
-  & 05\_hit16\_SDV.txt              & HITRAN 2016   & extra speed-dependent-Voigt parameters lines for \co, \B  \\
+  \co & 05\_hit16.par              &  \cite{Gordon:2017}  & HITRAN parameters for \co, \B  \\
+  & 05\_hit16\_SDV.txt              &  \cite{Gordon:2017}  & extra speed-dependent-Voigt parameters lines for \co, \B  \\
   \hline
-  \hf & 14\_hit16.par          & HITRAN 2016  &  HITRAN parameters for HF, \B \\
-  & 14\_hit16\_Galatry.txt          & HITRAN 2016  & extra parameters necessary for Galatry model, \B \\
+  \hf & 14\_hit16.par          &  \cite{Gordon:2017} &  HITRAN parameters for HF, \B \\
+  & 14\_hit16\_Galatry.txt          & \cite{Gordon:2017}  & extra parameters necessary for Galatry model, \B \\
   \hline
-  \hcl & 15\_hit16.par          & HITRAN 2016  & HITRAN parameters for HCL \B\\
-  & 15\_hit16\_Galatry.txt          & HITRAN 2016  & extra parameters necessary for Galatry model, \B \\
+  \hcl & 15\_hit16.par          & \cite{Gordon:2017}  & HITRAN parameters for HCL \B\\
+  & 15\_hit16\_Galatry.txt          & \cite{Gordon:2017}  & extra parameters necessary for Galatry model, \B \\
   \hline
 \end{tabularx} 
 \caption{\textit{Current data parameter files useful in SFIT4.}
@@ -256,13 +274,8 @@ from it. Detailed knowledge about the spectroscopy is also required to do so.
 \section{Examples}
 \label{sec:examples}
 
-\subsection{Line Mixing: CO$_2$}
+for examples please refer to Workshop2019-Palm-sfit4-fwdmodel-params.pdf
 
-CCL$_4$
-
-\subsection{Galatry: HCl, HF}
-
-\subsection{SDV: CO}
 
 
 %%\begin{enumerate}[topsep=5pt,itemsep=-1ex,partopsep=1ex,parsep=1ex]
@@ -296,11 +309,11 @@ CCL$_4$
 
 
 
-\section{Appendix}
-\label{sec:appendix}
+%\section{Appendix}
+%\label{sec:appendix}
 
-%\bibliography{\myreferences}
-\input{sfit4_lineshapes.bbl}
+\bibliography{Refs_Publications.bib}
+%\input{sfit4_lineshapes.bbl}
 \listoffigures
 
 \listoftables
