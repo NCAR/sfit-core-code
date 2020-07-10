@@ -279,7 +279,7 @@ if __name__ == '__main__':
     runsfit = True
     runhbin = True
     error = True
-    tips = True
+    tips = False
     if sys.argv.count('--nosfit4') > 0:
         runsfit = False
     if sys.argv.count('--nohbin') > 0:
@@ -288,6 +288,8 @@ if __name__ == '__main__':
         error = False
     if sys.argv.count('--notips') > 0:
         tips = False
+    if sys.argv.count('--tips') > 0:
+        tips = True
     script_path = os.path.dirname(os.path.realpath(__file__))
     tc.run_sfit4_in_testcase(sfit4=runsfit,hbin=runhbin,tips=tips,error=error)
     tc.read_summaries()
