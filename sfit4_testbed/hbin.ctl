@@ -1,4 +1,4 @@
-# hbin.input for Testing HITRAN 2016
+# hbin.input for Testing HITRAN 2016 (d/l 20181107)
 #
 # implemented in version b3.99:
 # the linelist directory structure is the key to the gas names and the molecule id numbers
@@ -11,8 +11,10 @@ file.out.ascii = T
 #
 # Path to the directory tree where the gas subdirectories are
 #
-file.in.linelist = /home/mathias/linelist-core/
+#file.in.linelist = /home/mathias/linelist-core/
+#file.in.linelist = /bira-iasb/projects/FTIR/tools/programs/sfit4/linelists/linelist-core/
 #file.in.linelist = /Users/jamesw/FDP/sfit/400/linelist-core/
+file.in.linelist = ~happy_place/sfit/linelist-core/
 #
 # Then the next lines are paths to each gas file that will be searched for lines in the
 # desired wavenember region.  The id numbers are in sfit order - not HITRAN, BUT KEEP
@@ -82,7 +84,7 @@ hitran.files =
 052_N2CIA/
 053_OTHER/
 054_OTHER/
-055_OTHER/
+055_PH3/055_PH3.atm.20200512
 056_OTHER/
 057_OTHER/
 058_OCLO/
@@ -128,10 +130,11 @@ hitran.files =
 098_OTHER/
 099_OTHER/
 #
+# These are all set off (*nr=0) until you verify compatibility of lines.
 #
 # Galatry parameters
 # molecule id numbers in these files have to match the sfit molecule id
-aux = gal sdv
+aux = gal sdv lm
 # gal sdv lm
 aux.gal.nr = 2
 aux.gal.files =

@@ -206,8 +206,12 @@ class test_sfit4:
                           'apriori':sum_new.apriori[0],
                           'retriev':sum_new.retriev[0],
                           'chi_y_2':sum_new.chi_y_2,
-                          'converged':sum_new.converged
                 }
+                if sum_new.converged[0] == 'F':
+                    result.update({'converged':False})
+                else:
+                    result.update({'converged':True})
+                    
                 self.results[tc].update(result)
             else:
                 self.results[tc].update({'summary':False})
