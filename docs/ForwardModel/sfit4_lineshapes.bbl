@@ -17,15 +17,16 @@ I.E. Gordon, L.S. Rothman, C.~Hill, R.V. Kochanov, Y.~Tan, P.F. Bernath,
   M.~Birk, V.~Boudon, A.~Campargue, K.V. Chance, B.J. Drouin, J.-M. Flaud, R.R.
   Gamache, J.T. Hodges, D.~Jacquemart, V.I. Perevalov, A.~Perrin, K.P. Shine,
   M.-A.H. Smith, J.~Tennyson, G.C. Toon, H.~Tran, V.G. Tyuterev, A.~Barbe, A.G.
-  Csaszar, V.M. Devi, T.~Furtenbacher, J.J. Harrison, J.-M. Hartmann, A.~Jolly,
-  T.J. Johnson, T.~Karman, I.~Kleiner, A.A. Kyuberis, J.~Loos, O.M. Lyulin,
-  S.T. Massie, S.N. Mikhailenko, N.~Moazzen-Ahmadi, H.S.P. Muller, O.V.
-  Naumenko, A.V. Nikitin, O.L. Polyansky, M.~Rey, M.~Rotger, S.W. Sharpe,
+  Császár, V.M. Devi, T.~Furtenbacher, J.J. Harrison, J.-M. Hartmann,
+  A.~Jolly, T.J. Johnson, T.~Karman, I.~Kleiner, A.A. Kyuberis, J.~Loos, O.M.
+  Lyulin, S.T. Massie, S.N. Mikhailenko, N.~Moazzen-Ahmadi, H.S.P. Müller,
+  O.V. Naumenko, A.V. Nikitin, O.L. Polyansky, M.~Rey, M.~Rotger, S.W. Sharpe,
   K.~Sung, E.~Starikova, S.A. Tashkun, J.~Vander Auwera, G.~Wagner,
-  J.~Wilzewski, P.~Wcislo, S.~Yu, and E.J. Zak.
-\newblock {The HITRAN2016 Molecular Spectroscopic Database}.
+  J.~Wilzewski, P.~Wcisło, S.~Yu, and E.J. Zak.
+\newblock The hitran2016 molecular spectroscopic database.
 \newblock {\em Journal of Quantitative Spectroscopy and Radiative Transfer},
-  2017.
+  203:3 -- 69, 2017.
+\newblock HITRAN2016 Special Issue.
 
 \bibitem{Hartmann:2013}
 J.-M. Hartmann, H.~Tran, N.~H. Ngo, X.~Landsheere, P.~Chelin, Y.~Lu, A.-W. Liu,
