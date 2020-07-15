@@ -22,7 +22,6 @@
   \usetheme[footheight=0.3cm]{boxes}
   \addfootboxtemplate{\color{UniGray}}{\hspace{0.0cm}
     \color{white}
-    \includegraphics[height=0.8cm]{IUP-Logo.pdf}
     \hspace{2cm}
     Mathias Palm 
     \hfill
@@ -65,63 +64,6 @@
 \maketitle
 \end{frame}
 
-\begin{frame}
-  \frametitle{Introduction}
-  \framesubtitle{Absorption spectroscopy}
-  \begin{columns}
-    \begin{column}[t]{0.5\textwidth}
-      \vspace{-1cm}
-      \begin{figure}[!h]
-        \centering
-        \includegraphics<1->[scale=0.5]{Spectro_Principle_Atm.pdf}
-        \label{fig:meas_principle}
-      \end{figure}
-      Measurements in solar or lunar absorption and emission possible 
-    \end{column}
-    \begin{column}[t]{0.5\textwidth}
-      \uncover<2->{
-
-        Received spectrum given by the sum of all absorption along the
-        path of sight.}
-        \begin{overlayarea}{\textwidth}{0.7\textheight}
-          \only<2>{
-            \includegraphics<2>[width=\textwidth]{meas_spec_3900_4400.pdf}
-            
-            Envelope defined by band filter 3900 - 4400 $cm^{-1}$
-            }
-          \only<3>{
-          \includegraphics<3>[width=\textwidth]{meas_spec_4235_4236.pdf}
-          
-          Microwindow containing a CO-line
-          }
-          \only<4>{
-            \includegraphics<4>[width=\textwidth,height=0.4\textheight]{CO_main_gases.pdf}
-
-            Contribution of gases and solar lines not calculated for
-            this particular spectrum
-            }
-        \end{overlayarea}
-      \end{column}
-  \end{columns}
-\end{frame}
-
-\begin{frame}
-  \frametitle{Introduction}
-  \framesubtitle{Principle of a Fourier transform spectrometer}
-  \begin{columns}
-    \begin{column}{0.6\textwidth}
-      \includegraphics[width=1.2\textwidth,height=0.8\textheight]{Principle-fts.png}
-    \end{column}
-    \begin{column}{0.4\textwidth}
-      \vspace{-2cm}
-      \begin{itemize}
-      \item apertures define and restrict field of view
-      \item aperture influences resolution
-      \item filter restricts wavelength sensitivity
-      \end{itemize}
-     \end{column}
-    \end{columns}
-\end{frame}
 
 
 \begin{frame}
