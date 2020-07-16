@@ -2,7 +2,7 @@
 O3                      ! old name
 3 2 0                     ! old molec id and isotope id
 O3668                   ! new name
-54 1 50.0 3 1.5 1.0     ! new molec id, isotope id, mass, mode, tdep, intensity scale
+83 1 50.0 3 1.5 1.0     ! new molec id, isotope id, mass, mode, tdep, intensity scale
 1090,1,  685,1, 1028,1  ! band center, degen
    6.648e-10,   5.284e-08,   8.974e-07,   1.357e-06,   1.356e-06,
    6.548e-07,   1.609e-07,   3.973e-07,   8.386e-07,   1.024e-06,
@@ -16,7 +16,7 @@ O3668                   ! new name
 O3                      ! old name
 3 3 0                    ! old molec id and isotope id
 O3686                   ! new name
-55 1 50.0 3 1.5 1.0     ! new molec id, isotope id, mass, mode, tdep, intensity scale
+84 1 50.0 3 1.5 1.0     ! new molec id, isotope id, mass, mode, tdep, intensity scale
 1074,1,  693,1, 1008,1  ! band center, degen
    6.648e-10,   5.284e-08,   8.974e-07,   1.357e-06,   1.356e-06,
    6.548e-07,   1.609e-07,   3.973e-07,   8.386e-07,   1.024e-06,

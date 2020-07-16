@@ -1,5 +1,7 @@
-*/*.tex export-ignore
 .git* export-ignore
 pre-commit.sh export-ignore
+build-release.sh export-ignore
 */*.hasc export-ignore
 */*.hbin export-ignore
+docs* export-ignore
+tools* export-ignore

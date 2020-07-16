@@ -1,14 +1,14 @@
  # General
- 
+
  file.in.stalayers              = station.layers
  file.in.refprofile             = reference.prf
  file.in.spectrum               = spectrum
  file.in.isotope                = isotope.input
- file.in.solarlines= ../../linelist/solar/120621/solar.dat	
+ file.in.solarlines= /home/mathias/linelist-core/solar/120621/solar.dat
  file.in.linelist= 00863.441722-00874.058278.hbin
- 
+
  # Definition for retrieval gases
- 
+
  gas.layers                  =              48
  gas.profile.list            = HNO3
  gas.column.list             = H2O OCS NH3
@@ -32,25 +32,26 @@
  gas.column.OCS.sigma               = 1.0
  gas.column.NH3.scale               = 1.0
  gas.column.NH3.sigma               = 1.0
- 
+
  # Forward model parameters
- 
- fw.delnu                    =           0.10000
- fw.lshapemodel              =               0
- fw.solar_spectrum           = F
+
+ fw.tips                     = F
+ fw.delnu                    = 0.10000
+ fw.lshapemodel              = 0
+ fw.solar_spectrum           = T
  fw.pressure_shift           = T
  fw.apod_fcn                 = F
  fw.phase_fcn                = F
  fw.isotope_separation       = F
- 
+
  # Retrieval parameter
- 
+
  rt                          =               T
  rt.lm                       =               F
- rt.convergence              =           0.1
+ rt.convergence              =              0.1
  rt.max_iteration            =              15
  rt.wshift                   =               T
- rt.wshift.type              = 3
+ rt.wshift.type              =               3
  rt.wshift.apriori           =           0.000
  rt.wshift.sigma             =           0.100
  rt.slope                    =               T
@@ -62,26 +63,25 @@
  rt.phase                    =               T
  rt.phase.apriori            =           0.000
  rt.phase.sigma              =           0.200
- rt.dwshift                  =              F
- 
+ rt.dwshift                  =               F
+
  # Microwindows and their parameters
- 
- band                        =   1
+
+ band                        =          1
  band.1.nu_start             =        867.5
  band.1.nu_stop              =        870.0
  band.1.zshift		     =	      F
- band.1.beam                 =               0
+ band.1.beam                 =               
  band.1.calc_point_space     =       0.500E-03
- band.1.wave_factor          =           1.000
- band.1.max_opd= 180.0000
- band.1.omega= 4.0670
+ band.1.wave_factor          =           1.0
+ band.1.max_opd              =       180.0000
+ band.1.omega                =         4.0670
  band.1.apodization_code =               0
  band.1.gasb                 = HNO3 H2O OCS NH3
- 
+
  out.level= 1
- out.smeas_matrix = T
- 
- kb= T
+
+ kb= F
  kb.slope = F
  kb.curvature = F
  kb.solshft= T
@@ -91,6 +91,7 @@
  kb.omega= T
  kb.zshift= T
  kb.sza= T
+
  out.gas_spectra= T
  out.k_matrix= T
  out.ak_matrix= T
@@ -102,6 +103,7 @@
  out.aprprofiles= T
  out.pbpfile= T
  out.statevec= T
+
  file.out.pbpfile= pbpfile
  file.out.statevec= statevec
  file.out.ak_matrix= ak.out

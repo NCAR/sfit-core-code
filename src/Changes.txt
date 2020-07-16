@@ -1,5 +1,12 @@
 June 2020
 
+
+-----
+Fixed bug in TIPS to prevent isotopes not allowed in TIPS (but in SFIT) to pass through TIPS. -jwh
+-----
+Added extra isotopes of NH3  to accommodate ATM list.
+
+
 official release of stable version 1.0
 
 write out of AB fixed (request of Dan Smale)

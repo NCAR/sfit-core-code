@@ -36,12 +36,27 @@ class test_sfit4:
                 print ('No value for key '+key+'?')
             if key.lower() == 'sfit4_dir':
                 self.sfit4_dir = l.rsplit('=')[1].strip()
+                if self.sfit4_dir == '<SFIT4-DIR>' or not Path(self.sfit4_dir).is_dir():
+                    self.sfit4_dir = raw_input('Please specify the sfit-core-code directory\n')
+                while not Path(self.sfit4_dir).is_dir():
+                    self.sfit4_dir = raw_input('{} does not exist or is no directory. Please try again.\n>'.format(self.sfit4_dir))
+                self.sfit4_dir += '/'
                 continue
             if key.lower() =='linelist_dir':
-                self.linelist_dir = l.rsplit('=')[1].strip()+'/'
+                self.linelist_dir = l.rsplit('=')[1].strip()
+                if self.linelist_dir == '<LINELIST-DIR>' or not Path(self.linelist_dir).is_dir():
+                    self.linelist_dir = str(raw_input('Please specify the linelistdir\n'))
+                while not Path(self.linelist_dir).is_dir():
+                    self.linelist_dir = raw_input('{} does not exist or is no directory. Please try again.\n>'.format(self.linelist_dir))
+                self.linelist_dir += '/'
                 continue
             if key.lower() == 'testdir':
-                self.testcase_dir = l.rsplit('=')[1].strip()+'/'
+                self.testcase_dir = l.rsplit('=')[1].strip()
+                if self.testcase_dir == '<TESTBED-DIR>' or not Path(self.testcase_dir).is_dir():
+                    self.testcase_dir = raw_input('Please specify the testcase directory\n')
+                while not Path(self.testcase_dir).is_dir():
+                    self.testcase_dir = raw_input('{} does not exist or is no directory. Please try again.\n>'.format(self.testcase_dir))
+                self.testcase_dir += '/'
                 continue
             if key.lower() =='origtestcases_dir':
                 ll = l.rsplit('=')[1].strip()+'/'
@@ -71,7 +86,7 @@ class test_sfit4:
             if len(subkeys) > 1:
 
                 if subkeys[0].strip() == 'gas' and len(self.results.keys()) == 0:
-                    print ('Gases must be defined before details')
+                    print('Gases must be defined before details')
                     return(None)
                 gas = subkeys[1].strip()
                 if self.results.keys().count(gas) == 0:
@@ -191,8 +206,12 @@ class test_sfit4:
                           'apriori':sum_new.apriori[0],
                           'retriev':sum_new.retriev[0],
                           'chi_y_2':sum_new.chi_y_2,
-                          'converged':sum_new.converged
                 }
+                if sum_new.converged[0] == 'F':
+                    result.update({'converged':False})
+                else:
+                    result.update({'converged':True})
+                    
                 self.results[tc].update(result)
             else:
                 self.results[tc].update({'summary':False})
@@ -216,9 +235,9 @@ class test_sfit4:
                 str += 'Testcase {0}: RUN NOT OK '.format(rs)
 
             diverge = self.results[rs]['chi_y_2'] - self.results_orig[rs]['chi_y_2']
-            diverge = 2*diverge
+            diverge *= 2
             diverge /= self.results[rs]['chi_y_2'] + self.results_orig[rs]['chi_y_2']
-            if diverge > 0.01:
+            if diverge < 0.01:
                 str += 'RESULTS OK \n'.format(rs)
             else:
                 str += 'CHI_2_Y DIVERGES BY {1:1%} %\n'.format(rs, diverge)
@@ -260,7 +279,7 @@ if __name__ == '__main__':
     runsfit = True
     runhbin = True
     error = True
-    tips = True
+    tips = False
     if sys.argv.count('--nosfit4') > 0:
         runsfit = False
     if sys.argv.count('--nohbin') > 0:
@@ -269,6 +288,8 @@ if __name__ == '__main__':
         error = False
     if sys.argv.count('--notips') > 0:
         tips = False
+    if sys.argv.count('--tips') > 0:
+        tips = True
     script_path = os.path.dirname(os.path.realpath(__file__))
     tc.run_sfit4_in_testcase(sfit4=runsfit,hbin=runhbin,tips=tips,error=error)
     tc.read_summaries()

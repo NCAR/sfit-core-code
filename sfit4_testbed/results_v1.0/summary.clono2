@@ -1,4 +1,4 @@
- SFIT4:v1.0.6   :Off-Release -- May 2020 RUNTIME:20200608-12:53:34 RETRIEVAL SUMMARY 
+ SFIT4:v1.0.8   :Off-Release -- June 2020 RUNTIME:20200710-14:52:37 RETRIEVAL SUMMARY 
 
          2
   09/08/2013, 13:10:30, SCAN TIME:287.31 SEC. RES= 0.0050  APOD FN = BX          
@@ -6,18 +6,18 @@
 
          5
  IRET   GAS_NAME  IFPRF IFCELL APR_COLUMN    RET_COLUMN
-    1     CLONO2      T      F      1.15172E+15   7.45781E+14
-    2         O3      T      F      9.82960E+18   8.90134E+18
-    3       HNO3      F      F      1.94542E+16   2.56453E+15
-    4        H2O      F      F      2.53716E+22   1.03098E+22
-    5        CO2      F      F      7.94389E+21   8.24484E+21
+    1     CLONO2      T      F      1.15172E+15   2.26490E+15
+    2         O3      T      F      9.82960E+18   9.96580E+18
+    3       HNO3      F      F      1.94542E+16   1.06269E+16
+    4        H2O      F      F      2.53716E+22   4.58288E+22
+    5        CO2      F      F      7.94389E+21   7.78098E+21
 
          2
 IBAND       NUSTART        NUSTOP         SPACE     NPTSB     PMAX    FOVDIA   MEAN_FIT_SNR  NSCAN  JSCAN     INIT_SNR     EFF_SNR      FIT_SNR
-    1     779.85000     780.45000   0.001883271       318   180.00  2.392300     241.592877      1
-                                                                                                        1      266.480      266.480      241.593
-    2     782.55000     782.87000   0.001883271       169   180.00  2.392300     289.482750      1
-                                                                                                        1      270.040      270.040      289.483
+    1     779.85000     780.45000   0.001883271       318   180.00  2.392300     156.018513      1
+                                                                                                        1      266.480      266.480      156.019
+    2     782.55000     782.87000   0.001883271       169   180.00  2.392300     270.789404      1
+                                                                                                        1      270.040      270.040      270.789
 
        FITRMS       CHI_2_Y      DOFS_ALL      DOFS_TRG      DOFS_TPR      ITER  MAX_ITER CONVERGED   DIVWARN
-     0.390753      1.092125      19.510        1.027        0.000        10        15          T         T
+     0.560763      2.241985      13.683        1.045        0.000         8        15          T         F
