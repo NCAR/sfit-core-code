@@ -15,7 +15,6 @@ function traverse() {
     done
     echo $(pwd)
     find . -maxdepth 1 -name '*.tex' -exec pdflatex {} ';'
-    find . -maxdepth 1 -name '*.aux' -exec bibtex {} ';'
     find . -maxdepth 1 -name '*.tex' -exec pdflatex {} ';'
     find . -maxdepth 1 -name '*.doc*' -exec lowriter --convert-to pdf {} ';'
     find . -maxdepth 1 -name '*.txt*' -exec lowriter --convert-to pdf {} ';'
