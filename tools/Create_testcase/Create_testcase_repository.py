@@ -1,8 +1,14 @@
+#!/usr/bin/python3
+
 import os, sys
 from sfit4_ctl import sfit4_ctl
 import tarfile
 
 def create_testcase_rep(dir='.'):
+
+    if not os.path.exists(os.path.join(dir,'sfit4.ctl')):
+        print('The directory {} is not a sfit4 directory.'.format(dir))
+        return
 
     ctl = sfit4_ctl()
     ctl.read_ctl_file(os.path.join(dir,'sfit4.ctl'))
@@ -11,13 +17,13 @@ def create_testcase_rep(dir='.'):
 
     
     if os.path.exists(os.path.join(dir,'sfit4.ctl')):
-        tarf.add(os.path.join(dir,'sfit4.ctl'))
+        tarf.add(os.path.join(dir,'sfit4.ctl'), arcname='sfit4.ctl')
     else:
         print ('dir {} does not contain an sfit4.ctl'.format(os.path.abspath(dir)))
         tarf.close()
         return()
     if os.path.exists(os.path.join(dir,'hbin.ctl')):
-        tarf.add(os.path.join(dir,'hbin.ctl'))
+        tarf.add(os.path.join(dir,'hbin.ctl'), arcname='hbin.ctl')
 
     # necessary files
     nec_files = {'file.in.spectrum':'always',
@@ -31,7 +37,7 @@ def create_testcase_rep(dir='.'):
             necfile = os.path.join(dir, ctl.get_value(necf))
             print(necfile)
             if os.path.exists(necfile):
-                tarf.add(necfile)
+                tarf.add(necfile, arcname=os.path.basename(necfile))
             else:
                 print ('file  {} does not exists'.format(necfile))
                 tarf.close()
@@ -45,7 +51,7 @@ def create_testcase_rep(dir='.'):
             if type == '4' or type == '5':
                 necfile = os.path.join(dir, ctl.get_value('file.in.sa_matrix'))
                 if os.path.exists(necfile):
-                    tarf.add(necfile)
+                    tarf.add(necfile, arcname=os.path.basename(necfile))
                 else:
                     print ('file  {} does not exists'.format(necfile))
                     tarf.close()
@@ -55,5 +61,11 @@ def create_testcase_rep(dir='.'):
     tarf.close()
                
 if __name__ == '__main__':
-    create_testcase_rep(sys.argv[1])
+
+    if len(sys.argv) == 2:
+        direc = sys.argv[1]
+    else:
+        direc = '.'
+    direc = os.path.abspath(direc)
+    create_testcase_rep(direc)
                
