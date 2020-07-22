@@ -69,12 +69,38 @@
 \begin{frame}
   \frametitle{Contents}
   \begin{itemize}
+  \item Contact and getting help
   \item Other documentation files and what they contain
   \item Files needed and where to get them
-  \item How to modify sfit4.ctl
+  \item Build sfit4, hbin and pspec
   \item Create the spectral file LLLLL.llllll-HHHHH.hhhhhh.hbin
-  \item Run SFIT4
+  \item Create a setup for your own station
   \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Contact and getting help}
+  \begin{enumerate}
+  \item make sure you have the latest SFIT4 version (check on <https://wiki.ucar.edu/display/sfit4/>)
+  \item Pack a full testcase, i.e.
+    \begin{enumerate}
+    \item sfit4.ctl
+    \item hbin.ctl
+    \item all files the section file.in. point to
+    \item sfit4.dtl if it exists.
+    \item a screenshot of the output.
+    \end{enumerate}
+    you may use the script in tools/Create\_testcase. It is called by\\
+    python3 Create\_testcase\_repository <DIR>\\
+    where <DIR> is the testcase directory. If no dierectory is given,
+    the current directory is used.
+  \item sent them to one or all people listet in the CONTACT section
+    of <https://wiki.ucar.edu/display/sfit4/>.
+  \item We rely on bug reports to improve the program further. Many
+    bugs tend to be subtle and turn up only in very special
+    circumstances.
+  \end{enumerate}
+
 \end{frame}
 
 \begin{frame}
@@ -184,25 +210,22 @@
   \end{enumerate}
 \end{frame}
 
-
 \begin{frame}
-  \frametitle{Getting help}
-  \begin{enumerate}
-  \item make sure you have the latest SFIT4 version (check on <https://wiki.ucar.edu/display/sfit4/>)
-  \item Pack a full testcase, i.e.
-    \begin{enumerate}
-    \item sfit4.ctl
-    \item hbin.ctl
-    \item all files the section file.in. point to
-    \item sfit4.dtl if it exists.
-    \item a screenshot of the output.
-    \end{enumerate}
-  \item sent them to one or all people listet in the CONTACT section
-    of <https://wiki.ucar.edu/display/sfit4/>.
-  \item We rely on bug reports to improve the program further. Many
-    bugs tend to be subtle and turn up only in very special
-    circumstances.
-  \end{enumerate}
-
+  \frametitle{Create a setup for the station you are interested in}
+  \begin{itemize}
+  \item Start from a testcase from test\_cases\_NDACC
+  \item Create the reference profile for your station. You find WACCM runs at
+    https://wiki.ucar.edu/display/sfit4/Whole+Atmosphere+Community+Climate+Model+\%28WACCM\%29+Data
+  \item Download the profiles for your station.
+  \item If your station is not there, you may:
+    \begin{itemize}
+    \item choose a station with the same latitude and altitude
+    \item write an email to the contact and ask for the run for your station
+    \end{itemize}
+  \item Use the tool tools/Create\_Refprofile/Create\_REF\_from\_WACCM.py to create an example
+    refprofile and copy the station.layers file in the sfit4 directory.
+  \item use pspec to create a spectrum (docs/Processing/sfit4-pspec\_descrip.pdf) 
+  \end{itemize}
 \end{frame}
+  
 \end{document}
