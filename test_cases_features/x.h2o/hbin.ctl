@@ -1,17 +1,37 @@
-
+# hbin.input for NDACC as of 2008
+#
+# implemented in version b3.99:
+# the linelist directory structure is the key to the gas names and the molecule id numbers
+# those id's and names must be the same in the reference.prf file
+# eg a files containing hitran lines is read from one subdir in linelist then the molid will be changed
+# to the 2digit integer 0NN of the subdir name and assumed to be for gas 'abcdef' from subdir 0NN_abcdef
+#
+# Save an ascii (HITRAN format) list file (True / False)
 file.out.ascii = T
 #
-file.in.linelist = ../../../linelist/
+# Path to the directory tree where the gas subdirectories are
 #
-# next non-comment entry is the number of path/files to look for
+file.in.linelist = /home/mathias/linelist-core/
+#file.in.linelist = /Users/jamesw/FDP/sfit/400/linelist.all/
+#
+# Then the next lines are paths to each gas file that will be searched for lines in the
+# desired wavenember region.  The id numbers are in sfit order - not HITRAN, BUT KEEP
+# these directory names the files are in HITRAN format.  File names can be anything.
+#
+# Tip: put a blank after the '/' to skip that gas or just remove it (and decrease hitran.nr)
+#
+# 049_O2CIA/o2cia_20060420.101 - this file is a special case, molid & isotope
+#  ids are dealt with differently
+#
+# Number of path/files to look for
 hitran.nr = 99
 #
-hitran.files = 
+hitran.files =
 001_H2O/01_hit09.par
 002_CO2/02_hit08_f53.par
 003_O3/03_hit08.par
 004_N2O/04_hit08.par
-005_CO/05_hit12.par
+005_CO/05_hit08.par
 006_CH4/06_hit08.par
 007_O2/07_hit08.par
 008_NO/08_hit08.par
@@ -25,7 +45,7 @@ hitran.files =
 016_HBR/16_hit08.par
 017_HI/17_hit08.par
 018_CLO/18_hit08.par
-019_OCS/19_hit12.par
+019_OCS/19_hit08.par
 020_H2CO/20_hit08.par
 021_HOCL/21_hit08.par
 022_HO2/33_hit08.par
@@ -71,8 +91,8 @@ hitran.files =
 062_CFC113/2007.sudo.f113
 063_F141B/
 064_CH3OH/39_hit08.par
-065_CH3CNPL/2007.sudo.ch3cn
-066_C2H6PL/2007.sudo.c2h6pl
+065_OTHER/
+066_OTHER/
 067_PAN/2007.sudo.pan
 068_CH3CHO/2007.sudo.ch3cho
 069_CH3CN/41_hit08.par
@@ -110,21 +130,22 @@ hitran.files =
 #
 # Galatry parameters
 # molecule id numbers in these files have to match the sfit molecule id
+#aux =
 aux = gal sdv lm
-aux.gal.nr = 2
-aux.gal.files = 
+aux.gal.nr = 0
+aux.gal.files =
 014_HF/14_hit12_Galatry.txt
 015_HCL/15_hit12_Galatry.txt
 #
 #
 # CO2 Line mixing parameters for Boone implementation
 aux.lm.nr = 1
-aux.lm.files = 
-002_CO2/02_hit08_f53_lm1st.par
+aux.lm.files =
+002_CO2/02_hit08_f53_LM1ST.par
 #
 #
 # Speed Dependent Voigt parameter files --- not yet!
 aux.sdv.nr = 1
-aux.sdv.files = 
-005_CO/05_hit12_sdv.par
+aux.sdv.files =
+005_CO/05_hit12_SDV.txt
 #

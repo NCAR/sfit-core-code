@@ -1,6 +1,4 @@
-# hbin.input for Testing ATM 20200512
-#
-# Update SFIT4 v1.0
+# hbin.input for Testing HITRAN 2016
 #
 # implemented in version b3.99:
 # the linelist directory structure is the key to the gas names and the molecule id numbers
@@ -13,8 +11,8 @@ file.out.ascii = T
 #
 # Path to the directory tree where the gas subdirectories are
 #
-#file.in.linelist = ~/sfit/linelist-core/
-file.in.linelist = /Users/jamesw/FDP/sfit/400/linelist-core/
+file.in.linelist = /home/mathias/linelist-core/
+#file.in.linelist = /Users/jamesw/FDP/sfit/400/linelist-core/
 #
 # Then the next lines are paths to each gas file that will be searched for lines in the
 # desired wavenember region.  The id numbers are in sfit order - not HITRAN, BUT KEEP
@@ -30,58 +28,58 @@ hitran.nr = 99
 #
 #
 hitran.files =
-001_H2O/001_H2O+HDO.atm.20200512
-002_CO2/002_CO2.atm.20200512
-003_O3/003_O3.atm.20200512
-004_N2O/004_N2O.atm.20200512
-005_CO/005_CO.atm.20200512
-006_CH4/006_CH4.atm.20200512
-007_O2/007_O2.atm.20200512
-008_NO/008_NO.atm.20200512
-009_SO2/009_SO2.atm.20200512
-010_NO2/010_NO2.atm.20200512
-011_NH3/011_NH3.atm.20200512
-012_HNO3/012_HNO3.atm.20200512
-013_OH/013_OH.atm.20200512
-014_HF/014_HF.atm.20200512
-015_HCL/015_HCL.atm.20200512
-016_HBR/016_HBr.atm.20200512
-017_HI/017_HI.atm.20200512
-018_CLO/018_ClO.atm.20200512
-019_OCS/019_OCS.atm.20200512
-020_H2CO/020_H2CO.atm.20200512
-021_HOCL/021_HOCl.atm.20200512
-022_HO2/022_HO2.atm.20200512
-023_H2O2/023_H2O2.atm.20200512
+001_H2O/001_H2O.hit16.20181107
+002_CO2/002_CO2.hit16.20181107
+003_O3/003_O3.hit16.20181107
+004_N2O/004_N2O.hit16.20181107
+005_CO/005_CO.hit16.20181107
+006_CH4/006_CH4.hit16.20181107
+007_O2/007_O2.hit16.20181107
+008_NO/008_NO.hit16.20181107
+009_SO2/009_SO2.hit16.20181107
+010_NO2/010_NO2.hit16.20181107
+011_NH3/011_NH3.hit16.20181107
+012_HNO3/012_HNO3.hit16.20181107
+013_OH/013_OH.hit16.20181107
+014_HF/014_HF.hit16.20181107
+015_HCL/015_HCl.hit16.20181107
+016_HBR/016_HBr.hit16.20181107
+017_HI/017_HI.hit16.20181107
+018_CLO/018_ClO.hit16.20181107
+019_OCS/019_OCS.hit16.20181107
+020_H2CO/020_H2CO.hit16.20181107
+021_HOCL/021_HOCl.hit16.20181107
+022_HO2/033_HO2.hit16.20181107
+023_H2O2/025_H2O2.hit16.20181107
 024_HONO/
 025_HO2NO2/
 026_N2O5/2007.sudo.n2o5
 027_CLONO2/2007.sudo.clono2
-028_HCN/028_HCN.atm.20200512
+028_HCN/023_HCN.hit16.20181107
 029_CH3F/
-030_CH3CL/030_CH3Cl.atm.20200512
+030_CH3CL/024_CH3Cl.hit16.20181107
 031_CF4/2007.sudo.cf4
 032_CCL2F2/2007.sudo.ccl2f2
 033_CCL3F/2007.sudo.ccl3f
 034_CH3CCL3/
 035_CCL4/2007.sudo.ccl4
-036_COF2/036_COF2.atm.20200512
+036_COF2/029_COF2.hit16.20181107
 037_COCLF/2007.sudo.coclf
-038_C2H6/038_C2H6.atm.20200512
-039_C2H4/039_C2H4.atm.20200512
-040_C2H2/040_C2H2.atm.20200512
-041_N2/041_N2.atm.20200512
+038_C2H6/027_C2H6.hit16.20181107
+039_C2H4/038_C2H4.hit16.20181107
+040_C2H2/026_C2H2.hit16.20181107
+041_N2/022_N2.hit16.20181107
 042_CHF2CL/2007.sudo.chf2cl
-043_COCL2/049_COCL2.hit16.20181107
+043_COCL2/049_COCl2.hit16.20181107
 044_CH3BR/040_CH3Br.hit16.20181107
 045_CH3I/
-046_HCOOH/046_HCOOH.atm.20200512
-047_H2S/047_H2S.atm.20200512
+046_HCOOH/032_HCOOH.hit16.20181107
+047_H2S/031_H2S.hit16.20181107
 048_CHCL2F/
 049_O2CIA/o2cia_20060420.101
 050_SF6/2007.sudo.sf6
 051_NF3/nf3.101.511.txt
-052_N2CIA/n2cia.20060420.101
+052_N2CIA/
 053_OTHER/
 054_OTHER/
 055_OTHER/
@@ -131,25 +129,24 @@ hitran.files =
 099_OTHER/
 #
 #
-# These are all set off (*nr=0) until you verify compatibility of lines.
-#
 # Galatry parameters
 # molecule id numbers in these files have to match the sfit molecule id
-aux = gal sdv lm
-aux.gal.nr = 0
+aux = gal sdv
+# gal sdv lm
+aux.gal.nr = 2
 aux.gal.files =
-014_HF/14_hit12_Galatry.txt
-015_HCL/15_hit12_Galatry.txt
+014_HF/14_hit16_Galatry.txt
+015_HCL/15_hit16_Galatry.txt
+#
+# Speed Dependent Voigt parameter files
+aux.sdv.nr = 1
+aux.sdv.files =
+005_CO/05_hit16_SDV.txt
 #
 #
-# CO2 Line mixing parameters (e.g. CCl4 retrieval)
-aux.lm.nr = 0
+# Line mixing parameters 
+aux.lm.nr = 1
 aux.lm.files =
 002_CO2/002_CO2.hit16_LM1ST.par
 #
-#
-# Speed Dependent Voigt parameter files
-aux.sdv.nr = 0
-aux.sdv.files =
-005_CO/05_hit12_SDV.txt
 #

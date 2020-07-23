@@ -323,7 +323,7 @@
                   ELSEIF((LSHAPEMODEL.EQ.3).AND.HFLAG(N,LM_FLAG)) THEN
                      CALL VOIGTMIX(XDUM*ADOP/ALOGSQ,AKV)
                      AKV = AKZERO * AKV
-                  ELSEIF (LSHAPEMODEL.EQ.4) THEN
+                  ELSEIF ((LSHAPEMODEL.EQ.4).OR.HFLAG(N,SDV_FLAG).OR.HFLAG(N,LM_FLAG)) THEN
                      ! pCqSDHC MODEL (Tran)
                      call pCqSDHC(WLIN,ADOP,ALOR,G2,S0, S2, ANUVC,ETA0,&
                           ANUZ,AKV_R,AKV_I)
