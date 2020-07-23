@@ -3,5 +3,8 @@ pre-commit.sh export-ignore
 build-release.sh export-ignore
 */*.hasc export-ignore
 */*.hbin export-ignore
+test_cases_features/* export-ignore
 docs* export-ignore
-tools* export-ignore
+tools/convert_aux_HITRAN_data* export-ignore
+tools/correct_matrix* export-ignore
+tools/sfit4.k export-ignore
