@@ -1,4 +1,4 @@
-# hbin.input for Testing HITRAN 2016 (d/l 20181107)
+# hbin.input for NDACC as of 2008
 #
 # implemented in version b3.99:
 # the linelist directory structure is the key to the gas names and the molecule id numbers
@@ -11,10 +11,8 @@ file.out.ascii = T
 #
 # Path to the directory tree where the gas subdirectories are
 #
-#file.in.linelist = /home/mathias/linelist-core/
-#file.in.linelist = /bira-iasb/projects/FTIR/tools/programs/sfit4/linelists/linelist-core/
-#file.in.linelist = /Users/jamesw/FDP/sfit/400/linelist-core/
-file.in.linelist = ~happy_place/sfit/linelist-core/
+file.in.linelist = /home/mathias/linelist-core/
+#file.in.linelist = /Users/jamesw/FDP/sfit/400/linelist.all/
 #
 # Then the next lines are paths to each gas file that will be searched for lines in the
 # desired wavenember region.  The id numbers are in sfit order - not HITRAN, BUT KEEP
@@ -28,63 +26,62 @@ file.in.linelist = ~happy_place/sfit/linelist-core/
 # Number of path/files to look for
 hitran.nr = 99
 #
-#
 hitran.files =
-001_H2O/001_H2O.hit16.20181107
-002_CO2/002_CO2.hit16.20181107
-003_O3/003_O3.hit16.20181107
-004_N2O/004_N2O.hit16.20181107
-005_CO/005_CO.hit16.20181107
-006_CH4/006_CH4.hit16.20181107
-007_O2/007_O2.hit16.20181107
-008_NO/008_NO.hit16.20181107
-009_SO2/009_SO2.hit16.20181107
-010_NO2/010_NO2.hit16.20181107
-011_NH3/011_NH3.hit16.20181107
-012_HNO3/012_HNO3.hit16.20181107
-013_OH/013_OH.hit16.20181107
-014_HF/014_HF.hit16.20181107
-015_HCL/015_HCl.hit16.20181107
-016_HBR/016_HBr.hit16.20181107
-017_HI/017_HI.hit16.20181107
-018_CLO/018_ClO.hit16.20181107
-019_OCS/019_OCS.hit16.20181107
-020_H2CO/020_H2CO.hit16.20181107
-021_HOCL/021_HOCl.hit16.20181107
-022_HO2/033_HO2.hit16.20181107
-023_H2O2/025_H2O2.hit16.20181107
+001_H2O/01_hit09.par
+002_CO2/02_hit08_f53.par
+003_O3/03_hit08.par
+004_N2O/04_hit08.par
+005_CO/05_hit08.par
+006_CH4/06_hit08.par
+007_O2/07_hit08.par
+008_NO/08_hit08.par
+009_SO2/09_hit08.par
+010_NO2/10_hit08.par
+011_NH3/11_hit08.par
+012_HNO3/12_hit08.par
+013_OH/13_hit08.par
+014_HF/14_hit08.par
+015_HCL/15_hit08.par
+016_HBR/16_hit08.par
+017_HI/17_hit08.par
+018_CLO/18_hit08.par
+019_OCS/19_hit08.par
+020_H2CO/20_hit08.par
+021_HOCL/21_hit08.par
+022_HO2/33_hit08.par
+023_H2O2/25_hit08.par
 024_HONO/
 025_HO2NO2/
 026_N2O5/2007.sudo.n2o5
 027_CLONO2/2007.sudo.clono2
-028_HCN/023_HCN.hit16.20181107
+028_HCN/23_hit08.par
 029_CH3F/
-030_CH3CL/024_CH3Cl.hit16.20181107
+030_CH3CL/24_hit08_f53.par
 031_CF4/2007.sudo.cf4
 032_CCL2F2/2007.sudo.ccl2f2
 033_CCL3F/2007.sudo.ccl3f
 034_CH3CCL3/
 035_CCL4/2007.sudo.ccl4
-036_COF2/029_COF2.hit16.20181107
+036_COF2/29_hit08.par
 037_COCLF/2007.sudo.coclf
-038_C2H6/027_C2H6.hit16.20181107
-039_C2H4/038_C2H4.hit16.20181107
-040_C2H2/026_C2H2.hit16.20181107
-041_N2/022_N2.hit16.20181107
+038_C2H6/c2h6_2720_3100.101.27
+039_C2H4/38_hit08.par
+040_C2H2/26_hit08.par
+041_N2/22_hit08.par
 042_CHF2CL/2007.sudo.chf2cl
-043_COCL2/049_COCl2.hit16.20181107
-044_CH3BR/040_CH3Br.hit16.20181107
+043_COCL2/2007.sudo.cocl2
+044_CH3BR/40_hit08.par
 045_CH3I/
-046_HCOOH/032_HCOOH.hit16.20181107
-047_H2S/031_H2S.hit16.20181107
+046_HCOOH/32_hit08.par
+047_H2S/31_hit08.par
 048_CHCL2F/
 049_O2CIA/o2cia_20060420.101
 050_SF6/2007.sudo.sf6
-051_NF3/nf3.101.511.txt
-052_N2CIA/
+051_NF3/
+052_OTHER/
 053_OTHER/
 054_OTHER/
-055_PH3/055_PH3.atm.20200512
+055_OTHER/
 056_OTHER/
 057_OTHER/
 058_OCLO/
@@ -93,19 +90,19 @@ hitran.files =
 061_F142B/2007.sudo.f142b
 062_CFC113/2007.sudo.f113
 063_F141B/
-064_CH3OH/039_CH3OH.hit16.20181107
+064_CH3OH/39_hit08.par
 065_OTHER/
 066_OTHER/
 067_PAN/2007.sudo.pan
 068_CH3CHO/2007.sudo.ch3cho
-069_CH3CN/041_CH3CN.hit16.20181107
+069_CH3CN/41_hit08.par
 070_OTHER/
-071_CH3COOH/ch3cooh_1100_pll.txt
-072_C5H8/c5h8_885_pll.txt
-073_MVK/mvk_910_pll.txt
-074_MACR/macr_890_pll.txt
-075_C3H6/c3h6_850_pll.txt
-076_C4H8/c4h8_750_pll.txt
+071_CH3COOH/
+072_C5H8/
+073_MVK/
+074_MACR/
+075_C3H6/
+076_C4H8/
 077_OTHER/
 078_OTHER/
 079_OTHER/
@@ -130,26 +127,25 @@ hitran.files =
 098_OTHER/
 099_OTHER/
 #
-# These are all set off (*nr=0) until you verify compatibility of lines.
 #
 # Galatry parameters
 # molecule id numbers in these files have to match the sfit molecule id
+#aux =
 aux = gal sdv lm
-# gal sdv lm
-aux.gal.nr = 2
+aux.gal.nr = 0
 aux.gal.files =
-014_HF/14_hit16_Galatry.txt
-015_HCL/15_hit16_Galatry.txt
-#
-# Speed Dependent Voigt parameter files
-aux.sdv.nr = 1
-aux.sdv.files =
-005_CO/05_hit16_SDV.txt
+014_HF/14_hit12_Galatry.txt
+015_HCL/15_hit12_Galatry.txt
 #
 #
-# CO2 Line mixing parameters
+# CO2 Line mixing parameters for Boone implementation
 aux.lm.nr = 1
 aux.lm.files =
-002_CO2/002_CO2.hit16_LM1ST.par
+002_CO2/02_hit08_f53_LM1ST.par
 #
+#
+# Speed Dependent Voigt parameter files --- not yet!
+aux.sdv.nr = 1
+aux.sdv.files =
+005_CO/05_hit12_SDV.txt
 #

@@ -1,0 +1,62 @@
+\begin{thebibliography}{1}
+
+\bibitem{Boone:2013}
+C.~D. Boone, K.~A. Walker, and P.~F. Bernath.
+\newblock {\em Version 3 Retrievals for the Atmospheric Chemistry Experiment
+  Fourier Transform Spectrometer (ACE-FTS)}, pages 103--127.
+\newblock (Peter F. Bernath, editor, A. Deepak Publishing, Hampton, Virginia,
+  U.S.A., 2013), 01 2013.
+
+\bibitem{Drayson:1976}
+S.~R. Drayson.
+\newblock Rapid computation of the voigt function.
+\newblock {\em J. Quant. Spectrosc. \& Rad. Transfer}, 16(0):611--614, 1976.
+
+\bibitem{Gordon:2017}
+I.E. Gordon, L.S. Rothman, C.~Hill, R.V. Kochanov, Y.~Tan, P.F. Bernath,
+  M.~Birk, V.~Boudon, A.~Campargue, K.V. Chance, B.J. Drouin, J.-M. Flaud, R.R.
+  Gamache, J.T. Hodges, D.~Jacquemart, V.I. Perevalov, A.~Perrin, K.P. Shine,
+  M.-A.H. Smith, J.~Tennyson, G.C. Toon, H.~Tran, V.G. Tyuterev, A.~Barbe, A.G.
+  Császár, V.M. Devi, T.~Furtenbacher, J.J. Harrison, J.-M. Hartmann,
+  A.~Jolly, T.J. Johnson, T.~Karman, I.~Kleiner, A.A. Kyuberis, J.~Loos, O.M.
+  Lyulin, S.T. Massie, S.N. Mikhailenko, N.~Moazzen-Ahmadi, H.S.P. Müller,
+  O.V. Naumenko, A.V. Nikitin, O.L. Polyansky, M.~Rey, M.~Rotger, S.W. Sharpe,
+  K.~Sung, E.~Starikova, S.A. Tashkun, J.~Vander Auwera, G.~Wagner,
+  J.~Wilzewski, P.~Wcisło, S.~Yu, and E.J. Zak.
+\newblock The hitran2016 molecular spectroscopic database.
+\newblock {\em Journal of Quantitative Spectroscopy and Radiative Transfer},
+  203:3 -- 69, 2017.
+\newblock HITRAN2016 Special Issue.
+
+\bibitem{Hartmann:2013}
+J.-M. Hartmann, H.~Tran, N.~H. Ngo, X.~Landsheere, P.~Chelin, Y.~Lu, A.-W. Liu,
+  S.-M. Hu, L.~Gianfrani, G.~Casa, A.~Castrillo, M.~Lep\`ere, Q.~Deli\`ere,
+  M.~Dhyne, and L.~Fissiaux.
+\newblock $ab\phantom{\rule{0.28em}{0ex}}\phantom{\rule{0.28em}{0ex}}initio$
+  calculations of the spectral shapes of co${}_{2}$ isolated lines including
+  non-voigt effects and comparisons with experiments.
+\newblock {\em Phys. Rev. A}, 87:013403, Jan 2013.
+
+\bibitem{Lamouroux:2010}
+J.~Lamouroux, H.~Tran, A.L. Laraia, R.R. Gamache, L.S. Rothman, I.E. Gordon,
+  and J.-M. Hartmann.
+\newblock Updated database plus software for line-mixing in co2 infrared
+  spectra and their test using laboratory spectra in the 1.5--2.3 $\mu$m region.
+\newblock {\em Journal of Quantitative Spectroscopy and Radiative Transfer},
+  111(15):2321 -- 2331, 2010.
+\newblock \{XVIth\} Symposium on High Resolution Molecular Spectroscopy
+  (HighRus-2009)XVIth Symposium on High Resolution Molecular Spectroscopy.
+
+\bibitem{Rosenkranz:1975}
+P~W Rosenkranz.
+\newblock {Shape of 5 MM Oxygen Band in Atmosphere}.
+\newblock {\em {IEEE Transactions on Antennas and Propagation}},
+  {AP23}({4}):{498--506}, {1975}.
+
+\bibitem{Tran:2013}
+H.~Tran, N.H. Ngo, and J.-M. Hartmann.
+\newblock Efficient computation of some speed-dependent isolated line profiles.
+\newblock {\em Journal of Quantitative Spectroscopy and Radiative Transfer},
+  129(0):199--203, June 2013.
+
+\end{thebibliography}
