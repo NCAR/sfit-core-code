@@ -1,0 +1,309 @@
+  SFIT4:v1.0.8   :Off-Release -- June 2020 runtime:20200723-07:57:17
+  This hbin version uses quanta from HITRAN to attribute extra parameters to each transition record.
+
+Found number of bands :          4
+ 
+    1     782.56000     778.50172     782.86000     786.91828     180.000    0.000500
+    2     788.85000     784.79172     789.37000     793.42828     180.000    0.000500
+    3     993.30000     989.24172     993.80000     997.85828     180.000    0.000500
+    4    1000.00000     995.94172    1004.50000    1008.55828     180.000    0.000500
+ 
+
+Path to Linelist : /Users/jamesw/FDP/sfit/400/linelist-core/
+Number of HITRAN files to search :         99
+ 
+ File : /Users/jamesw/FDP/sfit/400/linelist-core/001_H2O/001_H2O.hit16.20181107
+    778.501722   1008.558278     1    10     1     1      778.526854
+ 
+ File : /Users/jamesw/FDP/sfit/400/linelist-core/002_CO2/002_CO2.hit16.20181107
+    778.501722   1008.558278     2    11     2     2      778.502308
+ 
+ File : /Users/jamesw/FDP/sfit/400/linelist-core/003_O3/003_O3.hit16.20181107
+    778.501722   1008.558278     3    12     3     3      778.518400
+ 
+ File : /Users/jamesw/FDP/sfit/400/linelist-core/004_N2O/004_N2O.hit16.20181107
+    778.501722   1008.558278     4    13     4     4      872.399293
+ 
+ File : /Users/jamesw/FDP/sfit/400/linelist-core/006_CH4/006_CH4.hit16.20181107
+    778.501722   1008.558278     5    14     6     6      783.672012
+ 
+ File : /Users/jamesw/FDP/sfit/400/linelist-core/008_NO/008_NO.hit16.20181107
+    778.501722   1008.558278     6    15     8     8      779.627940
+ 
+ File : /Users/jamesw/FDP/sfit/400/linelist-core/010_NO2/010_NO2.hit16.20181107
+    778.501722   1008.558278     7    16    10    10      778.521692
+ 
+ File : /Users/jamesw/FDP/sfit/400/linelist-core/011_NH3/011_NH3.hit16.20181107
+    778.501722   1008.558278     8    17    11    11      778.538261
+ 
+ File : /Users/jamesw/FDP/sfit/400/linelist-core/012_HNO3/012_HNO3.hit16.20181107
+    778.501722   1008.558278     9    18    12    12      778.509120
+ 
+ File : /Users/jamesw/FDP/sfit/400/linelist-core/013_OH/013_OH.hit16.20181107
+    778.501722   1008.558278    10    19    13    13      778.737450
+ 
+ File : /Users/jamesw/FDP/sfit/400/linelist-core/014_HF/014_HF.hit16.20181107
+    778.501722   1008.558278    11    20    14    14      780.016842
+ 
+ File : /Users/jamesw/FDP/sfit/400/linelist-core/015_HCL/015_HCl.hit16.20181107
+    778.501722   1008.558278    12    21    15    15      778.684377
+ 
+ File : /Users/jamesw/FDP/sfit/400/linelist-core/017_HI/017_HI.hit16.20181107
+    778.501722   1008.558278    13    22    17    17     1008.402103
+ 
+ File : /Users/jamesw/FDP/sfit/400/linelist-core/018_CLO/018_ClO.hit16.20181107
+    778.501722   1008.558278    14    23    18    18      778.728972
+ 
+ File : /Users/jamesw/FDP/sfit/400/linelist-core/019_OCS/019_OCS.hit16.20181107
+    778.501722   1008.558278    15    24    19    19      813.859562
+ 
+ File : /Users/jamesw/FDP/sfit/400/linelist-core/022_HO2/033_HO2.hit16.20181107
+    778.501722   1008.558278    16    25    22    33      779.277161
+ 
+ File : /Users/jamesw/FDP/sfit/400/linelist-core/023_H2O2/025_H2O2.hit16.20181107
+    778.501722   1008.558278    17    26    23    25      778.523360
+ 
+ File : /Users/jamesw/FDP/sfit/400/linelist-core/027_CLONO2/2007.sudo.clono2
+    778.501722   1008.558278    18    27    27    27      778.505000
+ 
+ File : /Users/jamesw/FDP/sfit/400/linelist-core/028_HCN/023_HCN.hit16.20181107
+    778.501722   1008.558278    19    28    28    23      779.528644
+ 
+ File : /Users/jamesw/FDP/sfit/400/linelist-core/030_CH3CL/024_CH3Cl.hit16.20181107
+    778.501722   1008.558278    20    29    30    24      778.580810
+ 
+ File : /Users/jamesw/FDP/sfit/400/linelist-core/032_CCL2F2/2007.sudo.ccl2f2
+    778.501722   1008.558278    21    30    32    32      850.000000
+ 
+ File : /Users/jamesw/FDP/sfit/400/linelist-core/033_CCL3F/2007.sudo.ccl3f
+    778.501722   1008.558278    22    31    33    33      810.000000
+ 
+ File : /Users/jamesw/FDP/sfit/400/linelist-core/035_CCL4/2007.sudo.ccl4
+    778.501722   1008.558278    23    32    35    35      778.505000
+ 
+ File : /Users/jamesw/FDP/sfit/400/linelist-core/036_COF2/029_COF2.hit16.20181107
+    778.501722   1008.558278    24    33    36    29      778.509793
+ 
+ File : /Users/jamesw/FDP/sfit/400/linelist-core/039_C2H4/038_C2H4.hit16.20181107
+    778.501722   1008.558278    25    34    39    38      778.521858
+ 
+ File : /Users/jamesw/FDP/sfit/400/linelist-core/040_C2H2/026_C2H2.hit16.20181107
+    778.501722   1008.558278    26    35    40    26      778.509180
+ 
+ File : /Users/jamesw/FDP/sfit/400/linelist-core/042_CHF2CL/2007.sudo.chf2cl
+    778.501722   1008.558278    27    36    42    42      778.503442
+ 
+ File : /Users/jamesw/FDP/sfit/400/linelist-core/043_COCL2/049_COCl2.hit16.20181107
+    778.501722   1008.558278    28    37    43    49      793.148628
+ 
+ File : /Users/jamesw/FDP/sfit/400/linelist-core/044_CH3BR/040_CH3Br.hit16.20181107
+    778.501722   1008.558278    29    38    44    40      794.403140
+ 
+ File : /Users/jamesw/FDP/sfit/400/linelist-core/046_HCOOH/032_HCOOH.hit16.20181107
+    778.501722   1008.558278    30    39    46    32      940.197470
+ 
+ File : /Users/jamesw/FDP/sfit/400/linelist-core/047_H2S/031_H2S.hit16.20181107
+    778.501722   1008.558278    31    40    47    31      994.129600
+ 
+ File : /Users/jamesw/FDP/sfit/400/linelist-core/050_SF6/2007.sudo.sf6
+    778.501722   1008.558278    32    41    50    50      925.000000
+ 
+ File : /Users/jamesw/FDP/sfit/400/linelist-core/051_NF3/nf3.101.511.txt
+    778.501722   1008.558278    33    42    51    51      870.000000
+ 
+ File : /Users/jamesw/FDP/sfit/400/linelist-core/055_PH3/055_PH3.atm.20200512
+    778.501722   1008.558278    34    43    55    55      779.484790
+ 
+ File : /Users/jamesw/FDP/sfit/400/linelist-core/061_F142B/2007.sudo.f142b
+    778.501722   1008.558278    35    44    61    61      870.010000
+ 
+ File : /Users/jamesw/FDP/sfit/400/linelist-core/062_CFC113/2007.sudo.f113
+    778.501722   1008.558278    36    45    62    62      786.500000
+ 
+ File : /Users/jamesw/FDP/sfit/400/linelist-core/064_CH3OH/039_CH3OH.hit16.20181107
+    778.501722   1008.558278    37    46    64    39      911.608420
+ 
+ File : /Users/jamesw/FDP/sfit/400/linelist-core/067_PAN/2007.sudo.pan
+    778.501722   1008.558278    38    47    67    67      778.520000
+ 
+ File : /Users/jamesw/FDP/sfit/400/linelist-core/068_CH3CHO/2007.sudo.ch3cho
+    778.501722   1008.558278    39    48    68    68     1000.000000
+ 
+ File : /Users/jamesw/FDP/sfit/400/linelist-core/069_CH3CN/041_CH3CN.hit16.20181107
+    778.501722   1008.558278    40    49    69    41      890.051655
+ 
+ File : /Users/jamesw/FDP/sfit/400/linelist-core/072_C5H8/c5h8_885_pll.txt
+    778.501722   1008.558278    41    50    72    72      885.000000
+ 
+ File : /Users/jamesw/FDP/sfit/400/linelist-core/073_MVK/mvk_910_pll.txt
+    778.501722   1008.558278    42    51    73    73      910.070000
+ 
+ File : /Users/jamesw/FDP/sfit/400/linelist-core/074_MACR/macr_890_pll.txt
+    778.501722   1008.558278    43    52    74    74      890.330000
+ 
+ File : /Users/jamesw/FDP/sfit/400/linelist-core/075_C3H6/c3h6_850_pll.txt
+    778.501722   1008.558278    44    53    75    75      850.110000
+ 
+ File : /Users/jamesw/FDP/sfit/400/linelist-core/076_C4H8/c4h8_750_pll.txt
+    778.501722   1008.558278    45    54    76    76      778.510000
+
+                   Number of HITRAN molecules/files found :         45
+
+                        Number of Galatry files to search :          2
+Found Galatry line file : /Users/jamesw/FDP/sfit/400/linelist-core/014_HF/14_hit16_Galatry.txt
+ File : /Users/jamesw/FDP/sfit/400/linelist-core/014_HF/14_hit16_Galatry.txt
+    778.501722   1008.558278     1    55    76    14
+Found Galatry line file : /Users/jamesw/FDP/sfit/400/linelist-core/015_HCL/15_hit16_Galatry.txt
+ File : /Users/jamesw/FDP/sfit/400/linelist-core/015_HCL/15_hit16_Galatry.txt
+    778.501722   1008.558278     2    56    76    15
+
+                        Number of Galatry molecules found :          2
+
+                             Number of LM files to search :          1
+Found LineMix line file : /Users/jamesw/FDP/sfit/400/linelist-core/002_CO2/002_CO2.hit16_LM1ST.par
+ 
+ File : /Users/jamesw/FDP/sfit/400/linelist-core/002_CO2/002_CO2.hit16_LM1ST.par
+    778.501722   1008.558278     1    57    15
+
+                             Number of LM molecules found :          1
+
+                            Number of SDV files to search :          1
+Found SDVoigt line file : /Users/jamesw/FDP/sfit/400/linelist-core/005_CO/05_hit16_SDV.txt
+ 
+ File : /Users/jamesw/FDP/sfit/400/linelist-core/005_CO/05_hit16_SDV.txt
+    778.501722   1008.558278     1    58    15
+
+                            Number of SDV molecules found :          1
+
+NUMBER OF ISOTOPES TO SEPARATE = 2
+ OLD NAME, ID, ISO     NEW NAME, ID, ISO    TDEP   S-SCALE
+ O3         3    2     O3668     54    1     1.50  1.000000
+    1090, 1     685, 1    1028, 1
+ O3         3    3     O3686     56    1     1.50  1.000000
+    1074, 1     693, 1    1008, 1
+
+Saving binary line data to : 00778.501722-01008.558278.hbin
+Saving ascii line data to  : 00778.501722-01008.558278.hasc
+
+HITRAN file for input:
+index molid  lun  wavnum    name
+    1    1   10   778.52685  /Users/jamesw/FDP/sfit/400/linelist-core/001_H2O/001_H2O.hit16.20181107
+    2    2   11   778.50231  /Users/jamesw/FDP/sfit/400/linelist-core/002_CO2/002_CO2.hit16.20181107
+    3    3   12   778.51840  /Users/jamesw/FDP/sfit/400/linelist-core/003_O3/003_O3.hit16.20181107
+    4    4   13   872.39929  /Users/jamesw/FDP/sfit/400/linelist-core/004_N2O/004_N2O.hit16.20181107
+    5    6   14   783.67201  /Users/jamesw/FDP/sfit/400/linelist-core/006_CH4/006_CH4.hit16.20181107
+    6    8   15   779.62794  /Users/jamesw/FDP/sfit/400/linelist-core/008_NO/008_NO.hit16.20181107
+    7   10   16   778.52169  /Users/jamesw/FDP/sfit/400/linelist-core/010_NO2/010_NO2.hit16.20181107
+    8   11   17   778.53826  /Users/jamesw/FDP/sfit/400/linelist-core/011_NH3/011_NH3.hit16.20181107
+    9   12   18   778.50912  /Users/jamesw/FDP/sfit/400/linelist-core/012_HNO3/012_HNO3.hit16.20181107
+   10   13   19   778.73745  /Users/jamesw/FDP/sfit/400/linelist-core/013_OH/013_OH.hit16.20181107
+   11   14   20   780.01684  /Users/jamesw/FDP/sfit/400/linelist-core/014_HF/014_HF.hit16.20181107
+   12   15   21   778.68438  /Users/jamesw/FDP/sfit/400/linelist-core/015_HCL/015_HCl.hit16.20181107
+   13   17   22  1008.40210  /Users/jamesw/FDP/sfit/400/linelist-core/017_HI/017_HI.hit16.20181107
+   14   18   23   778.72897  /Users/jamesw/FDP/sfit/400/linelist-core/018_CLO/018_ClO.hit16.20181107
+   15   19   24   813.85956  /Users/jamesw/FDP/sfit/400/linelist-core/019_OCS/019_OCS.hit16.20181107
+   16   22   25   779.27716  /Users/jamesw/FDP/sfit/400/linelist-core/022_HO2/033_HO2.hit16.20181107
+   17   23   26   778.52336  /Users/jamesw/FDP/sfit/400/linelist-core/023_H2O2/025_H2O2.hit16.20181107
+   18   27   27   778.50500  /Users/jamesw/FDP/sfit/400/linelist-core/027_CLONO2/2007.sudo.clono2
+   19   28   28   779.52864  /Users/jamesw/FDP/sfit/400/linelist-core/028_HCN/023_HCN.hit16.20181107
+   20   30   29   778.58081  /Users/jamesw/FDP/sfit/400/linelist-core/030_CH3CL/024_CH3Cl.hit16.20181107
+   21   32   30   850.00000  /Users/jamesw/FDP/sfit/400/linelist-core/032_CCL2F2/2007.sudo.ccl2f2
+   22   33   31   810.00000  /Users/jamesw/FDP/sfit/400/linelist-core/033_CCL3F/2007.sudo.ccl3f
+   23   35   32   778.50500  /Users/jamesw/FDP/sfit/400/linelist-core/035_CCL4/2007.sudo.ccl4
+   24   36   33   778.50979  /Users/jamesw/FDP/sfit/400/linelist-core/036_COF2/029_COF2.hit16.20181107
+   25   39   34   778.52186  /Users/jamesw/FDP/sfit/400/linelist-core/039_C2H4/038_C2H4.hit16.20181107
+   26   40   35   778.50918  /Users/jamesw/FDP/sfit/400/linelist-core/040_C2H2/026_C2H2.hit16.20181107
+   27   42   36   778.50344  /Users/jamesw/FDP/sfit/400/linelist-core/042_CHF2CL/2007.sudo.chf2cl
+   28   43   37   793.14863  /Users/jamesw/FDP/sfit/400/linelist-core/043_COCL2/049_COCl2.hit16.20181107
+   29   44   38   794.40314  /Users/jamesw/FDP/sfit/400/linelist-core/044_CH3BR/040_CH3Br.hit16.20181107
+   30   46   39   940.19747  /Users/jamesw/FDP/sfit/400/linelist-core/046_HCOOH/032_HCOOH.hit16.20181107
+   31   47   40   994.12960  /Users/jamesw/FDP/sfit/400/linelist-core/047_H2S/031_H2S.hit16.20181107
+   32   50   41   925.00000  /Users/jamesw/FDP/sfit/400/linelist-core/050_SF6/2007.sudo.sf6
+   33   51   42   870.00000  /Users/jamesw/FDP/sfit/400/linelist-core/051_NF3/nf3.101.511.txt
+   34   55   43   779.48479  /Users/jamesw/FDP/sfit/400/linelist-core/055_PH3/055_PH3.atm.20200512
+   35   61   44   870.01000  /Users/jamesw/FDP/sfit/400/linelist-core/061_F142B/2007.sudo.f142b
+   36   62   45   786.50000  /Users/jamesw/FDP/sfit/400/linelist-core/062_CFC113/2007.sudo.f113
+   37   64   46   911.60842  /Users/jamesw/FDP/sfit/400/linelist-core/064_CH3OH/039_CH3OH.hit16.20181107
+   38   67   47   778.52000  /Users/jamesw/FDP/sfit/400/linelist-core/067_PAN/2007.sudo.pan
+   39   68   48  1000.00000  /Users/jamesw/FDP/sfit/400/linelist-core/068_CH3CHO/2007.sudo.ch3cho
+   40   69   49   890.05165  /Users/jamesw/FDP/sfit/400/linelist-core/069_CH3CN/041_CH3CN.hit16.20181107
+   41   72   50   885.00000  /Users/jamesw/FDP/sfit/400/linelist-core/072_C5H8/c5h8_885_pll.txt
+   42   73   51   910.07000  /Users/jamesw/FDP/sfit/400/linelist-core/073_MVK/mvk_910_pll.txt
+   43   74   52   890.33000  /Users/jamesw/FDP/sfit/400/linelist-core/074_MACR/macr_890_pll.txt
+   44   75   53   850.11000  /Users/jamesw/FDP/sfit/400/linelist-core/075_C3H6/c3h6_850_pll.txt
+   45   76   54   778.51000  /Users/jamesw/FDP/sfit/400/linelist-core/076_C4H8/c4h8_750_pll.txt
+ Galatry file open : /Users/jamesw/FDP/sfit/400/linelist-core/014_HF/14_hit16_Galatry.txt
+
+  676 lines read in Galatry file :     1
+ Galatry file open : /Users/jamesw/FDP/sfit/400/linelist-core/015_HCL/15_hit16_Galatry.txt
+
+ 1117 lines read in Galatry file :     2
+
+Line Mixing file for input:
+
+ 9698 lines read in LM file :     1
+
+Speed-Dependent Voigt file for input:
+
+  145 lines read in SDV file :     1
+
+Band:     1     778.50172     782.56000     782.86000     786.91828
+
+Band:     2     784.79172     788.85000     789.37000     793.42828
+
+Band:     3     989.24172     993.30000     993.80000     997.85828
+  closing file :   32   /Users/jamesw/FDP/sfit/400/linelist-core/035_CCL4/2007.sudo.ccl4
+  closing file :   36   /Users/jamesw/FDP/sfit/400/linelist-core/042_CHF2CL/2007.sudo.chf2cl
+  closing file :   35   /Users/jamesw/FDP/sfit/400/linelist-core/040_C2H2/026_C2H2.hit16.20181107
+  closing file :   47   /Users/jamesw/FDP/sfit/400/linelist-core/067_PAN/2007.sudo.pan
+  closing file :   31   /Users/jamesw/FDP/sfit/400/linelist-core/033_CCL3F/2007.sudo.ccl3f
+  closing file :   23   /Users/jamesw/FDP/sfit/400/linelist-core/018_CLO/018_ClO.hit16.20181107
+  closing file :   28   /Users/jamesw/FDP/sfit/400/linelist-core/028_HCN/023_HCN.hit16.20181107
+  closing file :   37   /Users/jamesw/FDP/sfit/400/linelist-core/043_COCL2/049_COCl2.hit16.20181107
+  closing file :   25   /Users/jamesw/FDP/sfit/400/linelist-core/022_HO2/033_HO2.hit16.20181107
+  closing file :   50   /Users/jamesw/FDP/sfit/400/linelist-core/072_C5H8/c5h8_885_pll.txt
+  closing file :   42   /Users/jamesw/FDP/sfit/400/linelist-core/051_NF3/nf3.101.511.txt
+  closing file :   49   /Users/jamesw/FDP/sfit/400/linelist-core/069_CH3CN/041_CH3CN.hit16.20181107
+  closing file :   30   /Users/jamesw/FDP/sfit/400/linelist-core/032_CCL2F2/2007.sudo.ccl2f2
+  closing file :   53   /Users/jamesw/FDP/sfit/400/linelist-core/075_C3H6/c3h6_850_pll.txt
+  closing file :   41   /Users/jamesw/FDP/sfit/400/linelist-core/050_SF6/2007.sudo.sf6
+  closing file :   18   /Users/jamesw/FDP/sfit/400/linelist-core/012_HNO3/012_HNO3.hit16.20181107
+  closing file :   52   /Users/jamesw/FDP/sfit/400/linelist-core/074_MACR/macr_890_pll.txt
+  closing file :   33   /Users/jamesw/FDP/sfit/400/linelist-core/036_COF2/029_COF2.hit16.20181107
+  closing file :   45   /Users/jamesw/FDP/sfit/400/linelist-core/062_CFC113/2007.sudo.f113
+
+Band:     4     995.94172    1000.00000    1004.50000    1008.55828
+  closing file :   16   /Users/jamesw/FDP/sfit/400/linelist-core/010_NO2/010_NO2.hit16.20181107
+  closing file :   27   /Users/jamesw/FDP/sfit/400/linelist-core/027_CLONO2/2007.sudo.clono2
+  closing file :   40   /Users/jamesw/FDP/sfit/400/linelist-core/047_H2S/031_H2S.hit16.20181107
+  closing file :   15   /Users/jamesw/FDP/sfit/400/linelist-core/008_NO/008_NO.hit16.20181107
+  closing file :   21   /Users/jamesw/FDP/sfit/400/linelist-core/015_HCL/015_HCl.hit16.20181107
+  closing file :   43   /Users/jamesw/FDP/sfit/400/linelist-core/055_PH3/055_PH3.atm.20200512
+  closing file :   24   /Users/jamesw/FDP/sfit/400/linelist-core/019_OCS/019_OCS.hit16.20181107
+  closing file :   22   /Users/jamesw/FDP/sfit/400/linelist-core/017_HI/017_HI.hit16.20181107
+  closing file :   19   /Users/jamesw/FDP/sfit/400/linelist-core/013_OH/013_OH.hit16.20181107
+  closing file :   20   /Users/jamesw/FDP/sfit/400/linelist-core/014_HF/014_HF.hit16.20181107
+  closing file :   13   /Users/jamesw/FDP/sfit/400/linelist-core/004_N2O/004_N2O.hit16.20181107
+  closing file :   14   /Users/jamesw/FDP/sfit/400/linelist-core/006_CH4/006_CH4.hit16.20181107
+  closing file :   26   /Users/jamesw/FDP/sfit/400/linelist-core/023_H2O2/025_H2O2.hit16.20181107
+  closing file :   17   /Users/jamesw/FDP/sfit/400/linelist-core/011_NH3/011_NH3.hit16.20181107
+  closing file :   29   /Users/jamesw/FDP/sfit/400/linelist-core/030_CH3CL/024_CH3Cl.hit16.20181107
+  closing file :   34   /Users/jamesw/FDP/sfit/400/linelist-core/039_C2H4/038_C2H4.hit16.20181107
+  closing file :   48   /Users/jamesw/FDP/sfit/400/linelist-core/068_CH3CHO/2007.sudo.ch3cho
+  closing file :   51   /Users/jamesw/FDP/sfit/400/linelist-core/073_MVK/mvk_910_pll.txt
+  closing file :   54   /Users/jamesw/FDP/sfit/400/linelist-core/076_C4H8/c4h8_750_pll.txt
+  closing file :   38   /Users/jamesw/FDP/sfit/400/linelist-core/044_CH3BR/040_CH3Br.hit16.20181107
+  closing file :   12   /Users/jamesw/FDP/sfit/400/linelist-core/003_O3/003_O3.hit16.20181107
+  closing file :   10   /Users/jamesw/FDP/sfit/400/linelist-core/001_H2O/001_H2O.hit16.20181107
+  closing file :   44   /Users/jamesw/FDP/sfit/400/linelist-core/061_F142B/2007.sudo.f142b
+  closing file :   39   /Users/jamesw/FDP/sfit/400/linelist-core/046_HCOOH/032_HCOOH.hit16.20181107
+  closing file :   46   /Users/jamesw/FDP/sfit/400/linelist-core/064_CH3OH/039_CH3OH.hit16.20181107
+  closing file :   11   /Users/jamesw/FDP/sfit/400/linelist-core/002_CO2/002_CO2.hit16.20181107
+
+                     Matching Galatry lines in bandpasses :          0
+
+                  Matching linemixing lines in bandpasses :        174
+
+                         Matching SDV lines in bandpasses :          0
+
+                          Lines saved to output hbin file :      65713

@@ -1,0 +1,222 @@
+************
+Running hbin
+************
+  SFIT4:v1.0.8   :Off-Release -- June 2020 runtime:20200715-09:49:06
+  This hbin version uses quanta from HITRAN to attribute extra parameters to each transition record.
+
+Found number of bands :          3
+ 
+    1    2057.70000    2053.64162    2058.00000    2062.05838     180.000    0.000200
+    2    2069.56000    2065.50162    2069.76000    2073.81838     180.000    0.000200
+    3    2157.50000    2153.44162    2159.15000    2163.20838     180.000    0.000200
+ 
+
+Path to Linelist : /data/ebaumer/Code/linelist-core/
+Number of HITRAN files to search :         99
+ 
+ File : /data/ebaumer/Code/linelist-core/001_H2O/001_H2O.hit16.20181107
+   2053.641622   2163.208378     1    10     1     1     2053.660394
+ 
+ File : /data/ebaumer/Code/linelist-core/002_CO2/002_CO2.hit16.20181107
+   2053.641622   2163.208378     2    11     2     2     2053.642060
+ 
+ File : /data/ebaumer/Code/linelist-core/003_O3/003_O3.hit16.20181107
+   2053.641622   2163.208378     3    12     3     3     2053.644300
+ 
+ File : /data/ebaumer/Code/linelist-core/004_N2O/004_N2O.hit16.20181107
+   2053.641622   2163.208378     4    13     4     4     2053.935790
+ 
+ File : /data/ebaumer/Code/linelist-core/005_CO/005_CO.hit16.20181107
+   2053.641622   2163.208378     5    14     5     5     2053.861869
+ 
+ File : /data/ebaumer/Code/linelist-core/006_CH4/006_CH4.hit16.20181107
+   2053.641622   2163.208378     6    15     6     6     2054.441285
+ 
+ File : /data/ebaumer/Code/linelist-core/008_NO/008_NO.hit16.20181107
+   2053.641622   2163.208378     7    16     8     8     2054.251650
+ 
+ File : /data/ebaumer/Code/linelist-core/011_NH3/011_NH3.hit16.20181107
+   2053.641622   2163.208378     8    17    11    11     2054.806080
+ 
+ File : /data/ebaumer/Code/linelist-core/013_OH/013_OH.hit16.20181107
+   2053.641622   2163.208378     9    18    13    13     2053.823480
+ 
+ File : /data/ebaumer/Code/linelist-core/014_HF/014_HF.hit16.20181107
+   2053.641622   2163.208378    10    19    14    14     2055.288281
+ 
+ File : /data/ebaumer/Code/linelist-core/015_HCL/015_HCl.hit16.20181107
+   2053.641622   2163.208378    11    20    15    15     2053.714697
+ 
+ File : /data/ebaumer/Code/linelist-core/016_HBR/016_HBr.hit16.20181107
+   2053.641622   2163.208378    12    21    16    16     2054.544175
+ 
+ File : /data/ebaumer/Code/linelist-core/017_HI/017_HI.hit16.20181107
+   2053.641622   2163.208378    13    22    17    17     2053.934812
+ 
+ File : /data/ebaumer/Code/linelist-core/019_OCS/019_OCS.hit16.20181107
+   2053.641622   2163.208378    14    23    19    19     2053.645784
+ 
+ File : /data/ebaumer/Code/linelist-core/028_HCN/023_HCN.hit16.20181107
+   2053.641622   2163.208378    15    24    28    23     2053.652551
+ 
+ File : /data/ebaumer/Code/linelist-core/030_CH3CL/024_CH3Cl.hit16.20181107
+   2053.641622   2163.208378    16    25    30    24     2053.642650
+ 
+ File : /data/ebaumer/Code/linelist-core/040_C2H2/026_C2H2.hit16.20181107
+   2053.641622   2163.208378    17    26    40    26     2053.903710
+ 
+ File : /data/ebaumer/Code/linelist-core/041_N2/022_N2.hit16.20181107
+   2053.641622   2163.208378    18    27    41    22     2055.557548
+ 
+ File : /data/ebaumer/Code/linelist-core/047_H2S/031_H2S.hit16.20181107
+   2053.641622   2163.208378    19    28    47    31     2142.835050
+ 
+ File : /data/ebaumer/Code/linelist-core/055_PH3/055_PH3.atm.20200512
+   2053.641622   2163.208378    20    29    55    55     2054.517900
+
+                   Number of HITRAN molecules/files found :         20
+
+                        Number of Galatry files to search :          2
+Found Galatry line file : /data/ebaumer/Code/linelist-core/014_HF/14_hit16_Galatry.txt
+ File : /data/ebaumer/Code/linelist-core/014_HF/14_hit16_Galatry.txt
+   2053.641622   2163.208378     1    30    76    14
+Found Galatry line file : /data/ebaumer/Code/linelist-core/015_HCL/15_hit16_Galatry.txt
+ File : /data/ebaumer/Code/linelist-core/015_HCL/15_hit16_Galatry.txt
+   2053.641622   2163.208378     2    31    76    15
+
+                        Number of Galatry molecules found :          2
+
+                             Number of LM files to search :          1
+Found LineMix line file : /data/ebaumer/Code/linelist-core/002_CO2/002_CO2.hit16_LM1ST.par
+ 
+ File : /data/ebaumer/Code/linelist-core/002_CO2/002_CO2.hit16_LM1ST.par
+   2053.641622   2163.208378     1    32    15
+
+                             Number of LM molecules found :          1
+
+                            Number of SDV files to search :          1
+Found SDVoigt line file : /data/ebaumer/Code/linelist-core/005_CO/05_hit16_SDV.txt
+ 
+ File : /data/ebaumer/Code/linelist-core/005_CO/05_hit16_SDV.txt
+   2053.641622   2163.208378     1    33    15
+
+                            Number of SDV molecules found :          1
+
+Saving binary line data to : 02053.641622-02163.208378.hbin
+Saving ascii line data to  : 02053.641622-02163.208378.hasc
+
+HITRAN file for input:
+index molid  lun  wavnum    name
+    1    1   10  2053.66039  /data/ebaumer/Code/linelist-core/001_H2O/001_H2O.hit16.20181107
+    2    2   11  2053.64206  /data/ebaumer/Code/linelist-core/002_CO2/002_CO2.hit16.20181107
+    3    3   12  2053.64430  /data/ebaumer/Code/linelist-core/003_O3/003_O3.hit16.20181107
+    4    4   13  2053.93579  /data/ebaumer/Code/linelist-core/004_N2O/004_N2O.hit16.20181107
+    5    5   14  2053.86187  /data/ebaumer/Code/linelist-core/005_CO/005_CO.hit16.20181107
+    6    6   15  2054.44128  /data/ebaumer/Code/linelist-core/006_CH4/006_CH4.hit16.20181107
+    7    8   16  2054.25165  /data/ebaumer/Code/linelist-core/008_NO/008_NO.hit16.20181107
+    8   11   17  2054.80608  /data/ebaumer/Code/linelist-core/011_NH3/011_NH3.hit16.20181107
+    9   13   18  2053.82348  /data/ebaumer/Code/linelist-core/013_OH/013_OH.hit16.20181107
+   10   14   19  2055.28828  /data/ebaumer/Code/linelist-core/014_HF/014_HF.hit16.20181107
+   11   15   20  2053.71470  /data/ebaumer/Code/linelist-core/015_HCL/015_HCl.hit16.20181107
+   12   16   21  2054.54417  /data/ebaumer/Code/linelist-core/016_HBR/016_HBr.hit16.20181107
+   13   17   22  2053.93481  /data/ebaumer/Code/linelist-core/017_HI/017_HI.hit16.20181107
+   14   19   23  2053.64578  /data/ebaumer/Code/linelist-core/019_OCS/019_OCS.hit16.20181107
+   15   28   24  2053.65255  /data/ebaumer/Code/linelist-core/028_HCN/023_HCN.hit16.20181107
+   16   30   25  2053.64265  /data/ebaumer/Code/linelist-core/030_CH3CL/024_CH3Cl.hit16.20181107
+   17   40   26  2053.90371  /data/ebaumer/Code/linelist-core/040_C2H2/026_C2H2.hit16.20181107
+   18   41   27  2055.55755  /data/ebaumer/Code/linelist-core/041_N2/022_N2.hit16.20181107
+   19   47   28  2142.83505  /data/ebaumer/Code/linelist-core/047_H2S/031_H2S.hit16.20181107
+   20   55   29  2054.51790  /data/ebaumer/Code/linelist-core/055_PH3/055_PH3.atm.20200512
+ Galatry file open : /data/ebaumer/Code/linelist-core/014_HF/14_hit16_Galatry.txt
+
+  676 lines read in Galatry file :     1
+ Galatry file open : /data/ebaumer/Code/linelist-core/015_HCL/15_hit16_Galatry.txt
+
+ 1117 lines read in Galatry file :     2
+
+Line Mixing file for input:
+
+ 9698 lines read in LM file :     1
+
+Speed-Dependent Voigt file for input:
+
+  145 lines read in SDV file :     1
+
+Band:     1    2053.64162    2057.70000    2058.00000    2062.05838
+ gal          15           2 T               1              0                    P 30                    1              0                    P 30      
+ gal          15           2 T              10              9                    R  8                   10              9                    R  8      
+ gal          15           1 T               1              0                    P 30                    1              0                    P 30      
+ gal          15           2 T              10              9                    R 28                   10              9                    R 28      
+ gal          15           1 T              10              9                    R  8                   10              9                    R  8      
+ gal          15           1 T              10              9                    R 28                   10              9                    R 28      
+ gal          14           1 T               1              0                    P 34                    1              0                    P 34      
+ gal          14           1 T               6              5                    P 24                    6              5                    P 24      
+ gal          15           2 T               5              4                    P 18                    5              4                    P 18      
+ gal          15           1 T               5              4                    P 18                    5              4                    P 18      
+
+Band:     2    2065.50162    2069.56000    2069.76000    2073.81838
+ gal          14           1 T               2              1                    P 32                    2              1                    P 32      
+ gal          15           1 T               9              8                    R 37                    9              8                    R 37      
+ gal          15           2 T               9              8                    R 37                    9              8                    R 37      
+ gal          15           2 T               7              6                    P 10                    7              6                    P 10      
+ gal          15           2 T               4              3                    P 21                    4              3                    P 21      
+ gal          14           1 T               5              4                    P 26                    5              4                    P 26      
+ gal          15           1 T               7              6                    P 10                    7              6                    P 10      
+ gal          15           1 T               4              3                    P 21                    4              3                    P 21      
+ gal          15           2 T               3              2                    P 24                    3              2                    P 24      
+ gal          15           2 T              10              9                    R 10                   10              9                    R 10      
+ gal          15           2 T               9              8                    R  0                    9              8                    R  0      
+ gal          15           2 T               6              5                    P 14                    6              5                    P 14      
+ gal          15           1 T               3              2                    P 24                    3              2                    P 24      
+ gal          15           1 T              10              9                    R 10                   10              9                    R 10      
+ gal          15           1 T               9              8                    R  0                    9              8                    R  0      
+ gal          15           1 T               6              5                    P 14                    6              5                    P 14      
+ gal          14           1 T              10              9                    P 13                   10              9                    P 13      
+ gal          15           2 T               8              7                    P  5                    8              7                    P  5      
+ gal          15           2 T              10              9                    R 26                   10              9                    R 26      
+ gal          14           1 T               3              2                    P 30                    3              2                    P 30      
+ gal          15           1 T               8              7                    P  5                    8              7                    P  5      
+ gal          15           1 T              10              9                    R 26                   10              9                    R 26      
+ gal          14           1 T               4              3                    P 28                    4              3                    P 28      
+
+Band:     3    2153.44162    2157.50000    2159.15000    2163.20838
+  closing file :   23   /data/ebaumer/Code/linelist-core/019_OCS/019_OCS.hit16.20181107
+ gal          15           1 T               4              3                    P 18                    4              3                    P 18      
+ gal          14           1 T              10              9                    P 11                   10              9                    P 11      
+ gal          15           2 T               7              6                    P  6                    7              6                    P  6      
+ gal          15           1 T               7              6                    P  6                    7              6                    P  6      
+  closing file :   28   /data/ebaumer/Code/linelist-core/047_H2S/031_H2S.hit16.20181107
+ gal          15           2 T               2              1                    P 24                    2              1                    P 24      
+ gal          15           2 T               3              2                    P 21                    3              2                    P 21      
+ gal          15           1 T               2              1                    P 24                    2              1                    P 24      
+ gal          15           1 T               3              2                    P 21                    3              2                    P 21      
+ gal          15           2 T               9              8                    R  7                    9              8                    R  7      
+ gal          14           1 T              11             10                    P  7                   11             10                    P  7      
+ gal          14           1 T               8              7                    P 17                    8              7                    P 17      
+ gal          15           1 T               9              8                    R  7                    9              8                    R  7      
+  closing file :   27   /data/ebaumer/Code/linelist-core/041_N2/022_N2.hit16.20181107
+  closing file :   17   /data/ebaumer/Code/linelist-core/011_NH3/011_NH3.hit16.20181107
+  closing file :   21   /data/ebaumer/Code/linelist-core/016_HBR/016_HBr.hit16.20181107
+  closing file :   19   /data/ebaumer/Code/linelist-core/014_HF/014_HF.hit16.20181107
+  closing file :   22   /data/ebaumer/Code/linelist-core/017_HI/017_HI.hit16.20181107
+  closing file :   18   /data/ebaumer/Code/linelist-core/013_OH/013_OH.hit16.20181107
+  closing file :   20   /data/ebaumer/Code/linelist-core/015_HCL/015_HCl.hit16.20181107
+  closing file :   24   /data/ebaumer/Code/linelist-core/028_HCN/023_HCN.hit16.20181107
+  closing file :   10   /data/ebaumer/Code/linelist-core/001_H2O/001_H2O.hit16.20181107
+  closing file :   15   /data/ebaumer/Code/linelist-core/006_CH4/006_CH4.hit16.20181107
+  closing file :   26   /data/ebaumer/Code/linelist-core/040_C2H2/026_C2H2.hit16.20181107
+  closing file :   29   /data/ebaumer/Code/linelist-core/055_PH3/055_PH3.atm.20200512
+  closing file :   16   /data/ebaumer/Code/linelist-core/008_NO/008_NO.hit16.20181107
+  closing file :   14   /data/ebaumer/Code/linelist-core/005_CO/005_CO.hit16.20181107
+  closing file :   11   /data/ebaumer/Code/linelist-core/002_CO2/002_CO2.hit16.20181107
+  closing file :   12   /data/ebaumer/Code/linelist-core/003_O3/003_O3.hit16.20181107
+  closing file :   13   /data/ebaumer/Code/linelist-core/004_N2O/004_N2O.hit16.20181107
+  closing file :   25   /data/ebaumer/Code/linelist-core/030_CH3CL/024_CH3Cl.hit16.20181107
+
+                     Matching Galatry lines in bandpasses :         45
+
+                  Matching linemixing lines in bandpasses :          0
+
+                         Matching SDV lines in bandpasses :          0
+
+                          Lines saved to output hbin file :      20497

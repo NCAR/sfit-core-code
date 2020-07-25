@@ -1,0 +1,204 @@
+************
+Running hbin
+************
+  SFIT4:v1.0.8   :Off-Release -- June 2020 runtime:20200715-10:42:54
+  This hbin version uses quanta from HITRAN to attribute extra parameters to each transition record.
+
+Found number of bands :          2
+ 
+    1     779.85000     775.79172     780.45000     784.50828     180.000    0.000500
+    2     782.55000     778.49172     782.87000     786.92828     180.000    0.000500
+ 
+
+Path to Linelist : /data/ebaumer/Code/linelist-core/
+Number of HITRAN files to search :         99
+ 
+ File : /data/ebaumer/Code/linelist-core/001_H2O/001_H2O.hit16.20181107
+    775.791722    786.928278     1    10     1     1      776.033635
+ 
+ File : /data/ebaumer/Code/linelist-core/002_CO2/002_CO2.hit16.20181107
+    775.791722    786.928278     2    11     2     2      775.795653
+ 
+ File : /data/ebaumer/Code/linelist-core/003_O3/003_O3.hit16.20181107
+    775.791722    786.928278     3    12     3     3      775.798700
+ 
+ File : /data/ebaumer/Code/linelist-core/006_CH4/006_CH4.hit16.20181107
+    775.791722    786.928278     4    13     6     6      783.672012
+ 
+ File : /data/ebaumer/Code/linelist-core/008_NO/008_NO.hit16.20181107
+    775.791722    786.928278     5    14     8     8      776.419890
+ 
+ File : /data/ebaumer/Code/linelist-core/010_NO2/010_NO2.hit16.20181107
+    775.791722    786.928278     6    15    10    10      775.804108
+ 
+ File : /data/ebaumer/Code/linelist-core/011_NH3/011_NH3.hit16.20181107
+    775.791722    786.928278     7    16    11    11      775.850824
+ 
+ File : /data/ebaumer/Code/linelist-core/012_HNO3/012_HNO3.hit16.20181107
+    775.791722    786.928278     8    17    12    12      775.801290
+ 
+ File : /data/ebaumer/Code/linelist-core/013_OH/013_OH.hit16.20181107
+    775.791722    786.928278     9    18    13    13      776.270570
+ 
+ File : /data/ebaumer/Code/linelist-core/014_HF/014_HF.hit16.20181107
+    775.791722    786.928278    10    19    14    14      776.448074
+ 
+ File : /data/ebaumer/Code/linelist-core/015_HCL/015_HCl.hit16.20181107
+    775.791722    786.928278    11    20    15    15      775.964865
+ 
+ File : /data/ebaumer/Code/linelist-core/018_CLO/018_ClO.hit16.20181107
+    775.791722    786.928278    12    21    18    18      776.285478
+ 
+ File : /data/ebaumer/Code/linelist-core/022_HO2/033_HO2.hit16.20181107
+    775.791722    786.928278    13    22    22    33      777.372620
+ 
+ File : /data/ebaumer/Code/linelist-core/023_H2O2/025_H2O2.hit16.20181107
+    775.791722    786.928278    14    23    23    25      775.822390
+ 
+ File : /data/ebaumer/Code/linelist-core/027_CLONO2/2007.sudo.clono2
+    775.791722    786.928278    15    24    27    27      775.795000
+ 
+ File : /data/ebaumer/Code/linelist-core/028_HCN/023_HCN.hit16.20181107
+    775.791722    786.928278    16    25    28    23      776.049213
+ 
+ File : /data/ebaumer/Code/linelist-core/030_CH3CL/024_CH3Cl.hit16.20181107
+    775.791722    786.928278    17    26    30    24      775.804450
+ 
+ File : /data/ebaumer/Code/linelist-core/035_CCL4/2007.sudo.ccl4
+    775.791722    786.928278    18    27    35    35      775.795000
+ 
+ File : /data/ebaumer/Code/linelist-core/036_COF2/029_COF2.hit16.20181107
+    775.791722    786.928278    19    28    36    29      775.792269
+ 
+ File : /data/ebaumer/Code/linelist-core/039_C2H4/038_C2H4.hit16.20181107
+    775.791722    786.928278    20    29    39    38      775.800882
+ 
+ File : /data/ebaumer/Code/linelist-core/040_C2H2/026_C2H2.hit16.20181107
+    775.791722    786.928278    21    30    40    26      775.821670
+ 
+ File : /data/ebaumer/Code/linelist-core/042_CHF2CL/2007.sudo.chf2cl
+    775.791722    786.928278    22    31    42    42      776.000150
+ 
+ File : /data/ebaumer/Code/linelist-core/055_PH3/055_PH3.atm.20200512
+    775.791722    786.928278    23    32    55    55      775.972340
+ 
+ File : /data/ebaumer/Code/linelist-core/062_CFC113/2007.sudo.f113
+    775.791722    786.928278    24    33    62    62      786.500000
+ 
+ File : /data/ebaumer/Code/linelist-core/067_PAN/2007.sudo.pan
+    775.791722    786.928278    25    34    67    67      775.800000
+ 
+ File : /data/ebaumer/Code/linelist-core/076_C4H8/c4h8_750_pll.txt
+    775.791722    786.928278    26    35    76    76      775.800000
+
+                   Number of HITRAN molecules/files found :         26
+
+                        Number of Galatry files to search :          2
+Found Galatry line file : /data/ebaumer/Code/linelist-core/014_HF/14_hit16_Galatry.txt
+ File : /data/ebaumer/Code/linelist-core/014_HF/14_hit16_Galatry.txt
+    775.791722    786.928278     1    36    76    14
+Found Galatry line file : /data/ebaumer/Code/linelist-core/015_HCL/15_hit16_Galatry.txt
+ File : /data/ebaumer/Code/linelist-core/015_HCL/15_hit16_Galatry.txt
+    775.791722    786.928278     2    37    76    15
+
+                        Number of Galatry molecules found :          2
+
+                             Number of LM files to search :          1
+Found LineMix line file : /data/ebaumer/Code/linelist-core/002_CO2/002_CO2.hit16_LM1ST.par
+ 
+ File : /data/ebaumer/Code/linelist-core/002_CO2/002_CO2.hit16_LM1ST.par
+    775.791722    786.928278     1    38    15
+
+                             Number of LM molecules found :          1
+
+                            Number of SDV files to search :          1
+Found SDVoigt line file : /data/ebaumer/Code/linelist-core/005_CO/05_hit16_SDV.txt
+ 
+ File : /data/ebaumer/Code/linelist-core/005_CO/05_hit16_SDV.txt
+    775.791722    786.928278     1    39    15
+
+                            Number of SDV molecules found :          1
+
+Saving binary line data to : 00775.791722-00786.928278.hbin
+Saving ascii line data to  : 00775.791722-00786.928278.hasc
+
+HITRAN file for input:
+index molid  lun  wavnum    name
+    1    1   10   776.03364  /data/ebaumer/Code/linelist-core/001_H2O/001_H2O.hit16.20181107
+    2    2   11   775.79565  /data/ebaumer/Code/linelist-core/002_CO2/002_CO2.hit16.20181107
+    3    3   12   775.79870  /data/ebaumer/Code/linelist-core/003_O3/003_O3.hit16.20181107
+    4    6   13   783.67201  /data/ebaumer/Code/linelist-core/006_CH4/006_CH4.hit16.20181107
+    5    8   14   776.41989  /data/ebaumer/Code/linelist-core/008_NO/008_NO.hit16.20181107
+    6   10   15   775.80411  /data/ebaumer/Code/linelist-core/010_NO2/010_NO2.hit16.20181107
+    7   11   16   775.85082  /data/ebaumer/Code/linelist-core/011_NH3/011_NH3.hit16.20181107
+    8   12   17   775.80129  /data/ebaumer/Code/linelist-core/012_HNO3/012_HNO3.hit16.20181107
+    9   13   18   776.27057  /data/ebaumer/Code/linelist-core/013_OH/013_OH.hit16.20181107
+   10   14   19   776.44807  /data/ebaumer/Code/linelist-core/014_HF/014_HF.hit16.20181107
+   11   15   20   775.96487  /data/ebaumer/Code/linelist-core/015_HCL/015_HCl.hit16.20181107
+   12   18   21   776.28548  /data/ebaumer/Code/linelist-core/018_CLO/018_ClO.hit16.20181107
+   13   22   22   777.37262  /data/ebaumer/Code/linelist-core/022_HO2/033_HO2.hit16.20181107
+   14   23   23   775.82239  /data/ebaumer/Code/linelist-core/023_H2O2/025_H2O2.hit16.20181107
+   15   27   24   775.79500  /data/ebaumer/Code/linelist-core/027_CLONO2/2007.sudo.clono2
+   16   28   25   776.04921  /data/ebaumer/Code/linelist-core/028_HCN/023_HCN.hit16.20181107
+   17   30   26   775.80445  /data/ebaumer/Code/linelist-core/030_CH3CL/024_CH3Cl.hit16.20181107
+   18   35   27   775.79500  /data/ebaumer/Code/linelist-core/035_CCL4/2007.sudo.ccl4
+   19   36   28   775.79227  /data/ebaumer/Code/linelist-core/036_COF2/029_COF2.hit16.20181107
+   20   39   29   775.80088  /data/ebaumer/Code/linelist-core/039_C2H4/038_C2H4.hit16.20181107
+   21   40   30   775.82167  /data/ebaumer/Code/linelist-core/040_C2H2/026_C2H2.hit16.20181107
+   22   42   31   776.00015  /data/ebaumer/Code/linelist-core/042_CHF2CL/2007.sudo.chf2cl
+   23   55   32   775.97234  /data/ebaumer/Code/linelist-core/055_PH3/055_PH3.atm.20200512
+   24   62   33   786.50000  /data/ebaumer/Code/linelist-core/062_CFC113/2007.sudo.f113
+   25   67   34   775.80000  /data/ebaumer/Code/linelist-core/067_PAN/2007.sudo.pan
+   26   76   35   775.80000  /data/ebaumer/Code/linelist-core/076_C4H8/c4h8_750_pll.txt
+ Galatry file open : /data/ebaumer/Code/linelist-core/014_HF/14_hit16_Galatry.txt
+
+  676 lines read in Galatry file :     1
+ Galatry file open : /data/ebaumer/Code/linelist-core/015_HCL/15_hit16_Galatry.txt
+
+ 1117 lines read in Galatry file :     2
+
+Line Mixing file for input:
+
+ 9698 lines read in LM file :     1
+
+Speed-Dependent Voigt file for input:
+
+  145 lines read in SDV file :     1
+
+Band:     1     775.79172     779.85000     780.45000     784.50828
+
+Band:     2     778.49172     782.55000     782.87000     786.92828
+  closing file :   13   /data/ebaumer/Code/linelist-core/006_CH4/006_CH4.hit16.20181107
+  closing file :   14   /data/ebaumer/Code/linelist-core/008_NO/008_NO.hit16.20181107
+  closing file :   20   /data/ebaumer/Code/linelist-core/015_HCL/015_HCl.hit16.20181107
+  closing file :   26   /data/ebaumer/Code/linelist-core/030_CH3CL/024_CH3Cl.hit16.20181107
+  closing file :   19   /data/ebaumer/Code/linelist-core/014_HF/014_HF.hit16.20181107
+  closing file :   25   /data/ebaumer/Code/linelist-core/028_HCN/023_HCN.hit16.20181107
+  closing file :   18   /data/ebaumer/Code/linelist-core/013_OH/013_OH.hit16.20181107
+  closing file :   10   /data/ebaumer/Code/linelist-core/001_H2O/001_H2O.hit16.20181107
+  closing file :   32   /data/ebaumer/Code/linelist-core/055_PH3/055_PH3.atm.20200512
+  closing file :   30   /data/ebaumer/Code/linelist-core/040_C2H2/026_C2H2.hit16.20181107
+  closing file :   21   /data/ebaumer/Code/linelist-core/018_CLO/018_ClO.hit16.20181107
+  closing file :   22   /data/ebaumer/Code/linelist-core/022_HO2/033_HO2.hit16.20181107
+  closing file :   16   /data/ebaumer/Code/linelist-core/011_NH3/011_NH3.hit16.20181107
+  closing file :   23   /data/ebaumer/Code/linelist-core/023_H2O2/025_H2O2.hit16.20181107
+  closing file :   29   /data/ebaumer/Code/linelist-core/039_C2H4/038_C2H4.hit16.20181107
+  closing file :   17   /data/ebaumer/Code/linelist-core/012_HNO3/012_HNO3.hit16.20181107
+  closing file :   34   /data/ebaumer/Code/linelist-core/067_PAN/2007.sudo.pan
+  closing file :   35   /data/ebaumer/Code/linelist-core/076_C4H8/c4h8_750_pll.txt
+  closing file :   12   /data/ebaumer/Code/linelist-core/003_O3/003_O3.hit16.20181107
+  closing file :   15   /data/ebaumer/Code/linelist-core/010_NO2/010_NO2.hit16.20181107
+  closing file :   33   /data/ebaumer/Code/linelist-core/062_CFC113/2007.sudo.f113
+  closing file :   24   /data/ebaumer/Code/linelist-core/027_CLONO2/2007.sudo.clono2
+  closing file :   27   /data/ebaumer/Code/linelist-core/035_CCL4/2007.sudo.ccl4
+  closing file :   31   /data/ebaumer/Code/linelist-core/042_CHF2CL/2007.sudo.chf2cl
+  closing file :   11   /data/ebaumer/Code/linelist-core/002_CO2/002_CO2.hit16.20181107
+  closing file :   28   /data/ebaumer/Code/linelist-core/036_COF2/029_COF2.hit16.20181107
+
+                     Matching Galatry lines in bandpasses :          0
+
+                  Matching linemixing lines in bandpasses :        126
+
+                         Matching SDV lines in bandpasses :          0
+
+                          Lines saved to output hbin file :      19758
