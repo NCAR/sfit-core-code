@@ -612,7 +612,7 @@
       INTEGER, INTENT(IN) :: NLEV
       CHARACTER (LEN=255) :: VAL
       LOGICAL             :: HFLG, IFPRF_1_ORIG
-      INTEGER             :: I, J, K, L1, L2, L3, ORIG_NVAR, POS, NL = 1
+      INTEGER             :: I, J, K, L1, L2, L3, ORIG_NVAR, POS, NL = 1, IBEAM=0
       INTEGER             :: ORIG_ISMIX
       
       WRITE(16,254)
@@ -720,8 +720,17 @@
             IFFOV = 1
             OMEGA0(I) = OMEGA(I)
          ENDIF
-      ENDDO
-
+         if (F_KB_CHANNEL ) THEN
+            DO IBEAM = 1, NBEAM_OF_BAND(I)
+               DO K = 1, 4
+                  SCHAN_SCALE(I,IBEAM,K) = 1 ! THE KMATRIX FOR THE BEAMS IS ONLY CALCULATED IF THIS IS > 0.0
+                                             ! THIS IMPLIES THE DEFINITION OF PNAME
+                  SPARM(NVAR) = SCHAN_SCALE(I,IBEAM,K)
+               ENDDO
+            END DO
+         END if
+      END DO
+      
       IF( F_KB_LINE )THEN
          IFLINE = 1
          ! --- FIND FOR WHICH GASES ARE KB FOR LINE PARAMETERS ARE CALCULATED
