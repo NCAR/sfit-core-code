@@ -32,18 +32,18 @@ contains
     real(double) :: polynom
 
     if (f_continuum) then
-    
-       ! n-th order polynomial
-       mone = 1
-       CROSS(nret+2,:KMAX,:ncross) = 0.0d0
-       DO IBAND = 1, NBAND
-          mxne = mone + nm(iband) - 1
-          wone = wstart(iband)
-          wxne = wstart(iband) + dn(iband)*nm(iband)
-          wmid = (wone + wxne)/2.0d0
-          DO K = 1, KMAX
-             IF ((abscont_type.ne.2).or.((k.lt.kmax).and.(z(k).ge.cont_z_abs).and.(z(k+1).le.cont_z_abs))) then
-!                print *, k, param(1)
+       select case (abscont_type)
+       case(1)
+          
+          ! n-th order polynomial
+          mone = 1
+          CROSS(nret+2,:KMAX,:ncross) = 0.0d0
+          DO IBAND = 1, NBAND
+             mxne = mone + nm(iband) - 1
+             wone = wstart(iband)
+             wxne = wstart(iband) + dn(iband)*nm(iband)
+             wmid = (wone + wxne)/2.0d0
+             DO K = 1, KMAX
                 do j = mone,mxne
                    polynom = param(1)
                    do l = 1,n_contabs-1
@@ -52,7 +52,7 @@ contains
          
                    CROSS(nret+2,K,j) = CROSS(nret+2,K,j) + polynom*(P(k)/P(kmax))
                 end do
-             end IF
+             end DO
           end DO
        case(2)
           ! an absorbing layer modeled at the altitude
