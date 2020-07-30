@@ -1032,6 +1032,7 @@ subroutine kpno( opdmax, wl1, wl2, roe, lat, lon, nterp, rflag, oflag, zflag, vf
    character (len=1)   :: loc
    real      (4), dimension(:), allocatable :: amps4
    real      (8), dimension(:), allocatable :: amps, outspec
+   real      (4), dimension(:), allocatable :: amps4
    real      (8), dimension(:), allocatable :: wavs, awavs
    integer   (4), dimension(1)              :: ilow, ihi
    real      (8) :: opdmax, wlow, whi, spac, wlim1, wlim2, wl1, wl2, wstart, dnue, roe, noise, peak
@@ -1087,9 +1088,11 @@ subroutine kpno( opdmax, wl1, wl2, roe, lat, lon, nterp, rflag, oflag, zflag, vf
    write(6,101)'Number of points : ', npfile
 
    ! get amplitude data from bnr
-   if( allocated( amps ) )deallocate( amps )
+   if( allocated( amps4) )deallocate( amps4)
+   allocate( amps4( npfile ))
    if( allocated( wavs ) )deallocate( wavs, awavs )
    allocate( amps( npfile ), wavs( npfile ), awavs( npfile ))
+
    !read (blun, err = 201) amps
    !print *, 'R8 amps'
    !goto 202

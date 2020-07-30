@@ -243,14 +243,16 @@
 ! CONTINUUM ABSORPTION
          TALL_FLAG = .FALSE.
          !         PRINT *,'U1',PNAME(NCOUNT+1),'U2',PNAME(IPARM),' ',IPARM, ' ',ICOUNT,' ',NCOUNT
-         IF (F_CONTABS) THEN
-            IF (IPARM.EQ.0.OR.(IPARM.GE.NCOUNT+1.AND.IPARM.LE.NCOUNT+N_CONTABS+1)) THEN
+         IF (F_CONTINUUM) THEN
+            IF (F_CONTABS.AND.(IPARM.EQ.0.OR.(IPARM.GE.NCOUNT+1.AND.IPARM.LE.NCOUNT+N_CONTABS+1))) THEN
                DO K = 1,N_CONTABS
                   CONT_PARAM(K) = PARM(NCOUNT+K)
                END DO
                TALL_FLAG = .TRUE.
+               NCOUNT = NCOUNT + N_CONTABS
+            ELSE
+               CONT_PARAM(1:N_CONTABS) = ABSCONT_PARAM(1)
             END IF
-            NCOUNT = NCOUNT + N_CONTABS
          END IF
          CALL CALC_CONTINUUM(CONT_PARAM)
 

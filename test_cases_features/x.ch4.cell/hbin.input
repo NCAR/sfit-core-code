@@ -1,11 +1,13 @@
 
 file.out.ascii = T
 #
+
 file.in.linelist = ../../../linelist/
 #
 # next non-comment entry is the number of path/files to look for
 hitran.nr = 99
 #
+
 hitran.files = 
 001_H2O/01_hit09.par
 002_CO2/02_hit08_f53.par
@@ -18,6 +20,18 @@ hitran.files =
 009_SO2/09_hit08.par
 010_NO2/10_hit08.par
 011_NH3/11_hit08.par
+=======
+# Then the next lines are paths to each gas file that will be searched for lines in the
+#  desired wavenember region
+# the id numbers are in sfit order - not exactly HITRAN, BUT KEEP these directory names
+# the files are in HITRAN format
+#
+# tip: put a blank after the '/' to skip that gas or just remove it
+# 049_O2CIA/o2cia_20060420.101 - this file is a special case, molid & isotope
+#  ids are dealt with differently
+#
+006_CH4/06_kit15_2015-12-08_v1.par
+>>>>>>> Pre-Release-v0_10
 012_HNO3/12_hit08.par
 013_OH/13_hit08.par
 014_HF/14_hit08.par

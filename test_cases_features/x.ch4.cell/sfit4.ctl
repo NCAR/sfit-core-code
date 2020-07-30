@@ -10,6 +10,7 @@
 # file.in.linelist               = 02390.441722-02709.558278.hbin.kit01.all
 # file.in.linelist               = 02390.441722-03008.558278.hbin.009
 #  file.in.linelist               = 02390.441722-02709.558278.hbin.kit01.all
+
  file.in.linelist               = 02916.941672-02925.658328.hbin 
 # Definition for retrieval gases
  

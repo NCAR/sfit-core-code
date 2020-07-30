@@ -1098,6 +1098,12 @@
          ALLOCATE(CONT_PARAM(N_CONTABS))
          DO I = 1,N_CONTABS
             CONT_PARAM(I) = ABSCONT_PARAM(1)
+            if (F_CONTABS) THEN
+               WRITE(PNAME(NVAR+1:NVAR+2), '(A10,I1)'), 'CONTINUUM_', I-1
+               PARM(NVAR+1:NVAR+2)  = ABSCONT_PARAM(1)
+               SPARM(NVAR+1:NVAR+2) = ABSCONT_SPARAM(1)
+               NVAR = NVAR + 1
+            END if
          END DO
          if (F_CONTABS) THEN
             DO I = 1,N_CONTABS
