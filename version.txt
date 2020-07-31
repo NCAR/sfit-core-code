@@ -1,6 +1,12 @@
 Version Documentation for sfit4
 
--------------- Version PreRelease: 0.9.6 (March 2018) --------------
+-------------- Version Official Release: v1.0 (June 2020) --------------
+
+Added internal calculation of Tikonov-Philips L1 Regularization matrix
+Updated to HITRAN 16 (and ATM 2019) and TIPS 2016
+
+
+
 
 
 -------------- Version 9.4.4 (June 2014) --------------
@@ -9,5 +15,5 @@ MAJOR
   uncertainties. See bug report #92.
 
 MINOR
-+ Added space between FITRMS and CHI_Y_2 in summary file so these values would not run 
++ Added space between FITRMS and CHI_Y_2 in summary file so these values would not run
   together for bad fits

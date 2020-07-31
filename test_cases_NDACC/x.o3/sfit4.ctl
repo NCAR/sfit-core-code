@@ -133,7 +133,7 @@
  band.1.beam.1.apriori       = 0.01 0.02 782.56 1.0
  band.1.beam.1.sigma         = 1.0  0.0 1.0 0.0
  band.1.calc_point_space     =       0.500E-03
- band.1.wave_factor          =           1.000
+ band.1.wave_factor          =           1.1000
  band.1.max_opd= 180.0000
  band.1.omega= 2.3923
  band.1.apodization_code =               0

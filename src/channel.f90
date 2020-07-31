@@ -39,7 +39,8 @@
       INTEGER, DIMENSION(MAXBND,MAX_NUM_OF_BEAMS,4) :: CHANNEL_IFIX
                                             ! CHANNEL SPECTRUM VALUES (pwj)
       INTEGER :: FIRST_CHANNEL_PARM_NUM     ! THE POSITION OF FIRST CHANNEL
-                                            ! PARM IN STATE VECTOR  (pwj)
+      ! PARM IN STATE VECTOR  (pwj)
+      INTEGER :: NCHAN =0                     ! MP number of beams retrieved
 
       CONTAINS
 
@@ -162,6 +163,7 @@
 ! ---  AND KEEP THE START NUMBER IN THE PARM()---------------------------
 ! --- USE LACK OF SIGMA VALUES TO SIGNIFY A NON-FIT PARAMETER
 
+      NCHAN = 0
       FIRST_CHANNEL_PARM_NUM = NVAR + 1
 
       DO IBAND = 1, NBAND
@@ -174,19 +176,20 @@
                END IF
                IF (CHANNEL_IFIX(IBAND,IBEAM,K) .EQ. 0) CYCLE
                NVAR = NVAR + 1
+               NCHAN = NCHAN + 1
                SELECT CASE (K)
                CASE (1)
                   !PNAME(NVAR) = 'PEAK_AMP'
-                  WRITE(PNAME(NVAR), '(A8,I1,"_",I1)'), 'PeakAmp_', IBAND, IBEAM
+                  WRITE(PNAME(NVAR), '(A8,I1,"_",I1)') 'PeakAmp_', IBAND, IBEAM
                CASE (2)
                   !PNAME(NVAR) = 'CHAN_SEP'
-                  WRITE(PNAME(NVAR), '(A8,I1,"_",I1)'), 'ChanSep_', IBAND, IBEAM
+                  WRITE(PNAME(NVAR), '(A8,I1,"_",I1)') 'ChanSep_', IBAND, IBEAM
                CASE (3)
                   !PNAME(NVAR) = 'ZERO_PH_REF'
-                  WRITE(PNAME(NVAR), '(A8,I1,"_",I1)'), 'ZroPhsR_', IBAND, IBEAM
+                  WRITE(PNAME(NVAR), '(A8,I1,"_",I1)') 'ZroPhsR_', IBAND, IBEAM
                CASE (4)
                   !PNAME(NVAR) = 'DELTA_PEAK_AMP'
-                  WRITE(PNAME(NVAR), '(A8,I1,"_",I1)'), 'DlPkAmp_' , IBAND, IBEAM
+                  WRITE(PNAME(NVAR), '(A8,I1,"_",I1)') 'DlPkAmp_' , IBAND, IBEAM
                END SELECT
                PARM(NVAR)  = 1.0D0
                SPARM(NVAR) = SCHAN_SCALE(IBAND,IBEAM,K)

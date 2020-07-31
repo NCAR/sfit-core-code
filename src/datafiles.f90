@@ -51,6 +51,7 @@
 !                              TFIL66, &      ! K.OUT JACOBIAN, SA, SE, SAINV
 !                              TFIL67, &      ! SE.OUT
 !                              TFIL68, &      ! KT.OUT INVERSE JACOBIAN OUTPUT
+!                              TFIL69, &      ! SAINV.OUT INVERSE COVARIANCE MATRIX OUTPUT
 !                              TFIL70, &      ! DETAIL.OPT - OE DETAIL OUTPUT
 !                              TFIL71, &      ! STATION.LAYERS INPUT LEVELS AND MIDPOINTS
 !                              TFIL72, &      ! REFERENCE.PRF - ZPT + REFMOD INPUT VMR PROFILES
@@ -74,7 +75,8 @@
 !                              TFIL93, &      ! GAIN MATRIX
 !                              TFIL94, &      ! xsections per altitude and spectral point
 !                              TFIL95, &      ! sum of xsections
-!                              TFIL96, &      ! measured transmission of the instrument (filter curve)
+!                              TFIL96, &      ! file of filtertransmission
+!                              TFIL97, &      ! appodization functions as applied to spectrum
 !                              LINDIR, &
 
       INTEGER :: NCHAR
@@ -144,10 +146,10 @@
       TFILE(22) = TRIM(TFILE(18))//'.prc'
 
 ! --- EMPIRICAL MODULATION FUNCTION
-      TFILE(23) = 'ils.dat'
+      TFILE(23) = 'modulation.dat'
 
 ! --- EMPIRICAL PHASE FUNCTION
-      TFILE(24) = 'ils.dat'
+      TFILE(24) = 'phase.dat'
 
 ! --- CHANNEL OUTPUT
       TFILE(30) = 'chnspec1.output'
@@ -241,8 +243,12 @@
 ! --- xsection_sum
       TFILE(95) = 'xsections_sum.dat'
 
-! --- filter transmission
+! --- filter_transmission
       TFILE(96) = 'filter_transmission.dat'
+
+! --- apodisation and phase function
+      TFILE(97) = 'applied_ils.dat'
+
 
       RETURN
 

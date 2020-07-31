@@ -1,0 +1,1793 @@
+% This file was converted to LaTeX by Writer2LaTeX ver. 1.4
+% see http://writer2latex.sourceforge.net for more info
+\documentclass{article}
+\usepackage[ascii]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[ngerman,english]{babel}
+\usepackage{amsmath}
+\usepackage{amssymb,amsfonts,textcomp}
+\usepackage{color}
+\usepackage{array}
+\usepackage{supertabular}
+\usepackage{hhline}
+\usepackage{hyperref}
+\hypersetup{colorlinks=true, linkcolor=blue, citecolor=blue, filecolor=blue, urlcolor=blue, pdftitle=, pdfauthor=Mathias Palm, pdfsubject=, pdfkeywords=}
+%\newcommand\textsubscript[1]{\ensuremath{{}_{\text{#1}}}}
+% Outline numbering
+\setcounter{secnumdepth}{0}
+\makeatletter
+\newcommand\arraybslash{\let\\\@arraycr}
+\makeatother
+% List styles
+\newcounter{saveenum}
+\newcommand\liststyleWWviiiNumii{%
+\renewcommand\labelitemi{{\textbullet}}
+\renewcommand\labelitemii{${\circ}$}
+\renewcommand\labelitemiii{${\blacksquare}$}
+\renewcommand\labelitemiv{{\textbullet}}
+}
+\newcommand\liststyleWWviiiNumiii{%
+\renewcommand\theenumi{\arabic{enumi}}
+\renewcommand\theenumii{\arabic{enumii}}
+\renewcommand\theenumiii{\arabic{enumiii}}
+\renewcommand\theenumiv{\arabic{enumiv}}
+\renewcommand\labelenumi{\theenumi.}
+\renewcommand\labelenumii{\theenumii.}
+\renewcommand\labelenumiii{\theenumiii.}
+\renewcommand\labelenumiv{\theenumiv.}
+}
+% Page layout (geometry)
+\setlength\paperwidth{16.5354in}
+\setlength\paperheight{11.6929in}
+\setlength\voffset{-1in}
+\setlength\hoffset{-1in}
+\setlength\topmargin{1in}
+\setlength\oddsidemargin{1in}
+\setlength\textheight{9.6929in}
+\setlength\textwidth{14.5354in}
+\setlength\footskip{0.0cm}
+\setlength\headheight{0cm}
+\setlength\headsep{0cm}
+% Footnote rule
+\setlength{\skip\footins}{0.0469in}
+\renewcommand\footnoterule{\vspace*{-0.0071in}\setlength\leftskip{0pt}\setlength\rightskip{0pt plus 1fil}\noindent\textcolor{black}{\rule{0.25\columnwidth}{0.0071in}}\vspace*{0.0398in}}
+% Pages styles
+\makeatletter
+\newcommand\ps@Standard{
+  \renewcommand\@oddhead{}
+  \renewcommand\@evenhead{}
+  \renewcommand\@oddfoot{}
+  \renewcommand\@evenfoot{}
+  \renewcommand\thepage{\arabic{page}}
+}
+\makeatother
+\pagestyle{Standard}
+\setlength\tabcolsep{1mm}
+\renewcommand\arraystretch{1.3}
+\title{}
+\author{Mathias Palm}
+\date{2019-11-14}
+\begin{document}
+\clearpage\setcounter{page}{1}\pagestyle{Standard}
+{\centering\bfseries
+Initialisation of sfit4
+\par}
+
+\section{}
+{
+The general format is }
+
+{
+Keyword1.keyword2.keyword3 \ = \ value}
+
+
+\bigskip
+
+\section{Keyword 1}
+
+Defines general section under which keyword2,3,4,{\dots} are defining more detailed parameters
+
+\begin{description}
+\item[file] defines in and output files. All output files are also set to default values by the code.
+\item[gas] defines parameters for the retrieval gases
+\item[fw] all parameters for the forward model are defined in this section
+\item[kb] is set to true if Kb matrizes are calculated at the end of the talk.
+\item[rt] in this section the retrieval parameters are defined, except for the $S_A$ matrices for the gases which are
+defined in the gas section. If rt is set to F, no retrieval is performed but only a forward calculation.
+\item[band] the parameters for all MW bands are defined. 
+\item[sp] contains additional noise information for the spectra, i.e. for deweighting
+\item[out] more details of output are defined
+\end{description}
+
+\noindent
+{\textbf{Do not rely on default values for in and output to make the program forward compatible}
+
+\begin{flushleft}
+\tablefirsthead{}
+\tablehead{}
+\tabletail{}
+\tablelasttail{}
+\begin{supertabular}{|m{2.10666in}|m{1.7969599in}|m{0.6087598in}m{0.54345983in}|m{5.30046in}|m{0.74065983in}|}
+\hline
+{\bfseries Key} &
+{\bfseries Dependency} &
+\multicolumn{2}{m{1.2309599in}|}{{\bfseries Default}} &
+{\bfseries Description} &
+{\bfseries versions}\\\hline
+{\ttfamily file.in.spectrum } &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily t15asc.4}} &
+{\ttfamily File containing the spectrum in ASCII } &
+~
+\\\hline
+{\ttfamily file.in.stalayers} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily station.layers}} &
+{\ttfamily File containing the layering} &
+~
+\\\hline
+{\ttfamily File.in.refprofile} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily reference.prf}} &
+{\ttfamily File containing the atmosphere } &
+~
+\\\hline
+{\ttfamily file.in.modulation\_fcn} &
+{\ttfamily fw.apod\_fcn = T} &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily modulation\_gcn.dat}} &
+{\ttfamily empirical apodization function}
+
+{\ttfamily fw.apod\_fcn.type=: table containing the apodisation versus the OPD}
+
+{\ttfamily fw.apod\_fcn.type = 2,3: coefficients of the polynomial or Fourier series.}
+
+{\ttfamily fw.apod\_fcn.type = 4: Output of lft (modulat.dat)} &
+~
+\\\hline
+{\ttfamily file.in.phase\_fcn} &
+{\ttfamily fw.phase\_fcn = T} &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily Phase.dat}} &
+{\ttfamily empirical phase function}
+
+{\ttfamily fw.phase\_fcn.type=1: table of values version OPD}
+
+{\ttfamily fw.phase\_fcn.type = 2: coefficients of the polynomial, Must be one more than
+ft.phase\_fcn.order. }
+
+{ \texttt{The first coefficient is the 0}\texttt{\textsuperscript{th}}\texttt{ order (constant
+over the whole interferogram)}}
+
+{\ttfamily fw.phase\_fcn.type = 4: Output of lft (modulat.dat)} &
+~
+
+~
+
+~
+
+~
+
+{\ttfamily {\textgreater}= 1.0}\\\hline
+{\ttfamily file.in.sa\_matrix} &
+{\ttfamily gas.x.correlation = T}
+
+{\ttfamily gas.x.correlation.type = 4} &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily sainv.input}} &
+{\ttfamily file containing a full sa matrix } &
+\\\hline
+&
+{\ttfamily gas.x.correlation = T gas.x.correlation.type = 5} &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily sainv.input}} &
+{\ttfamily file containing fill inverse matrix $S_a^{-1}$} &
+\\\hline
+{\ttfamily file.in.isotope} &
+{\ttfamily fw.isotope\_separation = T} &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily isotope.input}} &
+{\ttfamily containg the isotope description} &
+~
+\\\hline
+{\ttfamily file.in.solarlines} &
+{\ttfamily fw.solspectrum = T} &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily solar\_data.input}} &
+{\ttfamily containg solar lines} &
+~
+\\\hline
+{\ttfamily file.in.linelist} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily none}} &
+{\ttfamily file containing spectral data, created with hbin} &
+~
+\\\hline
+{\ttfamily file.in.transmission} &
+{\ttfamily fw.filter\_transmission = T} &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily none}} &
+{\ttfamily A file containing a measured transmission. The format is the same as
+file.in.spectrum} &
+~
+\\\hline
+~
+ &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{~
+} &
+~
+ &
+~
+\\\hline
+{\ttfamily file.out.solarspectrum} &
+{\ttfamily fw.solar\_spectrum=T} &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily solspec.dat}} &
+{\ttfamily Calculated solar spectrum} &
+~
+\\\hline
+{\ttfamily file.out.summary} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily summary}} &
+~
+ &
+~
+\\\hline
+{\ttfamily file.out.pbpfile} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily pbpfile}} &
+~
+ &
+~
+\\\hline
+{\ttfamily file.out.statevec} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily statevec}} &
+~
+ &
+~
+\\\hline
+{\ttfamily file.out.k\_matrix} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily k.out}} &
+~
+ &
+~
+\\\hline
+{\ttfamily file.out.g\_matrix} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily d.complete}} &
+~
+ &
+~
+\\\hline
+{\ttfamily file.out.shat\_matrix} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily shat.complete}} &
+~
+ &
+~
+\\\hline
+{\ttfamily file.out.sa\_matrix} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily sa.complete}} &
+~
+ &
+~
+\\\hline
+{\ttfamily file.out.retprofiles} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily rprfs.table}} &
+~
+ &
+~
+\\\hline
+{\ttfamily file.out.aprprofiles} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily aprfs.table}} &
+~
+ &
+~
+\\\hline
+{\ttfamily file.out.ak\_matrix} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily ak.out}} &
+~
+ &
+~
+\\\hline
+{\ttfamily file.out.ab\_matrix} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily ab.out}} &
+~
+ &
+~
+\\\hline
+{\ttfamily file.out.parm\_vectors} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily parm.vectors}} &
+{\ttfamily Internal statevector per iteration} &
+~
+\\\hline
+{\ttfamily file.out.seinv\_vector} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily seinv.out}} &
+~
+ &
+~
+\\\hline
+{\ttfamily file.out.sainv\_matrix} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily sainv.out}} &
+~
+ &
+~
+\\\hline
+{\ttfamily file.out.smeas\_matrix} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily smeas.target}} &
+~
+ &
+~
+\\\hline
+{\ttfamily file.out.ssmooth\_matrix} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily ssmooth.target}} &
+~
+ &
+~
+\\\hline
+{\ttfamily file.out.kb\_matrix} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily kb.out}} &
+~
+ &
+~
+\\\hline
+\multicolumn{5}{|m{10.67126in}|}{~
+} &
+~
+\\\hline
+{\ttfamily gas.layers} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{~
+} &
+{\ttfamily Nr of layers the gas is retrieved on. Must match the number of layers in
+file.statlayers} &
+~
+\\\hline
+{\ttfamily gas.profile.list} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily empty}} &
+{\ttfamily names of the gases for which profiles are retrieved } &
+~
+\\\hline
+{\ttfamily gas.column.list} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily empty}} &
+{\ttfamily names of the gases for which columns are retrieved} &
+~
+\\\hline
+{\ttfamily gas.profile.x.correlation} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily F}} &
+{\ttfamily T for calculation of off diagonal correlation} &
+~
+\\\hline
+{\ttfamily gas.profile.x.correlation.type} &
+{\ttfamily gas.profile.x.correlation = T} & \multicolumn{2}{m{1.2309599in}|}{~} &
+{ \texttt{definition of off diagonal correlation in the
+S}\texttt{\textsubscript{a}}\texttt{{}-matrix}}
+
+{\ttfamily 1 -- Gaussian shape}
+
+{\ttfamily 2 -- Exponential shape }
+
+{ \texttt{4 - the S}\texttt{\textsubscript{a}}\texttt{ matrix is read in from file.sa\_matrix}}
+
+{ \texttt{5 -- the inverse, S}\texttt{\textsubscript{a}}\texttt{\textsuperscript{{}-1}}\texttt{,
+matrix is read from file.sa\_matrix}}
+
+{\ttfamily 6 -- an L1 redularization matrix is created} &
+~
+
+~
+
+~
+
+~
+
+~
+
+{\ttfamily {\textgreater}=1.0}\\\hline
+{\ttfamily gas.profile.x.correlation.width} &
+{ \texttt{gas.profile.x.correlation = T}}
+
+{\ttfamily gas.profile.x.correlation.type =1,2} &
+\multicolumn{2}{m{1.2309599in}|}{~
+} &
+{\ttfamily width of the correlation in km} &
+~
+\\\hline
+{\ttfamily gas.profile.x.correlation.minalt} &
+{\ttfamily gas.profile.x.correlation = T}
+
+{\ttfamily gas.profile.x.correlation.type =1,2} &
+\multicolumn{2}{m{1.2309599in}|}{~
+} &
+{\ttfamily correlation calculation starts at given altitude} &
+~
+\\\hline
+{\ttfamily gas.profile.x.correlation.maxalt} &
+{\ttfamily gas.profile.x.correlation = T}
+
+{\ttfamily gas.profile.x.correlation.type =1,2} &
+\multicolumn{2}{m{1.2309599in}|}{~
+} &
+{\ttfamily correlation calculation ends at given altitude} &
+~
+\\\hline
+{\ttfamily Gas.profile.x.correlation.lambda} &
+{\ttfamily gas.profile.x.correlation = T}
+
+{ \foreignlanguage{ngerman}{\texttt{gas.profile.x.correlation.type = 6}}} &
+\multicolumn{2}{m{1.2309599in}|}{~
+} &
+{\ttfamily Regularistion parameter for L1 regularisation} &
+~
+\\\hline
+{\ttfamily gas.profile.x.logstate} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily F}} &
+{\ttfamily If T the statevector is ln(VMR)} &
+~
+\\\hline
+{\ttfamily gas.profile.x.scale} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{~
+} &
+{\ttfamily apriori scaling of the VMR} &
+~
+\\\hline
+{\ttfamily gas.profile.x.sigma} &
+{\ttfamily gas.x.ifoff=0,1,2} &
+\multicolumn{2}{m{1.2309599in}|}{~
+} &
+{\ttfamily diagonals of Sa matrix in fractions of the a priori }
+
+{\ttfamily Nr of entries must correspond to the number of }
+
+{\ttfamily layers defined in the statlayers} &
+~
+\\\hline
+ &
+{\ttfamily gas.x.ifoff=5} &
+\multicolumn{2}{m{1.2309599in}|}{~
+} &
+{\ttfamily the corresponding rows of the read matrix are multiplied by the inverse value of the
+sigma} &
+~
+\\\hhline{~-----}
+~
+ &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{~
+} &
+~
+ &
+~
+\\\hline
+{\ttfamily fw.tips} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily T}} &
+{\ttfamily Turn TIPS On or Off. \ TIPS (as of HITRAN 2016)is slow but more accurate calculation
+of partition sums.} &
+~
+\\\hline
+{\ttfamily fw.isotope\_separation} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily F}} &
+{\ttfamily Isotopes are separated, see file {\textless}file.in.isotope{\textgreater} for a
+definition of the isotope separation } &
+~
+\\\hline
+{\ttfamily fw.delnu} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{~
+} &
+{\ttfamily Half width of integration interval for cross section calculation} &
+~
+\\\hline
+{\ttfamily fw.lshapemodel} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily 0}} &
+{\ttfamily Lineshape model }
+
+{\ttfamily 0 -- depends on the spectroscopic values given \ }
+
+{\ttfamily 1 - always Voigt}
+
+{\ttfamily 2 - Galatry if BETA\_T is given, if not Voigt}
+
+{\ttfamily 3 -- LM calculation using the Voigt profile by Boone (2012)}
+
+{\ttfamily 4 -- Use the pCqSDHC lineshape model Tran(2013)} &
+~
+\\\hline
+{\ttfamily fw.lshapemodel.sdv} &
+{\ttfamily fw.lshapemodel = 4} &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily F}} &
+{\ttfamily Use the SDV approximation in the pCqSDHC model.} &
+~
+\\\hline
+{\ttfamily fw.linemixing} &
+{\ttfamily fw.lshapemodel = 3,4} &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily F}} &
+{\ttfamily if T and parameters found, linemixing is included}
+
+{ \texttt{currently only 1}\texttt{\textsuperscript{st}}\texttt{ order pproximation (Rosenkranz,
+1975)}} &
+~
+\\\hline
+{\ttfamily fw.linemixing.gas} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{~
+} &
+{\ttfamily gas for which linemixing is calculated } &
+~
+\\\hline
+{\ttfamily fw.solar\_spectrum} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily F}} &
+{\ttfamily if T inclusion of solar lines (files.solarlines)} &
+~
+\\\hline
+{\ttfamily fw.pressure\_shift} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily F}} &
+{\ttfamily Pressure induced line shift }
+
+{\ttfamily T - read from linelist}
+
+{\ttfamily F - no shift} &
+~
+\\\hline
+{\ttfamily fw.apod\_fcn} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily F}} &
+{\ttfamily Calculate apodization function} &
+~
+\\\hline
+{\ttfamily fw.apod\_fcn.type} &
+{\ttfamily fw.apod\_fcn = T} &
+\multicolumn{2}{m{1.2309599in}|}{~
+} &
+{\ttfamily Empirical apodiziation}
+
+{\ttfamily 0 - no empirical apodiziation}
+
+{\ttfamily 1 - tabular function is read in}
+
+{\ttfamily 2 - polynomial }
+
+{\ttfamily 3 - fourier series }
+
+{\ttfamily 4 - linefit output is read in}
+
+{\ttfamily An extra file in file.in.apod\_fcn has to be suplied if type
+{\textless}{\textgreater} 0. Format of this file depends on the type.} &
+~
+\\\hline
+{\ttfamily fw.apod\_fcn.order} &
+{\ttfamily fw.apod\_fcn.type = 2 o. 3} &
+\multicolumn{2}{m{1.2309599in}|}{~
+} &
+{\ttfamily Order of polynomial/fourier series } &
+~
+\\\hline
+{\ttfamily fw.phase\_fcn} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily F}} &
+{\ttfamily T if emirical phase is calculated} &
+~
+\\\hline
+{\ttfamily fw.phase\_fcn.type} &
+{\ttfamily fw.phase\_fcn = T } &
+\multicolumn{2}{m{1.2309599in}|}{~
+} &
+{\ttfamily Empirical phase error}
+
+{0 - no empirical phase}
+
+{\ttfamily 1 - tabular function is read in}
+
+{\ttfamily 2 - polynomial}
+
+{\ttfamily 4 - linefit output}
+
+{\ttfamily An extra file in file.in.phase\_fcn has to be suplied if type
+{\textless}{\textgreater} 0. Format of this file depends on the type. (compare documentation sfit4\_EAPOD\_EPHASE} &
+~
+\\\hline
+{\ttfamily fw.phase\_fcn.order} &
+{\ttfamily fw.phase\_fcn = T }
+
+{\ttfamily fw.phase\_fcn.type = 2} &
+\multicolumn{2}{m{1.2309599in}|}{~
+} &
+{\ttfamily Order of polynomial} &
+~
+\\\hline
+{\ttfamily fw.emission} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily F}} &
+{\ttfamily if T emitted radiation from the atmosphere is calculated} &
+~
+\\\hline
+{\ttfamily fw.emission.T\_infinity} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily n}} &
+{\ttfamily Temperature (in K) of the }
+
+{\ttfamily radiating object outside the atmosphere}
+
+{\ttfamily Moon = 370.0}
+
+{\ttfamily Sun \ = 6000.0}
+
+{\ttfamily None = 2.7} &
+~
+\\\hline
+{\ttfamily fw.emission.object} &
+{\ttfamily fw.emission = T} &
+\multicolumn{2}{m{1.2309599in}|}{~
+} &
+{\ttfamily Reflexion of solar light off object}
+
+{\ttfamily .e. only emission is calculated, no reflection}
+
+{\ttfamily .m. reflection of solar light of the moon (pre-alpha)} &
+~
+\\\hline
+{\ttfamily fw.emission.normalized} &
+{\ttfamily fw.emission = T} &
+\multicolumn{2}{m{1.2309599in}|}{~
+} &
+{\ttfamily spectra are normalized to one (T) or not normalized \ (F)} &
+~
+\\\hline
+{\ttfamily fw.raytonly} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily F}} &
+{\ttfamily if T only calculate raytracing} &
+~
+\\\hline
+{\ttfamily fw.filter\_transmission} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily F}} &
+{\ttfamily If T applies the measured transmission contained in file.in.transmission to the
+calculated spectrum} &
+~
+\\\hline
+\multicolumn{5}{|m{10.67126in}|}{~
+} &
+~
+\\\hline
+{\ttfamily Cell} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily x}} &
+{\ttfamily Number (placeholders) for cell} &
+~
+\\\hline
+{\ttfamily Cell.x.temperature} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{~
+} &
+{\ttfamily Temperature of CELL in K} &
+~
+\\\hline
+{\ttfamily Cell.x.pressure} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{~
+} &
+{\ttfamily Pressure in CELL in hPa. This is the total pressure, not the partial pressure of the
+gas.} &
+~
+\\\hline
+{\ttfamily Cell.x.gas} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{~
+} &
+{\ttfamily GAS in CELL. For more than one GAS, a seperate CELL has to be defined. } &
+~
+\\\hline
+{\ttfamily Cell.x.vmr} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{~
+} &
+{\ttfamily VMR of the gas in CELL} &
+~
+\\\hline
+{\ttfamily Cell.x.path} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{~
+} &
+{\ttfamily Path of the cell in cm} &
+~
+\\\hline
+\multicolumn{5}{|m{10.67126in}|}{~
+} &
+~
+\\\hline
+{\ttfamily kb} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily F}} &
+{\ttfamily T if Kb matrix entries are calculated, if the respective statevector entries are not
+retrieved, i.e. given kb.slope = T the Kb row for the slopes are only calculated it slope is not retrieved.} &
+~
+\\\hline
+{\ttfamily kb.profile} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily F}} &
+{\ttfamily Calculates AB matrix for a wrong assumed profile if the retrieved gas is a column} &
+~
+\\\hline
+{\ttfamily kb.profile.gas} &
+{\ttfamily kb.profile} &
+\multicolumn{2}{m{1.2309599in}|}{~
+} &
+{\ttfamily For which gas an error for the retrieved profile is calculated?} &
+~
+\\\hline
+{\ttfamily kb.sza} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily F}} &
+{\ttfamily T if Kb calculation of the SZA} &
+~
+\\\hline
+{\ttfamily kb.line} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily F}} &
+{\ttfamily T if Kb calculation for line intensities} &
+~
+\\\hline
+{\ttfamily kb.line.gas} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{~
+} &
+{\ttfamily for which gases line parameters are calculated, default: all gases which are
+retrieved}
+
+~
+
+{\ttfamily predefined values:}
+
+{\ttfamily target -- calculation only for the target gas}
+
+{\ttfamily retrieval -- kb are calculated for each gas which is retrieved.}
+
+{\ttfamily individual gasnames are also possible} &
+~
+\\\hline
+{\ttfamily kb.line.type} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{~
+} &
+{\ttfamily 1 if all line parameters of a gas are perturbed together with the same perturbation
+(this is the only parameter supported so far)}
+
+~
+
+{\ttfamily Kb are calculated for:}
+
+\liststyleWWviiiNumii
+\begin{itemize}
+\item {\ttfamily Intensity}
+\item {\ttfamily Pressure broadening}
+\item {\ttfamily Temperature dependency of pressure broadening}
+\end{itemize}
+ &
+~
+\\\hline
+{\ttfamily kb.temperature} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{~
+} &
+~
+ &
+~
+\\\hline
+{\ttfamily kb.slope} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{~
+} &
+~
+ &
+~
+\\\hline
+{\ttfamily kb.curvature} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{~
+} &
+~
+ &
+~
+\\\hline
+{\ttfamily kb.zshift} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{~
+} &
+~
+ &
+~
+\\\hline
+{\ttfamily kb.omega} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{~
+} &
+~
+ &
+~
+\\\hline
+{\ttfamily kb.max\_opd} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{~
+} &
+~
+ &
+~
+\\\hline
+{\ttfamily kb.solstrnth} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{~
+} &
+~
+ &
+~
+\\\hline
+{\ttfamily kb.solshft} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{~
+} &
+~
+ &
+~
+\\\hline
+{\ttfamily kb.phase} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{~
+} &
+~
+ &
+~
+\\\hline
+{\ttfamily kb.apod\_fnc} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{~
+} &
+{\ttfamily if fw.apod\_fcn = F a three order three order polynomial is assumed as the empirical
+apodisation function. If the apodisation function is read in as a table, no kb matrix is calculated (yet)} &
+~
+\\\hline
+{\ttfamily kb.phase\_fcn} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{~
+} &
+{\ttfamily if fw.phase\_fcn = F a three order three order polynomial is assumed as the empirical
+apodisation function. If the phase function is read in as a table, no kb matrix is calculated (yet).} &
+~
+\\\hline
+{\ttfamily kb.wshift} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{~
+} &
+{\ttfamily not recommended (usually retrieved)} &
+~
+\\\hline
+{\ttfamily kb.dwshift} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{~
+} &
+{\ttfamily not recommended} &
+~
+\\\hline
+\multicolumn{5}{|m{10.67126in}|}{~
+} &
+~
+\\\hline
+{\ttfamily rt} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{~
+} &
+{\ttfamily Switch on (T) or off (F) Retrieval, if F only a forward model}
+
+{\ttfamily calculation is performed} &
+~
+\\\hline
+{\ttfamily rt.lm} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily F}} &
+{\ttfamily Switch on (T) or off (F) LM iteration scheme} &
+~
+\\\hline
+{\ttfamily rf.lm.gamma\_start} &
+{\ttfamily rt.lm = T} &
+\multicolumn{2}{m{1.2309599in}|}{~
+} &
+{\ttfamily Start value for gamma} &
+~
+\\\hline
+{\ttfamily rf.lm.gamma\_inc} &
+{\ttfamily rt.lm = T} &
+\multicolumn{2}{m{1.2309599in}|}{~
+} &
+{\ttfamily Increase gamma by value if step was succesful} &
+~
+\\\hline
+{\ttfamily rf.lm.gamma\_dec} &
+{\ttfamily rt.lm = T} &
+\multicolumn{2}{m{1.2309599in}|}{~
+} &
+{\ttfamily Decrease gamma if step failed } &
+~
+\\\hline
+{\ttfamily rt.convergence} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{~
+} &
+{\ttfamily convergence is reached if change in cost function is smaller than value} &
+~
+\\\hline
+{\ttfamily rt.tolerance} &
+{\ttfamily rt.lm = F OR \ \ \ }
+
+{\ttfamily rt.convergance not given} &
+\multicolumn{2}{m{1.2309599in}|}{~
+} &
+{\ttfamily convergence cirterion used by sfit2. Convergence is reached if the proposed change in
+the spectrum is smaller than the noise * rt.tolerance} &
+~
+\\\hline
+{\ttfamily rt.max\_iteration} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{~
+} &
+{\ttfamily maximal number of iterations} &
+~
+\\\hline
+{\ttfamily rt.wshift} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily F}} &
+{\ttfamily T if a wavenumver shift is retrieved.} &
+~
+\\\hline
+{\ttfamily rt.wshift.type} &
+{\ttfamily rt.wshift = T} &
+\multicolumn{2}{m{1.2309599in}|}{~
+} &
+{\ttfamily 0 - no shift for any bandpass}
+
+{\ttfamily 1 - single shift for each bandpass}
+
+{\ttfamily 2 - independent shift for each bandpass}
+
+{\ttfamily 3 - idependent shift for each bandpass and scan} &
+~
+\\\hline
+{\ttfamily rt.wshift.apriori} &
+{\ttfamily rt.wshift = T} &
+\multicolumn{2}{m{1.2309599in}|}{~
+} &
+{\ttfamily apriori of the additional scaling for all microwindows -1. Internally it is added to
+band.x.wavfac, the scaling which is applied to microwindow x as apriori is }
+
+~
+
+{\ttfamily band.x.wavfac + rt.wshift.apriori}
+
+~
+
+{\ttfamily after retrieval the value is found in statevec as IWNUMSHFT\_X}
+
+~
+
+{\ttfamily hence the scaling applied in a MW is}
+
+~
+
+{\ttfamily band.x.wavfac + IWNumShft\_x} &
+~
+\\\hline
+{\ttfamily rt.wshift.sigma} &
+{\ttfamily rt.wshift = T} &
+\multicolumn{2}{m{1.2309599in}|}{~
+} &
+{\ttfamily its sa} &
+~
+\\\hline
+{\ttfamily rt.slope} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily F}} &
+{\ttfamily slope is retrieved if T} &
+~
+\\\hline
+{\ttfamily rt.slope.apriori} &
+{\ttfamily rt.slope = T} &
+\multicolumn{2}{m{1.2309599in}|}{~
+} &
+{\ttfamily a priori of slope } &
+~
+\\\hline
+{\ttfamily rt.slope.sigma} &
+{\ttfamily rt.slope = T} &
+\multicolumn{2}{m{1.2309599in}|}{~
+} &
+{\ttfamily sa of slope} &
+~
+\\\hline
+{\ttfamily rt.curvature} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily F}} &
+{\ttfamily curvature on spectrum is retrieved if T} &
+~
+\\\hline
+{\ttfamily rt.curvature.apriori} &
+{\ttfamily rt.curvature = T} &
+\multicolumn{2}{m{1.2309599in}|}{~
+} &
+{\ttfamily a priori of curvature} &
+~
+\\\hline
+{\ttfamily rt.curvature.sigma} &
+{\ttfamily rt.curvature = T} &
+\multicolumn{2}{m{1.2309599in}|}{~
+} &
+{\ttfamily sa of curvature} &
+~
+\\\hline
+{\ttfamily rt.phase } &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily F}} &
+{\ttfamily simple phase correction retrieved if T} &
+~
+\\\hline
+{\ttfamily rt.phase.apriori} &
+{\ttfamily rt.phase = T} &
+\multicolumn{2}{m{1.2309599in}|}{~
+} &
+~
+ &
+~
+\\\hline
+{\ttfamily rt.phase.sigma} &
+{\ttfamily rt.phase = T} &
+\multicolumn{2}{m{1.2309599in}|}{~
+} &
+~
+ &
+~
+\\\hline
+{\ttfamily rt.phase\_fcn} &
+{\ttfamily fw.phase\_fcn = T}
+
+{\ttfamily fw.phase\_fcn.type=2} &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily F}} &
+{ Empirical phase function retrieved if T} &
+~
+\\\hline
+{\ttfamily rt.phase\_fcn.apriori} &
+{\ttfamily rt.phase\_fcn = T} &
+\multicolumn{2}{m{1.2309599in}|}{~
+} &
+~
+ &
+~
+\\\hline
+{\ttfamily rt.phase\_fcn.phase} &
+{\ttfamily rt.phase\_fcn = T} &
+\multicolumn{2}{m{1.2309599in}|}{~
+} &
+~
+ &
+~
+\\\hline
+{\ttfamily rt.apod\_fcn} &
+{\ttfamily fw.apod\_fcn = T}
+
+{\ttfamily fw.apod\_fcn.type=2,3} &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily F}} &
+{ Empirical phase function retrieved if T} &
+~
+\\\hline
+{\ttfamily rt.apod\_fcn.apriori} &
+{\ttfamily rt.apod\_fcn = T} &
+\multicolumn{2}{m{1.2309599in}|}{~
+} &
+~
+ &
+~
+\\\hline
+{\ttfamily rt.apod\_fcn.phase} &
+{\ttfamily rt.apod\_fcn = T} &
+\multicolumn{2}{m{1.2309599in}|}{~
+} &
+~
+ &
+~
+\\\hline
+{\ttfamily rt.solshift} &
+{\ttfamily fw.solar\_spectrum = T} &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily F}} &
+{\ttfamily retrieve shift in solar lines if T} &
+~
+\\\hline
+{\ttfamily rt.solshift.apriori} &
+{\ttfamily rt.solshift = T} &
+\multicolumn{2}{m{1.2309599in}|}{~
+} &
+~
+ &
+~
+\\\hline
+{\ttfamily rt.solshift.sigma} &
+{\ttfamily rt.solshift = T} &
+\multicolumn{2}{m{1.2309599in}|}{~
+} &
+~
+ &
+~
+\\\hline
+{\ttfamily rt.solstrnth} &
+{\ttfamily fw.solar\_spectrum = T} &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily F}} &
+{\ttfamily retrieve strength of solar lines if T} &
+~
+\\\hline
+{\ttfamily rt.solstrnth.apriori} &
+{\ttfamily rt.solshift = T} &
+\multicolumn{2}{m{1.2309599in}|}{~
+} &
+~
+ &
+~
+\\\hline
+{\ttfamily rt.solstrnth.sigma} &
+{\ttfamily rt.solshift = T} &
+\multicolumn{2}{m{1.2309599in}|}{~
+} &
+~
+ &
+~
+\\\hline
+{\ttfamily rt.dwshift} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily F}} &
+{\ttfamily if T retrieval of line shifts for each retrieved gas} &
+~
+\\\hline
+~
+ &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{~
+} &
+~
+ &
+~
+\\\hline
+{\ttfamily rt.temperature} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily F}} &
+{\ttfamily if T, temperature is retrieved \ } &
+~
+\\\hline
+{\ttfamily rt.temperature.sigma} &
+{\ttfamily rt.temperature = T} &
+\multicolumn{2}{m{1.2309599in}|}{~
+} &
+{\ttfamily diagonals of sa matrix for temperature for each layer in state}
+
+{\ttfamily vector} &
+~
+\\\hline
+\multicolumn{3}{|m{4.66986in}|}{~
+} &
+\multicolumn{2}{m{5.92266in}|}{~
+} &
+~
+\\\hline
+{\ttfamily band} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{~
+} &
+{\ttfamily = 1..2 MWs that are included in the calculation} &
+~
+\\\hline
+{\ttfamily band.x.nu\_start} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{~
+} &
+{\ttfamily smallest frequency of MW} &
+~
+\\\hline
+{\ttfamily band.x.nu\_stop} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{~
+} &
+{\ttfamily argest frequency of MW} &
+~
+\\\hline
+{\ttfamily band.x.calc\_point\_space} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{~
+} &
+{\ttfamily spacing for spectrum calculation} &
+~
+\\\hline
+{\ttfamily band.x.wave\_factor} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily 1.0}} &
+{\ttfamily scaling of wave factor in this band} &
+~
+\\\hline
+{\ttfamily band.x.opd\_max} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{~
+} &
+{\ttfamily maximal OPD for this band} &
+~
+\\\hline
+{\ttfamily band.x.omega} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{~
+} &
+{\ttfamily FOV for this band} &
+~
+\\\hline
+{\ttfamily band.x.apodization\_code} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily 0}} &
+{\ttfamily Imposed Apodization Code }
+
+{\ttfamily 0 -- Boxcar}
+
+{\ttfamily 1 -3 Norton Beer (weak, med., strng)}
+
+{\ttfamily 4 - Denver data}
+
+{\ttfamily 5 -- Triangle}
+
+{\ttfamily 6 - Happ -- Genzel}
+
+{\ttfamily 7 -- KPNO Atmospheric Spectra A}
+
+{\ttfamily 8 -- KPNO Atmospheric Spectra B}
+
+{\ttfamily 9 -- Hamming function} &
+~
+\\\hline
+{\ttfamily band.x.zshift} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily F}} &
+{\ttfamily T if an offset is retrieved in this band} &
+~
+\\\hline
+{\ttfamily band.x.zshift.type} &
+{\ttfamily band.1.zshift = T} &
+\multicolumn{2}{m{1.2309599in}|}{~
+} &
+{\ttfamily 0 - use the a priori as given}
+
+{\ttfamily 1 - allow to retrieve for each bad}
+
+{\ttfamily 2 - use zero level from first band in list} &
+~
+\\\hline
+{\ttfamily band.x.zshift.apriori} &
+{\ttfamily band.1.zshift = T} &
+\multicolumn{2}{m{1.2309599in}|}{~
+} &
+{\ttfamily apriori of shift of the zero line} &
+~
+\\\hline
+{\ttfamily band.x.zshift.sigma} &
+{\ttfamily band.1.zshift = T}
+
+{\ttfamily band.1.zshift.type = \{1,2\}} &
+\multicolumn{2}{m{1.2309599in}|}{~
+} &
+{\ttfamily sa of the zero line shift} &
+~
+\\\hline
+{\ttfamily band.x.beam} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily empty}} &
+{\ttfamily Number of beams beams included}
+
+{\ttfamily two lines for each beam} &
+~
+\\\hline
+{\ttfamily band.x.beam.y.apriori} &
+{\ttfamily band.1.beam /= 0} &
+\multicolumn{2}{m{1.2309599in}|}{~
+} &
+{\ttfamily Four values:}
+
+{\ttfamily amp, freq, phase, slope} &
+~
+\\\hline
+{\ttfamily band.x.beam.y.sigma } &
+{\ttfamily band.1.beam /= 0} &
+\multicolumn{2}{m{1.2309599in}|}{~
+} &
+{\ttfamily Its standart deviation, if set to o.o not retrieved but fixed} &
+~
+\\\hline
+{\ttfamily band.x.beam.model} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{~
+} &
+{\ttfamily Channel model }
+
+{\ttfamily PS - phase model}
+
+{\ttfamily IP - interferogram pertubation model } &
+~
+\\\hline
+{\ttfamily band.x.gasb} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{~
+} &
+{\ttfamily gases which are retrieved from this band, must be contained in}
+
+{\ttfamily gas (see above)} &
+~
+\\\hline
+{\ttfamily band.x.tempretb} &
+{\ttfamily rt.temperature = T} &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily F}} &
+{\ttfamily T if temperature is retrieved in this band} &
+~
+\\\hline
+{\ttfamily band.x.snr} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{~
+} &
+{\ttfamily initial default snr for all scans in this band. \ Over ridden by snr from t15asc file
+and sp window} &
+~
+\\\hline
+\multicolumn{3}{|m{4.66986in}|}{~
+} &
+\multicolumn{2}{m{5.92266in}|}{~
+} &
+~
+\\\hline
+{\ttfamily sp.snr = x} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{~
+} &
+{ which additional snr windows are taken into account}
+
+{ e.g. = 1, the lines containing an 1 are read in, all other lines are ignored. example = 1 2 3}
+
+{ this over rides all previous snr values in this window} &
+~
+\\\hline
+{\ttfamily sp.snr.x.nu\_start} &
+{\ttfamily spectrum.snr not empty} &
+\multicolumn{2}{m{1.2309599in}|}{~
+} &
+{\ttfamily low wavenumber for snr window x} &
+~
+\\\hline
+{\ttfamily sp.snr.x.nu\_stop} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{~
+} &
+{\ttfamily high wavenumber for snr window x} &
+~
+\\\hline
+{\ttfamily sp.snr.x.snr} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{~
+} &
+{ snr value for window x} &
+~
+\\\hline
+\multicolumn{3}{|m{4.66986in}|}{~
+} &
+\multicolumn{2}{m{5.92266in}|}{~
+} &
+~
+\\\hline
+{\ttfamily out.level} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily 0}} &
+{\ttfamily Output level, a predefined set of putput files} &
+~
+\\\hline
+{\ttfamily out.gas\_spectra} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily F}} &
+{\ttfamily T for write gasfiles} &
+~
+\\\hline
+{\ttfamily out.gas\_spectra.type} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{~
+} &
+{\ttfamily Type of GASFILE}
+
+{\ttfamily 1 - only the final spectrum, the spectrum}
+
+{\ttfamily of each gas and the }
+
+{\ttfamily solar spectrum will be printed out. }
+
+{\ttfamily The files are named like}
+
+{\ttfamily gas1.1.1, allgases.1.1 and solar 1.1}
+
+{\ttfamily 2 - spectra will be printed out for each}
+
+{\ttfamily iteration. The names are like above,but an}
+
+{\ttfamily extra number is appended denoting the}
+
+{\ttfamily iteration number the numbers appended to}
+
+{\ttfamily the files are {\textquotedbl}nr of window{\textquotedbl}, {\textquotedbl}nr of
+scan{\textquotedbl}}
+
+{\ttfamily and {\textquotedbl}nr of iteration{\textquotedbl}}
+
+{\ttfamily The information of for band nr, gas and}
+
+{\ttfamily iteration number are also contained in the file}
+
+{\ttfamily header} &
+~
+\\\hline
+\multicolumn{5}{|m{10.67126in}|}{{\ttfamily Additionally to the predefined output acc to the
+level given in {\textless}output{\textgreater} the following quantities can be written out. If such a key is given the
+resp quantity is written out to the file defined by the parameter string (e.g. output.k-matrix = kk.out -- the Kmatrix
+is written out to kk.out) }} &
+~
+\\\hline
+{\ttfamily out.k\_matrix} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily F}} &
+{\ttfamily {\textless}filename{\textgreater} matrices written in file \ (now only: K.out)} &
+~
+\\\hline
+{\ttfamily Out.g\_matrix} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily F}} &
+{\ttfamily Write out complete Gain matrix} &
+~
+\\\hline
+{\ttfamily out.sa\_matrix } &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily F}} &
+{\ttfamily {\textless}filename{\textgreater} write out SA-matrix (now only: SA.out)} &
+~
+\\\hline
+{\ttfamily out.smeas\_matrix} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily F}} &
+{\ttfamily {\textless}filename{\textgreater} write out SM-matrix (error on profile due to the
+measurement noise (now only: SM.out)} &
+~
+\\\hline
+{\ttfamily out.shat\_matrix} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily F}} &
+~
+ &
+~
+\\\hline
+{\ttfamily out.refprofiles} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily F}} &
+~
+ &
+~
+\\\hline
+{\ttfamily out.aprprofiles} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily F}} &
+~
+ &
+~
+\\\hline
+{\ttfamily out.ak\_matrix} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily F}} &
+~
+ &
+~
+\\\hline
+{\ttfamily out.ab\_matrix} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily F}} &
+~
+ &
+~
+\\\hline
+{\ttfamily out.summary} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily F}} &
+~
+ &
+~
+\\\hline
+{\ttfamily out.pbpfile} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily F}} &
+~
+ &
+~
+\\\hline
+{\ttfamily out.channel} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily F}} &
+~
+ &
+~
+\\\hline
+{\ttfamily out.parm\_vectors} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily F}} &
+~
+ &
+~
+\\\hline
+{\ttfamily out.ssmooth\_matrix} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily F}} &
+~
+ &
+~
+\\\hline
+{\ttfamily out.sainv\_matrix} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily F}} &
+~
+ &
+~
+\\\hline
+{\ttfamily out.seinv\_vector} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily F}} &
+~
+ &
+~
+\\\hline
+{\ttfamily out.gas\_spectra} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily F}} &
+{\ttfamily T calculated spectra for each retrieved gas and each band are printed out} &
+~
+\\\hline
+{\ttfamily out.gas\_spectra.type} &
+{\ttfamily output.gas\_spectra = T} &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily F}} &
+\liststyleWWviiiNumiii
+\begin{enumerate}
+\item {\ttfamily gas spectra are only for the final iteration written out}
+\item {\ttfamily gas spectra are written out for each iteration}
+\end{enumerate}
+ &
+\liststyleWWviiiNumiii
+\setcounter{saveenum}{\value{enumi}}
+\begin{enumerate}
+\setcounter{enumi}{\value{saveenum}}
+\item ~
+
+\end{enumerate}
+\\\hline
+{\ttfamily out.raytrace} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{{\ttfamily F}} &
+{\ttfamily Write out raytrace} &
+~
+\\\hline
+{\ttfamily out.raytrace.type} &
+~
+ &
+\multicolumn{2}{m{1.2309599in}|}{~
+} &
+{\ttfamily Type of raytracing output} &
+~
+\\\hline
+\end{supertabular}
+\end{flushleft}
+
+\bigskip
+
+
+\bigskip
+
+{\bfseries
+Output description}
+
+{
+Files which may appear but are not described here are a legacy and are subject to modification or removal in the future,
+so dont relay on them, but notify the maintainers of sfit4 if you need the information contained in them.}
+
+
+\bigskip
+
+\begin{flushleft}
+\tablefirsthead{}
+\tablehead{}
+\tabletail{}
+\tablelasttail{}
+\begin{supertabular}{|m{0.9629598in}|m{0.9108598in}|m{6.92336in}|}
+\hline
+{ OUTPUT} &
+{ Contained in Output level} &
+{ Description}\\\hline
+{ PRFS.out} &
+{ 0} &
+{ contains all profiles of the retrieval gases together with the alitude grid, pressure ,
+temperature and airmass (vertical). For each gas there are five columns:}
+
+{ VMR Apriori}
+
+{ VMR Retrieved}
+
+{ SIGMA VMR RETRIEVED}
+
+{ PARTIAL COLUMN A priori}
+
+{ PARTIAL COLUMN Retrieved}\\\hline
+{ pbpfile} &
+{ 0} &
+{ contains the retrieved, measured spectra and the difference thereof}\\\hline
+{ AK.out} &
+{ 0} &
+{ Averaging kernel in units of the internal statevector, i.e. x/x\textsubscript{a}}\\\hline
+{ Ab.out} &
+{ 0} &
+{ Contains the G\textsubscript{y}K\textsubscript{b} matrix (see formula 3.16 page 48 in Rodgers
+(2000)}\\\hline
+{ Kb.out} &
+{ 1} &
+{ contains the K\textsubscript{b} matrix for all parameters which are not retrieved (and
+contained in the K-matrix)}\\\hline
+{ SM.out} &
+{ 1} &
+{ contains the full matrix of the retrieval noise
+}\\\hline
+{ spc.*} &
+{ 1} &
+{ contains the spectra calculated for each retrieval gas, each iteration (if
+output.gas\_spectra.type = 2) and each microwindow}\\\hline
+\end{supertabular}
+\end{flushleft}
+
+\bigskip
+
+{
+References}
+
+{
+Boone, C. D.; Walker, K. A. \& Bernath, P. F. An efficient analytical approach for calculating line mixing in
+atmospheric remote sensing applications J. Quant. Spectrosc. Radiat. Transfer, 2011, 112, 980 -- 989}
+
+{
+Rosenkranz PW. Shape of the 5 mm oxygen band in the atmosphere. IEEE Trans Antennas Propag 1975;AP-23:498--506.}
+
+{
+Tran, H.; Ngo, N. \& Hartmann, J.-M. Efficient computation of some speed-dependent isolated line profiles Journal of
+Quantitative Spectroscopy and Radiative Transfer, 2013}
+\end{document}

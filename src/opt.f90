@@ -96,17 +96,17 @@
 
       REAL(DOUBLE), DIMENSION(:),  ALLOCATABLE :: KN_OLD, KN
 
-      ! EQUIVALANCED
-      REAL(DOUBLE), DIMENSION(MMAX)            :: YN, KDX
-      REAL(DOUBLE), DIMENSION(NMAX*NMAX)       :: SPKSK, SHATINV
-      REAL(DOUBLE), DIMENSION(NMAX*MMAX)       :: KNT, KHATT
+      ! FORMERLY EQUIVALANCED
+      REAL(DOUBLE), DIMENSION(:)  ,  ALLOCATABLE          :: YN, KDX
+      REAL(DOUBLE), DIMENSION(:,:) ,  ALLOCATABLE      :: SPKSK, SHATINV
+      REAL(DOUBLE), DIMENSION(:,:) ,  ALLOCATABLE      :: KNT, KHATT
 
       !REAL(DOUBLE), DIMENSION(M)               :: YN, KDX
       !REAL(DOUBLE), DIMENSION(N*N)             :: SPKSK, SHATINV
       !REAL(DOUBLE), DIMENSION(N*M)             :: KNT, KHATT
 
 
-      EQUIVALENCE (KNT, KHATT), (SPKSK, SHATINV), (YN, KDX)
+!      EQUIVALENCE (KNT, KHATT), (SPKSK, SHATINV), (YN, KDX)
       ! REMOVED (DX, KSDYMKDX), BECAUSE NEED BOTH AT THE SAME TIME FOR
       ! LEVENBERG MARQUARDT, (DX, KSDYMKDX)
 
@@ -114,7 +114,9 @@
 
       ALLOCATE( KSDYMKDX_LM(N), GSAINVDX(N), G(N) )
       ALLOCATE( GSAINV(N,N), IDNN(N,N), T2(N,N), T3(N,N), T4(N,N) )
-      ALLOCATE( T1(N,M), T5(N,M), KN_OLD(M*N), KN(M*N) )
+      ALLOCATE( T1(N,M), T5(N,M), KN_OLD(M*N), KN(M*N), KNT(N,M), KHATT(N,M ) )
+      ALLOCATE( YN(M), KDX(M) )
+      ALLOCATE( SPKSK(N,N), SHATINV(N,N) )
       ALLOCATE( SEINV(M), SEINV_OLD(M), DY(M), DELY(M), DYMKDX(M) )
       ALLOCATE( XNP1(N), XN(N), DX(N), DX_OLD(N), KSDYMKDX(N), DELX(N) )
       ALLOCATE( KS(N,M), KSK(N,N), SPKSKINV(N,N), STAT=NAERR )
@@ -176,11 +178,7 @@
 ! --- LOOP OVER RETRIEVAL GASES BUT CALL ONCE IF NEEDED
       DO KK = 1, NRET
 ! --- PICK OUT GASES WITH SET FLAG (IFOFF=5)
-         IF ( IFPRF(KK) .AND. CORRELATE(KK) .AND. ( IFOFF(KK) .EQ. 5 )) THEN
-            CALL GETSAINV( ISMIX )
-            EXIT
-         ELSEIF ( IFPRF(KK) .AND. (REGMETHOD(KK).EQ.'TP')) THEN
-            ! SAME ROUNTINE CREATES TP METHOD AS WELL
+         IF ( IFPRF(KK) .AND. CORRELATE(KK) .AND. ( (IFOFF(KK) .EQ. 5) .OR. (IFOFF(KK) .EQ. 6 ))) THEN
             CALL GETSAINV( ISMIX )
             EXIT
          END IF
@@ -645,7 +643,7 @@
          CALL FILEOPEN( 64, 1 )
          WRITE(64,*)  TRIM(TAG), ' SHAT N X N (BLOCK DIAGONAL)'
          WRITE(64,*) N, N
-         WRITE(69,260) (trim(ADJUSTL(PNAME(i))),i=1,N)
+         WRITE(64,260) (trim(ADJUSTL(PNAME(i))),i=1,N)
          DO I=1,N
             WRITE(64,261) (SHAT(I,J), J=1, N)
          END DO
@@ -656,6 +654,7 @@
 
 !  --- DEALLOCATE LOCAL ARRAYS
       DEALLOCATE( KSDYMKDX_LM, GSAINVDX, G )
+      DEALLOCATE( SPKSK, SHATINV, KNT, KHATT, YN, KDX )
       DEALLOCATE( GSAINV, IDNN, T2, T3, T4 )
       DEALLOCATE( T1, T5, KN_OLD, KN )
       DEALLOCATE( SEINV, SEINV_OLD, DY, DELY, DYMKDX )
@@ -687,6 +686,9 @@
 
 SUBROUTINE GETSAINV( ISMIX )
 
+! --- READS A NON INVERTABLE FILE FOR SA INVERSE (IFOFF=5)  AND SCALES BY SA DIAGONALS FROM SFIT4.CTL
+!     OR BUILDS THE T-P L1 MATRIX SCALED BY LAYER THICKNESS (IFOFF=6) AND MULTIPLES BY LAMBDA
+
       REAL(DOUBLE), DIMENSION(:,:), ALLOCATABLE :: SAINP, TPMAT
       REAL(DOUBLE), DIMENSION(:),   ALLOCATABLE :: SAROOT
       LOGICAL ::FILOPEN
@@ -697,7 +699,7 @@ SUBROUTINE GETSAINV( ISMIX )
       INDXX = ISMIX
       DO KK = 1, NRET
 ! --- PICK OUT GASES WITH SET FLAG (IFOFF=5)
-         IF (( IFPRF(KK) ) .AND. (REGMETHOD(KK).EQ.'OEM').AND.( IFOFF(KK) == 5 )) THEN
+         IF (( IFPRF(KK) ) .AND. ( IFOFF(KK) == 5 )) THEN
             ALLOCATE( SAINP(LAYMAX,LAYMAX), SAROOT(LAYMAX), STAT=NAERR )
             IF (NAERR /= 0) THEN
                WRITE (16, *) 'OPT : COULD NOT ALLOCATE SAINP ARRAY, ERROR NUMBER = ', NAERR
@@ -710,7 +712,7 @@ SUBROUTINE GETSAINV( ISMIX )
                WRITE(16,301) TRIM(TFILE(62))
                FILOPEN = .TRUE.
             ENDIF
-            WRITE(16,302) KK, REGMETHOD(KK), IFOFF(KK)
+            WRITE(16,302) KK, IFOFF(KK)
 ! --- GET DIAGONAL FRACTIONAL VARIANCES FROM BINPUT && ALREADY SQUARED
             DO I = 1, NLAYERS
                SAROOT(I) = SQRT( SA(I+INDXX,I+INDXX) )
@@ -724,19 +726,23 @@ SUBROUTINE GETSAINV( ISMIX )
                END DO
             END DO
             DEALLOCATE( SAINP, SAROOT )
-         ELSE IF (( IFPRF(KK) ) .AND. (REGMETHOD(KK).EQ.'TP')) THEN
+         ELSE IF (( IFPRF(KK) ) .AND. ( IFOFF(KK) == 6 )) THEN
+
+            WRITE(16,305) KK, IFOFF(KK), L1LAMBDA(KK)
+            WRITE(0,305) KK, IFOFF(KK), L1LAMBDA(KK)
+
             ! PICK OUT GASES WITH SMOOTHNESS CONSTRAINT
             ALLOCATE(TPMAT(NLAYERS,NLAYERS))
             CALL MAKE_TPMATRIX(NLAYERS,Z(1:NLAYERS),TPMAT)
             DO I = 1, NLAYERS
                DO J = 1, NLAYERS
-                  SAINV(I+INDXX,J+INDXX) = TPMAT(I,J) / (TPLAMBDA(KK) * SA(I+INDXX,I+INDXX))
+                  SAINV(I+INDXX,J+INDXX) = TPMAT(I,J) * L1LAMBDA(KK)
                END DO
             END DO
             DEALLOCATE(TPMAT)
-            WRITE(16,304) KK, REGMETHOD(KK)
+            WRITE(16,304) KK
          ELSE
-            WRITE(16,303) KK, REGMETHOD(KK), IFOFF(KK)
+            WRITE(16,303) KK, IFOFF(KK)
          ENDIF
 ! --- BUMP UP INDEX OF MIXING RATIO BLOCK IN SA(INV) MATRIX
          INDXX = INDXX + NLAYERS
@@ -746,47 +752,47 @@ SUBROUTINE GETSAINV( ISMIX )
       RETURN
 
  301  FORMAT(/," FILE: ", A, " OPENED IN OPT" )
- 302  FORMAT("  RETRIEVAL GAS # :",I3, "REGULARIZATION METHOD: ", A3, " HAS IFOFF FLAG:", I3, &
-             " ...READING IN NEW SAINV VALUES." )
-303   FORMAT("  RETRIEVAL GAS # :",I3, "REGULARIZATION METHOD: ", A3," HAS IFOFF FLAG:", I3, " ...SKIPPING." )
-304   FORMAT("  RETRIEVAL GAS # :",I3, "REGULARIZATION METHOD: ", A3)
+ 302  FORMAT("  RETRIEVAL GAS # :",I3, " HAS IFOFF FLAG:", I3, " ...READING IN NEW SAINV VALUES." )
+ 303  FORMAT("  RETRIEVAL GAS # :",I3, " HAS IFOFF FLAG:", I3, " ...SKIPPING." )
+ 304  FORMAT("  RETRIEVAL GAS # :",I3 )
+ 305  FORMAT("  RETRIEVAL GAS # :",I3, " HAS IFOFF FLAG:", I3, " CREATING L1 REGULARIZATION MATRIX WITH LAMDA : ", F10.2 )
 
       END SUBROUTINE GETSAINV
 
-      subroutine make_TPmatrix(nl,altvec,TPmat)
-        ! Calculates a smoothness constraint matrix for the given
-        ! altitude vector. Routine pitched from Frank Hase.
+      SUBROUTINE MAKE_TPMATRIX(NL,ALTVEC,TPMAT)
+        ! CALCULATES A SMOOTHNESS CONSTRAINT MATRIX FOR THE GIVEN
+        ! ALTITUDE VECTOR. ROUTINE PITCHED FROM FRANK HASE.
 
-        ! nl is the number of altitude layers, altvec is Z,
-        ! i.e. the boundaries of the altitude grid
+        ! NL IS THE NUMBER OF ALTITUDE LAYERS, ALTVEC IS Z,
+        ! I.E. THE BOUNDARIES OF THE ALTITUDE GRID
 
-        implicit none
+        IMPLICIT NONE
 
-        integer,intent(in) :: nl
-        real(8),dimension(nl+1),intent(in) :: altvec
-        real(8),dimension(nl,nl),intent(out) :: TPmat
+        INTEGER,INTENT(IN) :: NL
+        REAL(8),DIMENSION(NL+1),INTENT(IN) :: ALTVEC
+        REAL(8),DIMENSION(NL,NL),INTENT(OUT) :: TPMAT
 
-        integer :: i
-        real(8),dimension(:,:),allocatable :: Bmat,Dmat
+        INTEGER :: I
+        REAL(8),DIMENSION(:,:),ALLOCATABLE :: BMAT,DMAT
 
-        allocate (Bmat(nl,nl),Dmat(nl,nl))
-        ! Setup B matrix for TP = BT * D * B
-        Bmat = 0.0d0
-        do i = 1,nl - 1
-           Bmat(i,i) = 1.0d0
-           Bmat(i,i+1) = -1.0d0
-        end do
-        ! Setup matrix D
-        Dmat = 0.0d0
-        do i = 1,nl
-           Dmat(i,i) = 1.0d0 / ((altvec(i+1) - altvec(i)) * (altvec(i+1) - altvec(i)))
-        end do
-        ! Calculate BT * D * B
-        TPmat = matmul(transpose(Bmat),matmul(Dmat,Bmat))
+        ALLOCATE (BMAT(NL,NL),DMAT(NL,NL))
+        ! SETUP B MATRIX FOR TP = BT * D * B
+        BMAT = 0.0D0
+        DO I = 1,NL - 1
+           BMAT(I,I) = 1.0D0
+           BMAT(I,I+1) = -1.0D0
+        END DO
+        ! SETUP MATRIX D
+        DMAT = 0.0D0
+        DO I = 1,NL
+           DMAT(I,I) = 1.0D0 / ((ALTVEC(I+1) - ALTVEC(I)) * (ALTVEC(I+1) - ALTVEC(I)))
+        END DO
+        ! CALCULATE BT * D * B
+        TPMAT = MATMUL(TRANSPOSE(BMAT),MATMUL(DMAT,BMAT))
 
-        deallocate (Bmat,Dmat)
+        DEALLOCATE (BMAT,DMAT)
 
-      end subroutine make_TPmatrix
+      END SUBROUTINE MAKE_TPMATRIX
 
 
 

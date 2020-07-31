@@ -1,0 +1,16 @@
+ SFIT4:v1.0.8   :Off-Release -- June 2020 RUNTIME:20200703-16:26:29 RETRIEVAL SUMMARY 
+
+         1
+ see Readme.txt                                                                  
+
+         1
+ IRET   GAS_NAME  IFPRF IFCELL APR_COLUMN    RET_COLUMN
+    1        CH4      F      T      1.49513E+19   1.50708E+19
+
+         1
+IBAND       NUSTART        NUSTOP         SPACE     NPTSB     PMAX    FOVDIA   MEAN_FIT_SNR  NSCAN  JSCAN     INIT_SNR     EFF_SNR      FIT_SNR
+    1    2921.00000    2921.60000   0.000500000      1201   180.00  2.392300     337.679550      1
+                                                                                                        1     1000.000     1000.000      337.680
+
+       FITRMS       CHI_2_Y      DOFS_ALL      DOFS_TRG      DOFS_TPR      ITER  MAX_ITER CONVERGED   DIVWARN
+     0.296015      8.762514       2.000        1.000        0.000         4        30          T         F

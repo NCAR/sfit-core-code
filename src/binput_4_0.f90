@@ -31,7 +31,8 @@ module binput_4_0
   use opt
   use writeout
   use hitran
-  
+  use tips
+
   implicit none
   save
   integer, parameter :: bp_nr = 10
@@ -42,12 +43,12 @@ contains
   subroutine read_hbin(filename, istat)
     character (len=*), intent(in) :: filename
     character (len=255), dimension(10) :: keyword
-    character (len=2048) :: value
-    integer :: file_stat, nr_keys, nr, istat
+    character (len=4096) :: value
+    integer :: file_stat, nr_keys, istat !, nr
     logical :: bp_exist
 
     nret = 0
-    
+
     inquire (file=filename, exist = bp_exist)
     if (.not.bp_exist) then
        write(16,*) 'BINPUT_4_0:READ_HBIN: FILE ', trim(filename), ' DOES NOT EXIST'
@@ -55,9 +56,9 @@ contains
        call shutdown
        stop 1
     end if
-    
+
     open(bp_nr, file=filename, status='old', iostat = file_stat)
-    
+
     do
        call read_line_binput(keyword, nr_keys, value, file_stat)
 
@@ -71,11 +72,11 @@ contains
           close(bp_nr)
           return
        end if
-       
+
        if (nr_keys.eq.0)then
           cycle
        end if
-       
+
        select case (trim(adjustl(keyword(1))))
        case ('aux')
           call read_hbin_aux_section(keyword, value)
@@ -88,9 +89,9 @@ contains
           print *, 'Section ', trim(keyword(1)), ' not defined'
           write(16, *) 'Section ', trim(keyword(1)), ' not defined'
        end select
-       
+
     end do
-    
+
     close(bp_nr)
 
   end subroutine read_hbin
@@ -100,7 +101,7 @@ contains
     emission_object = 'N'
     ienorm = -1
   end subroutine init_vars
-  
+
   subroutine read_binput(filename)
 
   character (len=*), intent(in) :: filename
@@ -112,7 +113,7 @@ contains
   nret = 0
 
   call init_vars()
-  
+
   INQUIRE (FILE=FILENAME, EXIST = BP_EXIST)
   IF (.NOT.BP_EXIST) THEN
      WRITE(16,*) 'BINPUT_4_0:READ_BINPUT: FILE ', TRIM(FILENAME), ' DOES NOT EXIST'
@@ -180,8 +181,8 @@ subroutine read_line_binput(keyword, nr_keyword, value, file_stat)
     integer, intent(out) :: file_stat
     integer, intent(out) :: nr_keyword
 
-    character (len=2048) ::  line
-    character (len=2048) :: line_complete
+    character (len=4096) ::  line
+    character (len=4096) :: line_complete
     character (len=255) :: kw
     integer pos,nr,error
     logical flag
@@ -221,6 +222,9 @@ subroutine read_line_binput(keyword, nr_keyword, value, file_stat)
           goto 1001
        end if
        if (line(1:1).eq.'.') then
+          goto 1001
+       end if
+       if (line(1:1).eq.'!') then
           goto 1001
        end if
        pos=index(line,'=')

@@ -18,10 +18,11 @@
 
 program pspec
 
+
 ! simple program to prepare the ascii spectral file that sfit4 expects
 ! reads ascii input file "pspec.inp"
 ! in that are names of binary spectra files and spectral window regions
-! output is the 't15asc' file for tan sfit4 run.
+! output is the 't15asc' file for sfit4 run.
 
 ! the work is done by spec.f90:
 ! each binary file is read & the window extracted, the spectral resolution is
@@ -96,7 +97,7 @@ program pspec
      ! = 0 not
 
    call date_and_time (cdate, ztime, zone)
-   write (tag,*) trim(version), ' runtime:', cdate(1:8), '-', ztime(1:2), ':', ztime(3:4), ':', ztime(5:6)
+   write (tag,*) trim(version), ' pspec:Jan2020', ' runtime:', cdate(1:8), '-', ztime(1:2), ':', ztime(3:4), ':', ztime(5:6)
    write (6,  *) trim(tag)
 
    open (unit=ilun, file='pspec.input', status='old', err=668)
@@ -134,7 +135,7 @@ program pspec
    ! open output file
    open(unit=tlun, file='t15asc.4', status='unknown', err=555)
 
-   if( vflag .gt. 0 )open(unit=vlun,file='pspec_zero.dtl')
+
 
    ! loop over (# of spectra) x (# of windows)
    m = 0
@@ -153,6 +154,8 @@ program pspec
       ! date and time
       ! ckopus.c puts most of this in the bnr header except lat, lon and roe
       ! hence these are given here in pspec.inp
+
+     if( vflag .gt. 0 .and. j .eq. 1 .and. zflag .ne. 0 )open(unit=vlun,file='pspec_zero.dtl')
 
       write(6,101) "Opening bnr for input : ", bnrfile(1:len_trim(bnrfile))
       if( fflag .eq. 0 )then

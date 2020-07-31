@@ -49,6 +49,7 @@
 
       INTEGER, DIMENSION(MAXBND)      :: IENORM, IAP
       REAL(DOUBLE), DIMENSION(MMAX)   :: TOBS, TOBS_ORIG
+!      REAL(DOUBLE), DIMENSION(:), ALLOCATABLE   :: TOBS, TOBS_ORIG
       REAL(DOUBLE) :: RMS
 
       REAL(DOUBLE) :: C0, C1, C2, C4
@@ -244,10 +245,10 @@
 
          CASE (2)
    ! --- EPHS IS A POLYNOMIAL WITH NEPHS TERMS
-            EPHS = 0.D0
-            DO I = 1, NEPHS
-               EPHS = EPHS + (EPHSF(I)-1.D0)*XP**I
-            END DO
+         EPHS = (EPHSF(1)-1.0D0)
+         DO I = 2, NEPHS + 1
+            EPHS = EPHS + (EPHSF(I)-1.D0)*XP**(I-1)
+         ENDDO
 
          CASE DEFAULT
             EPHS = 0.D0

@@ -1,0 +1,40 @@
+SFIT4 can use extra lineshape and linemixing parameters.
+
+The format is as follows
+
+SDV parameters:
+
+MOL# ISO# Quantum states TMP TMP TMP TMP GAMMA_2
+
+i2,i1,a60,1x,f6.5,f5.4,f3.2,f8.6,1x,g15.6
+
+Example one line of CH4 SDV parameters:
+
+isotope number and quantum numbers                            
+61    0 0 0 2 1F2    0 0 0 0 1A1   11E   2        12E   1     .04730.0640.40-.005968 0.124200E-01
+
+the first four auxiliary numbers (denoted by TMP) are just the Voigt
+line parameters and not used, only the last number is the narrowing
+parameter used in the calculation of the SDV lineshape.
+
+
+1st order line mixing parameters
+
+The format is free starting with the character 61. The last two
+characters are used by Frank Hase to model the quadratic temperature
+dependency of the linemixing parameter. If they are missing, only the
+first parameter is used as the y-factor.
+
+Example one line of CH4 1st order (Rosenkrantz) line mixing parameters:
+
+61    0 0 0 2 1F2    0 0 0 0 1A1   12F1  4        13F2  3       0.150E+00 -0.165E+01  0.000E+00
+
+GALATRY parameters
+
+The Galatry parameters are taken from HITRAN when available and formatted
+according to SFIT4. The format for the Galatry parameters ist:
+
+mol/isot        v'             v"                branch J"     gam_air narrowing
+141             13             12                    P  2       0.0897 0.0391
+
+The extra parameter for the Galatry function is named narrowing.

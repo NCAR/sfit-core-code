@@ -1,0 +1,92 @@
+# pspec.inp : input file for pspec.f90
+#
+# version V1.1 for sfit4 v0.9.5 October 1 2013
+#
+# pspec.f90 loops through this file and creates an ascii file with a spectra block for
+# each spectrum that will be fit by sfit4 - the t15asc.4 file
+# the observation lat lon and altitude are required for each spectrum
+# Latitude of Observation [+N, 90 - -90]
+40.038
+# Longitude of Observation[+E, 0 - 360]
+254.76
+# Altitude of Observation [masl]
+1612.0
+#
+# output & verbosity flags
+# oflag  - output
+#     = 1 output t15asc file
+#     = 2 bnr file
+#     = 3 both
+# vflag  - verbosity
+#     = 0 no output from baseline correct or zero bnr or block output for plotting
+#     = 1 verbose output from bc and zeroed bnr but no blockout
+#     = 2 verbose, zeroed bnr and blockout for plotting
+3    2
+#
+# filter bands and regions for calculating SNR (max 100)
+# noise value is calculate in the region below that is nearest to the fit microwindow
+#  SNR = (Peak signal in microwindow) / noise
+#
+9
+f1  4038.727 4038.871
+f2  3381.155 3381.536
+f3  2924.866 2925.100
+f4  2526.228 2526.618
+f5  1985.260 1985.510
+f6  1139.075 1139.168
+f8  907.854  907.977
+f9  4884.51  4885.2
+a9  4990.99  4991.48
+h6  1033.4  1033.6
+#
+# number of bnr files
+1
+#
+# each block contains at least 2 lines:
+# bnr spectra file name
+# roe, nterp, rflag, fflag, zflag
+#
+# roe - radius of earth [km]
+#
+# nterp -  zero fill factor
+#     = 0 - skip resample & resolution degradation (regardless of sfit4.ctl:band.n.max_opd value)
+#     = 1 - minimally sample at opdmax
+#     > 1 - interpolate nterp-1 points upon minimal sampled spacing
+#           note: OPD is taken from sfit4.ctl:band.n.max_opd value
+#
+# rflag - ratio flag, to ratio the spectra with another low resolution spectral file (eg spectral envelope)
+#     = 0 - no ratio
+#     = 1 - ratio, file is a bnr of same type as fflag below, expected to be resolution of ~10cm-1
+#
+# fflag - file open flag
+#     = 0 for fortran unformatted file
+#     = 1 for open as steam or binary or c-type file (gfortran uses stream)
+#
+# zflag - zero offset
+#     = 0 no zero offset,
+#     = 1 try w/ baselincorrect,
+#     0 < z < 1 use this value,
+#     = 2 use optimized 2nd polynomial fit to fully absorbed regions in 10m region
+#
+# roe, nterp, rflag, fflag, zflag
+#
+temp.bnr.00
+6385.4    2    0    0    2
+#
+# ratio file name in bnr format
+#      if rflag eq 1 this file has to exist
+#      skip if rflag eq 0
+#
+
+
+
+ratio.6
+#
+temp.bnr.00
+1202.00     1204.00    256.0    6367.44   2     0
+#ratio.6
+#
+temp.bnr.00
+1229.00     1230.00    256.0    6367.44   2     1
+ratio.6
+

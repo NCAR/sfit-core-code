@@ -85,7 +85,8 @@
       CALL READCK1( NLEV, NEGFLAG )
 
 ! --- PRINT OUT FM, RT PARAMETERS
-      CALL READCK2( CPNAM )
+      !CALL READCK2( CPNAM )
+      CALL READCK2( )
 
 ! --- CHECK WE ONLY FIT PHASE AND MODULATION FUNCTIONS TYPE = 2
       IF( IEAP .NE.2 .AND. F_RTAPOD )  GOTO 667
@@ -231,7 +232,7 @@
          WRITE(89,*) TRIM(TAG), ' STATE VECTOR FACTORS BY ITERATION N VECTOR'
          WRITE(89,*) NVAR
          WRITE(89,263) (I,I=1,NVAR)
-         WRITE(89,262) ADJUSTR(PNAME(:NVAR))
+         WRITE(89,262) (PNAME(I), I=1,NVAR)
       ENDIF
 
 !  --- CALL OPTIMAL ESTIMATION SUBROUTINE
@@ -432,7 +433,8 @@
 
 !  --- CALCULATE DEGREES OF FREEDOM FOR SIGNAL USING APOSTERIORI SOLUTION
 !  --- ONLY IF REALLY RETRIEVED, SOME MATRICES ARE NOT CALCULATED
-      IF ( RETFLG ) CALL DOFS(NFIT,NVAR,ISMIX,NLEV)
+      !IF ( RETFLG )
+      CALL DOFS(NFIT,NVAR,ISMIX,NLEV)
 
       INDXX = ISMIX
       DO KK = 1, NRET
@@ -611,7 +613,8 @@
       CHARACTER (LEN=255) :: VAL
       LOGICAL             :: HFLG, IFPRF_1_ORIG
       INTEGER             :: I, J, K, L1, L2, L3, ORIG_NVAR, POS, NL = 1
-
+      INTEGER             :: ORIG_ISMIX
+      
       WRITE(16,254)
       WRITE( 6,254)
 
@@ -623,11 +626,12 @@
       F_WRTCHANNEL = .FALSE.
       F_WRTPARM    = .FALSE.
       F_WRTRAYTC   = .FALSE.
+      F_WRTPARM  = .FALSE.
       XSC_DETAIL   = .FALSE.
 
       IFPRF_1_ORIG = IFPRF(1)
 
-      
+
       ! DEFINE NEW STATEVECTOR FOR CALCULATING KB-MATRIX
       IF (F_KB_PROFILE) THEN
          ! IS THE FIRST RETRIEVAL GAS ALREADY RETRIEVED BY COLUMN?
@@ -685,17 +689,17 @@
          F_EAPOD  = .TRUE.
          IEAP = 2
          NEAP = 3
-         EAPF(:NEAP) = 1.0D0
-         EAPPAR = 0.0D0
-         print *, 'KB apod function'
+         EAPF0(:NEAP) = 1.0D0
+         EAPPAR = 1.0D0
       end IF
       IF( F_KB_EPHS.AND..NOT.F_RTPHASE ) then
          F_RTPHASE = .TRUE.
          F_EPHASE = .TRUE.
+         IFPHASE = .FALSE.
          IEPHS = 2
          NEPHS = 3
-         EPHSF(:NEPHS) = 1.0D0
-         EPHSPAR = 0.0D0
+         EPHSF0(:NEPHS+1) = 1.0D0
+         EPHSPAR = 1.0D0
       end IF
       IF( F_KB_ZSHIFT )  THEN
          IZERO(:NBAND) = 1
@@ -765,6 +769,7 @@
 ! --- SETUP NEW PARM ARRAY
       ORIG_PNAME(:NVAR) = PNAME(:NVAR)
       ORIG_NVAR = NVAR
+      ORIG_ISMIX = ISMIX
       RETFLG = .FALSE.
       CALL INIT_PARM()
 
@@ -870,7 +875,7 @@
          WRITE(92,*) NLEV, COUNT(IS_IN_KB(:NVAR),1), -1, -1
          WRITE(92,260) ADJUSTR( PACK( PNAME(:NVAR), IS_IN_KB(:NVAR) ))
          DO J=1, NLEV
-            WRITE(92,261) PACK(A(J+ISMIX, :), IS_IN_KB(:NVAR))
+            WRITE(92,261) PACK(A(J+ORIG_ISMIX, :), IS_IN_KB(:NVAR))
          ENDDO
          CALL FILECLOSE( 92, 1 )
       ENDIF

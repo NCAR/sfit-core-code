@@ -46,6 +46,10 @@
  fw.emission.T_infinity      =		   2.7
  fw.emission.object	     =  	    .e.
  fw.emission.normalized	     =	 	     F
+ fw.continuum                = T 
+ fw.continuum.order          = 3
+ fw.continuum.type           = 1
+ fw.continuum.strength       = 0.0          
  # Retrieval parameter
 
  rt                          =               T
@@ -62,10 +66,8 @@
  rt.slope                    =               F
  rt.slope.apriori            =           0.000
  rt.slope.sigma              =           0.100
- rt.continuum                =T 
- rt.continuum.order = 3
- rt.continuum.apriori = 0.0
- rt.continuum.sigma       = 1.0
+ rt.continuum                = T	 
+ rt.continuum.sigma          = 1.0
  rt.temperature = F
  rt.temperature.sigma =
  0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1

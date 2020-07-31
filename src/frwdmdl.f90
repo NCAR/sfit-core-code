@@ -38,7 +38,7 @@
       CHARACTER (LEN=7), DIMENSION(MOLMAX) :: LM_GAS
 
     CONTAINS
-      
+
       !------------------------------------------------------------------------------
       SUBROUTINE FM(XN, YN, KN, NFIT, NVAR, KFLG, ITER, TFLG )
 
@@ -63,6 +63,7 @@
          NS1, NS2
       LOGICAL :: XRET, TRET, FLINE, FSZA
 
+      REAL(DOUBLE) :: MEAS_BCK, FILTER_AVG
       REAL(DOUBLE), DIMENSION(3)      :: B
       REAL(DOUBLE), DIMENSION(NMAX)   :: PARM
       REAL(DOUBLE), DIMENSION(MMAX)   :: YC
@@ -162,8 +163,9 @@
 !  --- EMPIRICAL PHASE FUNCTION
          IF( F_RTPHASE )THEN
             IF (NEPHSRT > 0) THEN
-               EPHSF(:NEPHSRT) = EPHSF0(:NEPHSRT)*PARM(NCOUNT+1:NEPHSRT+NCOUNT)
-               NCOUNT = NEPHSRT + NCOUNT
+               ! NEED PLUS 1 BECAUSE OF THE O TH-ORDER
+               EPHSF(:NEPHSRT+1) = EPHSF0(:NEPHSRT+1)*PARM(NCOUNT+1:NEPHSRT+1+NCOUNT)
+               NCOUNT = NEPHSRT + 1 + NCOUNT
             ENDIF
          ENDIF
 
@@ -255,6 +257,10 @@
          CALL CALC_CONTINUUM(CONT_PARAM)
 
 
+         ! CHANNEL PARAMS INCLUDED BEFORE
+         NCOUNT = NCOUNT + NCHAN
+
+
 !  ---  UPDATE VMRS OF RETRIEVAL GASES
          DELTA_Y(:NFIT) = 0.0D0
          DELTA_Y(:NMONSM) = 0.0D0
@@ -299,7 +305,8 @@
             ENDIF
          END DO
 
-         
+
+
 ! --- TEMPERATURE RETRIEVAL
          IF( IFTEMP ) THEN
             !IF( BUG1 )PRINT *, IFTEMP, IPARM, NCOUNT, NTEMP1, NTEMP, PARM(NCOUNT+1:NCOUNT+1)
@@ -357,6 +364,7 @@
             ENDIF
             !print*, nmonsm, TCALC(1,:100)
             !stop
+
          ELSE
             IF( BUG1 )PRINT*, '    TALL/DIFF', IPARM
             ! THERE COME SOME MORE OPERATIONS ON THE NEW SPECTRUM.
@@ -378,6 +386,8 @@
          CALL RETRIEVE_CHANNEL_PARMS (PARM)
 
 !  --- LOOP OVER BANDPASSES ----------------------------------------------------
+
+         
          BAND: DO IBAND = 1, NBAND
             N = NSCAN(IBAND)
             IF (N == 0) CYCLE
@@ -441,7 +451,8 @@
                   ! kzero increments for each band
                   KZERO = KZERO + 1
                   ZSHIFT(IBAND,JSCAN) = PARM(NBKFIT+NSHIFT+KZERO)
-                  ZSHIFTSAV(JSCAN) = ZSHIFT(IBAND,JSCAN)
+                  ! SAVE THE ZSHIFT FOR MW'S IN WHICH IT IS NOT RETRIEVED.
+                  if (ICOUNT.EQ.1) ZSHIFTSAV(JSCAN) = ZSHIFT(IBAND,JSCAN)
                ELSE IF (IZERO(IBAND) == 2 .AND. NZERO .GT. 0) THEN
                   ! if we're not calculating it then use shift from band from this spec that we are fitting
                   ZSHIFT(IBAND,JSCAN) = ZSHIFTSAV(JSCAN)
@@ -477,6 +488,16 @@
                N3 = NPRIM(IBAND)
 
                SMM = 0.D0
+               FILTER_AVG = 0.0d0
+               
+               if (F_MEAS_TRANSMIS) THEN
+                  DO J = 1, N3
+                     ! NORM FILTER TRANSMISSION TO 1
+                     YS = (J - 1)*SPAC(IBAND)
+                     FILTER_AVG = FILTER_AVG + FTRANS(YS+WSTART(IBAND))
+                  END DO
+               END IF
+               FILTER_AVG = FILTER_AVG / N3
                DO J = 1, N3
 
                   I = N1 + (J - 1)*NSPAC(IBAND)
@@ -488,16 +509,20 @@
                   WAVE_X(JATMOS) = YS + WSTART(IBAND)
 
                   
+                  !APPLIES MEASURED TRANSMISSION TO THE SYNTHETIC SPECTRUM
+                  
+
+
                   ! CALCULATES (RETRIEVED) FILTER TRANSMISSION CURVE
-                  BKGND = B(1)*(1.0D0 + B(2)*YS+B(3)*YS*YS)
+                  if (F_MEAS_TRANSMIS) THEN
+                     MEAS_BCK = FTRANS(WAVE_X(JATMOS))/FILTER_AVG
+                  else
+                     MEAS_BCK = 1.0D0
+                  end if
+                  BKGND = B(1)*(MEAS_BCK + B(2)*YS+B(3)*YS*YS)
                   BKGND = BKGND*(1.0D0/(1.0D0 + ZSHIFT(IBAND,JSCAN)))
 
 
-                  !Applies measured transmission to the synthetic spectrum
-                  
-                  if (F_MEAS_TRANSMIS) THEN
-                     TCALI = TCALI * FTRANS(WAVE_X(JATMOS))
-                  END if
                   
 !-- FIT CHANNEL PARMS IF NEEDED ----------------------------------------!PWJ
 
@@ -508,6 +533,7 @@
                      ENDIF
                   ELSE
                      YC(JATMOS) = BKGND*(DBLE(TCALI) + ZSHIFT(IBAND,JSCAN))
+                     
                   ENDIF
 !print *,jatmos, yc(jatmos)
                   SMM = SMM + YC(JATMOS)
@@ -655,32 +681,7 @@
                      CLOSE (80)
                   ENDIF
 
-!  --- MTCKD continuum if calculated
-                  if (F_MTCKD) then
-                     call MTCKDTRAN(IBAND,JSCAN,2,MONONE,MXONE)
-                     !  --- COMPUTE FFTS
-                     CALL FSPEC1 (IBAND, MONONE, MXONE)
-                     CALL FSPEC2 (IBAND, MONONE, PHI)
-                     IF( GASOUTTYPE .EQ. 1 .AND. ITER .EQ. -1 )THEN
-                        WRITE(GASFNAME,751)IBAND,JSCAN
-                     ELSEIF( GASOUTTYPE .EQ. 2 )THEN
-                        IF (ITER == -1 ) THEN
-                           WRITE(GASFNAME,751)IBAND,JSCAN
-                        ELSE
-                           WRITE(GASFNAME,761)IBAND,JSCAN,ITER
-                        ENDIF
-                     ENDIF
-                     WRITE(TITLE,710) 'MTCKD', IBAND, JSCAN, ITER
 
-                     OPEN(UNIT=80, FILE=GASFNAME, STATUS='REPLACE', ERR=555)
-                     WRITE (80, 640) TITLE
-                  WRITE (80, *) WA, WE, SP, N3
-                     DO J = 1, N3
-                        I = N1 + (J - 1)*NSPAC(IBAND)
-                        WRITE (80, *) DBLE(TCONV(I))
-                     ENDDO
-                     CLOSE (80)
-                  ENDIF
 
 !  --- FINALLY SOLAR SPECTRUM
                   IFCO = IFCOSAVE
@@ -732,6 +733,7 @@
             MXONE = MXONE + NM(IBAND)   ! INDEX IN TCO AND CROSS ARRAYS AS START OF CURRENT BAND
          END DO BAND
 
+         
          DO I = 1, NFIT
             FX = TOBS(I) - YC(I)
             SUMSQ = SUMSQ + FX*FX
@@ -776,6 +778,7 @@
             !   KN(:NFIT,IPARM) = (YC(:NFIT)-YN)/DEL
             !ELSE
             KN(:NFIT,IPARM) = (YC(:NFIT)-YN)/DEL
+
             !END IF
             IF( BUG1 ) &
             WRITE(0,204) '   KN: ', tret, ICOUNT, IPARM, PARM(IPARM), SUM(KN(:NFIT,IPARM))/REAL(NFIT,8), &
@@ -816,6 +819,8 @@
          END DO SPEC1
       END DO BAND1
 
+
+      
  !  --- PRINT OUT PARM ARRAY BY ITERATION
       IF( F_WRTPARM ) THEN
          WRITE(89,261) ITER, PARM(:NVAR)
@@ -859,9 +864,7 @@
  730  FORMAT('spc.sol.',I2.2,'.',I2.2,'.final')
  740  FORMAT('spc.sol.',I2.2,'.',I2.2,'.',I2.2)
 750   FORMAT('spc.CON.',I2.2,'.',I2.2,'.final')
-751   FORMAT('spc.MTCKD.',I2.2,'.',I2.2,'.final')
 760   FORMAT('spc.CON.',I2.2,'.',I2.2,'.',I2.2)
-761   FORMAT('spc.MTCKD.',I2.2,'.',I2.2,'.',I2.2)
  770  FORMAT('spc.REST.',I2.2,'.',I2.2,'.final')
  780  FORMAT('spc.REST.',I2.2,'.',I2.2,'.',I2.2)
 ! 750  FORMAT('GAS SOLAR',' BAND ', I2, ' SCAN ', I2, ' ITER ', I3)
