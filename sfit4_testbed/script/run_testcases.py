@@ -242,7 +242,8 @@ class test_sfit4:
             else:
                 str += 'CHI_2_Y DIVERGES BY {1:1%} %\n'.format(rs, diverge)
 
-        str += '\n'
+        str += '\n\n'
+        str += 'Numbers of the runs are found in file {}\n'.format(self.resultfile)
         print(str)
         
     def print_results(self):
