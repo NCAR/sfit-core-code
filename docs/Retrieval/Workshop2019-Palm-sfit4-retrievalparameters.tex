@@ -126,8 +126,37 @@
     \only<4->{\alert{RETRIEVAL ONLY POSSIBLE IF THERE IS AN SATURATED PART IN THE MW.} }
   \end{description}
 \end{frame}
+
 \begin{frame}
-  \frametitle{channeling in window}
+  \frametitle{Channeling}
+  \frametitle{Theory}
+  \begin{textblock*}{0.8\textwidth}(0.1\textwidth,0.2\textheight)
+    \includegraphics<4>[width=\textwidth]{example_channeling.png}
+  \end{textblock*}
+  The channeling is due to etalons in the beampath. Such etalons may
+  be windows iin a detector, filters, surfaces on the beamsplitter. In
+  short, two partially reflecting surfaces create an etalon.
+  \begin{columns}
+    \begin{column}{0.4\textwidth}
+      \includegraphics<2->[height=0.4\textheight]{etalon.png}
+    \end{column}
+    \begin{column}{0.6\textwidth}
+      \visible<3>{
+      The transmission $T = \sum_{n=1}^\infty T_n$ through an etalon $l$ can be calculated by
+      \begin{eqnarray}
+        T &=& \frac{(1-R)^2}{1+2 R \cos(\delta)+R^2}\\
+        \delta &=& 400 \pi \nu n l
+      \end{eqnarray}
+      $R \sim 0 $ is the reflectivty of the surface.\\
+      $n \sim 1.5$ is the refraction index.\\
+      $theta = 0$ (theta in figure), parallel beam}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Channeling}
+  \framesubtitle{Calculation in SFIT4}
   \begin{textblock*}{0.8\textwidth}(0.1\textwidth,0.2\textheight)
     \includegraphics<2>[width=\textwidth]{Channeling.png}
   \end{textblock*}
