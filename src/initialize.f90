@@ -74,6 +74,7 @@
       INTEGER :: I_KB_LINE_TYPE = 0
       LOGICAL :: F_KB_SZA       = .FALSE.
       LOGICAL :: F_KB_FOV       = .FALSE.
+      LOGICAL :: F_KB_CHANNEL   = .FALSE.
 
       CHARACTER(LEN=1024)                  :: S_KB_LINE_GASES
       CHARACTER(LEN=14), DIMENSION(MOLMAX) :: S_KB_LINE_GAS

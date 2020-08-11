@@ -9,7 +9,11 @@
 # to the 2digit integer 0NN of the subdir name and assumed to be for gas 'abcdef' from subdir 0NN_abcdef
 #
 # Save an ascii (HITRAN format) list file (True / False)
+<<<<<<< HEAD
 file.out.ascii = T
+=======
+file.out.ascii = F
+>>>>>>> e14d6aa7003958dc6ce4e663007132f59de66624
 #
 # Path to the directory tree where the gas subdirectories are
 #
@@ -31,7 +35,11 @@ hitran.nr = 99
 hitran.files =
 001_H2O/001_H2O.hit16.20181107
 002_CO2/002_CO2.hit16.20181107
+<<<<<<< HEAD
 003_O3/003_O3.atm.20200512
+=======
+003_O3/003_O3.atm.20200512 
+>>>>>>> e14d6aa7003958dc6ce4e663007132f59de66624
 004_N2O/004_N2O.hit16.20181107
 005_CO/005_CO.hit16.20181107
 006_CH4/006_CH4.atm.20200512
@@ -135,19 +143,31 @@ hitran.files =
 # Galatry parameters
 # molecule id numbers in these files have to match the sfit molecule id
 aux = gal sdv lm
+<<<<<<< HEAD
 aux.gal.nr = 0
+=======
+aux.gal.nr = 2
+>>>>>>> e14d6aa7003958dc6ce4e663007132f59de66624
 aux.gal.files =
 014_HF/14_hit16_Galatry.txt
 015_HCL/15_hit16_Galatry.txt
 #
 # Speed Dependent Voigt parameter files
+<<<<<<< HEAD
 aux.sdv.nr = 0
+=======
+aux.sdv.nr = 1
+>>>>>>> e14d6aa7003958dc6ce4e663007132f59de66624
 aux.sdv.files =
 005_CO/05_hit16_SDV.txt
 #
 #
 # CO2 Line mixing parameters (e.g. CCl4 retrieval)
+<<<<<<< HEAD
 aux.lm.nr = 0
+=======
+aux.lm.nr = 1
+>>>>>>> e14d6aa7003958dc6ce4e663007132f59de66624
 aux.lm.files =
 002_CO2/002_CO2.hit16_LM1ST.par
 #

@@ -90,7 +90,10 @@
  fw.tips = F
 
  rt                                           =T
- rt.lm                                        =F
+ rt.lm                                        = T
+ rt.lm.gamma_start			      = 1e5
+ rt.lm.gamma_inc			      = 10
+ rt.lm.gamma_dec			      = 10
  rt.convergence                               =0.01
  rt.max_iteration                             =30
  rt.dwshift                                   =F
@@ -148,6 +151,7 @@
  band.1.nu_start             =  2763.42
  band.1.nu_stop              =  2764.17
  band.1.zshift               =  F
+<<<<<<< HEAD
  band.1.beam                 = 5 6
  band.1.beam.model                = PS
  band.1.beam.1.apriori       = 0.5e-3 0.005 2753.42 1.0
@@ -162,6 +166,14 @@
  band.1.beam.5.sigma         = 0.0   0.0    0.0  0.0
  band.1.beam.6.apriori       = 0.08e-3 0.11 2753.42 1.0
  band.1.beam.6.sigma         = 0.0   0.0    0.0  0.0
+=======
+ band.1.beam                 =  #5 6
+ band.1.beam.model           = PS
+ band.1.beam.5.apriori       = 2.0e-3 0.9 2763.81 0.0
+ band.1.beam.5.sigma         = 0.0 0.0 0.0 0.0
+ band.1.beam.6.apriori       = 0.08e-3 0.11 2763.81 0.0
+ band.1.beam.6.sigma         = 0.0 0.0 0.0 0.0
+>>>>>>> e14d6aa7003958dc6ce4e663007132f59de66624
  band.1.calc_point_space     =  0.500E-03
  band.1.wave_factor= 0.999998990000
  band.1.max_opd= 180.0000
@@ -172,6 +184,7 @@
  band.2.nu_start             =  2765.65
  band.2.nu_stop              =  2766.01
  band.2.zshift               =  F
+<<<<<<< HEAD
  band.2.beam                 = 5 6
  band.2.beam.model                = PS
  band.2.beam.1.apriori       = 0.5e-3 0.005 2753.42 1.0
@@ -186,6 +199,14 @@
  band.2.beam.5.sigma         = 0.0   0.0    0.0  0.0
  band.2.beam.6.apriori       = 0.08e-3 0.11 2753.42 1.0
  band.2.beam.6.sigma         = 0.0   0.0    0.0  0.0
+=======
+ band.2.beam                 =  #5 6
+ band.2.beam.model           = PS
+ band.2.beam.5.apriori       = 2e-3 0.9 2763.81 0.0
+ band.2.beam.5.sigma         = 0.0 0.0 0.0 0.0
+ band.2.beam.6.apriori       = 0.08e-3 0.11 2763.81 0.0
+ band.2.beam.6.sigma         = 0.0 0.0 0.0 0.0
+>>>>>>> e14d6aa7003958dc6ce4e663007132f59de66624
  band.2.calc_point_space     =  0.500E-03
  band.2.wave_factor= 0.999998990000
  band.2.max_opd= 180.0000
@@ -196,6 +217,7 @@
  band.3.nu_start             =  2778.15
  band.3.nu_stop              =  2779.1
  band.3.zshift               =  F
+<<<<<<< HEAD
  band.3.beam                 = 5 6
  band.3.beam.model            = PS
  band.3.beam.1.apriori       = 0.5e-3 0.005 2753.42 1.0
@@ -210,6 +232,14 @@
  band.3.beam.5.sigma         = 0.0   0.0    0.0  0.0
  band.3.beam.6.apriori       = 0.08e-3 0.11 2753.42 1.0
  band.3.beam.6.sigma         = 0.0   0.0    0.0  0.0
+=======
+ band.3.beam                 =  #5 6
+  band.3.beam.model           = PS
+ band.3.beam.5.apriori       = 2e-3 0.9 2763.81 0.0
+ band.3.beam.5.sigma         = 0.0 0.0 0.0 0.0
+ band.3.beam.6.apriori       = 0.08e-3 0.11 2763.81 0.0
+ band.3.beam.6.sigma         = 0.0 0.0 0.0 0.0
+>>>>>>> e14d6aa7003958dc6ce4e663007132f59de66624
  band.3.calc_point_space     =  0.500E-03
  band.3.wave_factor= 0.999998990000
  band.3.max_opd= 180.0000
@@ -220,6 +250,7 @@
  band.4.nu_start             =  2780.65
  band.4.nu_stop              =  2782.0
  band.4.zshift               =  F
+<<<<<<< HEAD
  band.4.beam                 = 5 6
  band.4.beam.model                = PS	
  band.4.beam.1.apriori       = 0.5e-3 0.005 2753.42 1.0
@@ -234,6 +265,14 @@
  band.4.beam.5.sigma         = 0.0   0.0    0.0  0.0
  band.4.beam.6.apriori       = 0.08e-3 0.11 2753.42 1.0
  band.4.beam.6.sigma         = 0.0   0.0    0.0  0.0
+=======
+ band.4.beam                 =  #5 6
+ band.4.beam.model           = PS
+ band.4.beam.5.apriori       = 2e-3 0.9 2763.81 0.0
+ band.4.beam.5.sigma         = 0.0 0.0 0.0 0.0
+ band.4.beam.6.apriori       = 0.08e-3 0.11 2763.81 0.0
+ band.4.beam.6.sigma         = 0.0 0.0 0.0 0.0
+>>>>>>> e14d6aa7003958dc6ce4e663007132f59de66624
  band.4.calc_point_space     =  0.500E-03
  band.4.wave_factor= 0.999998990000
  band.4.max_opd= 180.0000
