@@ -530,8 +530,8 @@ end subroutine read_file_section
        read(value,*) f_kb_sza
     case ('omega')
        read(value,*) f_kb_fov
-!    case ('beam')
-!       read(value,*) f_kb_channel
+    case ('beam')
+       read(value,*) f_kb_channel
     case ('line')
        if (len_trim(keyword(3)).eq.0) then
           read(value,*) f_kb_line
