@@ -1,4 +1,4 @@
-# hbin.input for Testing ATM 20200512
+# hbin.input for Testing HITRAN 2016 (d/l 20181107)
 #
 # Update SFIT4 v1.0
 #
@@ -13,10 +13,10 @@ file.out.ascii = T
 #
 # Path to the directory tree where the gas subdirectories are
 #
-file.in.linelist = /home/mathias/linelist-core/
+#file.in.linelist = /home/mathias/linelist-core/
 #file.in.linelist = /bira-iasb/projects/FTIR/tools/programs/sfit4/linelists/linelist-core/
 #file.in.linelist = /Users/jamesw/FDP/sfit/400/linelist-core/
-#file.in.linelist = /data/ebaumer/Code/linelist-core/
+file.in.linelist = ~happy_place/sfit/linelist-core/
 #
 # Then the next lines are paths to each gas file that will be searched for lines in the
 # desired wavenember region.  The id numbers are in sfit order - not HITRAN, BUT KEEP
@@ -69,7 +69,7 @@ hitran.files =
 035_CCL4/2007.sudo.ccl4
 036_COF2/029_COF2.hit16.20181107
 037_COCLF/2007.sudo.coclf
-038_C2H6/027_C2H6.hit16.20181107
+038_C2H6/c2h6_2720_3100.101
 039_C2H4/038_C2H4.hit16.20181107
 040_C2H2/026_C2H2.hit16.20181107
 041_N2/022_N2.hit16.20181107
@@ -83,7 +83,7 @@ hitran.files =
 049_O2CIA/o2cia_20060420.101
 050_SF6/2007.sudo.sf6
 051_NF3/nf3.101.511.txt
-052_N2CIA/
+052_N2CIA/n2cia.20060420.101
 053_OTHER/
 054_OTHER/
 055_PH3/055_PH3.atm.20200512
@@ -138,25 +138,19 @@ hitran.files =
 # Galatry parameters
 # molecule id numbers in these files have to match the sfit molecule id
 aux = gal sdv lm
-aux.gal.nr = 2
+aux.gal.nr = 0
 aux.gal.files =
 014_HF/14_hit16_Galatry.txt
 015_HCL/15_hit16_Galatry.txt
 #
 # Speed Dependent Voigt parameter files
-aux.sdv.nr = 1
+aux.sdv.nr = 0
 aux.sdv.files =
 005_CO/05_hit16_SDV.txt
 #
 #
 # CO2 Line mixing parameters (e.g. CCl4 retrieval)
-aux.lm.nr = 1
+aux.lm.nr = 0
 aux.lm.files =
 002_CO2/002_CO2.hit16_LM1ST.par
-#
-#
-# Speed Dependent Voigt parameter files
-#aux.sdv.nr = 1
-#aux.sdv.files =
-#005_CO/05_hit12_SDV.txt
 #
