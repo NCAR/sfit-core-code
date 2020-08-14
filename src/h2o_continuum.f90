@@ -57,8 +57,8 @@ contains
 
 
   
-  subroutine calc_h2o_continuum()
-    ! calculates the continuum absorption for a give atmoshere
+  subroutine calc_h2o_continuum(gas)
+    ! calculates the continuum absorption for a given gas and for a given atmoshere
     ! It is a wrapper for the MT-CKD continuum and sets up the variables for
     
     
@@ -80,7 +80,7 @@ contains
     real(double) :: XSELF,XFRGN,XCO2C,XO3CN,XO2CN,XN2CN,XRAYL
     real(double) :: vi,vmrh2o,W_dry,wa,wn2,wtot,xcnt,xlength
     
-    CHARACTER*18 HNAMCNT,HVRCNT
+    CHARACTER*18 HNAMCNT,HVRCNT,GAS
     !                                                                         F00100
     CHARACTER*8      XID,       HMOLID,      YID 
     REAL*8               SECANT,       XALTZ
@@ -108,15 +108,21 @@ contains
     
     icflg = -999
     !
-    
-    xself = 1.0d0
-    XFRGN = 1.0d0
-    XCO2C = 1.0d0
-    XO3CN = 1.0d0
-    XO2CN = 1.0d0
-    XN2CN = 1.0d0
-    XRAYL = 1.0d0
-    
+    select case (gas)
+    case ('H2O')
+       xself = 1.0d0
+       XFRGN = 1.0d0
+    case('CO2')
+       XCO2C = 0.0d0
+    case('O3')
+       XO3CN = 0.0d0
+    case('O2')
+       XO2CN = 0.0d0
+    case('N2')
+       XN2CN = 0.0d0
+    case('RAYL')
+       XRAYL = 0.0d0
+    end if
     
     kvert = nspec + 1
     mxone = 1
