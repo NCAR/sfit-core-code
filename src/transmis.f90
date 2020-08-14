@@ -132,6 +132,7 @@
             cross_all(1:ncross) = CROSS(NRET+1,K,1:ncross)
             write(94, '(100000(ES13.4,1x))') (cross_all(i), i=1,ncross)
          end do
+
          if(f_contabs) then
             do k = 1,ksmax2
                cross_all(1:ncross) = CROSS(NRET+2,K,1:ncross)

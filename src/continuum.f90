@@ -32,7 +32,6 @@ contains
     real(double) :: polynom
 
     if (f_continuum) then
-
        select case (abscont_type)
        case(1)
           ! n-th order polynomial
@@ -44,17 +43,14 @@ contains
              wxne = wstart(iband) + dn(iband)*nm(iband)
              wmid = (wone + wxne)/2.0d0
              DO K = 1, KMAX
-                IF ((abscont_type.ne.2).or.((k.lt.kmax).and.(z(k).ge.cont_z_abs).and.(z(k+1).le.cont_z_abs))) then
-                   print *, k, param(1)
-                   do j = mone,mxne
-                      polynom = param(1)
-                      do l = 1,n_contabs-1
-                         polynom = polynom + param(l+1)*(((wone+dble(j)*dn(iband))-wmid)/(wxne-wone))**l
-                      end do
-                      
-                      CROSS(nret+2,K,j) = CROSS(nret+2,K,j) + polynom*(P(k)/P(kmax))
+                do j = mone,mxne
+                   polynom = param(1)
+                   do l = 1,n_contabs-1
+                      polynom = polynom + param(l+1)*(((wone+dble(j)*dn(iband))-wmid)/(wxne-wone))**l
                    end do
-                end IF
+         
+                   CROSS(nret+2,K,j) = CROSS(nret+2,K,j) + polynom*(P(k)/P(kmax))
+                end do
              end DO
           end DO
        case(2)

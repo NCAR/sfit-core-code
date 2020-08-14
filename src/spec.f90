@@ -1087,9 +1087,11 @@ subroutine kpno( opdmax, wl1, wl2, roe, lat, lon, nterp, rflag, oflag, zflag, vf
    write(6,101)'Number of points : ', npfile
 
    ! get amplitude data from bnr
-   if( allocated( amps ) )deallocate( amps )
+   if( allocated( amps4) )deallocate( amps4)
+   allocate( amps4( npfile ))
    if( allocated( wavs ) )deallocate( wavs, awavs )
    allocate( amps( npfile ), wavs( npfile ), awavs( npfile ))
+
    !read (blun, err = 201) amps
    !print *, 'R8 amps'
    !goto 202
