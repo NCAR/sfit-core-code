@@ -41,6 +41,7 @@ class test_sfit4:
                 while not Path(self.sfit4_dir).is_dir():
                     self.sfit4_dir = raw_input('{} does not exist or is no directory. Please try again.\n>'.format(self.sfit4_dir))
                 self.sfit4_dir += '/'
+                self.testcase_dir = self.sfit4_dir+'/sfit4_testbed'
                 continue
             if key.lower() =='linelist_dir':
                 self.linelist_dir = l.rsplit('=')[1].strip()
@@ -51,6 +52,8 @@ class test_sfit4:
                 self.linelist_dir += '/'
                 continue
             if key.lower() == 'testdir':
+                if Path(self.testcase_dir).is_dir():
+                    continue
                 self.testcase_dir = l.rsplit('=')[1].strip()
                 if self.testcase_dir == '<TESTBED-DIR>' or not Path(self.testcase_dir).is_dir():
                     self.testcase_dir = raw_input('Please specify the testcase directory\n')
@@ -279,7 +282,7 @@ if __name__ == '__main__':
     tc = test_sfit4('test.cfg')
     runsfit = True
     runhbin = True
-    error = True
+    error = False
     tips = False
     if sys.argv.count('--nosfit4') > 0:
         runsfit = False

@@ -19,7 +19,7 @@ function traverse() {
     find . -maxdepth 1 -name '*.doc*' -exec lowriter --convert-to pdf {} ';'
     find . -maxdepth 1 -name '*.txt*' -exec lowriter --convert-to pdf {} ';'
     find . -maxdepth 1 -name '*.xls*' -exec localc --convert-to pdf {} ';'
-    find . -maxdepth 1 -name '*.ppt*' -exec loimpress --convert-to pdf {} ';'
+    find . -maxdepth 1 -name '*.ppt*' -exec loimpres --convert-to pdf {} ';'
     
     cd ..
 }
