@@ -1,7 +1,8 @@
-*.dSYM
-sfit4
-hbin
-pspec
-*.mod
+.*
 *.o
-.DS_Store
+*.mod
+hbin
+sfit4
+pspec
+!.gitignore
+*.dSYM

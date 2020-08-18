@@ -5,3 +5,4 @@ hbin
 sfit4
 pspec
 !.gitignore
+*.dSYM

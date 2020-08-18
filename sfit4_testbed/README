@@ -7,10 +7,14 @@ packages needed:
 numpy
 pathlib
 
-Go in the directory <sfit-core-code/sfit4_testbed>
+Go in the directories <sfit-core-code/sfit4_testbed> 
+Edit test.cfg, make sure the absolute paths are right:
 
-Edit test.cfg, make sure the absolute paths are right.
+<LINELISTDIR> the linelist you want to use and which corresponds to your hbin.ctl in the sfit4_testbed directory
+<SFIT-DIR> the sfit-core-code directory (e.g. /home/user/sfit-core-code)
+<TESTCASE-DIR> The sfit4_tesbed directory (e.g. /home/user/sfit-core-code/sfit4_testbed
 
+afterwards go into <TESTCASE-DIR> and run
 script/run_testcases.py [--nohbin]] [--nosfit4] [--noerror] [--tips]
 
 NOTES:

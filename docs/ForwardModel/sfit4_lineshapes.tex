@@ -1,0 +1,326 @@
+\documentclass[12pt, letterpaper]{article}
+
+% font
+\usepackage{natbib}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[sfdefault,scaled=.85]{FiraSans}
+\usepackage{newtxsf}
+\usepackage{lineno}
+\usepackage{xargs}                      % Use more than one optional parameter in a new commands
+
+\newcommand{\myreferences}{/home/mathias/Articles/All_Articles.bib}
+%\bibliographystyle{agufull08}
+%\bibliographystyle{authfirst}
+\bibliographystyle{plain}
+
+
+% math
+\usepackage{mathcomp}
+
+% document formatting
+\usepackage{geometry}
+\geometry{letterpaper, left=1in, right=1in, top=1in, bottom=1in}
+\usepackage{changepage}
+
+% tables & lists
+\usepackage{tabularx}
+\usepackage{enumitem}
+\newcolumntype{S}{@{\stepcounter{Definition}\theDefinition.~} >{}l @{~ : ~}X@{}}
+%\newcolumntype{S}{@{\stepcounter{Definition}\theDefinition.~} >{\bfseries}l @{~ : ~}X@{}}
+\newcounter{Definition}[subsection]
+\newcounter{Number}
+\newcommand{\Item}{\stepcounter{Number}\theNumber.~}
+
+% symbols & special charactters
+\usepackage{textcomp}
+
+% graphics
+\usepackage{graphicx}
+\usepackage{float}
+\graphicspath{ {./floats/} }
+
+% colors
+\usepackage{color}
+\definecolor{light-gray}{gray}{0.85}
+\usepackage[pdftex,dvipsnames]{xcolor}  			% Coloured text etc.
+
+
+% to do Notes
+\usepackage[colorinlistoftodos,prependcaption,textsize=small]{todonotes}
+\newcommandx{\unsure}[2][1=]{\todo[linecolor=red,backgroundcolor=red!25,bordercolor=red,#1]{#2}}
+\newcommandx{\change}[2][1=]{\todo[linecolor=blue,backgroundcolor=blue!25,bordercolor=blue,#1]{#2}}
+\newcommandx{\info}[2][1=]{\todo[linecolor=OliveGreen,backgroundcolor=OliveGreen!25,bordercolor=OliveGreen,#1]{#2}}
+\newcommandx{\improvement}[2][1=]{\todo[linecolor=Plum,backgroundcolor=Plum!25,bordercolor=Plum,#1]{#2}}
+\newcommandx{\thiswillnotshow}[2][1=]{\todo[disable,#1]{#2}}
+
+
+% Useful macros!
+\usepackage{xspace}
+\newcommand{\code}[1]{\colorbox{light-gray}{\texttt{#1}}}
+\newcommand\T{\rule{0pt}{2.6ex}}       % Top strut
+\newcommand\B{\rule[-1.2ex]{0pt}{0pt}} % Bottom strut
+\newcommand{\sfi}{SFIT4\xspace}
+\newcommand{\apr}{\`{a} priori\xspace}
+\newcommand{\irwg}{IRWG\xspace}
+\newcommand{\ndacc}{NDACC\xspace}
+\newcommand{\lnn}{LN$_2$\xspace}
+\newcommand{\Sa}{ $\mathbf{S_a}$ }
+\newcommand{\Se}{ $\mathbf{S_e}$ }
+\newcommand{\Sb}{ $\mathit{S_b}$ }
+\newcommand{\hho}{H\textsubscript{2}O\xspace}
+\newcommand{\coo}{CO\textsubscript{2}\xspace}
+\newcommand{\ooo}{O\textsubscript{3}\xspace} 
+\newcommand{\chf}{CH\textsubscript{4}\xspace}
+\newcommand{\hno}{HNO\textsubscript{3}\xspace}
+\newcommand{\hcl}{HCl\xspace}
+\newcommand{\nno}{N\textsubscript{2}O\xspace} 
+\newcommand{\co}{CO\xspace}
+\newcommand{\ethane}{C\textsubscript{2}H\textsubscript{6}\xspace}
+\newcommand{\clono}{ClONO\textsubscript{2}\xspace}
+\newcommand{\hf}{HF\xspace} 
+\newcommand{\hcn}{HCN\xspace}
+\newcommand{\ocs}{OCS\xspace} 
+\newcommand{\hhco}{H\textsubscript{2}CO\xspace}
+\newcommand{\ctc}{CCl\textsubscript{4}\xspace}
+\newcommand{\fab}{CC\textsubscript{2}F\textsubscript{2}\xspace}
+\newcommand{\faa}{CCl\textsubscript{3}F\xspace}
+
+\usepackage{xcolor,colortbl}
+
+
+% header / footer
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhead{}
+\fancyfoot{}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0.4pt}
+\fancyhead[LE,RO]{\slshape \leftmark}
+\fancyhead[LO,RE]{\slshape \rightmark}
+\fancyfoot[LE,RO]{\thepage}
+\fancyfoot[RE,LO]{\textbf{Draft Document} Spectral Lineshape Implementation in \sfi}
+
+% author tags
+\usepackage{authblk}
+\renewcommand\Affilfont{\itshape\small}
+\renewcommand\Authands{ and }
+
+% multiple columns
+\usepackage{multicol}
+
+% code listing
+\usepackage{listings}
+\lstset{language=FORTRAN} 
+
+\title{Spectral Lineshape Implementation in \sfi}
+
+%\begin{center}
+%SFIT4 Development Team
+%\end{center}
+
+\author[1]{\sfi Dev Team}
+
+%\affil[1]{National Center for Atmospheric Research, Boulder, CO, USA}
+
+\date{May 2020}
+
+\begin{document}
+
+\begin{titlepage}
+
+\maketitle
+\thispagestyle{empty}
+\pagestyle{empty}
+
+\begin{abstract}
+  \begin{adjustwidth}{2em}{2em} 
+    \large{
+      \emph{
+\improvement[inline]{Initial Draft Document} 
+\noindent This document describes the spectral lineshape options that are user optional encoded within \sfi.  The current state of auxiliary data parameters are limited to a few molecules.  The user switches, data files necessary and their compatibility are described here
+}}
+      
+  \end{adjustwidth}
+
+\end{abstract}
+
+\end{titlepage}
+ 
+\tableofcontents 
+
+\pagebreak
+
+%%Introduction
+\section{Introduction} 
+\label{sec:intro}
+
+Originally SFIT4 used a pure line-by-line model. That means all lines
+were calculated separately using the Voigt lineshape. Later came the
+option to use the Galatry approximation, if Galatry parameters where
+given. Theoretical discussions are found in the document
+Workshop2019-Palm-sfit4-fwdmodel-params.pdf.
+
+This document summarizes, how they work together and how they are used in SFIT4.
+
+%% Implementation
+\section{Implementation} 
+\label{sec:implement}
+
+\improvement[inline]{Talk about codes for Voigt,
+  Tran. \cite{Tran:2013} \cite{Drayson:1976} \cite{Hartmann:2013}.}
+For instance the original Voigt uses a function from Drayson, when
+using Boone for linemixing it uses its own based on Humlicek, as does
+Galatry.  The lineshape published by \cite{Tran:2013} calculates the
+most complete line shape and the real and imaginary part. The real and
+imaginary part are used to calculate the Rosenkrantz approximation of
+the linemixing.
+
+\subsection{\sfi Lineshape Options}
+
+\improvement[inline]{Talk about switches and how they work together.}
+
+\noindent A brief introduction to the switches used in the
+\textit{sfit4.ctl} file is given in the \textit{sfit4\_init.pdf}
+tables.
+
+\noindent To implement a lineshape model use the forward model flag
+\textit{fw.lshapemodel =} and set to one of the switches described in
+Table \ref{tab:shape_flags}:
+
+\begin{table}[H]
+\begin{tabularx}\linewidth{ p{15pt} X } \\
+  \hline
+  \textbf{Flag} & \textbf{Functionality} \T \\
+  \hline \hline \B \T
+  0  & The lineshape used for a given gas is not forced.  It depends on the spectroscopic values given supplied to SFIT4 from the hbin file, and on the specific switches for linemixing and SDV below \B \\
+  1  & Force using the default Voigt lineshape model regardless of parameters supplied in the hbin file, \B \\
+  2  & Use the Galatry if BETA\_T is given, if not use Voigt, \B \\
+  3  & Line Mixing calculation using the Voigt profile as implemented by \cite{Boone:2013}, \B \\
+  4  & Use the pCqSDHC lineshape model \cite{Tran:2013}, \B \\
+  \hline \\
+\end{tabularx} 
+\caption{\textit{Lineshape flags to control how SFIT4 implements different lineshapes for different species.}
+\label{tab:shape_flags}}
+\end{table}
+
+
+\noindent To specifically force the speed dependent Voigt model set\\
+\textit{fw.lshapemodel = 4}\\
+\textit{fw.lshapemodel.sdv = .TRUE.}\\
+then this will invoke the SDV approximation in the pCqSDHC algorithm. \\
+
+\noindent To implement line mixing set\\
+\textit{fw.lshapemodel = 3, 4}\\
+\textit{fw.linemixing = .TRUE.}\\
+then, if T and line mixing parameters found, linemixing is calculated.
+Note that currently 1\textsuperscript{st} order proximation is used
+\cite{Rosenkranz:1975}.
+
+\noindent As always check the detail file \textit{sfit4.dtl} to see what was actually implemented in the retrieval.  You will see something like this e.g.\\
+
+\noindent GALATRY FLAG \& LINES WITH GALATRY PARAMETERS FOUND       :  T      6 \\
+
+\noindent which means the Galatry flag is set and 6 lines with Galatry parameters are found, or this \\
+
+\noindent LINEMIXING FLAG \& LINES WITH LINEMIXING PARAMETERS FOUND :  F      0 \\
+
+\noindent which means no linemixing used.\\
+
+\noindent One can create an hbin file with the extra parameters hem switch on or off via the sfit4.ctl switches outlined above.  Caution needs to be used to be sure appropriate extra parameters are used with appropriate base parameters.  \\ \\
+
+\improvement[inline]{does Geoff supply further parameters? For the atm files there are  files for extra parameters. I would not mix them, unless you know which hitran version the atm database you use is based on.}
+
+
+%% Data files
+\section{Data Files Required} 
+\label{sec:datafiles}
+
+\improvement[inline]{Talk about what is needed, where they are from, compatibility with other line lists ...}
+
+If extra line parameters are to be used, the matching spectroscopiy
+files are listed in table \ref{tab:datafiles}. The spectroscopic files
+for the gases belong to each other, because the matching of the line
+parameters is done via the quantum numbers. As the line parameters may
+not be independent from each other and may change from one HITRAN
+release to another, it is impotant to only use them together. The
+SFIT4 release contains a hbin.ctl, which contains a complete
+spectroscopy for the current release. It is recommended to stick to
+this spectroscopic database unless they are strong reasons to deviate
+from it. Detailed knowledge about the spectroscopy is also required to do so.
+
+\begin{table}[H]
+\begin{tabularx}\linewidth{ p{20pt} p{120pt} p{80pt} X } \\
+  \hline
+  \textbf{Gas} & \textbf{Data file} & \textbf{Origin} & \textbf{Usage} \T\B \\
+  \hline \hline
+  \coo & 002\_CO2.hit16.20181107              & \cite{Gordon:2017} & main linelist based on HITRAN 08, \B \\
+   & 002\_CO2.hit16\_LM1ST.par  & \cite{Lamouroux:2010} & 1$^{st}$ order Rosenkranz linemixing parameters corresponding to the linelist above , \B \\
+  \hline
+  \co & 05\_hit16.par              &  \cite{Gordon:2017}  & HITRAN parameters for \co, \B  \\
+  & 05\_hit16\_SDV.txt              &  \cite{Gordon:2017}  & extra speed-dependent-Voigt parameters lines for \co, \B  \\
+  \hline
+  \hf & 14\_hit16.par          &  \cite{Gordon:2017} &  HITRAN parameters for HF, \B \\
+  & 14\_hit16\_Galatry.txt          & \cite{Gordon:2017}  & extra parameters necessary for Galatry model, \B \\
+  \hline
+  \hcl & 15\_hit16.par          & \cite{Gordon:2017}  & HITRAN parameters for HCL \B\\
+  & 15\_hit16\_Galatry.txt          & \cite{Gordon:2017}  & extra parameters necessary for Galatry model, \B \\
+  \hline
+\end{tabularx} 
+\caption{\textit{Current data parameter files useful in SFIT4.}
+\label{tab:datafiles}}
+\end{table}
+
+\section{Examples}
+\label{sec:examples}
+
+for examples please refer to Workshop2019-Palm-sfit4-fwdmodel-params.pdf
+
+
+
+%%\begin{enumerate}[topsep=5pt,itemsep=-1ex,partopsep=1ex,parsep=1ex]
+%%\item 88.83.31.214
+%%\end{enumerate
+
+%\begin{itemize}
+
+%\begin{multicols}{2}
+%\begin{minipage}[t]{.5\textwidth}
+
+%\scriptsize{
+%\begin{lstlisting}
+%\end{lstlisting}
+%}
+
+%\end{verbatim}
+%\end{minipage}% <---------------- Note the use of "%"
+%\begin{minipage}[t]{.5\textwidth}
+% some per spectrum basis where the user often has the option of the scope.  Since there are myriad combinations these need to be encoded int
+%\end{minipage}
+%\end{multicols}
+
+%\begin{tabbing}
+%\hspace*{2cm}\=\hspace*{3cm}\= \kill
+ 
+ %\begin{enumerate}
+ %\end{enumerate}
+
+%\end{tabbing}
+
+
+
+%\section{Appendix}
+%\label{sec:appendix}
+
+%\bibliography{Refs_Publications.bib}
+\input{sfit4_lineshapes.bbl}
+\listoffigures
+
+\listoftables
+
+\end{document}
+
+
+
+
+ 
