@@ -612,7 +612,7 @@
       INTEGER, INTENT(IN) :: NLEV
       CHARACTER (LEN=255) :: VAL
       LOGICAL             :: HFLG, IFPRF_1_ORIG
-      INTEGER             :: I, J, K, L1, L2, L3, ORIG_NVAR, POS, NL = 1, IBEAM=0
+      INTEGER             :: I, J, K, L1, L2, L3, ORIG_NVAR, POS, NL = 1
       INTEGER             :: ORIG_ISMIX
       
       WRITE(16,254)
