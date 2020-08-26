@@ -14,7 +14,7 @@ Edit test.cfg, make sure the absolute paths are right:
 <SFIT-DIR> the sfit-core-code directory (e.g. /home/user/sfit-core-code)
 <TESTCASE-DIR> The sfit4_tesbed directory (e.g. /home/user/sfit-core-code/sfit4_testbed
 
-afterwarts go into <TESTCASE-DIR> and run
+afterwards go into <TESTCASE-DIR> and run
 script/run_testcases.py [--nohbin]] [--nosfit4] [--noerror] [--tips]
 
 NOTES:

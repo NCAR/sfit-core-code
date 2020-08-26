@@ -25,20 +25,19 @@ FFLAGS = -Warray-bounds -Wcharacter-truncation -Wunused-parameter \
          -fcheck=all -fimplicit-none -fwhole-file -fall-intrinsics -fno-automatic \
          -fstack-arrays -frepack-arrays \
          -std=gnu -pedantic \
-         -freal-4-real-8
          -ffpe-trap=invalid,zero,overflow,underflow -g -fbacktrace -fsanitize=address
 
 # -Warray-temporaries too many...
 
 #error check a lot
 FFLAGS = -Wall -fno-automatic -fcheck=all -ffpe-trap=invalid,zero,overflow,underflow -Warray-bounds \
-         -fbounds-check -fbacktrace -g -ffree-line-length-none
+         -fbounds-check -fbacktrace -g -ffree-line-length-none  
 
 # optimize -Ofast v4.8
 #FFLAGS = -Ofast -Wall -fno-automatic -frepack-arrays  -ffree-line-length-none
 #FFLAGS = -g -Wall -fno-automatic -frepack-arrays  -ffree-line-length-none # -Wno-unused-function -Wno-unused-variable -Wno-conversion
 #FFLAGS = -Ofast -Wall -fno-automatic -frepack-arrays  -ffree-line-length-none -mcmodel=small
-FFLAGS = -g -Wall -fno-automatic -frepack-arrays  -ffree-line-length-none 
+FFLAGS = -g -Wall -fno-automatic -frepack-arrays  -ffree-line-length-none -fno-align-commons -freal-4-real-8
 
 
 # supply compile date:
@@ -102,7 +101,9 @@ voigt_sdv_lm.o \
 writeout.o \
 andex.o \
 xsections.o \
-continuum.o
+continuum.o \
+h2o_continuum.o\
+mt-ckd-cont.o
 
 #convert_old_data_files.o
 
@@ -171,6 +172,9 @@ datafiles.o \
 diagnostic.o \
 : opt.o retvparam.o
 
+binput_pars.o \
+: h2o_continuum.0
+
 frwdmdl.o \
 : params.o transmis.o datafiles.o molcparam.o solar.o synspec.o channel.o bandparam.o retvparam.o \
 	writeout.o initialize.o continuum.o
@@ -189,6 +193,9 @@ isotope.o \
 
 lineparam.o \
 : params.o bandparam.o retvparam.o datafiles.o molcparam.o isotope.o raytrace.o
+
+h2o_continuum.o \
+: mt-ckd-cont.o
 
 matrix.o \
 : params.o

@@ -28,6 +28,8 @@
       USE MOLCPARAM
       USE VOIGT_SDV_LM
       USE LINESHAPE_PCQSDHC
+      USE H2O_CONTINUUM
+      
       IMPLICIT NONE
 
       INTEGER :: NMONSM, NCROSS
@@ -53,7 +55,7 @@
       REAL(DOUBLE) :: DIST, TXE, VIBFAC, STIMFC, SSL, ACOFB, SCOFB, ALOR, ADOP, &
                       AKZERO, YDUM, OPTMAX, XDUM, AKV, OPTCEN, DELLOR, WLIN, START, &
                       SSTOP, ANUZ, QT, QTSTDTEMP, GI, SSLOLD, BETAP, GZ, LMTVAL
-      REAL(DOUBLE) :: AKV_R, AKV_I, G2, LM, S0=0.0D0, S2=0.0D0
+      REAL(DOUBLE) :: AKV_OFFSET, AKV_R, AKV_I, G2, LM, S0=0.0D0, S2=0.0D0
       REAL(DOUBLE) :: ANUVC = 0.0d0, ETA0=0.0D0
 
       REAL (DOUBLE), DIMENSION(4) :: SDVLM_PARAM ! PARAMETERS FOR SDV AND/OR LINEMIXING
@@ -311,6 +313,14 @@
                IF (JSTART > NM(IBAND)) CYCLE
                JSTART = MAX0(1,JSTART)
                JSTOP = MIN0(NM(IBAND),JSTOP)
+               IF ((MO.EQ.1).AND.F_MTCKD) THEN
+                  ANUZ = WMON(IBAND) - 25.0
+                  XDUM = ALOGSQ*(ANUZ - WLIN)/ADOP
+                  XDUM = ABS(XDUM)
+                  AKV_OFFSET  = AKZERO*VOIGT(XDUM,YDUM)
+               ELSE
+                  AKV_OFFSET = 0.0D0
+               END IF
                DO J = JSTART, JSTOP
                   ANUZ = WMON(IBAND) + (J - 1)*DN(IBAND)
                   XDUM = ALOGSQ*(ANUZ - WLIN)/ADOP
@@ -333,7 +343,7 @@
                      XDUM = ABS(XDUM)
                      AKV  = AKZERO*VOIGT(XDUM,YDUM)
                   ENDIF
-                  CROSS(NPOINT,K,J+INDXX) = CROSS(NPOINT,K,J+INDXX) + AKV*OPTMAX
+                  CROSS(NPOINT,K,J+INDXX) = CROSS(NPOINT,K,J+INDXX) + AKV*OPTMAX - AKV_OFFSET
                   !print*, npoint, indxx, j, k, CROSS(NPOINT,K,J+INDXX), AKV, OPTMAX, xdum, ydum
                ENDDO ! J
             ENDDO ! LINES

@@ -12,7 +12,7 @@ import os,sys,string
 
 from libs import sfit4_ctl,summary,statevec, read_from_file
 from shutil import copy
-from pathlib2 import Path
+from pathlib import Path
 
 import numpy as np
 import subprocess
@@ -37,25 +37,28 @@ class test_sfit4:
             if key.lower() == 'sfit4_dir':
                 self.sfit4_dir = l.rsplit('=')[1].strip()
                 if self.sfit4_dir == '<SFIT4-DIR>' or not Path(self.sfit4_dir).is_dir():
-                    self.sfit4_dir = raw_input('Please specify the sfit-core-code directory\n')
+                    self.sfit4_dir = input('Please specify the sfit-core-code directory\n')
                 while not Path(self.sfit4_dir).is_dir():
-                    self.sfit4_dir = raw_input('{} does not exist or is no directory. Please try again.\n>'.format(self.sfit4_dir))
+                    self.sfit4_dir = input('{} does not exist or is no directory. Please try again.\n>'.format(self.sfit4_dir))
                 self.sfit4_dir += '/'
+                self.testcase_dir = self.sfit4_dir+'/sfit4_testbed'
                 continue
             if key.lower() =='linelist_dir':
                 self.linelist_dir = l.rsplit('=')[1].strip()
                 if self.linelist_dir == '<LINELIST-DIR>' or not Path(self.linelist_dir).is_dir():
-                    self.linelist_dir = str(raw_input('Please specify the linelistdir\n'))
+                    self.linelist_dir = str(input('Please specify the linelistdir\n'))
                 while not Path(self.linelist_dir).is_dir():
-                    self.linelist_dir = raw_input('{} does not exist or is no directory. Please try again.\n>'.format(self.linelist_dir))
+                    self.linelist_dir = input('{} does not exist or is no directory. Please try again.\n>'.format(self.linelist_dir))
                 self.linelist_dir += '/'
                 continue
             if key.lower() == 'testdir':
+                if Path(self.testcase_dir).is_dir():
+                    continue
                 self.testcase_dir = l.rsplit('=')[1].strip()
                 if self.testcase_dir == '<TESTBED-DIR>' or not Path(self.testcase_dir).is_dir():
-                    self.testcase_dir = raw_input('Please specify the testcase directory\n')
+                    self.testcase_dir = input('Please specify the testcase directory\n')
                 while not Path(self.testcase_dir).is_dir():
-                    self.testcase_dir = raw_input('{} does not exist or is no directory. Please try again.\n>'.format(self.testcase_dir))
+                    self.testcase_dir = input('{} does not exist or is no directory. Please try again.\n>'.format(self.testcase_dir))
                 self.testcase_dir += '/'
                 continue
             if key.lower() =='origtestcases_dir':
@@ -89,7 +92,7 @@ class test_sfit4:
                     print('Gases must be defined before details')
                     return(None)
                 gas = subkeys[1].strip()
-                if self.results.keys().count(gas) == 0:
+                if gas not in self.results:
                     continue
                 for sk in subkeys:
                     lval = False
@@ -105,7 +108,7 @@ class test_sfit4:
 
         extra_gas = filter(lambda x: self.gases.count(x) == 0, self.results.keys())
 
-        if len(extra_gas) > 0:
+        if len(list(extra_gas)) > 0:
             print ('No details found for gas(es) '+ string.join(extra_gas))
         
     def run_sfit4_in_testcase(self, sfit4=True, hbin=True, tips=False, error = True):
@@ -130,20 +133,20 @@ class test_sfit4:
                 rhbin = subprocess.Popen(chbin,stdout=subprocess.PIPE,
                                          stderr=subprocess.PIPE).communicate()
                 if len(rhbin[1]):
-                    print ('hbin failed in %s'%(tc))
+                    print ('hbin failed in {}'.format(tc))
 
-                for l in rhbin[0].split('\n'):
-                    if l.find('Saving binary')>-1:
+                for l in rhbin[0].split(b'\n'):
+                    if l.find(b'Saving binary')>-1:
                         flag = True
-                        fhbin = l.split(':')[1].strip()
-                        print('hbin file in %s: %s')%(tc,fhbin)
+                        fhbin = l.split(b':')[1].strip()
+                        print('hbin file in {}: {}'.format(tc,fhbin))
                 if not flag:
-                    print('Something wrong in %s'%tc)
+                    print('Something wrong in {}'.format(tc))
                     print('hbin terminated with:')
                     print(rhbin[0])
                     self.results[tc].update({hbin:False})
                     
-                ctl.replace_in_file('sfit4.ctl','file.in.linelist',fhbin)
+                ctl.replace_in_file('sfit4.ctl','file.in.linelist',fhbin.decode())
 
             if sfit4 and self.results[tc]['sfit']:
                 if error:
@@ -159,17 +162,17 @@ class test_sfit4:
                 rsfit = subprocess.Popen(csfit,stdout=subprocess.PIPE,
                                          stderr=subprocess.PIPE).communicate()
                 flag = False
-                for l in rsfit[0].split('\n'):
-                    if l.find('CVRG')>-1:
+                for l in rsfit[0].split(b'\n'):
+                    if l.find(b'CVRG')>-1:
                         flag = True
-                        if l[l.index('CVRG')+5]=='T':
-                            print('sfit converged in %s'%tc)
+                        if l.decode()[l.index(b'CVRG')+5]=='T':
+                            print('sfit converged in {}'.format(tc))
                         else:
-                            print('sfit did not converge in %s'%tc)
+                            print('sfit did not converge in {}'.format(tc))
                             self.results[tc].update({sfit4:False})
 
                 if not flag:
-                    print('Something wrong in %s'%tc)
+                    print('Something wrong in {}'.format(tc))
                     print('sfit4 terminated with:')
                     print(rsfit[1])
                     self.results[tc].update({sfit4:False})
@@ -186,7 +189,7 @@ class test_sfit4:
         for tc in self.results:
 
             sum_file = os.path.join(self.origtestcases_dir,
-                                    'summary.%s'%(tc.lower()))
+                                    'summary.{}'.format(tc.lower()))
             if os.path.exists(sum_file):
                 sum_orig = summary(sum_file)
                 result = {'summary': True,
@@ -218,7 +221,7 @@ class test_sfit4:
 
     def read_statevectors(self):
         #Store values from statevec
-        state_orig = statevec(os.path.join(self.origtestcases_dir,'statevec.%s'%(tc[1])))
+        state_orig = statevec(os.path.join(self.origtestcases_dir,'statevec.{}'.format(tc[1])))
         result = {'ret_profile': state_orig.rt_vmr[0]}
         results_orig[tc[0]].update(result)
         
@@ -238,11 +241,12 @@ class test_sfit4:
             diverge *= 2
             diverge /= self.results[rs]['chi_y_2'] + self.results_orig[rs]['chi_y_2']
             if np.abs(diverge) < 0.01:
-                str += 'RESULTS OK (less than 1 %\n'.format(rs)
+                str += 'RESULTS OK (less than 1 {}\n'.format(rs)
             else:
-                str += 'CHI_2_Y DIVERGES BY {1:1%} %\n'.format(rs, diverge)
+                str += 'CHI_2_Y DIVERGES BY {1:1% %\n'.format(rs, diverge)
 
-        str += '\n'
+        str += '\n\n'
+        str += 'Numbers of the runs are found in file {}\n'.format(self.resultfile)
         print(str)
         
     def print_results(self):
@@ -278,7 +282,7 @@ if __name__ == '__main__':
     tc = test_sfit4('test.cfg')
     runsfit = True
     runhbin = True
-    error = True
+    error = False
     tips = False
     if sys.argv.count('--nosfit4') > 0:
         runsfit = False

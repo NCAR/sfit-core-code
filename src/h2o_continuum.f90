@@ -1,7 +1,10 @@
 module h2o_continuum
 
   use params
-  use xsections
+  use bandparam
+  use retvparam
+  use molcparam
+  use raytrace
 
   implicit none
   
@@ -69,7 +72,7 @@ contains
     integer :: IRD,IPRcnt,IPU,NOPR,NFHDRF,NPHDRF,NFHDRL,NPHDRL
     integer :: NLNGTH,KFILE,KPANEL,LINFIL,NFILE,IAFIL,IEXFIL  
     integer :: NLTEFL,LNFIL4,LNGTH4
-    integer :: i,k,kk,icflg,jrad,mxone, nmon, kvert, ksmax2,iband
+    integer :: i,k,kk,icflg,mxone, nmon, kvert, ksmax2,iband
     
     
     real(double) :: PAVE,TAVE
@@ -78,7 +81,7 @@ contains
     real(double) :: V1C,V2C,DVC,C
     real(double) :: V1h,V2h,DVh,Ch,csh2o,cfh2o
     real(double) :: XSELF,XFRGN,XCO2C,XO3CN,XO2CN,XN2CN,XRAYL
-    real(double) :: vi,vmrh2o,W_dry,wa,wn2,wtot,xcnt,xlength
+    real(double) :: vi,vmrh2o,W_dry,wa,wn2
     
     CHARACTER*18 HNAMCNT,HVRCNT,GAS
     !                                                                         F00100
@@ -122,7 +125,7 @@ contains
        XN2CN = 0.0d0
     case('RAYL')
        XRAYL = 0.0d0
-    end if
+    end select
     
     kvert = nspec + 1
     mxone = 1
@@ -146,7 +149,7 @@ contains
 !             if( trim(name(icode(kk))) .eq. trim('O3')) then
 !                wk(3) = xgas(i,k)*w_dry!ccc(kvert,k)
 !             end if
-             ! oxygen and nitrogen may be deleted if there are not lines. This is especially
+             ! oxygen and nitrogen may be deleted if there are no lines. This is especially
              ! true for O2 in the 330-1300 1/cmregion
              ! so we use the default mixing ratio
              wn2 = 0.79*w_dry
@@ -218,9 +221,9 @@ contains
 !          writes out the continuum absorption at every step. Can be used to compare to original
 !          cntnm absorption code by AER         
           open(10, file='h2ocont')
-           write(10,*), wk(1), wk(2), wk(3), wk(4), wk(5), wk(6), wk(7)
-           write(10,*), wbroad, pave
-           write(10,*), v1,v2,dv
+           write(10,*)  wk(1), wk(2), wk(3), wk(4), wk(5), wk(6), wk(7)
+           write(10,*)  wbroad, pave
+           write(10,*)  v1,v2,dv
            DO I=1,NPTABS
               VI=V1ABS+dble(I-1)*DVABS
               WRITE (10, 910) VI, ABSRB(I)

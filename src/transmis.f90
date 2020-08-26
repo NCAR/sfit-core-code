@@ -117,8 +117,8 @@
 
 
       !  --- Write out crossections per altitude and frequency
-      if (.false.) then
-         print *, 'write out crosssections'
+      if (.true.) then
+         print *, 'write out crosssections', ncross
          KSMAX2 = KZTAN(ISCAN(1,1))
          allocate(cross_all(NCROSS))
          call fileopen(94,1)
@@ -126,17 +126,17 @@
             do ir = 1,nret
                cross_all(1:NCROSS) = CROSS(IR,K,1:ncross)
             end do
-            write(94, '(100000(ES13.4,1x))') (cross_all(i), i=1,ncross)
+            write(94, '(200000(ES13.4,1x))') (cross_all(i), i=1,ncross)
          end do
          do k = 1,ksmax2
             cross_all(1:ncross) = CROSS(NRET+1,K,1:ncross)
-            write(94, '(100000(ES13.4,1x))') (cross_all(i), i=1,ncross)
+            write(94, '(200000(ES13.4,1x))') (cross_all(i), i=1,ncross)
          end do
 
          if(f_contabs) then
             do k = 1,ksmax2
                cross_all(1:ncross) = CROSS(NRET+2,K,1:ncross)
-               write(94, '(100000(ES13.4,1x))') (cross_all(i), i=1,ncross)
+               write(94, '(200000(ES13.4,1x))') (cross_all(i), i=1,ncross)
             end do
          end if
          call fileclose(94,1)
@@ -201,9 +201,6 @@
       DO K = 1, KSMAX2
          MADD = MONONE
          ICINDX = MXONE + J - 1
-
-
-
 
          ! ------------LOOP OVER SPECTRA
          DO INDXX = 1, NSCANS

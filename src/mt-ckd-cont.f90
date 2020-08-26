@@ -346,7 +346,7 @@ SUBROUTINE CONTNM(JRAD)
 !        Interpolate to total optical depth grid                        
                                                                         
          CALL XINT (V1C,V2C,DVC,c_cld,1.0,V1ABS,DVABS,ABSRB,1,NPTABS)   
-                                                                        
+
       endif                                                             
 !                                                                       
 !=======================================================================
@@ -454,9 +454,10 @@ SUBROUTINE CONTNM(JRAD)
    20       CONTINUE                                                    
 !                                                                       
 !           Interpolate to total optical depth grid                     
-                                                                        
+
+               print *, cself(1:nptc)
                CALL XINT (V1C,V2C,DVC,cself,1.0,V1ABS,DVABS,ABSRB,1,NPTABS)
-                                                                        
+                                                
          endif                                                          
 !                                                                       
 !=======================================================================
@@ -540,7 +541,8 @@ SUBROUTINE CONTNM(JRAD)
 !                                                                       
    24       CONTINUE                                                    
 !                                                                       
-            CALL XINT (V1C,V2C,DVC,C,1.0,V1ABS,DVABS,ABSRB,1,NPTABS)    
+               CALL XINT (V1C,V2C,DVC,C,1.0,V1ABS,DVABS,ABSRB,1,NPTABS)
+
 !                                                                       
 !           ------------------------------------------------------------
 !                                                                       
@@ -551,7 +553,7 @@ SUBROUTINE CONTNM(JRAD)
                enddo                                                    
                                                                         
                Call XINT (V1C,V2C,DVC,C,1.0,V1ABS,DVABS,ABSRB,1,NPTABS) 
-                                                                        
+
             endif                                                       
                                                                         
 !           ------------------------------------------------------------
@@ -605,7 +607,6 @@ SUBROUTINE CONTNM(JRAD)
                IF (JRAD.EQ.1) C(J) = C(J)*RADFN(VJ,XKT)                 
    30       CONTINUE                                                    
             CALL XINT (V1C,V2C,DVC,C,1.0,V1ABS,DVABS,ABSRB,1,NPTABS)    
-                                                                        
          endif                                                          
 !                                                                       
 !     ********    DIFFUSE OZONE  ********                               
@@ -628,7 +629,8 @@ SUBROUTINE CONTNM(JRAD)
                CCH0(J)=(CCH0(J)+(CCH1(J)+CCH2(J)*DT)*DT)*WO3            
                VJ = V1C+DVC* REAL(J-1)                                  
                IF (JRAD.EQ.1) CCH0(J) = CCH0(J)*RADFN(VJ,XKT)           
-   50       CONTINUE                                                    
+50             CONTINUE
+
             CALL XINT (V1C,V2C,DVC,CCH0,1.0,V1ABS,DVABS,ABSRB,1,NPTABS) 
          ENDIF                                                          
 !                                                                       
@@ -663,7 +665,8 @@ SUBROUTINE CONTNM(JRAD)
             ENDIF                                                       
 !                                                                       
 !           Combine Hartley Huggins with previous optical depths        
-!                                                                       
+            !
+
             CALL XINT (V1C,V2C,DVC,C,1.0,V1ABS,DVABS,ABSRB,1,NPTABS)    
 !                                                                       
 !           If V2 > 40800 cm-1, replace points with previously          
@@ -702,7 +705,8 @@ SUBROUTINE CONTNM(JRAD)
             ENDIF                                                       
 !                                                                       
 !           Combine UV Hartley Huggins with previous optical depths     
-!                                                                       
+            !
+
             CALL XINT (V1C,V2C,DVC,C,1.0,V1ABS,DVABS,ABSRB,1,NPTABS)    
 !                                                                       
 !           If V1 < 40800 cm-1, replace points with previously          
@@ -759,7 +763,7 @@ SUBROUTINE CONTNM(JRAD)
                IF (JRAD.EQ.1) C(J) = C(J)*RADFN(VJ,XKT)                 
 !                                                                       
    80       CONTINUE                                                    
-                                                                        
+
             CALL XINT (V1C,V2C,DVC,C,1.0,V1ABS,DVABS,ABSRB,1,NPTABS)    
          endif                                                          
                                                                         
@@ -801,7 +805,8 @@ SUBROUTINE CONTNM(JRAD)
                IF (JRAD.EQ.1) C(J) = C(J)*RADFN(VJ,XKT)                 
                                                                         
    92       CONTINUE                                                    
-!                                                                       
+               !
+
             CALL XINT (V1C,V2C,DVC,C,1.0,V1ABS,DVABS,ABSRB,1,NPTABS)    
 !                                                                       
          endif                                                          
@@ -830,7 +835,8 @@ SUBROUTINE CONTNM(JRAD)
                IF (JRAD.EQ.1) C(J) = C(J)*RADFN(VJ,XKT)                 
 !                                                                       
    93       CONTINUE                                                    
-!                                                                       
+               !
+
             CALL XINT (V1C,V2C,DVC,C,1.0,V1ABS,DVABS,ABSRB,1,NPTABS)    
 !                                                                       
          endif  
@@ -894,7 +900,8 @@ SUBROUTINE CONTNM(JRAD)
                IF (JRAD.EQ.1) C(J) = C(J)*RADFN(VJ,XKT)                 
 !                                                                       
    96       CONTINUE                                                    
-!                                                                       
+               !
+
             CALL XINT (V1C,V2C,DVC,C,1.0,V1ABS,DVABS,ABSRB,1,NPTABS)    
 !                                                                       
          endif                                                          
@@ -913,7 +920,8 @@ SUBROUTINE CONTNM(JRAD)
 !              Radiation field                                          
 !                                                                       
                IF (JRAD.EQ.1) C(J) = C(J)*RADFN(VJ,XKT)                 
-   90       CONTINUE                                                    
+90             CONTINUE
+
             CALL XINT (V1C,V2C,DVC,C,1.0,V1ABS,DVABS,ABSRB,1,NPTABS)    
                                                                         
          endif                                                          
@@ -943,7 +951,8 @@ SUBROUTINE CONTNM(JRAD)
 !        THIS NITROGEN CONTINUUM IS IN UNITS OF 1./(CM AMAGAT^2)        
 !                                                                       
 !        Only calculate if V2 > -10. cm-1 and V1 <  350. cm-1           
-!                                                                       
+         !
+
          if ((V2.gt.-10.0).and.(V1.lt.350.).and. xn2cn.gt.0.) then      
             c0 = 0.
             c1 = 0.
@@ -977,7 +986,10 @@ SUBROUTINE CONTNM(JRAD)
                                                                         
    40       CONTINUE                                                    
                                                                         
-            CALL XINT (V1C,V2C,DVC,C,1.0,V1ABS,DVABS,ABSRB,1,NPTABS)    
+
+               print *, '1'  
+               CALL XINT (V1C,V2C,DVC,C,1.0,V1ABS,DVABS,ABSRB,1,NPTABS)
+               print *, '1'  
                                                                         
          endif                                                          
 !                                                                       
@@ -10025,7 +10037,7 @@ SUBROUTINE CONTNM(JRAD)
       ILO = MAX(ILO,N1R3)                                                 !B17660
       IHI = (V2A-DVA-VFT)/DVR3+ONEMI                                      !B17670
       IHI = MIN(IHI,N2R3)                                                 !B17680
-!                                                                         B17690
+      !                                                                         B17690
       DO 10 I = ILO, IHI                                                  !B17700
          VI = VFT+DVR3*FLOAT(I-1)                                         !B17710
          J = (VI-V1A)*RECDVA+ONEPL                                        !B17720

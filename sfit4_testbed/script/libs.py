@@ -41,7 +41,7 @@ class sfit4_ctl:
         if self.value.has_key(tag):
             return self.value[tag].strip()
         else:
-            print 'key ' + tag.strip() + ' not found'
+            print ('key {} not found'.format(tag.strip()))
             return(-1)
 
     def get_keys(self, level=''):
@@ -69,7 +69,7 @@ class sfit4_ctl:
         if self.value.has_key(tag):
             self.value[tag] = value.strip()
         else:
-            print 'key ' + tag.strip() + ' not found'
+            print ('key {} not found'.format(tag.strip()))
 
     def replace_in_file(self, ctlfile, newtag, newvalue):
         fido = open(ctlfile, 'r')
@@ -85,8 +85,7 @@ class sfit4_ctl:
                 line = line[0:line.find('#')].strip()
             if len(line)==0:
                 if len(value) > 0:
-                    newlines.append(tag + ' = ' + value + 
-                                    ' ' + comment + '\n')
+                    newlines.append('{} = {} {}\n'.format(tag,value,comment))
                     value = ''
                     comment = ''
                 elif len(comment)>0:
@@ -97,12 +96,10 @@ class sfit4_ctl:
             if len(value)> 0 and line[0].isalpha():
                 if (tag == newtag):
  #                   print tag
-                    newlines.append(tag + ' = ' + newvalue +
-                                ' ' + comment + '\n')
+                    newlines.append('{} = {} {}\n'.format(tag,value,comment))
                 else:
 #                    print tag
-                    newlines.append(tag + ' = ' + value + 
-                                ' ' + comment + '\n')
+                    newlines.append('{} = {} {}\n'.format(tag,value,comment))
 #                print tag + ' = '  + value + '\n'
                 value = ''
                 comment = ''
@@ -123,12 +120,11 @@ class sfit4_ctl:
 
         # last line has not yet been written!
         if len(value) > 0:
-            newlines.append(tag + ' = ' + value + 
-                            ' ' + comment + '\n')
+            newlines.append('{} = {} {}\n'.format(tag,value,comment))
             
 
         if not flag:
-            newlines.append(newtag + ' = ' + newvalue + '\n')
+            newlines.append('{} = {}\n'.format(newtag,newvalue))
         fido.close()
         fidn = open(ctlfile, 'w')
         fidn.writelines(newlines)
@@ -261,6 +257,7 @@ class statevec :
 
 class read_from_file:
     def __init__(self, filename):
+        self.filename = filename
         self.file = open(filename,'r')
         self.line = self.file.readline().split()
         self.count = len(self.line)
@@ -311,12 +308,12 @@ class read_from_file:
     def get_line(self):
         if self.count < 1:
             self.nextline()
-        line = string.join(self.line, ' ')
+        line = ' '.join(self.line)
         while len(line.strip()) == 0:
             self.nextline()
             if self.stat:
                 return()
-            line = string.join(self.line, ' ')
+            line = ' '.join(self.line)
         self.nextline()
         return(line)
 
@@ -326,15 +323,15 @@ class read_from_file:
 
             sep = re.compile('[ ,]')
             self.line = sep.split(self.file.readline().strip())
-            self.line = filter(bool,self.line)
+            self.line = list(filter(bool,self.line))
             self.count = len(self.line)
             if self.count < 1:
                 # Check for EOF if empty line. May be more elegantly solved using read_lines(), 
                 # but dont know yet how to do this
-                if len(self.file.read(1)) == 0:
+                if len(list(self.file.read(1))) == 0:
                     self.flag = -1
                     break
-                self.file.seek(-1,1)
+                self.file.seek(self.file.tell()-1,0)
                 
     def skipline(self, nr=1):
         for n in range(0,nr):
