@@ -5,13 +5,13 @@
  file.in.refprofile             = reference.prf
  file.in.spectrum               = spectrum
  file.in.solarlines             = /home/mathias/linelist/solar/120621/solar.dat
- file.in.linelist               = 00395.034545-00804.965455.hbin
+ file.in.linelist               = 00395.034545-01404.965455.hbin
 
  # Definition for retrieval gases
 
  gas.layers                  =              41
- gas.profile.list            = 
- gas.column.list            = CO2  O3 H2O CH4 N2O 
+ gas.profile.list            = O3
+ gas.column.list            = CO2 H2O CH4 N2O 
  gas.profile.O3.correlation               =              F
  gas.profile.O3.scale               =              1.0
  gas.profile.O3.sigma               = 
@@ -45,7 +45,7 @@
  fw.emission.normalized	     =	 	     F
  fw.continuum                = T
  fw.continuum.type           = 2
- fw.continuum.strength       = 1
+ fw.continuum.strength       = 2
  fw.continuum.z              = 0.5
  fw.tips = F
  # Retrieval parameter
@@ -65,7 +65,7 @@
  rt.slope.apriori            =           0.000
  rt.slope.sigma              =           0.100
  rt.temperature              =               F
- rt.continuum                = T
+ rt.continuum                = F
  rt.continuum.sigma          = 0.1
  rt.temperature.sigma =
  0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1
@@ -80,7 +80,7 @@
 
  band                        =  1   
  band.1.nu_start             =          400.0
- band.1.nu_stop              =          800.0
+ band.1.nu_stop              =          1400.0
  band.1.zshift               =               F
  band.1.beam                 =               0
  band.1.calc_point_space     =            0.04
