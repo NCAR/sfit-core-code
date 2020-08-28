@@ -380,7 +380,7 @@ SUBROUTINE CONTNM(JRAD)
 !                             SELF                                      
                                                                         
 !     Only calculate if V2 > -20. cm-1 and V1 <  20000. cm-1            
-!                                                                       
+      !
       if ((V2.gt.-20.0).and.(V1.lt.20000.) .and. xself.gt.0.) then      
          sh2ot0 = 0.
          sh2ot1 = 0.
@@ -455,10 +455,12 @@ SUBROUTINE CONTNM(JRAD)
 !                                                                       
 !           Interpolate to total optical depth grid                     
 
-               print *, cself(1:nptc)
                CALL XINT (V1C,V2C,DVC,cself,1.0,V1ABS,DVABS,ABSRB,1,NPTABS)
                                                 
-         endif                                                          
+            endif
+
+
+
 !                                                                       
 !=======================================================================
 !                             FOREIGN                                   
@@ -987,9 +989,7 @@ SUBROUTINE CONTNM(JRAD)
    40       CONTINUE                                                    
                                                                         
 
-               print *, '1'  
                CALL XINT (V1C,V2C,DVC,C,1.0,V1ABS,DVABS,ABSRB,1,NPTABS)
-               print *, '1'  
                                                                         
          endif                                                          
 !                                                                       
@@ -1172,7 +1172,8 @@ SUBROUTINE CONTNM(JRAD)
 !                                                                       
       endif                                                             
 !                                                                       
-  100 continue                                                          
+100   continue
+
                                                                         
       RETURN                                                            
 !                                                                       

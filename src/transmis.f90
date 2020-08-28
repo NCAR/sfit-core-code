@@ -26,6 +26,7 @@
       USE molcparam
       USE lineparam
       USE continuum
+      USE h2o_continuum
       IMPLICIT NONE
 
 ! --- TCONV and TCALC now allocated in setup
@@ -117,7 +118,7 @@
 
 
       !  --- Write out crossections per altitude and frequency
-      if (.true.) then
+      if (.false.) then
          print *, 'write out crosssections', ncross
          KSMAX2 = KZTAN(ISCAN(1,1))
          allocate(cross_all(NCROSS))
@@ -211,7 +212,13 @@
                IF (K <= KZTAN(JSCAN)) THEN
 
                   FACMAS = CCC(JSCAN,K)/PMASMX(K)
-!print*, 'ntran ',jscan, k, CCC(JSCAN,K), PMASMX(K), facmas
+                  !print*, 'ntran ',jscan, k, CCC(JSCAN,K), PMASMX(K), facmas
+
+                  IF (F_MTCKD) THEN
+                     CALL CALC_H2O_CONTINUUM('H2O ', K)
+                  END IF
+
+                  
                   ! ------------LOOP OVER FREQUENCIES
                   MXMAX = MXONE + NMON - 1
                   DO J = 1, NMON
@@ -239,7 +246,7 @@
                            ENDIF
                         ENDDO
                      ENDIF
-
+                     
                      IF (IFDIFF) THEN
                         ! ------------LOOP OVER RETRIEVAL GASES
                         DO IR = 2, NRET
@@ -265,36 +272,33 @@
                               ENDDO
                            ENDIF
                         ENDDO
-
+                        
                         ! ------------BACKGROUND GASES
                         CROSS_FACMAS(NRET+1,K,MSTOR) = CROSS(NRET+1,K,ICINDX2)*FACMAS
                         TCALC(IPOINT,MSTOR) = TCALC(IPOINT,MSTOR) + CROSS_FACMAS(NRET+1,K,MSTOR)
+                        IF(F_CONTINUUM) then
+                           CROSS_FACMAS(NRET+2,K,MSTOR) = CROSS(NRET+2,K,ICINDX2)*FACMAS
+                           TCALC(IPOINT,MSTOR) = TCALC(IPOINT,MSTOR) + CROSS_FACMAS(NRET+1,K,MSTOR)
+                        END IF
+                        if (F_MTCKD) then
+                           TCALC(IPOINT,MSTOR) = TCALC(IPOINT,MSTOR) + MTCKD_ABSRB(MSTOR)
+                        END if
 
                         IF (IEMISSION/=0) THEN
                            DO ALT=1,KSMAX2
                               IF (ZBAR(ALT) > ZBAR(K)) THEN
                                  TCALC_E(IPOINT,MSTOR,ALT) = &
-                                 TCALC_E(IPOINT,MSTOR,ALT) + CROSS_FACMAS(NRET+1,K,MSTOR)
+                                      TCALC_E(IPOINT,MSTOR,ALT) + CROSS_FACMAS(NRET+1,K,MSTOR)
+                                 IF(F_CONTINUUM) then
+                                    TCALC_E(IPOINT,MSTOR,ALT) = &
+                                         TCALC_E(IPOINT,MSTOR,ALT) + CROSS_FACMAS(NRET+2,K,MSTOR)
+                                 END IF
+                                 IF (F_MTCKD) THEN
+                                    TCALC_E(IPOINT,MSTOR,ALT) = TCALC_E(IPOINT,MSTOR,ALT) + MTCKD_ABSRB(MSTOR)
+                                 END if
                               ENDIF
                            ENDDO
                         ENDIF
-
-                        if (F_CONTINUUM) then
-                           CROSS_FACMAS(NRET+2,K,MSTOR) = CROSS(NRET+2,K,ICINDX2)*FACMAS
-                           TCALC(IPOINT,MSTOR) = TCALC(IPOINT,MSTOR) + CROSS_FACMAS(NRET+2,K,MSTOR)
-
-                           IF (IEMISSION/=0) THEN
-                              ! Transmission calculated below the layer ALT, needed
-                              ! for calculation of contribution to emission from
-                              ! layer ALT to the ground
-                              DO ALT=1,KSMAX2
-                                 IF (ZBAR(ALT) > ZBAR(K)) THEN
-                                    TCALC_E(IPOINT,MSTOR,ALT) = &
-                                         TCALC_E(IPOINT,MSTOR,ALT) + CROSS_FACMAS(NRET+2,K,MSTOR)
-                                 ENDIF
-                              ENDDO
-                           ENDIF
-                        END IF
                      ELSE
                         ! ------------LOOP OVER RETRIEVAL GASES
                         DO IR = 2, NRET
@@ -318,38 +322,37 @@
                         END DO
 
                         ! ------------BACKGROUND GASES
-                        CROSS_FACMAS(NRET+1,K,MSTOR) = CROSS(NRET+1,K,ICINDX)*FACMAS
+                        CROSS_FACMAS(NRET+1,K,MSTOR) = CROSS(NRET+1,K,ICINDX2)*FACMAS
                         TCALC(IPOINT,MSTOR) = TCALC(IPOINT,MSTOR) + CROSS_FACMAS(NRET+1,K,MSTOR)
+                        IF(F_CONTINUUM) then
+                           CROSS_FACMAS(NRET+2,K,MSTOR) = CROSS(NRET+2,K,ICINDX2)*FACMAS
+                           TCALC(IPOINT,MSTOR) = TCALC(IPOINT,MSTOR) + CROSS_FACMAS(NRET+1,K,MSTOR)
+                        END IF
+                        if (F_MTCKD) then
+                           TCALC(IPOINT,MSTOR) = TCALC(IPOINT,MSTOR) + MTCKD_ABSRB(MSTOR)*FACMAS
+                        END if
+
                         IF (IEMISSION/=0) THEN
-                          DO ALT=1,KSMAX2
-                 ! TRANSMISSION CALCULATED BELOW THE LAYER ALT, NEEDED
-                 ! FOR CALCULATION OF CONTRIBUTION TO EMISSION FROM
-                 ! LAYER ALT TO THE GROUND
-                             IF (ZBAR(ALT) > ZBAR(K)) THEN
+                           DO ALT=1,KSMAX2
+                              ! TRANSMISSION CALCULATED BELOW THE LAYER ALT, NEEDED
+                              ! FOR CALCULATION OF CONTRIBUTION TO EMISSION FROM
+                              ! LAYER ALT TO THE GROUND
+                              IF (ZBAR(ALT) > ZBAR(K)) THEN
                                 TCALC_E(IPOINT,MSTOR,ALT) = &
-                                TCALC_E(IPOINT,MSTOR,ALT) + CROSS_FACMAS(NRET+1,K,MSTOR)
+                                     TCALC_E(IPOINT,MSTOR,ALT) + CROSS_FACMAS(NRET+1,K,MSTOR)
+                                IF(F_CONTINUUM) then
+                                   TCALC_E(IPOINT,MSTOR,ALT) = &
+                                        TCALC_E(IPOINT,MSTOR,ALT) + CROSS_FACMAS(NRET+2,K,MSTOR)
+                                END IF
+                                IF (F_MTCKD) THEN
+                                   TCALC_E(IPOINT,MSTOR,ALT) = TCALC_E(IPOINT,MSTOR,ALT) + MTCKD_ABSRB(MSTOR)*FACMAS
+                                END IF
                              END IF
                           END DO
                        END IF
-                       ! ------------CONTINUA
-                       IF (F_CONTINUUM) THEN
-                          CROSS_FACMAS(NRET+2,K,MSTOR) = CROSS(NRET+2,K,ICINDX)*FACMAS
-                          TCALC(IPOINT,MSTOR) = TCALC(IPOINT,MSTOR) + CROSS_FACMAS(NRET+2,K,MSTOR)
-                          IF (IEMISSION/=0) THEN
-                             ! TRANSMISSION CALCULATED BELOW THE LAYER ALT, NEEDED
-                             ! FOR CALCULATION OF CONTRIBUTION TO EMISSION FROM
-                             ! LAYER ALT TO THE GROUND
-                             DO ALT=1,KSMAX2
-                                IF (ZBAR(ALT) > ZBAR(K)) THEN
-                                   TCALC_E(IPOINT,MSTOR,ALT) = &
-                                        TCALC_E(IPOINT,MSTOR,ALT) + CROSS_FACMAS(NRET+2,K,MSTOR)
-                                ENDIF
-                             ENDDO
-                          ENDIF
-                       END IF
-                    ENDIF
+                    END IF
                  END DO
-              ENDIF
+              END IF
            ENDIF
            MADD = MADD + NM(IBAND)
         END DO

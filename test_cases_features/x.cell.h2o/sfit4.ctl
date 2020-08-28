@@ -46,7 +46,7 @@
  fw.emission                 =               F
  fw.isotope_separation       =              F
  fw.tips = F
- fw.mtckd_continuum = T
+ fw.mtckd_continuum = F
 
  # CELL parameter
  cell = 1
@@ -58,7 +58,7 @@
 
 
 # Retrieval parameter
- rt                          =            T
+ rt                          =            F
  rt.lm                               = T
  rt.lm.gamma_start                   = 1.0e5
  rt.lm.gamma_inc                     = 10.0
