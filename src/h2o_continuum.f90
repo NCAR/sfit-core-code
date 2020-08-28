@@ -1,3 +1,4 @@
+
 module h2o_continuum
 
   use params
@@ -8,7 +9,7 @@ module h2o_continuum
 
   implicit none
   
-  real(double), dimension(:,:,:), allocatable :: mtckd
+  real(double), dimension(:), allocatable :: mtckd_absrb
   logical :: f_mtckd = .false.
   
 contains
@@ -20,7 +21,8 @@ contains
     IMPLIcit none
     real (double) :: v1a,v2a,dva,vft,dvr3, argmin, onepl, onemi
     real (double) :: b,b1,b2,p,c,conti,recdva,vi,vj
-    real (double), dimension(*) :: a,r3
+    real (double), dimension(*) :: a
+    real (double), dimension(*) :: r3
     integer :: n1r3,ilo,ihi,i,j
     integer(4) :: n2r3
     !                                                       
@@ -39,7 +41,8 @@ contains
     ILO = MAX(ILO,N1R3)                                   
     IHI = int((V2A-DVA-VFT)/DVR3+ONEMI)                        
     IHI = MIN(IHI,N2R3)                                   
-    !                                                           
+    !
+
     DO  I = ILO, IHI                                    
        VI = VFT+DVR3*FLOAT(I-1)                           
        J = int((VI-V1A)*RECDVA+ONEPL)                          
@@ -49,8 +52,8 @@ contains
        B = 0.5*P*(1.-P)                                             
        B1 = B*(1.-P)                                                
        B2 = B*P                                                     
-       CONTI = -A(J-1)*B1+A(J)*(1.-C+B2)+A(J+1)*(C+B1)-A(J+2)*B2    
-       R3(I) = CONTI                                        
+       CONTI = -A(J-1)*B1+A(J)*(1.-C+B2)+A(J+1)*(C+B1)-A(J+2)*B2
+       R3(I) = CONTI
     end DO
     !                                                                     
     RETURN                                                          
@@ -60,14 +63,14 @@ contains
 
 
   
-  subroutine calc_h2o_continuum(gas)
+  subroutine calc_h2o_continuum(gas,k)
     ! calculates the continuum absorption for a given gas and for a given atmoshere
-    ! It is a wrapper for the MT-CKD continuum and sets up the variables for
+    ! It is a wrapper for the MT-CKD continuum and sets up the variables for the cntnm routine
+    ! K is the altitude number transfered from the main sfit4 program
     
     
     
-    
-    real(double) :: V1ABS,V2ABS,DVABS, ABSRB
+    real(double) :: V1ABS,V2ABS,DVABS,ABSRB
     integer :: NPTABS, NMOL_C,LAYER ,LSTWDF,NPTC,NPTh
     integer :: IRD,IPRcnt,IPU,NOPR,NFHDRF,NPHDRF,NFHDRL,NPHDRL
     integer :: NLNGTH,KFILE,KPANEL,LINFIL,NFILE,IAFIL,IEXFIL  
@@ -111,7 +114,7 @@ contains
     
     icflg = -999
     !
-    select case (gas)
+    select case (trim(gas(1:4)))
     case ('H2O')
        xself = 1.0d0
        XFRGN = 1.0d0
@@ -127,120 +130,120 @@ contains
        XRAYL = 0.0d0
     end select
     
-    kvert = nspec + 1
     mxone = 1
     
-    ksmax2 = kztan(iscan(1,1))
-    
     do iband = 1, nband
-       do k = 1, ksmax2
-          pave = p(k)*1013.15d0 ! convert in mbar
-          tave = t(k)
-
-          w_dry = ccc(kvert,k)
-          ! IF the GASES ARE not retrieved, take them from reference.prf
-          do i = 1,ngas
-             if( trim(name(icode(kk))) .eq. trim('H2O')) then
-                vmrh2o = xgas(i,k)
-             end if
-             if( trim(name(icode(kk))) .eq. trim('CO2')) then
-                wk(2) = xgas(i,k)*w_dry!ccc(kvert,k)
-             end if
-!             if( trim(name(icode(kk))) .eq. trim('O3')) then
-!                wk(3) = xgas(i,k)*w_dry!ccc(kvert,k)
-!             end if
-             ! oxygen and nitrogen may be deleted if there are no lines. This is especially
-             ! true for O2 in the 330-1300 1/cmregion
-             ! so we use the default mixing ratio
-             wn2 = 0.79*w_dry
-             wk(7) = 0.21*w_dry
-          end do
+       pave = p(k)*1013.15d0 ! convert in mbar
+       tave = t(k)
+       w_dry = ccc(nret+1,k)
 
 
-          ! Check if they are retrieved and replace default value by the retrieved one.
-          ! H2O          
-          do kk = 1, nret
-             if( trim(name(igas(kk))) .eq. trim('H2O')) then
-                vmrh2o = x(kk,k)
-             end if
-          end do
-          wk(1) = vmrh2o*w_dry
+       ! IF the GASES ARE not retrieved, take them from reference.prf
+       do i = 1,ngas
+          if( trim(name(icode(kk))) .eq. trim('H2O')) then
+             vmrh2o = xgas(i,k)
+          end if
           
-          !ARGON
-          WA     = 0.009     * W_dry 
-          
-          !NITROGEN
-          do kk = 1, nret
-             if( trim(name(igas(kk))) .eq. trim('N2')) then
-                wn2 = x(kk,k)*w_dry!ccc(kvert,k)
-             end if
-          end do
-          
-          ! CO2
-
-          do kk = 1, nret
-             if( trim(name(igas(kk))) .eq. trim('CO2')) then
-                wk(2) = x(kk,k)*w_dry!ccc(kvert,k)
-             end if
-          end do
-          
-          ! Ozone
-          wk(3) = xgas(3,k)*w_dry!ccc(kvert,k)
-          do kk = 1, nret
-             if( trim(name(igas(kk))) .eq. trim('O3')) then
-                wk(3) = x(kk,k)*w_dry!ccc(kvert,k)
-             end if
-          end do
-          
-          ! Oxygen
-          do kk = 1, nret
-             if( trim(name(igas(kk))) .eq. trim('O2')) then
-                wk(7) = x(kk,k)*w_dry!ccc(kvert,k)
-             end if
-          end do
-          
-          
-          wbroad=wn2+wa
-          nmol_c = 7
-          
-          nmon = nm(iband)
-          dvabs = 2.0d0
-          v1abs = floor(wstart(iband))
-          v2abs = ceiling((wstart(iband) + nm(iband)*dn(iband))/dvabs)*int(dvabs)
-          nptabs = int((v2abs - v1abs)/dvabs)
-          v1 = v1abs
-          v2 = v2abs
-          dv = dvabs
-
-!          print *, wstart(iband), wstart(iband) + nm(iband)*dn(iband), v1,v2,dv,nptabs
-          
-          absrb(1:n_absrb)=0.0
-          
-          call contnm(1)
-          !
-!          writes out the continuum absorption at every step. Can be used to compare to original
-!          cntnm absorption code by AER         
-          open(10, file='h2ocont')
-           write(10,*)  wk(1), wk(2), wk(3), wk(4), wk(5), wk(6), wk(7)
-           write(10,*)  wbroad, pave
-           write(10,*)  v1,v2,dv
-           DO I=1,NPTABS
-              VI=V1ABS+dble(I-1)*DVABS
-              WRITE (10, 910) VI, ABSRB(I)
-           end DO
-           close(10)
-
-           call xint(v1abs,v2abs,dvabs,absrb,wstart(iband),dn(iband),mtckd(1, k, mxone:mxone+nm(iband)-1),1,nm(iband))
-           open(11, file='h2ocont_fine')
-           DO I=1,nm(iband)
-              VI=wstart(iband)+dble(I-1)*dn(iband)
-              WRITE (11, 910) VI, mtckd(1, k, i)
-           end DO
-           !          print *, k, mxone,mxone+nmon
-           close(11)
-910        FORMAT(F10.3,1P,E12.3)
+          if( trim(name(icode(kk))) .eq. trim('CO2')) then
+             wk(2) = xgas(i,k)*w_dry!ccc(kvert,k)
+          end if
+          !             if( trim(name(icode(kk))) .eq. trim('O3')) then
+          !                wk(3) = xgas(i,k)*w_dry!ccc(kvert,k)
+          !             end if
+          ! oxygen and nitrogen may be deleted if there are no lines. This is especially
+          ! true for O2 in the 330-1300 1/cmregion
+          ! so we use the default mixing ratio
+          wn2 = 0.79*w_dry
+          wk(7) = 0.21*w_dry
        end do
+       
+       
+       ! Check if they are retrieved and replace default value by the retrieved one.
+       ! H2O          
+       do kk = 1, nret
+          if( trim(name(igas(kk))) .eq. trim('H2O')) then
+             vmrh2o = x(kk,k)
+          end if
+       end do
+
+              
+       wk(1) = vmrh2o*w_dry
+       
+       !ARG
+       WA     = 0.009     * W_dry 
+       
+       !NITROGEN
+       do kk = 1, nret
+          if( trim(name(igas(kk))) .eq. trim('N2')) then
+             wn2 = x(kk,k)*w_dry!ccc(kvert,k)
+          end if
+       end do
+       
+       ! CO2
+       
+       do kk = 1, nret
+          if( trim(name(igas(kk))) .eq. trim('CO2')) then
+             wk(2) = x(kk,k)*w_dry!ccc(kvert,k)
+          end if
+       end do
+       
+       ! Ozone
+       wk(3) = xgas(3,k)*w_dry!ccc(kvert,k)
+       do kk = 1, nret
+          if( trim(name(igas(kk))) .eq. trim('O3')) then
+             wk(3) = x(kk,k)*w_dry!ccc(kvert,k)
+          end if
+       end do
+       
+       ! Oxygen
+       do kk = 1, nret
+          if( trim(name(igas(kk))) .eq. trim('O2')) then
+             wk(7) = x(kk,k)*w_dry!ccc(kvert,k)
+          end if
+       end do
+       
+       
+       wbroad=wn2+wa
+       nmol_c = 7
+       
+       nmon = nm(iband)
+       dvabs = 2.0d0
+       v1abs = floor(wstart(iband)-10.0d0)
+       v2abs = ceiling((wstart(iband) + nm(iband)*dn(iband)+10.0d0)/dvabs)*int(dvabs)
+       nptabs = int((v2abs - v1abs)/dvabs)
+       v1 = v1abs
+       v2 = v2abs
+       dv = dvabs
+       
+       !          print *, wstart(iband), wstart(iband) + nm(iband)*dn(iband), v1,v2,dv,nptabs
+       
+       absrb(1:n_absrb)=0.0
+       
+       call contnm(1)
+       !
+       !          writes out the continuum absorption at every step. Can be used to compare to original
+       !          cntnm absorption code by AER         
+       open(10, file='h2ocont')
+       write(10,*)  wk(1), wk(2), wk(3), wk(4), wk(5), wk(6), wk(7)
+       write(10,*)  wbroad, pave, tave
+       write(10,*)  v1,v2,dv
+       DO I=1,NPTABS
+          VI=V1ABS+dble(I-1)*DVABS
+          WRITE (10, 910) VI, ABSRB(I)
+       end DO
+       close(10)
+
+       call xint(v1abs,v2abs,dvabs,absrb,wstart(iband),dn(iband),mtckd_absrb, mxone, mxone+nm(iband)-1)
+       open(11, file='h2ocont_fine')
+       DO I=1,nm(iband)
+          VI=wstart(iband)+dble(I-1)*dn(iband)
+          WRITE (11, 910) VI, mtckd_absrb(i)
+       end DO
+       !          print *, k, mxone,mxone+nmon
+       close(11)
+910    FORMAT(F10.3,1P,E15.6)
     end do
+ 
     mxone = mxone + nmon
   end subroutine calc_h2o_continuum
 
