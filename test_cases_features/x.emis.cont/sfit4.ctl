@@ -1,111 +1,119 @@
-
- # General
-
- file.in.stalayers              = station.layers
- file.in.refprofile             = reference.prf
- file.in.spectrum               = spectrum
- file.in.solarlines             = /home/mathias/linelist/solar/120621/solar.dat
- file.in.linelist               = 00395.034545-01404.965455.hbin
-
- # Definition for retrieval gases
-
- gas.layers                  =              41
- gas.profile.list            = O3
- gas.column.list            = CO2 H2O CH4 N2O 
- gas.profile.O3.correlation               =              F
- gas.profile.O3.scale               =              1.0
- gas.profile.O3.sigma               = 
- 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 
- 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 
- 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 
- 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 
- 0.1
- gas.column.O3.scale               =              1.0
- gas.column.O3.sigma               = 0.1 
- gas.column.CO2.scale               =             1.0
- gas.column.CO2.sigma               = 1.0 
- gas.column.H2O.scale              =          1.0
- gas.column.H2O.sigma               = 1.0 
- gas.column.CH4.scale              =          1.0
- gas.column.CH4.sigma               = 1.0 
- gas.column.N2O.scale              =          1.0
- gas.column.N2O.sigma               = 1.0 
- gas.column.CO.scale              =          1.0
- gas.column.CO.sigma               = 1.0 
-
-
- # Forward model parameters
-
- fw.delnu                    =           0.10000
- fw.lshapemodel              =               0
- fw.pressure_shift           =               T
- fw.emission                 =               T
- fw.emission.T_infinity      =		   2.7
- fw.emission.object	     =  	    .e.
- fw.emission.normalized	     =	 	     F
- fw.continuum                = T
- fw.continuum.type           = 2
- fw.continuum.strength       = 2
- fw.continuum.z              = 0.5
- fw.tips = F
- # Retrieval parameter
-
- rt                          =               F
- rt.lm                       =               T
- rt.lm.gamma_start           =           1.0e3
- rt.lm.gamma_inc             =           1.0e1
- rt.lm.gamma_dec             =           1.0e1
- rt.convergence              =           0.1
- rt.max_iteration            =              17
- rt.wshift                   =               F
- rt.wshift.type              = 3
- rt.wshift.apriori           =           0.000
- rt.wshift.sigma             =           0.100
- rt.slope                    =               F
- rt.slope.apriori            =           0.000
- rt.slope.sigma              =           0.100
- rt.temperature              =               F
- rt.continuum                = F
- rt.continuum.sigma          = 0.1
- rt.temperature.sigma =
- 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1
- 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1
- 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1
- 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1
- 0.1 
-
-
-
- # Microwindows and their parameters
-
- band                        =  1   
- band.1.nu_start             =          400.0
- band.1.nu_stop              =          1400.0
- band.1.zshift               =               F
- band.1.beam                 =               0
- band.1.calc_point_space     =            0.04
- band.1.wave_factor          =           1.000
- band.1.max_opd                 =         11.0
- band.1.omega                =            26.0 
- band.1.apodization_code        =               0
- band.1.gasb                 = CO2 O3 N2O CH4 H2O
- band.1.tempretb = F   
-
- band.2.nu_start             =           750.0
- band.2.nu_stop              =           800.0
- band.2.zshift               =               1
- band.2.beam                 =               0
- band.2.dn                   =            0.4
- band.2.wavfac               =           1.000
- band.2.pmax                 =            1.00
- band.2.omega                =             3.86
- band.2.iap                  =               0
- band.2.snr                  =          0.0007
- band.2.gasb                 = O3     CO2 H2O
-
-
-
- out.level = 1
- out.gas_spectra = T
- out.gas_spectra.type = 1
- out.pbpfile = T
+file.in.stalayers = station.layer 
+file.in.refprofile = reference.prf 
+file.in.spectrum = spectrum 
+file.in.solarlines = /usr/local/share/linelist_v0.9/solar/120621/solar.dat
+file.in.linelist = 00495.065556-01404.934444.hbin
+file.out.pbpfile = pbpfile 
+gas.layers = 20
+gas.profile.list = O3 
+gas.column.list = CO2 CH4 N2O H2O 
+gas.profile.O3.regmethod = 'OEM' 
+gas.profile.O3.regmethod.lambda = 0.01 
+gas.profile.O3.correlation = F 
+gas.profile.O3.logstate = F 
+gas.profile.O3.scale = 1.0 
+gas.profile.O3.sigma = 0.4   0.4   0.4   0.4   0.4  0.4   0.4   0.4   0.4   0.4 0.4   0.4   0.4   0.4   0.4  0.4   0.4   0.4   0.4   0.4 0.4   0.4   0.4   0.4   0.4  0.4   0.4   0.4   0.4   0.4 0.4   0.4   0.4   0.4   0.4  0.4   0.4   0.4   0.4   0.4 0.4   0.4   0.4   0.4   0.4  0.4   0.4   0.4   0.4   0.4 0.4   0.4   0.4   0.4   0.4  0.4   0.4   0.4   0.4   0.4 0.4   0.4   0.4   0.4   0.4  0.4   0.4   0.4   0.4   0.4 0.4   0.4   0.4   0.4 0.4   0.4 
+gas.profile.H2O.regmethod = 'TP' 
+gas.profile.H2O.regmethod.lambda = 0.001 
+gas.profile.H2O.correlation = F 
+gas.profile.H2O.logstate = F 
+gas.profile.H2O.scale = 1.0 
+gas.profile.H2O.sigma = 1.0   1.0   1.0   1.0   1.0  1.0   1.0   1.0   1.0   1.0 1.0   1.0   1.0   1.0   1.0  1.0   1.0   1.0   1.0   1.0 1.0   1.0   1.0   1.0   1.0  1.0   1.0   1.0   1.0   1.0 1.0   1.0   1.0   1.0   1.0  1.0   1.0   1.0   1.0   1.0 1.0   1.0   1.0   1.0   1.0  1.0   1.0   1.0   1.0   1.0 1.0   1.0   1.0   1.0   1.0  1.0   1.0   1.0   1.0   1.0 1.0   1.0   1.0   1.0   1.0  1.0   1.0   1.0   1.0   1.0 1.0   1.0   1.0   1.0 
+gas.column.O3.scale = 1.0 
+gas.column.O3.sigma = 1.0 
+gas.column.CO2.scale = 1.0 
+gas.column.CO2.sigma = 1.0 
+gas.column.H2O.scale = 1.0 
+gas.column.H2O.sigma = 1.0 
+gas.column.HNO3.scale = 1.0 
+gas.column.HNO3.sigma = 1.0 
+gas.column.NH3.scale = 1.0 
+gas.column.NH3.sigma = 1.0 
+gas.column.CH4.scale = 1.0 
+gas.column.CH4.sigma = 1.0 
+gas.column.CO.scale = 1.0 
+gas.column.CO.sigma = 1.0 
+gas.column.CCL2F2.scale = 1.0 
+gas.column.CCL2F2.sigma = 1.0 
+gas.column.CCL4.scale = 1.0 
+gas.column.CCL4.sigma = 1.0 
+gas.column.CH4.scale = 1.0 
+gas.column.CH4.sigma = 1.0 
+gas.column.N2O.scale = 1.0 
+gas.column.N2O.sigma = 1.0 
+fw.delnu = 1.00000 
+fw.lshapemodel = 4
+fw.linemixing = F 
+fw.pressure_shift = T 
+fw.emission = T
+fw.emission.T_infinity = 2.7 
+fw.emission.object = .e. 
+fw.emission.normalized = F
+fw.tips = F
+fw.mtckd_continuum = F
+#fw.continuum = F 
+#fw.continuum.type = 1 
+#fw.continuum.order = 4 
+#fw.continuum.strength = 0.0 
+rt = F
+rt.lm = T 
+rt.lm.gamma_start = 1.0e2 
+rt.lm.gamma_inc = 1.0e1 
+rt.lm.gamma_dec = 1.0e1 
+rt.convergence = 0.1 
+rt.max_iteration = 17 
+rt.wshift = F
+rt.wshift.type = 2 
+rt.wshift.apriori = 0.0 
+rt.wshift.sigma = 0.1 
+rt.slope = F 
+rt.slope.apriori = 0.000 
+rt.slope.sigma = 0.100 
+rt.continuum = F 
+rt.continuum.sigma = 0.1 
+rt.temperature = F 
+rt.temperature.sigma = 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 
+band = 1 
+band.1.nu_start = 500.0 
+band.1.nu_stop = 1400.0 
+band.1.zshift = F 
+band.1.calc_point_space = 0.1
+band.1.wave_factor = 1.0
+band.1.max_opd = 10.0
+band.1.omega = 22.22
+band.1.apodization_code = 0 
+band.1.gasb = H2O O3 CO2 CH4 N2O 
+band.1.tempretb = F 
+out.level = 1 
+out.gas_spectra = T 
+out.parm_vectors = F 
+out.k_matrix = T 
+out.ak_matrix = T 
+out.g_matrix = T 
+out.sa_matrix = T 
+out.sainv_matrix = T 
+out.shat_matrix = T 
+out.seinv_vector = T 
+out.retprofiles = T 
+out.aprprofiles = T 
+out.pbpfile = T 
+out.statevec = T 
+file.out.statevec = statevec 
+file.out.ak_matrix = ak.out 
+file.out.k_matrix = k.out 
+file.out.g_matrix = g.out 
+file.out.kb_matrix = kb.out 
+file.out.sa_matrix = sa.out 
+file.out.sainv_matrix = sainv.out 
+file.out.shat_matrix = shat.out 
+file.out.seinv_vector = seinv.out 
+file.out.retprofiles = rprfs.table 
+file.out.aprprofiles = aprfs.table 
+file.out.summary = summary 
+kb = F 
+kb.temperature = T 
+kb.phase = T 
+kb.slope = F 
+kb.curvature = F 
+kb.omega = T 
+kb.zshift = T 

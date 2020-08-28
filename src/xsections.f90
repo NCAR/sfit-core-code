@@ -304,8 +304,20 @@
 !print*, 'kro 8 azero ', AZERO(N), P(K), PSLIN(N)
 !  --- IF NO PRESSURE SHIFT, pCqSDHC calculates it own pressure shift
                IF( (.NOT. FPS).OR.(LSHAPEMODEL.EQ.4) ) WLIN = AZERO(N)
-               START = WLIN - DIST
-               SSTOP = WLIN + DIST
+               IF ((MO.EQ.1).AND.F_MTCKD) THEN
+                  ! VERY WIDE CALCULATIONS FOR USE WITH MTCKD H2O CONTINUUM
+                  ! THE LINES ARE SET TO ZERO AT THE START AND END TO AVOIND DOUBLE CALCULATION OF CONTINUUM
+                  START = WLIN - 25.0
+                  SSTOP = WLIN + 25.0
+                  ANUZ = WMON(IBAND) - 25.0
+                  XDUM = ALOGSQ*(ANUZ - WLIN)/ADOP
+                  XDUM = ABS(XDUM)
+                  AKV_OFFSET  = AKZERO*VOIGT(XDUM,YDUM)
+               ELSE
+                  START = WLIN - DIST
+                  SSTOP = WLIN + DIST
+                  AKV_OFFSET = 0.0D0
+               END IF
                JSTART = FLOOR((START - WMON(IBAND))/DN(IBAND) + 1.00000001D0)
                JSTOP = FLOOR((SSTOP - WMON(IBAND))/DN(IBAND) + 1.00000001D0)
 !print*, 'kro 9 ',WLIN, dist, START, sstop, jstart, jstop, WMON(IBAND)
@@ -313,14 +325,6 @@
                IF (JSTART > NM(IBAND)) CYCLE
                JSTART = MAX0(1,JSTART)
                JSTOP = MIN0(NM(IBAND),JSTOP)
-               IF ((MO.EQ.1).AND.F_MTCKD) THEN
-                  ANUZ = WMON(IBAND) - 25.0
-                  XDUM = ALOGSQ*(ANUZ - WLIN)/ADOP
-                  XDUM = ABS(XDUM)
-                  AKV_OFFSET  = AKZERO*VOIGT(XDUM,YDUM)
-               ELSE
-                  AKV_OFFSET = 0.0D0
-               END IF
                DO J = JSTART, JSTOP
                   ANUZ = WMON(IBAND) + (J - 1)*DN(IBAND)
                   XDUM = ALOGSQ*(ANUZ - WLIN)/ADOP
