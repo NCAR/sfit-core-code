@@ -322,10 +322,10 @@
                         END DO
 
                         ! ------------BACKGROUND GASES
-                        CROSS_FACMAS(NRET+1,K,MSTOR) = CROSS(NRET+1,K,ICINDX2)*FACMAS
+                        CROSS_FACMAS(NRET+1,K,MSTOR) = CROSS(NRET+1,K,ICINDX)*FACMAS
                         TCALC(IPOINT,MSTOR) = TCALC(IPOINT,MSTOR) + CROSS_FACMAS(NRET+1,K,MSTOR)
                         IF(F_CONTINUUM) then
-                           CROSS_FACMAS(NRET+2,K,MSTOR) = CROSS(NRET+2,K,ICINDX2)*FACMAS
+                           CROSS_FACMAS(NRET+2,K,MSTOR) = CROSS(NRET+2,K,ICINDX)*FACMAS
                            TCALC(IPOINT,MSTOR) = TCALC(IPOINT,MSTOR) + CROSS_FACMAS(NRET+1,K,MSTOR)
                         END IF
                         if (F_MTCKD) then
