@@ -241,9 +241,9 @@ class test_sfit4:
             diverge *= 2
             diverge /= self.results[rs]['chi_y_2'] + self.results_orig[rs]['chi_y_2']
             if np.abs(diverge) < 0.01:
-                str += 'RESULTS OK (less than 1 {}\n'.format(rs)
+                str += 'RESULTS OK CHI_2_Y diverges by less than 1 %\n'
             else:
-                str += 'CHI_2_Y DIVERGES BY {1:1% %\n'.format(rs, diverge)
+                str += 'CHI_2_Y DIVERGES BY {1:1%} %\n'.format(rs, diverge)
 
         str += '\n\n'
         str += 'Numbers of the runs are found in file {}\n'.format(self.resultfile)
