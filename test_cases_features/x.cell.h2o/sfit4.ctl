@@ -46,7 +46,7 @@
  fw.emission                 =               F
  fw.isotope_separation       =              F
  fw.tips = F
- fw.mtckd_continuum = F
+ fw.mtckd_continuum = T
 
  # CELL parameter
  cell = 1
