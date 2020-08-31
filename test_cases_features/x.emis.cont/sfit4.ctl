@@ -1,10 +1,10 @@
 file.in.stalayers = station.layer 
-file.in.refprofile = reference.prf 
+file.in.refprofile = reference_justus.prf 
 file.in.spectrum = spectrum 
 file.in.solarlines = /usr/local/share/linelist_v0.9/solar/120621/solar.dat
 file.in.linelist = 00495.065556-01404.934444.hbin
 file.out.pbpfile = pbpfile 
-gas.layers = 20
+gas.layers = 18
 gas.profile.list = O3 
 gas.column.list = CO2 CH4 N2O H2O 
 gas.profile.O3.regmethod = 'OEM' 
