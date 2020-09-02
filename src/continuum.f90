@@ -75,6 +75,7 @@ contains
                    do l = 1,n_contabs-1
                       polynom = polynom + param(l+1)*(((wone+dble(j)*dn(iband))-wmid)/(wxne-wone))**l
                    end do
+         
                    CROSS(nret+2,K,j) = CROSS(nret+2,K,j) + polynom*(P(k)/P(kmax))
                    !                print *,  CROSS(nret+2,K,j)
                 end do
@@ -86,7 +87,6 @@ contains
           ! z_abs with the absorbing strength cont_alpha (can be retrieved)
           mone = 1
           CROSS(nret+2,:KMAX,:ncross) = 0.0d0
-          cont_alpha = param(1)
           DO IBAND = 1, NBAND
              mxne = mone + nm(iband) - 1
              wone = wstart(iband)
@@ -99,7 +99,7 @@ contains
                       do l = 1,n_contabs-1
                          polynom = polynom + param(l+1)*(((wone+dble(j)*dn(iband))-wmid)/(wxne-wone))**l
                       end do
-                      CROSS(nret+2,K,j) = CROSS(nret+2,K,j) - polynom
+                      CROSS(nret+2,K,j) = CROSS(nret+2,K,j) + polynom
                    end do
                 end IF
              end DO

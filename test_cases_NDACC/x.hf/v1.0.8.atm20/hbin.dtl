@@ -1,0 +1,157 @@
+************
+Running hbin
+************
+  SFIT4:v1.0.8   :Off-Release -- June 2020 runtime:20200716-09:16:32
+  This hbin version uses quanta from HITRAN to attribute extra parameters to each transition record.
+
+Found number of bands :          2
+ 
+    1    4038.70000    4034.64142    4039.20000    4043.25858     180.000    0.000900
+    2    4109.40000    4105.34142    4110.20000    4114.25858     180.000    0.000900
+ 
+
+Path to Linelist : /data/ebaumer/Code/linelist-core/
+Number of HITRAN files to search :         99
+ 
+ File : /data/ebaumer/Code/linelist-core/001_H2O/001_H2O+HDO.atm.20200512
+   4034.641422   4114.258578     1    10     1     1     4034.641501
+ 
+ File : /data/ebaumer/Code/linelist-core/002_CO2/002_CO2.atm.20200512
+   4034.641422   4114.258578     2    11     2     2     4034.714200
+ 
+ File : /data/ebaumer/Code/linelist-core/003_O3/003_O3.atm.20200512
+   4034.641422   4114.258578     3    12     3     3     4034.875910
+ 
+ File : /data/ebaumer/Code/linelist-core/004_N2O/004_N2O.atm.20200512
+   4034.641422   4114.258578     4    13     4     4     4034.738260
+ 
+ File : /data/ebaumer/Code/linelist-core/005_CO/005_CO.atm.20200512
+   4034.641422   4114.258578     5    14     5     5     4034.780200
+ 
+ File : /data/ebaumer/Code/linelist-core/006_CH4/006_CH4.atm.20200512
+   4034.641422   4114.258578     6    15     6     6     4034.641661
+ 
+ File : /data/ebaumer/Code/linelist-core/009_SO2/009_SO2.atm.20200512
+   4034.641422   4114.258578     7    16     9     9     4034.656420
+ 
+ File : /data/ebaumer/Code/linelist-core/011_NH3/011_NH3.atm.20200512
+   4034.641422   4114.258578     8    17    11    11     4036.028997
+ 
+ File : /data/ebaumer/Code/linelist-core/013_OH/013_OH.atm.20200512
+   4034.641422   4114.258578     9    18    13    13     4037.793300
+ 
+ File : /data/ebaumer/Code/linelist-core/014_HF/014_HF.atm.20200512
+   4034.641422   4114.258578    10    19    14    14     4038.962068
+ 
+ File : /data/ebaumer/Code/linelist-core/017_HI/017_HI.atm.20200512
+   4034.641422   4114.258578    11    20    17    17     4047.597047
+ 
+ File : /data/ebaumer/Code/linelist-core/019_OCS/019_OCS.atm.20200512
+   4034.641422   4114.258578    12    21    19    19     4034.663497
+ 
+ File : /data/ebaumer/Code/linelist-core/028_HCN/028_HCN.atm.20200512
+   4034.641422   4114.258578    13    22    28    28     4034.683701
+ 
+ File : /data/ebaumer/Code/linelist-core/047_H2S/047_H2S.atm.20200512
+   4034.641422   4114.258578    14    23    47    47     4034.685590
+
+                   Number of HITRAN molecules/files found :         14
+
+                        Number of Galatry files to search :          2
+Found Galatry line file : /data/ebaumer/Code/linelist-core/014_HF/14_hit16_Galatry.txt
+ File : /data/ebaumer/Code/linelist-core/014_HF/14_hit16_Galatry.txt
+   4034.641422   4114.258578     1    24    76    14
+Found Galatry line file : /data/ebaumer/Code/linelist-core/015_HCL/15_hit16_Galatry.txt
+ File : /data/ebaumer/Code/linelist-core/015_HCL/15_hit16_Galatry.txt
+   4034.641422   4114.258578     2    25    76    15
+
+                        Number of Galatry molecules found :          2
+
+                             Number of LM files to search :          1
+Found LineMix line file : /data/ebaumer/Code/linelist-core/002_CO2/002_CO2.hit16_LM1ST.par
+ 
+ File : /data/ebaumer/Code/linelist-core/002_CO2/002_CO2.hit16_LM1ST.par
+   4034.641422   4114.258578     1    26    15
+
+                             Number of LM molecules found :          1
+
+                            Number of SDV files to search :          1
+Found SDVoigt line file : /data/ebaumer/Code/linelist-core/005_CO/05_hit16_SDV.txt
+ 
+ File : /data/ebaumer/Code/linelist-core/005_CO/05_hit16_SDV.txt
+   4034.641422   4114.258578     1    27    15
+
+                            Number of SDV molecules found :          1
+
+NUMBER OF ISOTOPES TO SEPARATE = 5
+ OLD NAME, ID, ISO     NEW NAME, ID, ISO    TDEP   S-SCALE
+ H2O        1    2     H218O     56    1     1.50  1.000000
+    3650, 1    1588, 1    3742, 1
+ H2O        1    3     H217O     57    1     1.50  1.000000
+    3657, 1    1595, 1    3756, 1
+ H2O        1    4     HDO       54    1     1.50  1.000000
+    2724, 1    1403, 1    3707, 1
+ADDING ISOTOPE  54/ 2 TO MOLECULE  54/ 1
+ H2O        1    5     HDO       54    2
+ADDING ISOTOPE  54/ 3 TO MOLECULE  54/ 1
+ H2O        1    6     HDO       54    3
+
+Saving binary line data to : 04034.641422-04114.258578.hbin
+Saving ascii line data to  : 04034.641422-04114.258578.hasc
+
+HITRAN file for input:
+index molid  lun  wavnum    name
+    1    1   10  4034.64150  /data/ebaumer/Code/linelist-core/001_H2O/001_H2O+HDO.atm.20200512
+    2    2   11  4034.71420  /data/ebaumer/Code/linelist-core/002_CO2/002_CO2.atm.20200512
+    3    3   12  4034.87591  /data/ebaumer/Code/linelist-core/003_O3/003_O3.atm.20200512
+    4    4   13  4034.73826  /data/ebaumer/Code/linelist-core/004_N2O/004_N2O.atm.20200512
+    5    5   14  4034.78020  /data/ebaumer/Code/linelist-core/005_CO/005_CO.atm.20200512
+    6    6   15  4034.64166  /data/ebaumer/Code/linelist-core/006_CH4/006_CH4.atm.20200512
+    7    9   16  4034.65642  /data/ebaumer/Code/linelist-core/009_SO2/009_SO2.atm.20200512
+    8   11   17  4036.02900  /data/ebaumer/Code/linelist-core/011_NH3/011_NH3.atm.20200512
+    9   13   18  4037.79330  /data/ebaumer/Code/linelist-core/013_OH/013_OH.atm.20200512
+   10   14   19  4038.96207  /data/ebaumer/Code/linelist-core/014_HF/014_HF.atm.20200512
+   11   17   20  4047.59705  /data/ebaumer/Code/linelist-core/017_HI/017_HI.atm.20200512
+   12   19   21  4034.66350  /data/ebaumer/Code/linelist-core/019_OCS/019_OCS.atm.20200512
+   13   28   22  4034.68370  /data/ebaumer/Code/linelist-core/028_HCN/028_HCN.atm.20200512
+   14   47   23  4034.68559  /data/ebaumer/Code/linelist-core/047_H2S/047_H2S.atm.20200512
+ Galatry file open : /data/ebaumer/Code/linelist-core/014_HF/14_hit16_Galatry.txt
+
+  676 lines read in Galatry file :     1
+ Galatry file open : /data/ebaumer/Code/linelist-core/015_HCL/15_hit16_Galatry.txt
+
+ 1117 lines read in Galatry file :     2
+
+Line Mixing file for input:
+
+ 9698 lines read in LM file :     1
+
+Speed-Dependent Voigt file for input:
+
+  145 lines read in SDV file :     1
+
+Band:     1    4034.64142    4038.70000    4039.20000    4043.25858
+
+Band:     2    4105.34142    4109.40000    4110.20000    4114.25858
+  closing file :   18   /data/ebaumer/Code/linelist-core/013_OH/013_OH.atm.20200512
+  closing file :   13   /data/ebaumer/Code/linelist-core/004_N2O/004_N2O.atm.20200512
+  closing file :   16   /data/ebaumer/Code/linelist-core/009_SO2/009_SO2.atm.20200512
+  closing file :   20   /data/ebaumer/Code/linelist-core/017_HI/017_HI.atm.20200512
+  closing file :   19   /data/ebaumer/Code/linelist-core/014_HF/014_HF.atm.20200512
+  closing file :   17   /data/ebaumer/Code/linelist-core/011_NH3/011_NH3.atm.20200512
+  closing file :   11   /data/ebaumer/Code/linelist-core/002_CO2/002_CO2.atm.20200512
+  closing file :   23   /data/ebaumer/Code/linelist-core/047_H2S/047_H2S.atm.20200512
+  closing file :   14   /data/ebaumer/Code/linelist-core/005_CO/005_CO.atm.20200512
+  closing file :   10   /data/ebaumer/Code/linelist-core/001_H2O/001_H2O+HDO.atm.20200512
+  closing file :   22   /data/ebaumer/Code/linelist-core/028_HCN/028_HCN.atm.20200512
+  closing file :   21   /data/ebaumer/Code/linelist-core/019_OCS/019_OCS.atm.20200512
+  closing file :   12   /data/ebaumer/Code/linelist-core/003_O3/003_O3.atm.20200512
+  closing file :   15   /data/ebaumer/Code/linelist-core/006_CH4/006_CH4.atm.20200512
+
+                     Matching Galatry lines in bandpasses :          0
+
+                  Matching linemixing lines in bandpasses :          0
+
+                         Matching SDV lines in bandpasses :          0
+
+                          Lines saved to output hbin file :       3570
