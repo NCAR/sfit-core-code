@@ -114,20 +114,35 @@ contains
     
     icflg = -999
     !
+    xself = 0.0d0
+    XFRGN = 0.0d0
+    XCO2C = 0.0d0
+    XO3CN = 0.0d0
+    XO2CN = 0.0d0
+    XN2CN = 0.0d0
+    XRAYL = 0.0d0       
     select case (trim(gas(1:4)))
     case ('H2O')
        xself = 1.0d0
        XFRGN = 1.0d0
     case('CO2')
-       XCO2C = 0.0d0
+       XCO2C = 1.0d0
     case('O3')
-       XO3CN = 0.0d0
+       XO3CN = 1.0d0
     case('O2')
-       XO2CN = 0.0d0
+       XO2CN = 1.0d0
     case('N2')
-       XN2CN = 0.0d0
+       XN2CN = 1.0d0
     case('RAYL')
-       XRAYL = 0.0d0
+       XRAYL = 1.0d0
+    case('ALL')
+       xself = 1.0d0
+       XFRGN = 1.0d0
+       XCO2C = 1.0d0
+       XO3CN = 1.0d0
+       XO2CN = 1.0d0
+       XN2CN = 1.0d0
+       XRAYL = 1.0d0       
     end select
     
     mxone = 1

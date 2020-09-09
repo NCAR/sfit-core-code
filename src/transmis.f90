@@ -215,9 +215,8 @@
                   !print*, 'ntran ',jscan, k, CCC(JSCAN,K), PMASMX(K), facmas
 
                   IF (F_MTCKD) THEN
-                     CALL CALC_H2O_CONTINUUM('H2O ', K)
+                     CALL CALC_H2O_CONTINUUM('ALL ', K) ! space needed, else the receiving string has an extra sign
                   END IF
-
                   
                   ! ------------LOOP OVER FREQUENCIES
                   MXMAX = MXONE + NMON - 1
