@@ -200,7 +200,7 @@
                         END IF
                      END DO
                   END DO
-                  CALL SETUP3( XSC_DETAIL, -1 )
+                  CALL SETUP3( XSC_DETAIL, -1, ICOUNT )
                   ! SET BACK LINE PARAMETERS
                   DO K = 1, nrlgas
                      DO I=LINE1(1), LINE2(NBAND)
@@ -226,7 +226,7 @@
             END DO
             IF (K.GT. 0 .AND. K.LT.NSPEC+2) THEN
                CALL LBLATM( 0, KMAX )
-               CALL SETUP3( XSC_DETAIL, -1 )
+               CALL SETUP3( XSC_DETAIL, -1, ICOUNT )
                FSZA = .TRUE.
             END IF
             NCOUNT = NCOUNT + NSPEC
@@ -322,7 +322,7 @@
                !IF (K .GT. KMAX) K = KMAX
                IF (K .GT. NPATH) K = NPATH
                CALL MASSPATH( K )
-               CALL SETUP3( XSC_DETAIL, k )
+               CALL SETUP3( XSC_DETAIL, k, ICOUNT )
             ENDIF ! K
             NCOUNT = NCOUNT + NPATH
          ENDIF ! IFTEMP

@@ -404,10 +404,10 @@
 
 ! ------------------------------------------------------------------------------
 
-      SUBROUTINE SETUP3( XSC_DETAIL, NR_LEVEL )
+      SUBROUTINE SETUP3( XSC_DETAIL, NR_LEVEL, ICOUNT )
 
       LOGICAL, INTENT(IN) :: XSC_DETAIL
-      INTEGER, INTENT(IN) :: NR_LEVEL
+      INTEGER, INTENT(IN) :: NR_LEVEL, ICOUNT
 
 ! --- IF NR_LEVEL = -1 CALCULATE CROSSSECTIONS FOR ALL ALTITUDE LEVELS,
 !      ELSE ONLY FOR THE LEVEL: NR_LEVEL-1 AND NR_LEVEL
@@ -422,7 +422,7 @@
       ELSE
          !WRITE (*, *) ' CALCULATING CROSS SECTIONS FOR LEVELS : ', NR_LEVEL-1, NR_LEVEL
       ENDIF
-      CALL KROSSR( NR_LEVEL )
+      CALL KROSSR( NR_LEVEL, ICOUNT )
 
       RETURN
 
@@ -1283,8 +1283,8 @@
                JROW = I + INDXX
                JCOL = J + INDXX
                DELZ = ZBAR(I) - ZBAR(J)
-               TSAHWD = 20.0D0
-               SELECT CASE ( 1 )
+               TSAHWD = 1000000.0D0
+               SELECT CASE ( 2 )
                CASE (1)       !gaussian
                   RHO = (ALOGSQ*DELZ/TSAHWD)**2
                   RHO = MIN( RHO, 90.0D0 )
