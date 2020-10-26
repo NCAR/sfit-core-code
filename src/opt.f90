@@ -757,7 +757,6 @@ SUBROUTINE GETSAINV( ISMIX )
             END DO
          END DO
          DEALLOCATE(TPMAT)
-         print *, 'samatrix tempret'
       END IF
       IF( FILOPEN ) CALL FILECLOSE( 62, 2 )
 
