@@ -283,10 +283,6 @@
                ENDIF
                OPTCEN = AKV*OPTMAX
 
-!  --- SKIP OVER LINE IF OPTICAL DEPTH AT LINE CENTER IS LESS
-!  --- THAN TAUMIN
-               IF (OPTCEN < TAUMIN) CYCLE
-               !print*, 'kro 6 here'
 
 !  --- CALCULATE DISTANCE FROM LINE CENTER CORRESPONDING TO OPTICAL
 !  --- DEPTH OF TAUMIN FOR A LORENTZ LINE
@@ -296,6 +292,10 @@
 
                !  --- EXTEND CALCULATIONS FURTHER INTO THE WINGS IF NECESSARY
                IF (ICOUNT.EQ.1) THEN
+                  !  --- SKIP OVER LINE IF OPTICAL DEPTH AT LINE CENTER IS LESS
+                  !  --- THAN TAUMIN
+                  IF (OPTCEN < TAUMIN) CYCLE
+               !print*, 'kro 6 here'
                  DIST(N,K) = DELNU
                  IF (DELLOR > DELNU) DIST(N,K) = DELLOR
                ENDIF
