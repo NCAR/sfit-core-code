@@ -173,16 +173,16 @@
 ! --- XN WORKING VERSION OF XA (PARM)
       XN(:N) = XA(:N)
       CALL INVRT( SA, SAINV, N )
-
+      CALL GETSAINV( ISMIX )
 ! --- SUBSTITUTE SAINV VALUES FOR ANY PROFILE RETRIEVE GAS FROM FILE "SA.INPUT"
 ! --- LOOP OVER RETRIEVAL GASES BUT CALL ONCE IF NEEDED
-      DO KK = 1, NRET
+!      DO KK = 1, NRET
 ! --- PICK OUT GASES WITH SET FLAG (IFOFF=5)
-         IF ( IFPRF(KK) .AND. CORRELATE(KK) .AND. ( (IFOFF(KK) .EQ. 5) .OR. (IFOFF(KK) .EQ. 6 ))) THEN
-            CALL GETSAINV( ISMIX )
-            EXIT
-         END IF
-      ENDDO
+!         IF ( IFPRF(KK) .AND. CORRELATE(KK) .AND. ( (IFOFF(KK) .EQ. 5) .OR. (IFOFF(KK) .EQ. 6 ))) THEN
+
+!            EXIT
+!         END IF
+!      ENDDO
 
       SEINV(:M) = 1.D0/SE(:M)
       ITER = 0
@@ -747,6 +747,18 @@ SUBROUTINE GETSAINV( ISMIX )
 ! --- BUMP UP INDEX OF MIXING RATIO BLOCK IN SA(INV) MATRIX
          INDXX = INDXX + NLAYERS
       ENDDO
+
+      IF ( IFTEMP ) THEN
+         ALLOCATE(TPMAT(NLAYERS,NLAYERS))
+         CALL MAKE_TPMATRIX(NLAYERS,Z(1:NLAYERS),TPMAT)
+         DO I = 1, NLAYERS
+            DO J = 1, NLAYERS
+               SAINV(I+NTEMP1,J+NTEMP1) = TPMAT(I,J) * 1.0D8
+            END DO
+         END DO
+         DEALLOCATE(TPMAT)
+         print *, 'samatrix tempret'
+      END IF
       IF( FILOPEN ) CALL FILECLOSE( 62, 2 )
 
       RETURN
