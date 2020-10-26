@@ -37,7 +37,7 @@
       CONTAINS
 
 !----------------------------------------------------------------------
-      SUBROUTINE KROSSR( NR_LEVEL )
+      SUBROUTINE KROSSR( NR_LEVEL, ICOUNT )
 
 ! --- COMPUTE OPTICAL DEPTHS FOR LAYER NUM_LAYER
 ! --- COMPUTE INITIAL OPTICAL DEPTHS FOR ALL LAYERS IF NUM_LAYERS = 1
@@ -46,11 +46,11 @@
 ! --- IN PRESSURE-BROADENED LOWER LAYERS
 
       LOGICAL      :: PRTDEBUG = .FALSE.
-      INTEGER      :: NR_LEVEL, K_START, K_END !, NRESET=0
+      INTEGER      :: NR_LEVEL, K_START, K_END, ICOUNT !, NRESET=0
       INTEGER      :: JSTART, JSTOP, N1, K, I, J, INDXX, IBAND, LMIN, LMAX
       INTEGER      :: N, IMOL, NPOINT, MO, ISO
       !INTEGER      :: II, IJ
-      REAL(DOUBLE) :: DIST, TXE, VIBFAC, STIMFC, SSL, ACOFB, SCOFB, ALOR, ADOP, &
+      REAL(DOUBLE) :: TXE, VIBFAC, STIMFC, SSL, ACOFB, SCOFB, ALOR, ADOP, &
                       AKZERO, YDUM, OPTMAX, XDUM, AKV, OPTCEN, DELLOR, WLIN, START, &
                       SSTOP, ANUZ, QT, QTSTDTEMP, GI, SSLOLD, BETAP, GZ, LMTVAL
       REAL(DOUBLE) :: AKV_R, AKV_I, G2, LM, S0=0.0D0, S2=0.0D0
@@ -82,7 +82,7 @@
             END FUNCTION BETAT
       END INTERFACE
 
-      PRINT *, ' COMPUTING CROSS-SECTIONS...'
+      IF (ICOUNT.EQ.1) PRINT *, ' COMPUTING CROSS-SECTIONS...'
 
       GI = 0
       QT = 0.0D0
@@ -121,7 +121,6 @@
 !print*, 'kro 3 ',iband, k, n, lmin, lmax
 
 !  --- SELECT DISTANCE FROM LINE CENTER FOR CALCULATIONS
-               DIST = DELNU
                IF( IFMIX(LGAS(N)) == 0 ) CYCLE
                IMOL = LGAS(N)
                TXE  = RCONST2*ETWO(N)*(1.D0/T(K)-1.D0/STDTEMP)
@@ -295,15 +294,18 @@
 !print*, 'kro 7 ',dist, DELLOR, SSL, ALOR, OPTMAX, TAUMIN
 !IF (DELLOR > DELNU) print*, DELLOR
 
-!  --- EXTEND CALCULATIONS FURTHER INTO THE WINGS IF NECESSARY
-               IF (DELLOR > DELNU) DIST = DELLOR
+               !  --- EXTEND CALCULATIONS FURTHER INTO THE WINGS IF NECESSARY
+               IF (ICOUNT.EQ.1) THEN
+                 DIST(N,K) = DELNU
+                 IF (DELLOR > DELNU) DIST(N,K) = DELLOR
+               ENDIF
                !  --- CORRECT POSITION FOR PRESSURE SHIFT
                WLIN = AZERO(N) + P(K)*PSLIN(N)
 !print*, 'kro 8 azero ', AZERO(N), P(K), PSLIN(N)
 !  --- IF NO PRESSURE SHIFT, pCqSDHC calculates it own pressure shift
                IF( (.NOT. FPS).OR.(LSHAPEMODEL.EQ.4) ) WLIN = AZERO(N)
-               START = WLIN - DIST
-               SSTOP = WLIN + DIST
+               START = WLIN - DIST(N,K)
+               SSTOP = WLIN + DIST(N,K)
                JSTART = FLOOR((START - WMON(IBAND))/DN(IBAND) + 1.00000001D0)
                JSTOP = FLOOR((SSTOP - WMON(IBAND))/DN(IBAND) + 1.00000001D0)
 !print*, 'kro 9 ',WLIN, dist, START, sstop, jstart, jstop, WMON(IBAND)
