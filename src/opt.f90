@@ -753,7 +753,7 @@ SUBROUTINE GETSAINV( ISMIX )
          CALL MAKE_TPMATRIX(NLAYERS,Z(1:NLAYERS),TPMAT)
          DO I = 1, NLAYERS
             DO J = 1, NLAYERS
-               SAINV(I+NTEMP1,J+NTEMP1) = TPMAT(I,J) * 1.0D8
+               SAINV(I+NTEMP1,J+NTEMP1) = TPMAT(I,J) * TLAMBDA
             END DO
          END DO
          DEALLOCATE(TPMAT)

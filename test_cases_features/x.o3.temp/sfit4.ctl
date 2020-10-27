@@ -147,6 +147,7 @@
  rt.solshift.apriori         = 0.00
  rt.solshift.sigma           = 0.01
  rt.temperature              = T
+ rt.temperature.lambda       = 1e8
  rt.temperature.sigma        =
  0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01
  0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01
@@ -219,7 +220,7 @@
 
 # Overwrite Input SNR for Specific Regions
 
- sp.snr                      =
+ sp.snr                      = 1 2
  sp.snr.1.nu_start           = 1000.9
  sp.snr.1.nu_stop            = 1001.25
  sp.snr.1.snr                = 1.0
