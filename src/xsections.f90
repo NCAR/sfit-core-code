@@ -109,8 +109,9 @@
       DO IBAND = 1, NBAND
 !                    ------------ LOOP OVER LAYERS
 
-!print*, 'kro 1 ', k_start, k_end
+         !print*, 'kro 1 ', k_start, k_end
          DO K = K_START, K_END
+            print *, 'icount', icount, 'level', K
 !                    ------------ LOOP OVER SPECTRAL LINES
 
 !print*, 'kro 2 ', k, T(K), P(K)
