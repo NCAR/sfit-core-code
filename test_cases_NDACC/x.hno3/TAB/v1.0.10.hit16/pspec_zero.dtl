@@ -1,0 +1,371 @@
+ 
+         ? sat points in spec :    41622
+          ? sat bands in spec :       41
+      ? sat bands below midpt :       16
+      ? sat bands above midpt :       25
+    Closest sat band to midpt :         16.1
+npts mdpt mzer azer std off slp           69    751.3446      0.0018      0.0000      0.0008      0.0014      0.0064     -0.0124
+good region : npts mdpt mzer std          69    751.3446      0.0018      0.0008
+npts mdpt mzer azer std off slp          106    754.3004      0.0016      0.0000      0.0008      0.0023     -0.0105      0.0404
+good region : npts mdpt mzer std         106    754.3004      0.0016      0.0008
+npts mdpt mzer azer std off slp           90    754.6451      0.0019     -0.0000      0.0008      0.0016      0.0076     -0.0467
+good region : npts mdpt mzer std          90    754.6451      0.0019      0.0008
+npts mdpt mzer azer std off slp           64    755.7694      0.0017      0.0000      0.0008      0.0018     -0.0092      0.1157
+good region : npts mdpt mzer std          64    755.7694      0.0017      0.0008
+npts mdpt mzer azer std off slp           85    757.2995      0.0017      0.0000      0.0008      0.0018     -0.0061      0.0638
+good region : npts mdpt mzer std          85    757.2995      0.0017      0.0008
+npts mdpt mzer azer std off slp           37    758.7854      0.0017     -0.0000      0.0006      0.0016      0.0041     -0.0159
+good region : npts mdpt mzer std          37    758.7854      0.0017      0.0006
+npts mdpt mzer azer std off slp           22    760.2798      0.0022     -0.0000      0.0008      0.0014      0.0697     -1.4933
+good region : npts mdpt mzer std          22    760.2798      0.0022      0.0008
+npts mdpt mzer azer std off slp           48    776.9751      0.0027      0.0000      0.0008      0.0028     -0.0049      0.0842
+good region : npts mdpt mzer std          48    776.9751      0.0027      0.0008
+npts mdpt mzer azer std off slp           21    784.4602      0.0033     -0.0000      0.0008      0.0028      0.0574     -1.5614
+good region : npts mdpt mzer std          21    784.4602      0.0033      0.0008
+npts mdpt mzer azer std off slp           32    795.8907      0.0029     -0.0000      0.0006      0.0031     -0.0155      0.2751
+good region : npts mdpt mzer std          32    795.8907      0.0029      0.0006
+npts mdpt mzer azer std off slp           27    798.5546      0.0031      0.0000      0.0010      0.0027      0.0214     -0.2376
+good region : npts mdpt mzer std          27    798.5546      0.0031      0.0010
+npts mdpt mzer azer std off slp           16    803.5500      0.0032      0.0000      0.0006      0.0033     -0.0208      0.8370
+good region : npts mdpt mzer std          16    803.5500      0.0032      0.0006
+npts mdpt mzer azer std off slp           53    827.7002      0.0074      0.0000      0.0010      0.0135     -0.1993      1.5408
+good region : npts mdpt mzer std          53    827.7002      0.0074      0.0010
+npts mdpt mzer azer std off slp           80    839.8746      0.0029     -0.0000      0.0030      0.0396     -1.0891      8.0004
+npts mdpt mzer azer std off slp           16    849.5848      0.0033     -0.0000      0.0004      0.0044     -0.1150      3.0756
+npts mdpt mzer azer std off slp           21    852.4295      0.0038     -0.0000      0.0007      0.0040     -0.0132      0.2328
+good region : npts mdpt mzer std          21    852.4295      0.0038      0.0007
+ bc4: midpoint spectral value :      1035.5000271203
+   initial max spectral value :         0.8356513977
+   initial # points in window :        36637
+ 
+         iter,  factor, maxsp :            1        0.2500000000        0.2088391036
+           # points in window :        24022
+         min & max wavenumber :      1001.2140295815     1069.9291537033
+           max spectral value :         0.2088260353
+           min spectral value :         0.0011256002
+          mean spectral value :         0.0511715887
+               offset & slope :         0.0703554587       -0.0005188270
+             max zeroed value :         0.1717130427
+             min zeroed value :        -0.0678440182
+            mean zeroed value :        -0.0000000000
+ zeroed points greater then 0 :         8388        4.1041554425
+    zeroed points less then 0 :        15634        1.7591708886
+                Zero at midpt :         0.0525669587     1035.5000271203
+ 
+         iter,  factor, maxsp :            2        0.2000000000        0.1670712829
+           # points in window :        22248
+         min & max wavenumber :      1001.2140295815     1069.9291537033
+           max spectral value :         0.1670560390
+           min spectral value :         0.0011256002
+          mean spectral value :         0.0403164163
+               offset & slope :         0.0544631798       -0.0003788573
+             max zeroed value :         0.1377541322
+             min zeroed value :        -0.0521233440
+            mean zeroed value :        -0.0000000000
+ zeroed points greater then 0 :         7567        3.2145137157
+    zeroed points less then 0 :        14681        1.2866452336
+                Zero at midpt :         0.0414736789     1035.5000271203
+ 
+         iter,  factor, maxsp :            3        0.1600000000        0.1336570263
+           # points in window :        20552
+         min & max wavenumber :      1001.2140295815     1069.9291537033
+           max spectral value :         0.1336395144
+           min spectral value :         0.0011256002
+          mean spectral value :         0.0312578535
+               offset & slope :         0.0410907362       -0.0002607952
+             max zeroed value :         0.1093026139
+             min zeroed value :        -0.0388956461
+            mean zeroed value :        -0.0000000000
+ zeroed points greater then 0 :         6804        2.4881157491
+    zeroed points less then 0 :        13748        0.9098276974
+                Zero at midpt :         0.0321491140     1035.5000271203
+ 
+         iter,  factor, maxsp :            4        0.1280000000        0.1069256210
+           # points in window :        19101
+         min & max wavenumber :      1001.2159128584     1069.9272704264
+           max spectral value :         0.1069230065
+           min spectral value :         0.0011256002
+          mean spectral value :         0.0244929836
+               offset & slope :         0.0311418759       -0.0001749163
+             max zeroed value :         0.0871723027
+             min zeroed value :        -0.0290524038
+            mean zeroed value :         0.0000000000
+ zeroed points greater then 0 :         6185        1.9111630258
+    zeroed points less then 0 :        12916        0.6422683136
+                Zero at midpt :         0.0251450251     1035.5000271203
+ 
+         iter,  factor, maxsp :            5        0.1024000000        0.0855404968
+           # points in window :        17859
+         min & max wavenumber :      1001.2159128584     1069.9272704264
+           max spectral value :         0.0855371356
+           min spectral value :         0.0011256002
+          mean spectral value :         0.0194940218
+               offset & slope :         0.0243631422       -0.0001273558
+             max zeroed value :         0.0694755235
+             min zeroed value :        -0.0223318904
+            mean zeroed value :         0.0000000000
+ zeroed points greater then 0 :         5709        1.4553518865
+    zeroed points less then 0 :        12150        0.4579311610
+                Zero at midpt :         0.0199968609     1035.5000271203
+ 
+         iter,  factor, maxsp :            6        0.0819200000        0.0684323975
+           # points in window :        16809
+         min & max wavenumber :      1001.2159128584     1069.9272704264
+           max spectral value :         0.0683922321
+           min spectral value :         0.0011256002
+          mean spectral value :         0.0158976684
+               offset & slope :         0.0193629650       -0.0000901738
+             max zeroed value :         0.0547650171
+             min zeroed value :        -0.0174995124
+            mean zeroed value :        -0.0000000000
+ zeroed points greater then 0 :         5242        1.0975335933
+    zeroed points less then 0 :        11567        0.3408796595
+                Zero at midpt :         0.0162714374     1035.5000271203
+ 
+         iter,  factor, maxsp :            7        0.0655360000        0.0547459180
+           # points in window :        15828
+         min & max wavenumber :      1001.2159128584     1069.9272704264
+           max spectral value :         0.0547191240
+           min spectral value :         0.0011256002
+          mean spectral value :         0.0130774906
+               offset & slope :         0.0150137545       -0.0000500590
+             max zeroed value :         0.0429832745
+             min zeroed value :        -0.0134070114
+            mean zeroed value :         0.0000000000
+ zeroed points greater then 0 :         4846        0.8279106780
+    zeroed points less then 0 :        10982        0.2448734686
+                Zero at midpt :         0.0132975265     1035.5000271203
+ 
+         iter,  factor, maxsp :            8        0.0524288000        0.0437967344
+           # points in window :        14985
+         min & max wavenumber :      1001.2159128584     1069.9272704264
+           max spectral value :         0.0437890217
+           min spectral value :         0.0011256002
+          mean spectral value :         0.0110559214
+               offset & slope :         0.0123321831       -0.0000328773
+             max zeroed value :         0.0335001719
+             min zeroed value :        -0.0108353921
+            mean zeroed value :        -0.0000000000
+ zeroed points greater then 0 :         4498        0.6318799314
+    zeroed points less then 0 :        10487        0.1874166001
+                Zero at midpt :         0.0112050143     1035.5000271203
+ 
+         iter,  factor, maxsp :            9        0.0419430400        0.0350373875
+           # points in window :        14160
+         min & max wavenumber :      1001.2177961353     1069.9272704264
+           max spectral value :         0.0350017101
+           min spectral value :         0.0011256002
+          mean spectral value :         0.0094061621
+               offset & slope :         0.0100393101       -0.0000162453
+             max zeroed value :         0.0258447403
+             min zeroed value :        -0.0086489841
+            mean zeroed value :         0.0000000000
+ zeroed points greater then 0 :         4180        0.4768207056
+    zeroed points less then 0 :         9980        0.1428442535
+                Zero at midpt :         0.0094823852     1035.5000271203
+ 
+         iter,  factor, maxsp :           10        0.0335544320        0.0280299100
+           # points in window :        13410
+         min & max wavenumber :      1001.2177961353     1069.3057890505
+           max spectral value :         0.0280285794
+           min spectral value :         0.0011256002
+          mean spectral value :         0.0081738229
+               offset & slope :         0.0085529026       -0.0000097081
+             max zeroed value :         0.0200335490
+             min zeroed value :        -0.0072043983
+            mean zeroed value :        -0.0000000000
+ zeroed points greater then 0 :         3895        0.3631410204
+    zeroed points less then 0 :         9515        0.1148683060
+                Zero at midpt :         0.0082200876     1035.5000271203
+ 
+         iter,  factor, maxsp :           11        0.0268435456        0.0224239280
+           # points in window :        12628
+         min & max wavenumber :      1001.2177961353     1069.3057890505
+           max spectral value :         0.0224176776
+           min spectral value :         0.0011256002
+          mean spectral value :         0.0071241680
+               offset & slope :         0.0073398728       -0.0000055149
+             max zeroed value :         0.0153879503
+             min zeroed value :        -0.0060181942
+            mean zeroed value :         0.0000000000
+ zeroed points greater then 0 :         3653        0.2702777773
+    zeroed points less then 0 :         8975        0.0932214087
+                Zero at midpt :         0.0071508083     1035.5000271203
+ 
+         iter,  factor, maxsp :           12        0.0214748365        0.0179391424
+           # points in window :        11916
+         min & max wavenumber :      1001.2177961353     1069.3057890505
+           max spectral value :         0.0179382134
+           min spectral value :         0.0011256002
+          mean spectral value :         0.0063488192
+               offset & slope :         0.0065356525       -0.0000047748
+             max zeroed value :         0.0116213595
+             min zeroed value :        -0.0052187090
+            mean zeroed value :        -0.0000000000
+ zeroed points greater then 0 :         3501        0.1981825460
+    zeroed points less then 0 :         8415        0.0788956637
+                Zero at midpt :         0.0063719626     1035.5000271203
+ 
+         iter,  factor, maxsp :           13        0.0171798692        0.0143513139
+           # points in window :        11277
+         min & max wavenumber :      1001.2177961353     1069.3057890505
+           max spectral value :         0.0143465437
+           min spectral value :         0.0011256002
+          mean spectral value :         0.0057968222
+               offset & slope :         0.0058242703       -0.0000006996
+             max zeroed value :         0.0085626621
+             min zeroed value :        -0.0046699417
+            mean zeroed value :         0.0000000000
+ zeroed points greater then 0 :         3540        0.1485524899
+    zeroed points less then 0 :         7737        0.0670301750
+                Zero at midpt :         0.0058002858     1035.5000271203
+ 
+         iter,  factor, maxsp :           14        0.0137438953        0.0114810511
+           # points in window :        10604
+         min & max wavenumber :      1001.2177961353     1069.3057890505
+           max spectral value :         0.0114808707
+           min spectral value :         0.0011256002
+          mean spectral value :         0.0053466429
+               offset & slope :         0.0053426098        0.0000001027
+             max zeroed value :         0.0061362043
+             min zeroed value :        -0.0042212283
+            mean zeroed value :        -0.0000000000
+ zeroed points greater then 0 :         3775        0.1069649846
+    zeroed points less then 0 :         6829        0.0562285561
+                Zero at midpt :         0.0053461319     1035.5000271203
+ 
+         iter,  factor, maxsp :           15        0.0109951163        0.0091848409
+           # points in window :         9912
+         min & max wavenumber :      1001.2177961353     1069.3057890505
+           max spectral value :         0.0091825407
+           min spectral value :         0.0011256002
+          mean spectral value :         0.0050022641
+               offset & slope :         0.0049566399        0.0000011609
+             max zeroed value :         0.0041918730
+             min zeroed value :        -0.0038787080
+            mean zeroed value :        -0.0000000000
+ zeroed points greater then 0 :         4089        0.0721960226
+    zeroed points less then 0 :         5823        0.0468230314
+                Zero at midpt :         0.0049964367     1035.5000271203
+ 
+         iter,  factor, maxsp :           16        0.0087960930        0.0073478727
+           # points in window :         9113
+         min & max wavenumber :      1001.3119599801     1069.3057890505
+           max spectral value :         0.0073471428
+           min spectral value :         0.0011256002
+          mean spectral value :         0.0047227086
+               offset & slope :         0.0046875636        0.0000008967
+             max zeroed value :         0.0026400828
+             min zeroed value :        -0.0035986996
+            mean zeroed value :        -0.0000000000
+ zeroed points greater then 0 :         4276        0.0446260891
+    zeroed points less then 0 :         4837        0.0390665685
+                Zero at midpt :         0.0047182195     1035.5000271203
+ 
+         iter,  factor, maxsp :           17        0.0070368744        0.0058782982
+           # points in window :         7875
+         min & max wavenumber :      1001.3119599801     1068.5731943378
+           max spectral value :         0.0058781439
+           min spectral value :         0.0011256002
+          mean spectral value :         0.0044436011
+               offset & slope :         0.0043903319        0.0000013586
+             max zeroed value :         0.0014674397
+             min zeroed value :        -0.0033203917
+            mean zeroed value :         0.0000000000
+ zeroed points greater then 0 :         4109        0.0252037461
+    zeroed points less then 0 :         3766        0.0314455985
+                Zero at midpt :         0.0044367796     1035.5000271203
+ 
+         iter,  factor, maxsp :           18        0.0080924056        0.0067600429
+           # points in window :         8747
+         min & max wavenumber :      1001.3119599801     1069.3057890505
+           max spectral value :         0.0067600217
+           min spectral value :         0.0011256002
+          mean spectral value :         0.0046255040
+               offset & slope :         0.0045741691        0.0000013085
+             max zeroed value :         0.0021578740
+             min zeroed value :        -0.0035021773
+            mean zeroed value :         0.0000000000
+ zeroed points greater then 0 :         4266        0.0363327249
+    zeroed points less then 0 :         4481        0.0364679838
+                Zero at midpt :         0.0046189048     1035.5000271203
+ 
+         iter,  factor, maxsp :           19        0.0078496334        0.0065572416
+           # points in window :         8598
+         min & max wavenumber :      1001.3119599801     1068.5731943378
+           max spectral value :         0.0065567950
+           min spectral value :         0.0011256002
+          mean spectral value :         0.0045903423
+               offset & slope :         0.0045318675        0.0000014898
+             max zeroed value :         0.0020103287
+             min zeroed value :        -0.0034673028
+            mean zeroed value :        -0.0000000000
+ zeroed points greater then 0 :         4251        0.0337417364
+    zeroed points less then 0 :         4347        0.0355180767
+                Zero at midpt :         0.0045828010     1035.5000271203
+ 
+         iter,  factor, maxsp :           20        0.0076141444        0.0063605244
+           # points in window :         8432
+         min & max wavenumber :      1001.3119599801     1068.5731943378
+           max spectral value :         0.0063603730
+           min spectral value :         0.0011256002
+          mean spectral value :         0.0045535167
+               offset & slope :         0.0044961486        0.0000014619
+             max zeroed value :         0.0018580359
+             min zeroed value :        -0.0034304403
+            mean zeroed value :         0.0000000000
+ zeroed points greater then 0 :         4243        0.0313756903
+    zeroed points less then 0 :         4189        0.0344044700
+good region : npts mdpt mzer std         500   1035.5000      0.0045      0.0007
+npts mdpt mzer azer std off slp           14   1106.7274      0.0052     -0.0000      0.0006      0.0048      0.1003     -5.4373
+good region : npts mdpt mzer std          14   1106.7274      0.0052      0.0006
+npts mdpt mzer azer std off slp           38   1135.7450      0.0055     -0.0000      0.0006      0.0052      0.0143     -0.2013
+good region : npts mdpt mzer std          38   1135.7450      0.0055      0.0006
+npts mdpt mzer azer std off slp           80   1174.5254      0.0052     -0.0000      0.0007      0.0052     -0.0008      0.0069
+good region : npts mdpt mzer std          80   1174.5254      0.0052      0.0007
+npts mdpt mzer azer std off slp           69   1187.0144      0.0048     -0.0000      0.0007      0.0046      0.0040     -0.0162
+good region : npts mdpt mzer std          69   1187.0144      0.0048      0.0007
+npts mdpt mzer azer std off slp           43   1198.1803      0.0049     -0.0000      0.0007      0.0053     -0.0069     -0.0722
+good region : npts mdpt mzer std          43   1198.1803      0.0049      0.0007
+npts mdpt mzer azer std off slp           75   1212.2503      0.0047     -0.0000      0.0007      0.0047     -0.0039      0.0509
+good region : npts mdpt mzer std          75   1212.2503      0.0047      0.0007
+npts mdpt mzer azer std off slp           79   1244.1247      0.0038      0.0000      0.0008      0.0038     -0.0002     -0.0117
+good region : npts mdpt mzer std          79   1244.1247      0.0038      0.0008
+npts mdpt mzer azer std off slp          213   1260.3002      0.0031      0.0000      0.0008      0.0033     -0.0012      0.0017
+good region : npts mdpt mzer std         213   1260.3002      0.0031      0.0008
+npts mdpt mzer azer std off slp          117   1268.3908      0.0028      0.0000      0.0007      0.0028     -0.0009      0.0049
+good region : npts mdpt mzer std         117   1268.3908      0.0028      0.0007
+npts mdpt mzer azer std off slp          319   1271.6997      0.0028      0.0000      0.0007      0.0029     -0.0002      0.0002
+good region : npts mdpt mzer std         319   1271.6997      0.0028      0.0007
+npts mdpt mzer azer std off slp          159   1287.3497      0.0027     -0.0000      0.0008      0.0031     -0.0050      0.0121
+good region : npts mdpt mzer std         159   1287.3497      0.0027      0.0008
+npts mdpt mzer azer std off slp           53   1287.7998      0.0028      0.0000      0.0007      0.0037     -0.0292      0.1951
+good region : npts mdpt mzer std          53   1287.7998      0.0028      0.0007
+npts mdpt mzer azer std off slp          186   1288.3243      0.0028      0.0000      0.0007      0.0026      0.0013     -0.0020
+good region : npts mdpt mzer std         186   1288.3243      0.0028      0.0007
+npts mdpt mzer azer std off slp           32   1296.4808      0.0027     -0.0000      0.0008      0.0024      0.0231     -0.4995
+good region : npts mdpt mzer std          32   1296.4808      0.0027      0.0008
+npts mdpt mzer azer std off slp           64   1296.7105      0.0025      0.0000      0.0008      0.0027     -0.0047      0.0218
+good region : npts mdpt mzer std          64   1296.7105      0.0025      0.0008
+npts mdpt mzer azer std off slp          600   1305.8651      0.0025     -0.0000      0.0007      0.0025      0.0000      0.0001
+good region : npts mdpt mzer std         600   1305.8651      0.0025      0.0007
+npts mdpt mzer azer std off slp          797   1319.7496      0.0024     -0.0000      0.0008      0.0023      0.0002     -0.0002
+good region : npts mdpt mzer std         797   1319.7496      0.0024      0.0008
+npts mdpt mzer azer std off slp          169   1336.9100      0.0019     -0.0000      0.0007      0.0018      0.0002      0.0029
+good region : npts mdpt mzer std         169   1336.9100      0.0019      0.0007
+npts mdpt mzer azer std off slp          181   1337.7198      0.0021     -0.0000      0.0007      0.0020      0.0009     -0.0036
+good region : npts mdpt mzer std         181   1337.7198      0.0021      0.0007
+npts mdpt mzer azer std off slp          372   1340.3498      0.0014      0.0000      0.0008      0.0019     -0.0025      0.0032
+good region : npts mdpt mzer std         372   1340.3498      0.0014      0.0008
+npts mdpt mzer azer std off slp           75   1347.0402      0.0016     -0.0000      0.0007      0.0012      0.0104     -0.0493
+good region : npts mdpt mzer std          75   1347.0402      0.0016      0.0007
+npts mdpt mzer azer std off slp          122   1347.9752      0.0018     -0.0000      0.0007      0.0014      0.0052     -0.0205
+good region : npts mdpt mzer std         122   1347.9752      0.0018      0.0007
+npts mdpt mzer azer std off slp          170   1349.3594      0.0016      0.0000      0.0007      0.0014      0.0015     -0.0027
+good region : npts mdpt mzer std         170   1349.3594      0.0016      0.0007
+npts mdpt mzer azer std off slp          170   1349.3594      0.0016      0.0000      0.0007      0.0014      0.0015     -0.0027
+good region : npts mdpt mzer std         170   1349.3594      0.0016      0.0007
+  Found sat bands below midpt :       14
+  Found sat bands above midpt :       25
+    Closest sat band to midpt :         16.1
+      Points in allsat vector :     5388

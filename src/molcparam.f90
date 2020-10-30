@@ -264,7 +264,7 @@
       121.D0,  11*0.D0,                                               & !PAN        PL
        44.D0,  11*0.D0,                                               & !CH3CHO     PL
        41.D0,  11*0.D0,                                               & !CH3CN
-       70.D0,  11*0.D0/                                                 !CHF3       no lines
+       70.D0,  11*0.D0/                                                 !CHF3       PL
 
       DATA ((XMASS(JISO,IMOLM),JISO=1,NI),IMOLM=71,80)/ &
        60.D0,  11*0.D0,                                               & !CH3COOH    PL
