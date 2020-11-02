@@ -313,7 +313,13 @@
             K = IPARM - NCOUNT
             ! --- KMAX + 1 PASSES TO UN-PERTURB FINAL TEMPERATURE
             !IF( K .GE. 1 .AND. K .LE. KMAX + 1 )THEN
+            if (icount.eq.1) then
+               T(:NPATH) = PARM(NCOUNT+1:NCOUNT+NPATH) * TORG(:NPATH)
+               CALL LBLATM( ITER, KMAX )
+               CALL SETUP3( XSC_DETAIL,-1, ICOUNT )
+            end if
             IF( K .GE. 1 .AND. K .LE. NPATH + 1 )THEN
+!               print *, ICOUNT, K
                TRET = .TRUE.
                !T(:KMAX) = PARM(NCOUNT+1:NCOUNT+KMAX) * TORG(:KMAX)
 !               NCOUNT = NCOUNT + KMAX

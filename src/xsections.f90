@@ -111,7 +111,7 @@
 
          !print*, 'kro 1 ', k_start, k_end
          DO K = K_START, K_END
-            print *, 'icount', icount, 'level', K
+!            print *, 'icount', icount, 'level', K
 !                    ------------ LOOP OVER SPECTRAL LINES
 
 !print*, 'kro 2 ', k, T(K), P(K)
@@ -285,9 +285,6 @@
                OPTCEN = AKV*OPTMAX
 
 
-!  --- CALCULATE DISTANCE FROM LINE CENTER CORRESPONDING TO OPTICAL
-!  --- DEPTH OF TAUMIN FOR A LORENTZ LINE
-               DELLOR = SQRT(SSL*ALOR*OPTMAX/(TAUMIN*PI))
 !print*, 'kro 7 ',dist, DELLOR, SSL, ALOR, OPTMAX, TAUMIN
 !IF (DELLOR > DELNU) print*, DELLOR
 
@@ -295,11 +292,21 @@
                IF (ICOUNT.EQ.1) THEN
                   !  --- SKIP OVER LINE IF OPTICAL DEPTH AT LINE CENTER IS LESS
                   !  --- THAN TAUMIN
-                  IF (OPTCEN < TAUMIN) CYCLE
-               !print*, 'kro 6 here'
-                 DIST(N,K) = DELNU
-                 IF (DELLOR > DELNU) DIST(N,K) = DELLOR
+                  DIST(N,K) = 0.0D0
+                  IF (OPTCEN.GE.TAUMIN) THEN
+                     !print*, 'kro 6 here'
+                     DIST(N,K) = DELNU
+                     !  --- CALCULATE DISTANCE FROM LINE CENTER CORRESPONDING TO OPTICAL
+                     !  --- DEPTH OF TAUMIN FOR A LORENTZ LINE
+                     DELLOR = SQRT(SSL*ALOR*OPTMAX/(TAUMIN*PI))
+                     IF (DELLOR > DELNU) DIST(N,K) = DELLOR
+                  ELSE ! THIS NEEDS TO BE HERE, THE TEST 4 LINES DOWN DOES NOT SUFFICE, DONT KNOW WHY. -- MP
+                     CYCLE
+                  END IF
                ENDIF
+               IF (DIST(N,K).LE.0.0D0) CYCLE
+!                  print *, icount, k, N
+!               end IF
                !  --- CORRECT POSITION FOR PRESSURE SHIFT
                WLIN = AZERO(N) + P(K)*PSLIN(N)
 !print*, 'kro 8 azero ', AZERO(N), P(K), PSLIN(N)
