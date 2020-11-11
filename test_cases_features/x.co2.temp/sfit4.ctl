@@ -4,7 +4,7 @@
  file.in.refprofile             = reference.prf
  file.in.spectrum               = spectrum
  file.in.solarlines             = solar.dat
- file.in.linelist               = 00895.941722-01004.058278.hbin
+ file.in.linelist               = 00915.941222-00964.058778.hbin
  
  # Definition for retrieval gases
  
@@ -13,23 +13,25 @@
  gas.column.list             = 
  gas.profile.CO2.correlation          =               T
  gas.profile.CO2.correlation.type     =               1
+ gas.profile.CO2.correlation.lambda     =               1e6	
  gas.profile.CO2.correlation.minalt  =               0.0
  gas.profile.CO2.correlation.maxalt  =               150.0
  gas.profile.CO2.correlation.width    =               1000.0
  gas.profile.CO2.logstate             =               F
  gas.profile.CO2.scale                =               1.0
  gas.profile.CO2.sigma                =
- 1.00000   1.00000   1.00000   1.00000   1.00000
- 1.00000   1.00000   1.00000   1.00000   1.00000
- 1.00000   1.00000   1.00000   1.00000   1.00000
- 1.00000   1.00000   1.00000   1.00000   1.00000
- 1.00000   1.00000   1.00000   1.00000   1.00000
- 1.00000   1.00000   1.00000   1.00000   1.00000
- 1.00000   1.00000   1.00000   1.00000   1.00000
- 1.00000   1.00000   1.00000   1.00000   1.00000
+ 0.01   0.01   0.01   0.01   0.01
+ 0.01   0.01   0.01   0.01   0.01
+ 0.01   0.01   0.01   0.01   0.01
+ 0.01   0.01   0.01   0.01   0.01
+ 0.01   0.01   0.01   0.01   0.01
+ 0.01   0.01   0.01   0.01   0.01
+ 0.01   0.01   0.01   0.01   0.01
+ 0.01   0.01   0.01   0.01   0.01
  1.0
  gas.profile.H2O.correlation          =               T
- gas.profile.H2O.correlation.type     =               1
+ gas.profile.H2O.correlation.type     =               6
+ gas.profile.H2O.correlation.lambda     =               1e6		
  gas.profile.H2O.correlation.minalt  =               0.0
  gas.profile.H2O.correlation.maxalt  =               150.0
  gas.profile.H2O.correlation.width    =               1000.0
@@ -46,7 +48,8 @@
  1.00000   1.00000   1.00000   1.00000   1.00000
  1.0
  gas.profile.O3.correlation         =               F
- gas.profile.O3.correlation.type     =               1
+ gas.profile.O3.correlation.type     =               6
+ gas.profile.O3.correlation.lambda     =               1e6
  gas.profile.O3.correlation.minalt  =               0.0
  gas.profile.O3.correlation.maxalt  =               150.0
  gas.profile.O3.correlation.width    =               1000.0
@@ -62,8 +65,8 @@
  1.00000   1.00000   1.00000   1.00000   1.00000
  1.00000   1.00000   1.00000   1.00000   1.00000
  1.0
- gas.column.OCS.scale               = 1.0
- gas.column.OCS.sigma               = 1.0
+ gas.column.CO2.scale               = 1.0
+ gas.column.CO2.sigma               = 1.0
  gas.column.O3.scale               = 1.0
  gas.column.O3.sigma               = 1.0
  gas.column.H2O.scale               = 1.0
@@ -82,7 +85,7 @@
 
  # Retrieval parameter
  
- rt                          =               F
+ rt                          =              T 
  rt.lm                       =               T
  rt.lm.gamma_start            =               1.0e5
  rt.lm.gamma_inc                       =  10.0
@@ -107,7 +110,7 @@
  rt.phase.sigma              =           0.200
  rt.dwshift                  =               F
  rt.temperature              = T
- rt.temperature.lambda       = 1e6
+ rt.temperature.lambda       = 1e5
  
  # Microwindows and their parameters
  
@@ -116,7 +119,7 @@
  band.1.nu_stop              =        960.00
  band.1.zshift		     =	      F
  band.1.beam                 =               
- band.1.calc_point_space     =       0.100E-02
+ band.1.calc_point_space     =       1.00E-3
  band.1.wave_factor          =           1.000
  band.1.max_opd= 180.0000
  band.1.omega= 2.3923
