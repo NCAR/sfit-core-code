@@ -147,6 +147,7 @@
  rt.solshift.apriori         = 0.00
  rt.solshift.sigma           = 0.01
  rt.temperature              = T
+ rt.temperature.lambda       = 1e9
  rt.temperature.sigma        =
  0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01
  0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01
@@ -237,6 +238,7 @@
  out.ak_matrix               = T
  out.g_matrix                = T
  out.sa_matrix               = T
+ out.shat_matrix =T
  out.retprofiles             = T
  out.aprprofiles             = T
  out.seinv_vector            = T
