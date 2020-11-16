@@ -292,7 +292,7 @@
                IF (ICOUNT.EQ.1) THEN
                   !  --- SKIP OVER LINE IF OPTICAL DEPTH AT LINE CENTER IS LESS
                   !  --- THAN TAUMIN
-                  DIST(N,K) = 0.0D0
+                  DIST(N,K) = -1.0D0
                   IF (OPTCEN.GE.TAUMIN) THEN
                      !print*, 'kro 6 here'
                      DIST(N,K) = DELNU
