@@ -281,7 +281,7 @@
                            ENDDO
                         ENDIF
 
-                        if (f_contabs) then
+                        if (F_CONTABS) then
                            CROSS_FACMAS(NRET+2,K,MSTOR) = CROSS(NRET+2,K,ICINDX2)*FACMAS
                            TCALC(IPOINT,MSTOR) = TCALC(IPOINT,MSTOR) + CROSS_FACMAS(NRET+2,K,MSTOR)
 
@@ -305,7 +305,8 @@
                            end if
                            CROSS_FACMAS(IR,K,MSTOR) = CROSS(IR,K,ICINDX)*FACMAS
                            TCALC(IPOINT,MSTOR) = &
-                           TCALC(IPOINT,MSTOR) + (X(IR,K)/XORG(IR,K)) * CROSS_FACMAS(IR,K,MSTOR)
+                                TCALC(IPOINT,MSTOR) + (X(IR,K)/XORG(IR,K)) * CROSS_FACMAS(IR,K,MSTOR)
+
                            IF (IEMISSION/=0) THEN
                  ! Transmission calculated below the layer ALT, needed
                  ! for calculation of contribution to emission from

@@ -637,7 +637,7 @@ subroutine read_input( hasc, wstr, wstp, HFL, GLP, LFL, SDV ) !ELP
    real(double)            :: wstr, wstp, wavnum
    integer                 :: lun, mo !, iso
    character (len=10)      :: ifilename = 'hbin.ctl'
-   integer                 :: j, i, n, istat, ilun=9
+   integer                 :: j, i, n, istat=0, ilun=9
    logical                 :: fexist
    character (len=160)     :: buffer, linebuffer, filename ! path
 

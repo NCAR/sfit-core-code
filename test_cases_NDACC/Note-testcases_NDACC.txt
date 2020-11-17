@@ -10,17 +10,32 @@ pspec, hbin, sfit:   Z
 
 testcase	tested with version:
 
-		      v0.9.4.5       V1.0	      V1.0.8
-		      14-11-2014     Nov 2019	   July 2020
-x.c2h6                                 Y
-x.ch4_L1                               Y
-x.clono2                               Y
-x.co		   x                          Y
-x.hcl		   x                 y        Y
-x.hcn		   x                 y        Y
-x.hf		   x                          Y
-x.hno3                        y		   Y
-x.o3		   x                 y        Y
+Version		             v1.0.10  v0.9.4.5   V1.0	   V1.0.8
+Date		                 Oct'20  Nov-2014   Nov '19	July '20
+Linelist	               20201905  20200725
+            Station
+
+x.c2h6      Boulder          Y              Y
+x.ch4_L1    Thule            Y              Y
+x.clono2    Ny_Alesund       Y              Y
+            Thule            Y
+x.co		   Ny_Alesund             x        Y
+x.hcl		   Ny_Alesund       Y     x        Y
+x.hcn	      Eureka      h2o>100%   y        Y           Y
+            Thule           Y
+x.hf        Ny_Alesund             y        Y           Y
+            Thule           Y
+x.hno3      Bremen    >h20, vmr<0  y		  Y           Y
+            Thule           Y
+x.n2o       Wollongong      Y
+x.o3        Ny_Alesund		 Y      x        Y           Y
+
+V1.0.10
+- update hbin.ctl top linelist20201005
+- run ckgaslist.pro - update reference.prf & double check hbin.ctl
+- recreate .hbin
+- run testcase
+- Added new cases to ClONO2, HCN, HF, HNO3
 
 V1.0.8
 - these are tested with both atm20 & hit16
@@ -30,3 +45,31 @@ V1.0.8
 If sfit-processing-environment is installed, the test cases can be run with error calculation
 
 python <sfit-processing-environment/Layer0/sfit4Layer0.py -f se -b <sfit-core-code-2/src/
+
+
+
+------------------------------------------------
+November 2019
+
+x.ch4_L1
+   tested & updated for V1.0
+
+
+
+------------------------------------------------
+21.11.2013 Mathias Palm
+
+x.ch4 CH4
+      - empirical apodization and phase
+      - inverse SA matrix as input (L2 constraint)
+x.ccl4 CCL4
+      - line mixing in CO2 Q-branch at 800 1/cm
+x.hcl
+      - uses GALATRY parameters and line shape
+
+
+------------------------------------------------
+20.11.2015
+
+x.o3
+	- added sb.ctl
