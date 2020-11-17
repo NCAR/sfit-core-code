@@ -1,10 +1,10 @@
  # General
  
  file.in.stalayers              = station.layers
- file.in.refprofile             = reference.prf
- file.in.spectrum               = spectrum
+ file.in.refprofile             = reference.prf_meas
+ file.in.spectrum               = meas_spectrum
  file.in.solarlines             = solar.dat
- file.in.linelist               = 04746.000000-04774.000000.hbin
+ file.in.linelist               = 04745.883444-04774.116556.hbin
  
  # Definition for retrieval gases
  

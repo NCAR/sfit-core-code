@@ -4,7 +4,7 @@
  file.in.refprofile             = reference.prf
  file.in.spectrum               = spectrum
  file.in.solarlines             = solar.dat
- file.in.linelist               = 00915.941222-00964.058778.hbin
+ file.in.linelist               = 00895.941722-01004.058278.hbin
  
  # Definition for retrieval gases
  
