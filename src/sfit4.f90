@@ -682,7 +682,10 @@
       END IF
       ! ERROR FOR SIMPLE PHASE ONLY WHEN NO ERROR FOR EMPIRICAL PHASE IS NOT CALCULATED
       IF( F_KB_PHASE .AND..NOT. F_KB_EPHS)   IFPHASE = .TRUE.
-      IF( F_KB_TEMP )                        IFTEMP = .TRUE.
+      IF( F_KB_TEMP ) THEN
+            IFTEMP = .TRUE.
+            NGIDX(NRET+1,0,:NBAND)=1 !kb in all windows BL
+      END IF
       IF( F_KB_IFDIFF )                      IFDIFF = .TRUE.
       IF( F_KB_EAP.AND..NOT.F_RTAPOD ) then
          F_RTAPOD = .TRUE.

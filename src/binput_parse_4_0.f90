@@ -578,10 +578,11 @@ end subroutine read_file_section
           read(value,*) iftemp
        else
 !          select case (trim(adjustl(keyword(3))))
-!          case ('sigma')
-!             if (iftemp) read(value,*) tsigma(1:nlayers+ncell)
-!          end select
           select case (trim(adjustl(keyword(3))))
+          case ('sigma')
+             read(value,*) tsigma(1:nlayers+ncell)
+             tlambda=-1.0D0
+!          end select
           case ('lambda')
              read(value,*) tlambda
              tsigma(1:nlayers+ncell) = 1.0D0

@@ -102,6 +102,7 @@
          K_START = NR_LEVEL
          IF (NR_LEVEL .GT. 1 ) K_START = K_START - 1
          K_END = NR_LEVEL
+         IF (K_END .GT. (KMAX + NCELL)) K_END=KMAX + NCELL ! final iteration in FM has NR_LEVEL=KMAX+1, and should undo the lowest level perturbation
          CROSS(:N1,K_START:K_END,:NCROSS) = 0.D0
       END IF
       INDXX = 0

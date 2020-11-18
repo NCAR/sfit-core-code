@@ -810,16 +810,17 @@
 
          ! Zero out for molecules not retrieved in a particular bank
          ! NGIDX(KK,0,IBAND) -- Molecule retrieved in band IBAND?
-         ! NGIDX(KK,1,IBAND) -- start index for this molecule in state vector
-         ! NGIDX(KK,2,IBAND) -- last index for this molecule in state vector
+         ! NGIDX(KK,1,0) -- start index for this molecule in state vector
+         ! NGIDX(KK,2,0) -- last index for this molecule in state vector
          SPEC1: DO JSCAN = 1, NS
 
-            RET1: DO KK = 1, NRET
+          RET1: DO KK = 1, NRET+1
+            IF ( KK.LE.NRET .OR. IFTEMP) THEN
                IF( NGIDX(KK,0,IBAND) == 0 ) THEN
                  KN( NS1:NS2 , NGIDX(KK,1,0): NGIDX(KK,2,0) ) = 0.0D0
                ELSE
                ENDIF
-               
+            ENDIF
 
             END DO RET1
          END DO SPEC1
