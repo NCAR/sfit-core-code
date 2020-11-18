@@ -80,7 +80,7 @@
       REAL(DOUBLE)   :: CHI_2, CHI_2_X, CHI_2_Y_OLD_SE
       REAL(DOUBLE)   :: CHI_2_OLD, D_CHI_2, CHI_2_OLD_SE, D_CHI_2_OLD_SE
 
-      INTEGER      :: I, J, ONE, SGN, KK, NS, IYDX1, IYDX2, JSCAN, IBAND, NAERR
+      INTEGER      :: I, J, ONE, SGN, NS, IYDX1, IYDX2, JSCAN, IBAND, NAERR
       REAL(DOUBLE) :: RMSDELY, RMSDY, RMSIM1, CHGY, UNCY, SQRMS, VQRMS, RMSKDX
 
       REAL(DOUBLE), DIMENSION(:), ALLOCATABLE   :: SEINV, SEINV_OLD, DY, DELY, DYMKDX
@@ -100,6 +100,8 @@
       REAL(DOUBLE), DIMENSION(:)  ,  ALLOCATABLE          :: YN, KDX
       REAL(DOUBLE), DIMENSION(:,:) ,  ALLOCATABLE      :: SPKSK, SHATINV
       REAL(DOUBLE), DIMENSION(:,:) ,  ALLOCATABLE      :: KNT, KHATT
+
+      CHARACTER (LEN=31)                 :: CFORMAT
 
       !REAL(DOUBLE), DIMENSION(M)               :: YN, KDX
       !REAL(DOUBLE), DIMENSION(N*N)             :: SPKSK, SHATINV
@@ -218,10 +220,11 @@
          ENDIF
 
          IF( F_WRTSEINV )THEN
+            WRITE(CFORMAT, '(A,I5,A)') '(', M, 'ES26.18)' 
             CALL FILEOPEN( 67, 2 )
             WRITE(67,*) TRIM(TAG), ' SEINV (DIAGONAL) M X 1'
             WRITE(67,*) M, 1
-            WRITE(67,261) (SEINV(I),I=1,M)
+            WRITE(67,TRIM(CFORMAT)) (SEINV(I),I=1,M)
             CALL FILECLOSE(67,1)
          ENDIF
 
