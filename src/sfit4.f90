@@ -140,7 +140,7 @@
       CALL SETUP2
 
 ! --- FINISH SETUP CALCULATE CROSS SECTIONS, -1 means, crosssections for all levels.
-      CALL SETUP3( XSC_DETAIL, -1 )
+      CALL SETUP3( XSC_DETAIL, -1, 1 )
 
 ! --- IF EMISSION, SNR IS THE NOISE ON THE MEASURMENT GIVEN IN (MW/(CM^2*SR*CM-1)) MP
 ! MUSTFIX
@@ -682,7 +682,10 @@
       END IF
       ! ERROR FOR SIMPLE PHASE ONLY WHEN NO ERROR FOR EMPIRICAL PHASE IS NOT CALCULATED
       IF( F_KB_PHASE .AND..NOT. F_KB_EPHS)   IFPHASE = .TRUE.
-      IF( F_KB_TEMP )                        IFTEMP = .TRUE.
+      IF( F_KB_TEMP ) THEN
+            IFTEMP = .TRUE.
+            NGIDX(NRET+1,0,:NBAND)=1 !kb in all windows BL
+      END IF
       IF( F_KB_IFDIFF )                      IFDIFF = .TRUE.
       IF( F_KB_EAP.AND..NOT.F_RTAPOD ) then
          F_RTAPOD = .TRUE.

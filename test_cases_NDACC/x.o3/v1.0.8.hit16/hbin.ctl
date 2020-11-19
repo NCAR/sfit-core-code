@@ -13,9 +13,9 @@ file.out.ascii = T
 #
 # Path to the directory tree where the gas subdirectories are
 #
-#file.in.linelist = /home/mathias/linelist-core/
+file.in.linelist = /home/mathias/linelist-core/
 #file.in.linelist = /bira-iasb/projects/FTIR/tools/programs/sfit4/linelists/linelist-core/
-file.in.linelist = /Users/jamesw/FDP/sfit/400/linelist-core/
+#file.in.linelist = /Users/jamesw/FDP/sfit/400/linelist-core/
 #file.in.linelist = /data/ebaumer/Code/linelist-core/
 #
 # Then the next lines are paths to each gas file that will be searched for lines in the

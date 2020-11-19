@@ -491,6 +491,7 @@
  44      IF( TRETB(I) )THEN
             WRITE(16,110)
             TBCK = 1
+            NGIDX(NRET+1,0,I)=1
          ENDIF
 
 ! --- CHECK RETRIEVING ANYTHING IN THIS BAND

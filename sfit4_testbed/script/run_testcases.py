@@ -10,9 +10,10 @@
 
 import os,sys,string
 
-from libs import sfit4_ctl,summary,statevec, read_from_file
+from libs import sfit4_ctl,summary,statevec, read_from_file,Kout
 from shutil import copy
 from pathlib import Path
+
 
 import numpy as np
 import subprocess
@@ -219,31 +220,46 @@ class test_sfit4:
             else:
                 self.results[tc].update({'summary':False})
 
-    def read_statevectors(self):
-        #Store values from statevec
-        state_orig = statevec(os.path.join(self.origtestcases_dir,'statevec.{}'.format(tc[1])))
-        result = {'ret_profile': state_orig.rt_vmr[0]}
-        results_orig[tc[0]].update(result)
+    def read_KBmatrices(self):
+        for tc in self.results:
+            kbfile = os.path.join(self.origtestcases_dir,'kb.out.{}'.format(tc.lower()))
+            if os.path.exists(kbfile):
+                kb_orig = Kout(kbfile)
+                result = {'kb': kb_orig.get_alldata('')}
+                self.results_orig[tc].update(result)
+                
+                kbfile = os.path.join(self.testcase_dir,
+                                        self.results[tc]['dir'],'kb.out')
+                kb = Kout(kbfile)
+                result = {'kb': kb.get_alldata('')}
+                self.results[tc].update(result)
         
-        state = statevec(os.path.join(tcpath,'statevec'))
-        result = {'ret_profile': state.rt_vmr[0]}
-        results[tc[0]].update(result)
 
     def print_summary(self):
         str = ''
         for rs in self.results.keys():
             if self.results[rs]['converged']:
-                str += 'Testcase {0}: RUN OK '.format(rs)
+                str += 'Case {0}:\tRUN OK\t '.format(rs)
             else:
-                str += 'Testcase {0}: RUN NOT OK '.format(rs)
+                str += 'Case {0}:\tRUN NOT OK\t '.format(rs)
 
             diverge = self.results[rs]['chi_y_2'] - self.results_orig[rs]['chi_y_2']
             diverge *= 2
             diverge /= self.results[rs]['chi_y_2'] + self.results_orig[rs]['chi_y_2']
-            if np.abs(diverge) < 0.01:
-                str += 'RESULTS OK (less than 1 {}\n'.format(rs)
+            if np.abs(diverge) < 0.001:
+                str += 'CHI_2_Y OK\t'
             else:
-                str += 'CHI_2_Y DIVERGES BY {1:1% %\n'.format(rs, diverge)
+                str += 'CHI_2_Y NOT OK\t'.format(rs, diverge)
+
+            if 'kb' in self.results[rs]:
+
+                max_diff = np.max(np.abs(self.results_orig[rs]['kb'] - self.results[rs]['kb']))
+                if np.abs(max_diff) < 0.001:
+                    str += 'KB OK\n'
+                else:
+                    str += 'KB NOT OK\n'.format(rs, diverge)
+            else:
+                str += 'No kbmatrix found'
 
         str += '\n\n'
         str += 'Numbers of the runs are found in file {}\n'.format(self.resultfile)
@@ -272,6 +288,11 @@ class test_sfit4:
                     fid.write('{}\t'.format(self.results[rs]['chi_y_2']))
                     fid.write('{}\t'.format(self.results_orig[rs]['chi_y_2']))
                     fid.write('{} %\n'.format(200*(self.results[rs]['chi_y_2']-self.results_orig[rs]['chi_y_2'])/(self.results[rs]['chi_y_2']+self.results_orig[rs]['chi_y_2'])))
+                    if 'kb' in self.results[rs]:
+                        max_diff = np.max(np.abs(self.results_orig[rs]['kb'] - self.results[rs]['kb']))
+                        fid.write('DIFFERENCE IN KB:\t')
+                        fid.write('{}\n'.format(max_diff))
+
                     #            print 'MEAN SQARE Diff. RETRIEVED VMR:', np.sqrt(np.mean((self.results[rs]['chi_y_2']-self.results_orig[rs]['chi_y_2'])**2))
                 else:
                     fid.write('No new summary or original summary file found')
@@ -282,7 +303,7 @@ if __name__ == '__main__':
     tc = test_sfit4('test.cfg')
     runsfit = True
     runhbin = True
-    error = False
+    error = True
     tips = False
     if sys.argv.count('--nosfit4') > 0:
         runsfit = False
@@ -297,6 +318,7 @@ if __name__ == '__main__':
     script_path = os.path.dirname(os.path.realpath(__file__))
     tc.run_sfit4_in_testcase(sfit4=runsfit,hbin=runhbin,tips=tips,error=error)
     tc.read_summaries()
+    tc.read_KBmatrices()
     tc.print_summary()
  #   tc.read_statevectors()
     tc.print_results()

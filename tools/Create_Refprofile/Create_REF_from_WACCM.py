@@ -188,24 +188,33 @@ class reference_prf:
                          2.056e-12,   2.315e-12,   2.664e-12,   3.103e-12,   4.086e-12,
                          5.223e-12,   6.310e-12,   7.913e-12,   8.820e-12,   9.454e-12,
                          9.882e-12,   1.016e-11,   1.025e-11,   1.047e-11,   1.065e-11,
-                         1.083e-11,   1.102e-11,   1.125e-11]}
-                            
-            self.gases = ['H2O',     'CO2',     'O3',     'N2O',     'CO',     
-                          'CH4',     'O2',      'NO',     'SO2',     'NO2',      
-                          'NH3',     'HNO3',    'OH',     'HF',      'HCL',     
-                          'HBR',     'HI',      'CLO',    'OCS',     'CH2O',     
-                          'HOCL',    'HO2',     'H2O2',   'HONO',    'HO2NO2',  
-                          'N2O5',    'CLONO2',  'HCN',    'CH3F',    'CH3CL',    
-                          'CF4',     'CCL2F2',  'CCL3F',  'CH3CCL3', 'CCL4',    
-                          'COF2',    'COCLF',   'C2H6',   'C2H4',    'C2H2',     
-                          'N2',      'CHF2CL',  'COCL2',  'CH3BR',   'CH3I',    
-                          'HCOOH',   'H2S',     'CHCL2F', 'O2CIA',   'SF6',      
-                          'NF3',     'N2CIA',   'OTHER',  'OTHER',   'PH3',   
-                          'OTHER',   'OTHER',   'OCLO',   'F134A',   'C3H8',     
-                          'F142B',   'CFC113',  'F141B',  'CH3OH',   'OTHER', 
-                          'OTHER',   'PAN',     'CH3CHO' ,'CH3CN',   'OTHER',    
-                          'CH3COOH', 'C5H8',    'MVK',    'MACR',    'C3H6',    
-                          'C4H8',    'OTHER',   'OTHER',  'OTHER',   'OTHER',    
+                         1.083e-11,   1.102e-11,   1.125e-11],
+                'CHF3':[2.750E-11,   2.750E-11,   2.750E-11,   2.750E-11,   2.750E-11,
+                        2.750E-11,   2.750E-11,   2.750E-11,   2.750E-11,   2.750E-11,
+                        2.750E-11,   2.750E-11,   2.750E-11,   2.750E-11,   2.750E-11,
+                        2.750E-11,   2.750E-11,   2.750E-11,   2.750E-11,   2.750E-11,
+                        2.750E-11,   2.750E-11,   2.750E-11,   2.750E-11,   2.750E-11,
+                        2.750E-11,   2.750E-11,   2.750E-11,   2.750E-11,   2.750E-11,
+                        2.750E-11,   2.750E-11,   2.750E-11,   2.750E-11,   2.750E-11,
+                        2.750E-11,   2.750E-11,   2.750E-11,   2.750E-11,   2.750E-11,
+                        2.750E-11,   2.750E-11,   2.750E-11]}
+
+            self.gases = ['H2O',     'CO2',     'O3',     'N2O',     'CO',      #1-5
+                          'CH4',     'O2',      'NO',     'SO2',     'NO2',     #6-10 
+                          'NH3',     'HNO3',    'OH',     'HF',      'HCL',     #11-15
+                          'HBR',     'HI',      'CLO',    'OCS',     'CH2O',    #16-20 
+                          'HOCL',    'HO2',     'H2O2',   'HONO',    'HO2NO2',  #21-25
+                          'N2O5',    'CLONO2',  'HCN',    'CH3F',    'CH3CL',   #26-30
+                          'CF4',     'CCL2F2',  'CCL3F',  'CH3CCL3', 'CCL4',    #31-35
+                          'COF2',    'COCLF',   'C2H6',   'C2H4',    'C2H2',    #36-40 
+                          'N2',      'CHF2CL',  'COCL2',  'CH3BR',   'CH3I',    #41-45
+                          'HCOOH',   'H2S',     'CHCL2F', 'O2CIA',   'SF6',     #46-50
+                          'NF3',     'N2CIA',   'OTHER',  'OTHER',   'PH3',     #51-55
+                          'OTHER',   'OTHER',   'OCLO',   'F134A',   'C3H8',    #56-60
+                          'F142B',   'CFC113',  'F141B',  'CH3OH',   'OTHER',   #61-65
+                          'OTHER',   'PAN',     'CH3CHO' ,'CH3CN',   'CHF3',   #66-70
+                          'CH3COOH', 'C5H8',    'MVK',    'MACR',    'C3H6',    #71-75
+                          'C4H8',    'OTHER',   'OTHER',  'OTHER',   'OTHER',   #76-80
                           'OTHER',   'OTHER',   'OTHER',  'OTHER',   'OTHER',   
                           'OTHER',   'OTHER',   'OTHER',  'OTHER',   'OTHER',    
                           'OTHER',   'OTHER',   'OTHER',  'OTHER',   'OTHER',   

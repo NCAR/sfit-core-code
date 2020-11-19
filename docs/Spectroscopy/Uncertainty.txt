@@ -5,10 +5,12 @@ which is reproduced here. There are two types of uncertainty code corresponding 
 uncertainty in cm-1 (used for the line position and air pressure-induced line shift parameters)
 and relative uncertainty in % (used for the line intensity and broadening parameters).
 
+v, S, gamma(air) or
+v, S, gamma(air), gamma(self), n(air)(T-dep. exponent), delta(air)(pressure shift)
 
 Code	Absolute Uncertainty range	Code	Relative Uncertainty range
 
-0	≥ 1 or Unreported	0	Unreported or unavailable
+0	≥ 1 or Unreported	               0	Unreported or unavailable
 1	≥ 0.1 and < 1	                  1	Default or constant
 2	≥ 0.01 and < 0.1	               2	Average or estimate
 3	≥ 0.001 and < 0.01	            3	≥ 20 %

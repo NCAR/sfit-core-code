@@ -200,7 +200,7 @@
                         END IF
                      END DO
                   END DO
-                  CALL SETUP3( XSC_DETAIL, -1 )
+                  CALL SETUP3( XSC_DETAIL, -1, ICOUNT )
                   ! SET BACK LINE PARAMETERS
                   DO K = 1, nrlgas
                      DO I=LINE1(1), LINE2(NBAND)
@@ -226,7 +226,7 @@
             END DO
             IF (K.GT. 0 .AND. K.LT.NSPEC+2) THEN
                CALL LBLATM( 0, KMAX )
-               CALL SETUP3( XSC_DETAIL, -1 )
+               CALL SETUP3( XSC_DETAIL, -1, ICOUNT )
                FSZA = .TRUE.
             END IF
             NCOUNT = NCOUNT + NSPEC
@@ -313,7 +313,15 @@
             K = IPARM - NCOUNT
             ! --- KMAX + 1 PASSES TO UN-PERTURB FINAL TEMPERATURE
             !IF( K .GE. 1 .AND. K .LE. KMAX + 1 )THEN
+            if (icount.eq.1) then
+               TRET = .TRUE.
+               T(:NPATH) = PARM(NCOUNT+1:NCOUNT+NPATH) * TORG(:NPATH)
+               CALL LBLATM( ITER, KMAX )
+               CALL MASSPATH( -1 )
+               CALL SETUP3( XSC_DETAIL,-1, 1 )
+            end if
             IF( K .GE. 1 .AND. K .LE. NPATH + 1 )THEN
+!               print *, ICOUNT, K
                TRET = .TRUE.
                !T(:KMAX) = PARM(NCOUNT+1:NCOUNT+KMAX) * TORG(:KMAX)
 !               NCOUNT = NCOUNT + KMAX
@@ -322,7 +330,7 @@
                !IF (K .GT. KMAX) K = KMAX
                IF (K .GT. NPATH) K = NPATH
                CALL MASSPATH( K )
-               CALL SETUP3( XSC_DETAIL, k )
+               CALL SETUP3( XSC_DETAIL, k, ICOUNT )
             ENDIF ! K
             NCOUNT = NCOUNT + NPATH
          ENDIF ! IFTEMP
@@ -802,16 +810,17 @@
 
          ! Zero out for molecules not retrieved in a particular bank
          ! NGIDX(KK,0,IBAND) -- Molecule retrieved in band IBAND?
-         ! NGIDX(KK,1,IBAND) -- start index for this molecule in state vector
-         ! NGIDX(KK,2,IBAND) -- last index for this molecule in state vector
+         ! NGIDX(KK,1,0) -- start index for this molecule in state vector
+         ! NGIDX(KK,2,0) -- last index for this molecule in state vector
          SPEC1: DO JSCAN = 1, NS
 
-            RET1: DO KK = 1, NRET
+          RET1: DO KK = 1, NRET+1
+            IF ( KK.LE.NRET .OR. IFTEMP) THEN
                IF( NGIDX(KK,0,IBAND) == 0 ) THEN
                  KN( NS1:NS2 , NGIDX(KK,1,0): NGIDX(KK,2,0) ) = 0.0D0
                ELSE
                ENDIF
-               
+            ENDIF
 
             END DO RET1
          END DO SPEC1

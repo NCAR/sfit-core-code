@@ -10,17 +10,17 @@ pspec, hbin, sfit:   Z
 
 testcase	tested with version:
 
-		      v0.9.4.5       V1.0	      V1.0.8
-		      14-11-2014     Nov 2019	   July 2020
-x.c2h6                                 Y
-x.ch4_L1                               Y
-x.clono2                               Y
-x.co		   x                          Y
-x.hcl		   x                 y        Y
-x.hcn		   x                 y        Y
-x.hf		   x                          Y
-x.hno3                        y		   Y
-x.o3		   x                 y        Y
+		      Station     v0.9.4.5       V1.0	   V1.0.8
+		                  14-11-2014     Nov '19	July '20
+x.c2h6      Boulder                    Y
+x.ch4_L1    Thule                      Y
+x.clono2    Ny_Alesund                 Y
+x.co		   Ny_Alesund        x        Y
+x.hcl		   Ny_Alesund        x        Y
+x.hcn	      Eureka            y        Y           Y
+x.hf        Ny_Alesund        y        Y           Y
+x.hno3      Bremen            y		   Y           Y
+x.o3        Ny_Alesund		   x        Y           Y
 
 V1.0.8
 - these are tested with both atm20 & hit16
