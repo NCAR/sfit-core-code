@@ -12,7 +12,7 @@
  gas.profile.list            = CO2 H2O O3
  gas.column.list             = 
  gas.profile.CO2.correlation          =               T
- gas.profile.CO2.correlation.type     =               1
+ gas.profile.CO2.correlation.type     =               6
  gas.profile.CO2.correlation.lambda     =               1e6	
  gas.profile.CO2.correlation.minalt  =               0.0
  gas.profile.CO2.correlation.maxalt  =               150.0
@@ -99,7 +99,7 @@
  rt.slope                    =               T
  rt.slope.apriori            =           0.000
  rt.slope.sigma              =           0.100
- rt.curvature                =               F
+ rt.curvature                =               T
  rt.curvature.apriori        =           0.000
  rt.curvature.sigma          =           0.100
  rt.solshift = F
@@ -121,8 +121,8 @@
  band.1.beam                 =               
  band.1.calc_point_space     =       1.00E-3
  band.1.wave_factor          =           1.000
- band.1.max_opd= 90.0000
- band.1.omega= 2.3923
+ band.1.max_opd=180.0
+ band.1.omega=1.9139
  band.1.apodization_code =               0
  band.1.gasb                 = CO2 H2O O3
  band.1.tempretb             = T  
