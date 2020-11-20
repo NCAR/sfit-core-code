@@ -429,7 +429,7 @@ END SUBROUTINE READLAYRS
 
 ! --- SETUP OUTPUT VERBOSITY LEVELS USE OLD AND NEW FLAGS
 ! --- SKIP PUNCH FILE ALTOGETHER
-      IF( .NOT. F_WRTRAYTC )THEN
+      IF( .NOT. F_WRTRAYTC .OR. (ITER.NE.0) ) THEN  ! don't write for each iteration when temperature is retrieved
          NOPRNT = -1
          RAYOUTTYPE = 0
       ELSEIF( RAYOUTTYPE .GE. 2 )THEN

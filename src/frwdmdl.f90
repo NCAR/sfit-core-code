@@ -60,7 +60,7 @@
       INTEGER :: III, NGB
       INTEGER :: NVAR1, KFIT, KFIT2, KZERO, KPHASE, JATMOS, IPARM, I, NCOUNT, &
          KK, K, MXONE, IBAND, N, JSCAN, MONONE, N1, N2, N3, J, MSHIFT, NS, NR, &
-         NS1, NS2
+         NS1, NS2, FFIXCCC=-1
       LOGICAL :: XRET, TRET, FLINE, FSZA
 
       REAL(DOUBLE) :: MEAS_BCK, FILTER_AVG
@@ -225,7 +225,7 @@
                ASTANG(KK) = ASTANG0(KK)*(1.0D0+PARM(NCOUNT+KK))
             END DO
             IF (K.GT. 0 .AND. K.LT.NSPEC+2) THEN
-               CALL LBLATM( 0, KMAX )
+               CALL LBLATM( 0, KMAX )  ! LBLATM will write the perturbed SZA line of sight to raytrace.out I ITER=0 required? This will also read the reference.prf again...
                CALL SETUP3( XSC_DETAIL, -1, ICOUNT )
                FSZA = .TRUE.
             END IF
@@ -327,6 +327,7 @@
 !               NCOUNT = NCOUNT + KMAX
                T(:NPATH) = PARM(NCOUNT+1:NCOUNT+NPATH) * TORG(:NPATH)
                CALL LBLATM( ITER, KMAX )
+               IF ( K.EQ. NPATH) FFIXCCC=NCOUNT
                !IF (K .GT. KMAX) K = KMAX
                IF (K .GT. NPATH) K = NPATH
                CALL MASSPATH( K )
@@ -793,7 +794,13 @@
             !write(0,'(10(e11.4,1x))'),
             !if(iparm .eq. 4)write(0,'(4d22.14)') (yc(kk), yn(kk), yc(kk)-yn(kk), (yc(kk)-yn(kk))/del, kk=1,nfit)
          ENDIF
-
+        !Fix the final perturbation in temperature and CCC
+        IF ( FFIXCCC.GT.0 ) THEN
+            PARM(:NVAR) = XN
+            T(:NPATH) = PARM(FFIXCCC+1:FFIXCCC+NPATH) * TORG(:NPATH)
+            CALL LBLATM(ITER,KMAX)
+            FFIXCCC = -1
+        ENDIF
       ENDDO PARAM
 
 ! --- ZERO K MATRIX FOR MOLECULES NOT INCLUDED IN FIT OF A BAND
