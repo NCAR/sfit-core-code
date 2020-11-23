@@ -61,7 +61,7 @@
       INTEGER :: NVAR1, KFIT, KFIT2, KZERO, KPHASE, JATMOS, IPARM, I, NCOUNT, &
          KK, K, MXONE, IBAND, N, JSCAN, MONONE, N1, N2, N3, J, MSHIFT, NS, NR, &
          NS1, NS2, FFIXCCC=-1
-      LOGICAL :: XRET, TRET, FLINE, FSZA
+      LOGICAL :: XRET, TRET, FLINE, FSZA, FDOCROSS
 
       REAL(DOUBLE) :: MEAS_BCK, FILTER_AVG
       REAL(DOUBLE), DIMENSION(3)      :: B
@@ -95,6 +95,7 @@
 !nbkfit nshift nzero nsolar neaprt nephsrt ndiff nphase  nret*(kmax||1) ntemp channels
 !                    do fft                              ismix
 
+      FDOCROSS=.FALSE.
       TFLG = .FALSE.
       BUG1 = .FALSE. !.TRUE.
       ! IF LINE PARAMETERS ARE DISTURBED, GET SOME SPACE TO STORE ORIGINAL ONES
@@ -221,11 +222,19 @@
          IF (IFSZA /= 0) THEN
             ! SETUP2 AND SETUP3 MUST RUN ONE TIME MORE THAN PERTURBATION SZA IN ORDER TO GET THE OLD STATE AGAIN
             K = ICOUNT - NCOUNT -1
+            IF (ICOUNT.EQ.1) THEN
+                FDOCROSS=.TRUE.
+                FSZA=.TRUE.
+            ENDIF
             DO KK = 1,NSPEC
                ASTANG(KK) = ASTANG0(KK)*(1.0D0+PARM(NCOUNT+KK))
             END DO
             IF (K.GT. 0 .AND. K.LT.NSPEC+2) THEN
-               CALL LBLATM( 0, KMAX )  ! LBLATM will write the perturbed SZA line of sight to raytrace.out I ITER=0 required? This will also read the reference.prf again...
+               IF ( IFTEMP ) THEN
+                    CALL LBLATM( 1, KMAX )  ! LBLATM will write the perturbed SZA line of sight to raytrace.out I ITER=0 required? This will also read the reference.prf again...
+               ELSE
+                    CALL LBLATM(0,KMAX)
+               ENDIF
                CALL SETUP3( XSC_DETAIL, -1, ICOUNT )
                FSZA = .TRUE.
             END IF
@@ -316,9 +325,7 @@
             if (icount.eq.1) then
                TRET = .TRUE.
                T(:NPATH) = PARM(NCOUNT+1:NCOUNT+NPATH) * TORG(:NPATH)
-               CALL LBLATM( ITER, KMAX )
-               CALL MASSPATH( -1 )
-               CALL SETUP3( XSC_DETAIL,-1, 1 )
+               FDOCROSS=.TRUE.
             end if
             IF( K .GE. 1 .AND. K .LE. NPATH + 1 )THEN
 !               print *, ICOUNT, K
@@ -336,6 +343,12 @@
             NCOUNT = NCOUNT + NPATH
          ENDIF ! IFTEMP
 
+        IF (FDOCROSS) THEN
+            CALL LBLATM( ITER, KMAX )
+            CALL MASSPATH( -1 )
+            CALL SETUP3( XSC_DETAIL,-1, 1 )
+            FDOCROSS=.FALSE. !Only do this for the first run to ensure that the YN is set correctly so that it can be compared to the perturbed ... the spline interpolated temperature is used in YN
+        ENDIF
          !         print *, IPARM, PNAME(IPARM), PARM(IPARM), T(KMAX), CCC(1,KMAX)
 
 ! --- UPDATE TO SOLAR SPECTRAL CALCULATIONS - ALL BANDS AT ONCE
