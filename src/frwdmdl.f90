@@ -333,7 +333,7 @@
                !T(:KMAX) = PARM(NCOUNT+1:NCOUNT+KMAX) * TORG(:KMAX)
 !               NCOUNT = NCOUNT + KMAX
                T(:NPATH) = PARM(NCOUNT+1:NCOUNT+NPATH) * TORG(:NPATH)
-               CALL LBLATM( ITER, KMAX )
+               CALL LBLATM( 1, KMAX ) ! avoid printing of raytrace out information for perturbations
                IF ( K.EQ. NPATH) FFIXCCC=NCOUNT
                !IF (K .GT. KMAX) K = KMAX
                IF (K .GT. NPATH) K = NPATH
@@ -344,7 +344,7 @@
          ENDIF ! IFTEMP
 
         IF (FDOCROSS) THEN
-            CALL LBLATM( ITER, KMAX )
+            CALL LBLATM( ITER, KMAX ) !Here I use ITER to ensure a print of the LOS at ITER=-1 (raytrace out is disabled in kb...). So with IFTEMP the LOS is printed again at the final iteration.
             CALL MASSPATH( -1 )
             CALL SETUP3( XSC_DETAIL,-1, 1 )
             FDOCROSS=.FALSE. !Only do this for the first run to ensure that the YN is set correctly so that it can be compared to the perturbed ... the spline interpolated temperature is used in YN
@@ -811,7 +811,7 @@
         IF ( FFIXCCC.GT.0 ) THEN
             PARM(:NVAR) = XN
             T(:NPATH) = PARM(FFIXCCC+1:FFIXCCC+NPATH) * TORG(:NPATH)
-            CALL LBLATM(ITER,KMAX)
+            CALL LBLATM(1,KMAX) !use ITER=1 to avoid printing to raytrace.out, or VMR warnings
             FFIXCCC = -1
         ENDIF
       ENDDO PARAM
