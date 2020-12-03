@@ -1,7 +1,6 @@
 Dezember 2020
 
 Fix in creation of the L1 matrix (v1.0.11)
-
 Fix of calculation of temperature KB matrices and temperature retrieval.
 
 
