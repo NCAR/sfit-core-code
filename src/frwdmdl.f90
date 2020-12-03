@@ -60,8 +60,8 @@
       INTEGER :: III, NGB
       INTEGER :: NVAR1, KFIT, KFIT2, KZERO, KPHASE, JATMOS, IPARM, I, NCOUNT, &
          KK, K, MXONE, IBAND, N, JSCAN, MONONE, N1, N2, N3, J, MSHIFT, NS, NR, &
-         NS1, NS2
-      LOGICAL :: XRET, TRET, FLINE, FSZA
+         NS1, NS2, FFIXCCC=-1
+      LOGICAL :: XRET, TRET, FLINE, FSZA, FDOCROSS
 
       REAL(DOUBLE) :: MEAS_BCK, FILTER_AVG
       REAL(DOUBLE), DIMENSION(3)      :: B
@@ -95,6 +95,7 @@
 !nbkfit nshift nzero nsolar neaprt nephsrt ndiff nphase  nret*(kmax||1) ntemp channels
 !                    do fft                              ismix
 
+      FDOCROSS=.FALSE.
       TFLG = .FALSE.
       BUG1 = .FALSE. !.TRUE.
       ! IF LINE PARAMETERS ARE DISTURBED, GET SOME SPACE TO STORE ORIGINAL ONES
@@ -200,7 +201,7 @@
                         END IF
                      END DO
                   END DO
-                  CALL SETUP3( XSC_DETAIL, -1 )
+                  CALL SETUP3( XSC_DETAIL, -1, ICOUNT )
                   ! SET BACK LINE PARAMETERS
                   DO K = 1, nrlgas
                      DO I=LINE1(1), LINE2(NBAND)
@@ -221,12 +222,20 @@
          IF (IFSZA /= 0) THEN
             ! SETUP2 AND SETUP3 MUST RUN ONE TIME MORE THAN PERTURBATION SZA IN ORDER TO GET THE OLD STATE AGAIN
             K = ICOUNT - NCOUNT -1
+            IF (ICOUNT.EQ.1) THEN
+                FDOCROSS=.TRUE.
+                FSZA=.TRUE.
+            ENDIF
             DO KK = 1,NSPEC
                ASTANG(KK) = ASTANG0(KK)*(1.0D0+PARM(NCOUNT+KK))
             END DO
             IF (K.GT. 0 .AND. K.LT.NSPEC+2) THEN
-               CALL LBLATM( 0, KMAX )
-               CALL SETUP3( XSC_DETAIL, -1 )
+               IF ( IFTEMP ) THEN
+                    CALL LBLATM( 1, KMAX )  ! LBLATM will write the perturbed SZA line of sight to raytrace.out I ITER=0 required? This will also read the reference.prf again...
+               ELSE
+                    CALL LBLATM(0,KMAX)
+               ENDIF
+               CALL SETUP3( XSC_DETAIL, -1, ICOUNT )
                FSZA = .TRUE.
             END IF
             NCOUNT = NCOUNT + NSPEC
@@ -313,20 +322,33 @@
             K = IPARM - NCOUNT
             ! --- KMAX + 1 PASSES TO UN-PERTURB FINAL TEMPERATURE
             !IF( K .GE. 1 .AND. K .LE. KMAX + 1 )THEN
+            if (icount.eq.1) then
+               TRET = .TRUE.
+               T(:NPATH) = PARM(NCOUNT+1:NCOUNT+NPATH) * TORG(:NPATH)
+               FDOCROSS=.TRUE.
+            end if
             IF( K .GE. 1 .AND. K .LE. NPATH + 1 )THEN
+!               print *, ICOUNT, K
                TRET = .TRUE.
                !T(:KMAX) = PARM(NCOUNT+1:NCOUNT+KMAX) * TORG(:KMAX)
 !               NCOUNT = NCOUNT + KMAX
                T(:NPATH) = PARM(NCOUNT+1:NCOUNT+NPATH) * TORG(:NPATH)
-               CALL LBLATM( ITER, KMAX )
+               CALL LBLATM( 1, KMAX ) ! avoid printing of raytrace out information for perturbations
+               IF ( K.EQ. NPATH) FFIXCCC=NCOUNT
                !IF (K .GT. KMAX) K = KMAX
                IF (K .GT. NPATH) K = NPATH
                CALL MASSPATH( K )
-               CALL SETUP3( XSC_DETAIL, k )
+               CALL SETUP3( XSC_DETAIL, k, ICOUNT )
             ENDIF ! K
             NCOUNT = NCOUNT + NPATH
          ENDIF ! IFTEMP
 
+        IF (FDOCROSS) THEN
+            CALL LBLATM( ITER, KMAX ) !Here I use ITER to ensure a print of the LOS at ITER=-1 (raytrace out is disabled in kb...). So with IFTEMP the LOS is printed again at the final iteration.
+            CALL MASSPATH( -1 )
+            CALL SETUP3( XSC_DETAIL,-1, 1 )
+            FDOCROSS=.FALSE. !Only do this for the first run to ensure that the YN is set correctly so that it can be compared to the perturbed ... the spline interpolated temperature is used in YN
+        ENDIF
          !         print *, IPARM, PNAME(IPARM), PARM(IPARM), T(KMAX), CCC(1,KMAX)
 
 ! --- UPDATE TO SOLAR SPECTRAL CALCULATIONS - ALL BANDS AT ONCE
@@ -793,7 +815,13 @@
             !write(0,'(10(e11.4,1x))'),
             !if(iparm .eq. 4)write(0,'(4d22.14)') (yc(kk), yn(kk), yc(kk)-yn(kk), (yc(kk)-yn(kk))/del, kk=1,nfit)
          ENDIF
-
+        !Fix the final perturbation in temperature and CCC
+        IF ( FFIXCCC.GT.0 ) THEN
+            PARM(:NVAR) = XN
+            T(:NPATH) = PARM(FFIXCCC+1:FFIXCCC+NPATH) * TORG(:NPATH)
+            CALL LBLATM(1,KMAX) !use ITER=1 to avoid printing to raytrace.out, or VMR warnings
+            FFIXCCC = -1
+        ENDIF
       ENDDO PARAM
 
 ! --- ZERO K MATRIX FOR MOLECULES NOT INCLUDED IN FIT OF A BAND
@@ -810,16 +838,17 @@
 
          ! Zero out for molecules not retrieved in a particular bank
          ! NGIDX(KK,0,IBAND) -- Molecule retrieved in band IBAND?
-         ! NGIDX(KK,1,IBAND) -- start index for this molecule in state vector
-         ! NGIDX(KK,2,IBAND) -- last index for this molecule in state vector
+         ! NGIDX(KK,1,0) -- start index for this molecule in state vector
+         ! NGIDX(KK,2,0) -- last index for this molecule in state vector
          SPEC1: DO JSCAN = 1, NS
 
-            RET1: DO KK = 1, NRET
+          RET1: DO KK = 1, NRET+1
+            IF ( KK.LE.NRET .OR. IFTEMP) THEN
                IF( NGIDX(KK,0,IBAND) == 0 ) THEN
                  KN( NS1:NS2 , NGIDX(KK,1,0): NGIDX(KK,2,0) ) = 0.0D0
                ELSE
                ENDIF
-               
+            ENDIF
 
             END DO RET1
          END DO SPEC1

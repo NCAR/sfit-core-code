@@ -125,10 +125,10 @@
  rt                          = T
  rt.lm                       = T
  rt.lm.gamma_start           = 1.0e5
- rt.lm.gamma_inc             = 10.0
- rt.lm.gamma_dec             = 10.0
+ rt.lm.gamma_inc             = 5.0
+ rt.lm.gamma_dec             = 5.0
  rt.convergence              = 0.1
- rt.max_iteration            = 17
+ rt.max_iteration            =30 
  rt.wshift                   = T
  rt.wshift.type              = 2
  rt.wshift.apriori           = 0.000
@@ -147,7 +147,7 @@
  rt.solshift.apriori         = 0.00
  rt.solshift.sigma           = 0.01
  rt.temperature              = T
- rt.temperature.lambda       = 1e9
+ rt.temperature.lambda       = 1e6
  rt.temperature.sigma        =
  0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01
  0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01
@@ -220,7 +220,7 @@
 
 # Overwrite Input SNR for Specific Regions
 
- sp.snr                      =
+ sp.snr                      = 1 2
  sp.snr.1.nu_start           = 1000.9
  sp.snr.1.nu_stop            = 1001.25
  sp.snr.1.snr                = 1.0
@@ -238,7 +238,6 @@
  out.ak_matrix               = T
  out.g_matrix                = T
  out.sa_matrix               = T
- out.shat_matrix =T
  out.retprofiles             = T
  out.aprprofiles             = T
  out.seinv_vector            = T
