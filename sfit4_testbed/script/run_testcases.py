@@ -191,6 +191,7 @@ class test_sfit4:
 
             sum_file = os.path.join(self.origtestcases_dir,
                                     'summary.{}'.format(tc.lower()))
+            print(sum_file)
             if os.path.exists(sum_file):
                 sum_orig = summary(sum_file)
                 result = {'summary': True,
@@ -204,6 +205,7 @@ class test_sfit4:
 
             sum_file = os.path.join(self.testcase_dir,
                                     self.results[tc]['dir'],'summary')
+            print(sum_file)
             if os.path.exists(sum_file):
                 sum_new = summary(sum_file)
                 result = {'summary': True,
