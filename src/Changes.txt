@@ -1,5 +1,8 @@
-June 2020
+Dezember 2020
 
+Fix in creation of the L1 matrix (v1.0.11)
+
+June 2020 
 
 -----
 Fixed bug in TIPS to prevent isotopes not allowed in TIPS (but in SFIT) to pass through TIPS. -jwh

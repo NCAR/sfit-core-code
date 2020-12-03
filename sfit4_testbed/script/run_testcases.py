@@ -282,7 +282,7 @@ if __name__ == '__main__':
     tc = test_sfit4('test.cfg')
     runsfit = True
     runhbin = True
-    error = False
+    error = True
     tips = False
     if sys.argv.count('--nosfit4') > 0:
         runsfit = False
