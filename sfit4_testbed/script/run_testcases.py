@@ -1,4 +1,4 @@
-#!/usr/bin/python2.7
+#!/usr/bin/python3
 
 # goes through all testcases, runs hbin, sfit4 and prints out some
 # numbers.  Intended to test a setup on a new computer, new compiler,
