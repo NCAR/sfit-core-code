@@ -796,7 +796,8 @@ SUBROUTINE GETSAINV( ISMIX )
         INTEGER :: I
         REAL(8),DIMENSION(:,:),ALLOCATABLE :: BMAT,DMAT
 
-        ALLOCATE (BMAT(NL,NL),DMAT(NL,NL)) ! SETUP B MATRIX FOR TP = BT * D * B
+        ALLOCATE (BMAT(NL,NL),DMAT(NL,NL))
+        ! SETUP B MATRIX FOR TP = BT * D * B
         BMAT = 0.0D0
         DO I = 1,NL - 1
            BMAT(I,I) = 1.0D0
