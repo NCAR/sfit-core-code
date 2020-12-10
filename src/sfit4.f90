@@ -695,15 +695,23 @@
          EAPF0(:NEAP) = 1.0D0
          EAPPAR = 1.0D0
       end IF
+      IF( F_KB_EAP.AND.F_RTAPOD ) then
+        EAPF(:NEAP) = EAPF0(:NEAP)
+      ENDIF
+
       IF( F_KB_EPHS.AND..NOT.F_RTPHASE ) then
          F_RTPHASE = .TRUE.
          F_EPHASE = .TRUE.
          IFPHASE = .FALSE.
          IEPHS = 2
          NEPHS = 3
-         EPHSF0(:NEPHS+1) = 1.0D0
+         EPHSF0(:NEPHS+1) = 1.0D0 !only relevant if new NEPHS > old NEPHS -> overwritten by EPHSF in initialize, EPHSF contains the prior information if not retrieved
          EPHSPAR = 1.0D0
       end IF
+      IF( F_KB_EPHS.AND.F_RTPHASE ) then
+            EPHSF(:NEPHS+1)=EPHSF0(:NEPHS+1) ! in initialize EPHSF0 is set as EPHSF (which contains the retrieved phase at this stage) and we need EPHSF0 to contain the apriori input
+      ENDIF
+
       IF( F_KB_ZSHIFT )  THEN
          IZERO(:NBAND) = 1
          F_ZSHIFT(:NBAND) = .true.
