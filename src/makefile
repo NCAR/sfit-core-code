@@ -15,7 +15,6 @@
 .f90.o:
 	$(FC) -c $(FFLAGS) $<
 
-
 FC = gfortran
 # error check everything
 FFLAGS = -Warray-bounds -Wcharacter-truncation -Wunused-parameter \

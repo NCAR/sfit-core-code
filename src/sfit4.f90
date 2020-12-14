@@ -140,7 +140,7 @@
       CALL SETUP2
 
 ! --- FINISH SETUP CALCULATE CROSS SECTIONS, -1 means, crosssections for all levels.
-      CALL SETUP3( XSC_DETAIL, -1 )
+      CALL SETUP3( XSC_DETAIL, -1, 1 )
 
 ! --- IF EMISSION, SNR IS THE NOISE ON THE MEASURMENT GIVEN IN (MW/(CM^2*SR*CM-1)) MP
 ! MUSTFIX
@@ -682,7 +682,10 @@
       END IF
       ! ERROR FOR SIMPLE PHASE ONLY WHEN NO ERROR FOR EMPIRICAL PHASE IS NOT CALCULATED
       IF( F_KB_PHASE .AND..NOT. F_KB_EPHS)   IFPHASE = .TRUE.
-      IF( F_KB_TEMP )                        IFTEMP = .TRUE.
+      IF( F_KB_TEMP ) THEN
+            IFTEMP = .TRUE.
+            NGIDX(NRET+1,0,:NBAND)=1 !kb in all windows BL
+      END IF
       IF( F_KB_IFDIFF )                      IFDIFF = .TRUE.
       IF( F_KB_EAP.AND..NOT.F_RTAPOD ) then
          F_RTAPOD = .TRUE.
@@ -692,15 +695,23 @@
          EAPF0(:NEAP) = 1.0D0
          EAPPAR = 1.0D0
       end IF
+      IF( F_KB_EAP.AND.F_RTAPOD ) then
+        EAPF(:NEAP) = EAPF0(:NEAP)
+      ENDIF
+
       IF( F_KB_EPHS.AND..NOT.F_RTPHASE ) then
          F_RTPHASE = .TRUE.
          F_EPHASE = .TRUE.
          IFPHASE = .FALSE.
          IEPHS = 2
          NEPHS = 3
-         EPHSF0(:NEPHS+1) = 1.0D0
+         EPHSF0(:NEPHS+1) = 1.0D0 !only relevant if new NEPHS > old NEPHS -> overwritten by EPHSF in initialize, EPHSF contains the prior information if not retrieved
          EPHSPAR = 1.0D0
       end IF
+      IF( F_KB_EPHS.AND.F_RTPHASE ) then
+            EPHSF(:NEPHS+1)=EPHSF0(:NEPHS+1) ! in initialize EPHSF0 is set as EPHSF (which contains the retrieved phase at this stage) and we need EPHSF0 to contain the apriori input
+      ENDIF
+
       IF( F_KB_ZSHIFT )  THEN
          IZERO(:NBAND) = 1
          F_ZSHIFT(:NBAND) = .true.
