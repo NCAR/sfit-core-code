@@ -61,6 +61,7 @@
 !                              TFIL76, &      ! MIXING RATIOS
 !                              TFIL77, &      ! LAYER BASED SA
 !                              TFIL78, &      ! RAYTRACE PUNCH OUTPUT - NOT USED
+!                              TFIL79, &      ! RAYTRACE LINE OF SIGHT
 !                              TFIL81, &      ! AK OUTPUT
 !                              TFIL82, &      ! MEASUREMENT ERROR OUTPUT
 !                              TFIL83, &      ! SMOOTHING ERROR OUTPUT
@@ -204,6 +205,9 @@
 
 ! --- MORE RAYTRACE OUTPUT
       TFILE(78) = 'raytrace.pnch'
+
+! --- RAYTRACE LOS OUTPUT
+      TFILE(79)= 'raytrace.los'
 
 ! --- RESERVED FOR GASOUT NAME CHANGES - SEE FRWDMDL.F90
       !TFILE(80)
