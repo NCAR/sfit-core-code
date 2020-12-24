@@ -110,6 +110,10 @@
          CALL FILEOPEN( 73, 2 )
          WRITE(73,*) TRIM(TAG), ' RAYTRACE DETAIL FILE'
       ENDIF
+! --- LOS
+      CALL FILEOPEN( 79, 1 )
+      WRITE(79,*) TRIM(TAG), ' RAYTRACE LOS FILE'
+
 
 ! --- OPTIONS ARE ATMOSPHERE ONLY, ATMOSPHERE + CELL(S), CELL(S) ONLY
       IF( NLEV .GT. 0 )THEN
@@ -526,6 +530,7 @@
 
 
       IF( F_WRTRAYTC )CALL FILECLOSE( 73, 1 )
+      CALL FILECLOSE( 79, 1 )
 
       ! --- DEALLOCATE ARRAYS
 !      this function leads to segfaults in some setups, dont know yet why
@@ -628,6 +633,7 @@
       F_WRTRAYTC   = .FALSE.
       F_WRTPARM  = .FALSE.
       XSC_DETAIL   = .FALSE.
+      F_WRTLOS = .FALSE.
 
       IFPRF_1_ORIG = IFPRF(1)
 
