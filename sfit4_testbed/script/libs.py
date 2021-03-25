@@ -254,6 +254,31 @@ class statevec :
             self.rt_aux.append(stvf.next(1).pop(0))
         del stvf
 
+class Kout:
+    # read K and Kb matrix. the keys are the names of the statevector entries the column resonds to.
+    def __init__(self, filename):
+    
+        self.K_frac = np.genfromtxt(filename,skip_header=2,names=True)
+
+    def get_keys(self):
+        return(self.K_frac.dtype.names)
+
+    def get_data(self, key):
+        return(self.K_frac[key])
+
+    def get_alldata(self, keyroot=''):
+        keys = self.get_keys()
+        data = np.zeros((0,self.K_frac[keys[0]].size))
+        for kk in keys:
+            if len(keyroot)==0:
+                pass
+            elif kk.find(keyroot) == -1:
+                continue
+
+            data=np.vstack((data,self.K_frac[kk]))
+
+        return(data)
+
 
 class read_from_file:
     def __init__(self, filename):

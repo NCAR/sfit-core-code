@@ -15,9 +15,7 @@
 .f90.o:
 	$(FC) -c $(FFLAGS) $<
 
-#FC = gfortran-8
 FC = gfortran
-
 # error check everything
 FFLAGS = -Warray-bounds -Wcharacter-truncation -Wunused-parameter \
          -Wimplicit-interface -Wunderflow -Wconversion-extra \
@@ -37,8 +35,10 @@ FFLAGS = -Wall -fno-automatic -fcheck=all -ffpe-trap=invalid,zero,overflow,under
 # optimize -Ofast v4.8
 #FFLAGS = -Ofast -Wall -fno-automatic -frepack-arrays  -ffree-line-length-none
 #FFLAGS = -g -Wall -fno-automatic -frepack-arrays  -ffree-line-length-none # -Wno-unused-function -Wno-unused-variable -Wno-conversion
+
 #FFLAGS = -Ofast -Wall -fno-automatic -frepack-arrays  -ffree-line-length-none -mcmodel=small
 FFLAGS = -g -Wall -fno-automatic -frepack-arrays  -ffree-line-length-none 
+
 
 
 # supply compile date:

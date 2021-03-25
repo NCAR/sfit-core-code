@@ -31,7 +31,7 @@
 
  gas.layers                  = 41
  gas.profile.list            = O3 H2O O3668 O3686
- gas.column.list             = CO2 C2H4
+ gas.column.list             = CO2 
 
  gas.profile.O3.correlation         = T
  gas.profile.O3.correlation.type    = 2
@@ -146,17 +146,18 @@
  rt.solshift                 = T
  rt.solshift.apriori         = 0.00
  rt.solshift.sigma           = 0.01
- rt.temperature              = F
+ rt.temperature              = T
+ rt.temperature.lambda       = 1e9
  rt.temperature.sigma        =
- 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001
- 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001
- 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001
- 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001 0.001
- 0.001
+ 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01
+ 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01
+ 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01
+ 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01 0.01
+ 0.01
 
  # Microwindows and their Specific Parameters
 
- band                        = 1 2 3 4
+ band                        = 4
 
  band.1.nu_start             = 782.56
  band.1.nu_stop              = 782.86
@@ -213,6 +214,7 @@
  band.4.max_opd              = 180.0000
  band.4.omega                = 2.3923
  band.4.apodization_code     = 0
+ band.4.tempretb           = T
  band.4.gasb                 = O3 H2O CO2 O3668 O3686
 
 
@@ -236,6 +238,7 @@
  out.ak_matrix               = T
  out.g_matrix                = T
  out.sa_matrix               = T
+ out.shat_matrix =T
  out.retprofiles             = T
  out.aprprofiles             = T
  out.seinv_vector            = T

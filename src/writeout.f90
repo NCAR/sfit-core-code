@@ -54,6 +54,7 @@
       LOGICAL :: F_WRTSOLSPEC        = .FALSE.
       LOGICAL :: F_WRTLM             = .FALSE.
       LOGICAL :: XSC_DETAIL          = .FALSE.
+      LOGICAL :: F_WRTLOS            = .TRUE.
 
       INTEGER :: OUTPUTLEVL    = 0
       INTEGER :: GASOUTTYPE    = 1     ! 1: FINAL ITERATION ONLY
