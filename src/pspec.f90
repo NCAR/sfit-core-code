@@ -18,6 +18,7 @@
 
 program pspec
 
+! March 2021 match with edits in spec.f90 version T10 /jwh
 
 ! simple program to prepare the ascii spectral file that sfit4 expects
 ! reads ascii input file "pspec.inp"
@@ -97,7 +98,7 @@ program pspec
      ! = 0 not
 
    call date_and_time (cdate, ztime, zone)
-   write (tag,*) trim(version), ' pspec:Jan2020', ' runtime:', cdate(1:8), '-', ztime(1:2), ':', ztime(3:4), ':', ztime(5:6)
+   write (tag,*) trim(version), ' pspec:T10', ' runtime:', cdate(1:8), '-', ztime(1:2), ':', ztime(3:4), ':', ztime(5:6)
    write (6,  *) trim(tag)
 
    open (unit=ilun, file='pspec.input', status='old', err=668)

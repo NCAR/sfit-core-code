@@ -1,3 +1,7 @@
+March 2021
+fixed a bug in spec when calculateing the SNR from the 10µ region and a mismatch between normalized noise and the peak signal
+ 
+
 June 2020
 
 
