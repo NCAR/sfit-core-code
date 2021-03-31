@@ -695,23 +695,40 @@
       IF( F_KB_IFDIFF )                      IFDIFF = .TRUE.
       IF( F_KB_EAP.AND..NOT.F_RTAPOD ) then
          F_RTAPOD = .TRUE.
-         F_EAPOD  = .TRUE.
-         IEAP = 2
-         NEAP = 3
-         EAPF0(:NEAP) = 1.0D0
-         EAPPAR = 1.0D0
+         IF ( .NOT. F_EAPOD ) THEN
+            NEAP = 3 !default value
+            EAPF0(:NEAP) = 1.0D0
+         ELSE
+            IF ( IEAP == 2 ) THEN
+                EAPF0(:NEAP) = EAPF(:NEAP) ! recycle input values and move them into EAPF0 ... this ensures that EAPF will get the this value in the next if statement, and will again be substituted in EAPF0 with INIT_PARM() as apriori state
+            ELSE
+                EAPF0(:NEAP) = 1.0D0 ! ignore other intput types in fw section, use ideal and type 2
+            ENDIF
+         ENDIF
+         F_EAPOD = .TRUE.
+         IEAP = 2 !always use polynomial
+         EAPPAR = 1.0D0 ! This is the value of the EAPOD component of the state vector PARM, set in INIT_PARM()
       end IF
       IF( F_KB_EAP.AND.F_RTAPOD ) then
-        EAPF(:NEAP) = EAPF0(:NEAP)
+        EAPF(:NEAP) = EAPF0(:NEAP) ! in init_parm the EAPF is copied to EAPF0 as apriori state, ... so apriori is conserved if F_RTAPOD was True before KB (required because PARM is copied from original state), and IEAP=2 fw input is also conserved if F_RTAPOD was false
       ENDIF
 
       IF( F_KB_EPHS.AND..NOT.F_RTPHASE ) then
          F_RTPHASE = .TRUE.
+         IF ( .NOT. F_EPHASE ) THEN
+            NEPHS=3 !default value
+            EAPF0(:NEPHS+1) = 1.0D0
+         ELSE
+            IF ( IEPHS == 2 ) THEN
+              EAPF0(:NEPHS+1) = EAPF(:NEPHS+1) ! recycle input values
+            ELSE
+              EAPF0(:NEPHS+1) = 1.0D0 !only relevant if new NEPHS > old NEPHS -> overwritten by EPHSF in initialize, EPHSF contains the prior information if not retrieved
+              !NEPHS = 3
+            END IF
+         ENDIF ! ephs in fw section
          F_EPHASE = .TRUE.
-         IFPHASE = .FALSE.
+         IFPHASE = .FALSE. !disable phase retrieval per mw
          IEPHS = 2
-         NEPHS = 3
-         EPHSF0(:NEPHS+1) = 1.0D0 !only relevant if new NEPHS > old NEPHS -> overwritten by EPHSF in initialize, EPHSF contains the prior information if not retrieved
          EPHSPAR = 1.0D0
       end IF
       IF( F_KB_EPHS.AND.F_RTPHASE ) then
