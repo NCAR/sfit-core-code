@@ -703,6 +703,7 @@
                 EAPF0(:NEAP) = EAPF(:NEAP) ! recycle input values and move them into EAPF0 ... this ensures that EAPF will get the this value in the next if statement, and will again be substituted in EAPF0 with INIT_PARM() as apriori state
             ELSE
                 EAPF0(:NEAP) = 1.0D0 ! ignore other intput types in fw section, use ideal and type 2
+                NEAP = 3 !default value
             ENDIF
          ENDIF
          F_EAPOD = .TRUE.
@@ -722,6 +723,7 @@
             IF ( IEPHS == 2 ) THEN
               EAPF0(:NEPHS+1) = EAPF(:NEPHS+1) ! recycle input values
             ELSE
+              NEPHS=3 !default value
               EAPF0(:NEPHS+1) = 1.0D0 !only relevant if new NEPHS > old NEPHS -> overwritten by EPHSF in initialize, EPHSF contains the prior information if not retrieved
               !NEPHS = 3
             END IF
