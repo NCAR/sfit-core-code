@@ -1,4 +1,4 @@
- SFIT4:v1.0.9   :Off-Release -- July 2020 RUNTIME:20200724-10:15:11 RETRIEVAL SUMMARY 
+ SFIT4:v1.0.13  :Off-Release -- March 2021 RUNTIME:20210401-12:11:43 RETRIEVAL SUMMARY 
 
          1
  JJB-S12C01AF.DAT 01 DEC 2012  6.1000mK 2.50 mm Ap.ZA=80.257 S/N= 1264 h= 9.18194
@@ -12,8 +12,8 @@
 
          1
 IBAND       NUSTART        NUSTOP         SPACE     NPTSB     PMAX    FOVDIA   MEAN_FIT_SNR  NSCAN  JSCAN     INIT_SNR     EFF_SNR      FIT_SNR
-    1     785.00000     807.00000   0.006100016      3606    81.97  5.981000      62.847303      1
+    1     785.00000     807.00000   0.006100016      3606    81.97  5.981000      62.847305      1
                                                                                                         1      150.000      150.000       62.847
 
        FITRMS       CHI_2_Y      DOFS_ALL      DOFS_TRG      DOFS_TPR      ITER  MAX_ITER CONVERGED   DIVWARN
-     1.590938      5.694935      12.322        1.115        0.000         4        15          T         F
+     1.590937      5.694935      12.322        1.115        0.000         4        15          T         F
