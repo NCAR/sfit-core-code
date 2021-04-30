@@ -1053,11 +1053,11 @@ subroutine kpno( opdmax, wl1, wl2, roe, lat, lon, nterp, rflag, oflag, zflag, vf
    real      (8), dimension(:), allocatable :: amps, outspec
    real      (8), dimension(:), allocatable :: wavs, awavs
    integer   (4), dimension(1)              :: ilow, ihi
-   real      (8) :: opdmax, wlow, whi, spac, wlim1, wlim2, wl1, wl2, wstart, dnue, roe, noise, peak, noise10
+   real      (8) :: opdmax, wlow, whi, spac, wlim1, wlim2, wl1, wl2, wstart, dnue, roe, noise, peak
    logical       :: writezero
    integer   (4) :: npfile, i, iil, iih, np, nterp, rflag, bflag, oflag, vflag
    integer       :: yy, mm, dd, hh, nn, ss
-   real      (8) :: sza, azm, dur, res, fov
+   real      (8) :: sza, azm, dur, res, fov, noise10, snr10, snr1
    real      (8) :: lat, lon, pspc, tag, wmid, zero, zflag, snr
 
    writezero = .false.
@@ -1129,8 +1129,10 @@ subroutine kpno( opdmax, wl1, wl2, roe, lat, lon, nterp, rflag, oflag, zflag, vf
 ! --- Step 0 : Find noise for initial spectrum
 
    ! calculate noise at nearest interval to fit region from a selection in pspec.input
-   if( vflag .gt. 0 )write(6,111) 'Calculate noise...'
-   call findnoise( awavs, amps, npfile, wlim1, wlim2, spac, noise, vflag )
+   if( nsnr .gt. 0 ) then
+      if( vflag .gt. 0 )write(6,111) 'Calculate noise...'
+      call findnoise( awavs, amps, npfile, wlim1, wlim2, spac, opdmax, noise, vflag )
+   endif
 
 ! --- Step 1 : zero correct the whole spectra - !!for filter 6 only!!
 
@@ -1300,12 +1302,18 @@ subroutine kpno( opdmax, wl1, wl2, roe, lat, lon, nterp, rflag, oflag, zflag, vf
    whi  = wavs(iih)
    np   = iih-iil+1
 
-! --- Calculate snr from region of lowest noise
-   snr = 0.0d0
-   if( noise .gt. 1.0d-10 .and. noise .lt. noise10 ) then
-      snr = peak/noise
-   else if( noise10 .ne. 0.0 ) then
-      snr = peak/noise10
+! --- Calculate SNR
+!     Use 'snr region' if it exists else use 10µ noise calculation
+!     If we have both calculate and show both
+   snr   = 0.0
+   snr1  = 0.0
+   snr10 = 0.0
+   if( noise10 .ne. 0.0 ) snr10 = peak/noise10
+   if( noise .gt. 1.0d-10 ) then
+      snr1  = peak/noise
+      snr = snr1
+   else if( snr10 .ne. 0.0 ) then
+      snr = snr10
    endif
 
 ! --- Write out final spectrum
@@ -1316,7 +1324,7 @@ subroutine kpno( opdmax, wl1, wl2, roe, lat, lon, nterp, rflag, oflag, zflag, vf
    write(*,102)'Spacing : ',dnue
    write(*,101)'Number of points : ',np
    write(*,102)'Peak signal : ',peak
-   write(*,102)'RMS SNR in fit region : ', snr
+   write(*,102)'RMS SNR in fit region : ', snr, snr1, snr10
 
    print *,''
 
@@ -1380,23 +1388,23 @@ end subroutine kpno
 
 !---------------------------------------------------------------------------------
 ! use small regions of spectra (high resolution expected) where no atmospheric absorption is *expected*
-subroutine findnoise( wavs, amps, npfile, wlim1, wlim2, spac, noise, vflag )
+subroutine findnoise( wavs, amps, npfile, wlim1, wlim2, spac, opdmax, noise, vflag )
 
    ! find RMS noise from a small region near the microwindow wanted
 
    integer   (4), intent(in)    :: npfile, vflag
-   real      (8), intent(in)    :: wavs(npfile), spac, wlim1, wlim2
+   real      (8), intent(in)    :: wavs(npfile), spac, wlim1, wlim2, opdmax
    real      (8), intent(in)    :: amps(npfile)
    real      (8), intent(inout) :: noise
    real      (8), dimension(:), allocatable :: x, y, curve
    integer   (4)                :: i, k, l, iil, iih, np, order
    integer   (4), dimension(1)  :: ilow, ihi
-   real      (8)                :: mind, mean, wstart, dnue, w1, w2
+   real      (8)                :: mind, mean, wstart, dnue, w1, w2, opdm
 
 !print*, wavs
 
-   ! get mini snr region nearest to our fit mw
-   ! this is over ridden by the next loop - NOT Mar 2021
+! --- Get snr region nearest to our fit mw
+!     this is over ridden by the next loop - NOT Mar 2021
    k    = 0
    mind = 10000.d0
    do i=1, nsnr
@@ -1519,6 +1527,19 @@ goto 205
    noise = sqrt( noise / real(np,8) )
 
    if(vflag .ge. 0 )write(6,102) 'RMS noise : ', noise
+
+   opdm = 0.5d0 / spac
+   !print*, opdmax, opdm, sqrt( opdmax / opdm )
+   if(vflag .ge. 0 )write(6,102) 'Point ratio (min sampled) : ', opdmax / opdm
+
+   ! correct for oversampled spectra
+   if( opdmax .lt. opdm )then
+      k=1
+      ! if( nterp .gt. 0 )k = nterp
+      noise = noise * sqrt( opdm / opdmax ) * real(k,8)
+      if(vflag .ge. 0 )write(6,102) 'RMS noise (corrected) : ', noise
+      !if(vflag .ge. 0 )write(6,102) 'SNR in snr region (min sample): ', mean/noise
+   endif
 
    deallocate( x, y, curve )
 

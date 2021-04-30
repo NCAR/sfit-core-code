@@ -31,7 +31,7 @@
 
       integer :: count
       COUNT = COMMAND_ARGUMENT_COUNT()
-      IF( COUNT .NE. 0 ) THEN 
+      IF( COUNT .NE. 0 ) THEN
          PRINT *, TRIM(VERSION)
          STOP 0
       END IF
@@ -61,11 +61,11 @@
       CALL SFIT ( )
 
       CALL CPU_TIME (END_TIME)
-      WRITE(16,*)''
-      WRITE(16,*) 'RDRV: DONE. ELAPSED TIME = ', END_TIME - START_TIME
-      CLOSE(16)
+      WRITE (16, *)''
+      WRITE (16, 202) 'RDRV: DONE. ELAPSED TIME = ', END_TIME - START_TIME
+      CLOSE (16)
 
-      PRINT *, 'RDRV: DONE. ELAPSED TIME = ', END_TIME - START_TIME
+      WRITE (0, 202) 'RDRV: DONE. ELAPSED TIME = ', END_TIME - START_TIME
 
       STOP 0
 
@@ -74,7 +74,8 @@
       CLOSE(16)
       STOP 1
 
- 201  FORMAT(/,' DETAIL OUTPUT FILE OPEN ERROR-UNIT 16'/,' FILENAME: "',A,'"')
+ 201  FORMAT( /,' DETAIL OUTPUT FILE OPEN ERROR-UNIT 16'/,' FILENAME: "',A,'"')
+ 202  FORMAT( A, F10.2 )
 !   10 FORMAT(A)
 !   20 FORMAT(A7)
 
