@@ -1,3 +1,7 @@
+February 2021
+
+set USE_TIPS for False by default
+
 Dezember 2020
 
 Fix in creation of the L1 matrix (v1.0.11)
