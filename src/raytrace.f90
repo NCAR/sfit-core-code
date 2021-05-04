@@ -2100,8 +2100,9 @@ END SUBROUTINE READLAYRS
 
       IF( .NOT. F_WRTRAYTC )RETURN
 
+     IF(  ITER .GT. 0  )RETURN !don't write for temperature retrieval/kb iterations
 ! --- MS & SA
-      IF( IREAD .EQ. 0 )THEN
+IF( IREAD .EQ. 0 .OR. (IREAD.EQ.1 .AND. ITER.EQ.-1) )THEN !do the writing only if IREAD=0 (initial setup, read from input) or at final iteration (IREAD is always 1 for ITER!=0, see LBLATM setup)
          CALL FILEOPEN( 75, 1 )
          CALL FILEOPEN( 77, 1 )
          WRITE(77,*) TRIM(TAG), ' SELECTION OF SA FOR THIS ALTITUDE GRID'

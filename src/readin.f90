@@ -117,10 +117,10 @@
       ENDIF
 
 
-      !print *, nrmax, nret
+! --- LOOP OVER RETRIEVAL GASES & CHECK PARAMETERS
       IF( NRET .LE. NRMAX .AND. NRET .GE. 1 )THEN
          DO J = 1, NRET
-            WRITE (16, 600) J, GAS(J)
+            WRITE (16, 600) J, TRIM(GAS(J))
             !print *,J, GAS(J)
             DO I = 1, MOLTOTAL
                II = I
@@ -156,7 +156,6 @@
                   CALL SHUTDOWN
                   STOP '2'
                ENDIF
-
                CYCLE
             ENDIF
 
@@ -173,31 +172,37 @@
                STOP '2'
             ENDIF
             WRITE (16, 611) COLSF(J)
+            WRITE (16, 619) ILOGRETRIEVAL(J)
+            WRITE (16, 624) CORRELATE(J)
+
             SELECT CASE ( IFOFF(J) )
             CASE (0)    ! NO INTERLAYER CORRELATION
+               WRITE (16, 621) IFOFF(J)
                WRITE (16, 613)
                WRITE (16, 612) (SIG(I,J),I=1,NLAYERS)
                WRITE (16, 403)
             CASE (1)    ! GAUSSIAN ILC (ORIGINAL)
+               WRITE (16, 622) IFOFF(J)
                WRITE (16, 613)
                WRITE (16, 612) (SIG(I,J),I=1,NLAYERS)
                WRITE (16, 614) ZWID(J), ZGMIN(J), ZGMAX(J)
             CASE (2)    ! EXPONENTIAL ILC
+               WRITE (16, 623) IFOFF(J)
                WRITE (16, 613)
                WRITE (16, 612) (SIG(I,J),I=1,NLAYERS)
-               WRITE (16, 615) ZWID(J), ZGMIN(J), ZGMAX(J)
+               WRITE (16, 614) ZWID(J), ZGMIN(J), ZGMAX(J)
             !CASE (3)    ! NOT USED
 
             CASE (4)    ! READ IN FILE AS FULL SA ( SA.INPUT )
-               WRITE (16, 617 ) N, N, TRIM( TFILE(62) )
-               WRITE (16, 612) (SIG(I,J),I=1,NLAYERS)
-               !SIG( 1:N, J ) = 0.0D0
+               WRITE (16, 617 ) IFOFF(J), NLAYERS, NLAYERS, TRIM( TFILE(62) )
+               !WRITE (16, 612) (SIG(I,J),I=1,NLAYERS)
+               SIG( 1:N, J ) = -999.0D0
             CASE (5)    ! READ IN FILE AS FULL SA INVERSE (SA.INPUT )
-               WRITE (16, 618 ) N, N, TRIM( TFILE(62) )
-               WRITE (16, 612) (SIG(I,J),I=1,NLAYERS)
-               !SIG( 1:N, J ) = 0.0D0
+               WRITE (16, 618 ) IFOFF(J), NLAYERS, NLAYERS, TRIM( TFILE(62) )
+               !WRITE (16, 612) (SIG(I,J),I=1,NLAYERS)
+               SIG( 1:N, J ) = -999.0D0
             CASE (6)    ! AN L1 REGULARIZATION MATRIX IS CREATED IN OPT AS AN SAINVERS IF L1 LAMBDA IS IN SFIT4.CTL
-               WRITE(16,625) J, IFOFF(J), L1LAMBDA(J)
+               WRITE(16,625) IFOFF(J), L1LAMBDA(J)
             CASE DEFAULT
                WRITE(16,*) ' READCK1: FLAG IFOFF MUST BE ONE OF 0, 1, 2, 4, 5, 6'
                WRITE(00,*) ' READCK1: FLAG IFOFF MUST BE ONE OF 0, 1, 2, 4, 5, 6'
@@ -205,10 +210,7 @@
                STOP '2'
             END SELECT
 
-            WRITE(16,619) ILOGRETRIEVAL(J)
-         END DO
-
-         WRITE (16, 620) DELNU
+         ENDDO ! OVER NRET
 
          NEGFLAG = -1
          IF( ITRMAX .LT. 0 ) THEN
@@ -223,7 +225,9 @@
          WRITE(16,605) NRMAX
          CALL SHUTDOWN
          STOP '2'
-      ENDIF
+      ENDIF ! .LE. NRMAX
+
+      WRITE (16, 620) DELNU
 
       RETURN
 
@@ -252,34 +256,35 @@
   422 FORMAT( I7, 2X, A7, I6, 5X, F8.3, 4X, F8.5, 2X, E12.4 )
   423 FORMAT(' GAS NAME ', A7, ' OR ID FOR CELL ', I3, ' IS OUT OF RANGE.')
 
-  600 FORMAT(/,' RETRIEVAL GAS #      ',I2, '                    : ', A7)
-  601 FORMAT(  ' PROFILE RETRIEVAL CODE                     : ',L5 )
-  602 FORMAT(  ' CELL RETRIEVAL CODE                        : ',L5 )
+  600 FORMAT(/,' RETRIEVAL GAS #                ',I2, '          : ', A10)
+  601 FORMAT(  ' PROFILE RETRIEVAL FLAG                     : ',L10 )
+  602 FORMAT(  ' CELL RETRIEVAL FLAG                        : ',L10 )
 
   605 FORMAT(/' ABORT -- NUMBER OF RETRIEVAL GASES EXCEEDS ',I2)
   606 FORMAT(' ABORT -- NUMBER OF PROFILE RETRIEVALS (NPGAS=',I2,&
          ') EXCEEDS MAXIMUM (MAXPRF=',I2,')')
   610 FORMAT(' READCK1: RETRIEVAL GAS : ', A7, ' NOT IN INPUT LIST *** ABORT')
-  611 FORMAT(' COLUMN SCALE FACTOR: ', F10.5)
+  611 FORMAT(' INITIAL PROFILE SCALE FACTOR               : ', F10.5)
   612 FORMAT(6F12.4)
   613 FORMAT(' RELATIVE UNCERTAINTIES OF THE A PRIORI PROFILE')
 
-  614 FORMAT(' HALF WIDTH HALF HEIGHT (KM) OF GAUSSIAN INTERLAYER CORRELATION :',ES11.4,/,&
-             ' MINIMUM, MAXIMUM ALTITUDE (KM) FOR OFF-DIAGONAL ELEMENTS       : ',2F10.3 )
+  614 FORMAT(' HALF WIDTH (KM) OF INTERLAYER CORRELATION  : ',ES10.4,/,&
+             ' MIN, MAX ALTITUDES [KM] FOR ILC            : ',2F10.3 )
 
-  615 FORMAT(' HALF WIDTH HALF HEIGHT (KM) OF EXPONENTIAL INTERLAYER CORRELATION : ',ES11.4,/,&
-             ' MINIMUM, MAXIMUM ALTITUDE (KM) FOR OFF-DIAGONAL ELEMENTS          : ',2F10.3 )
-
-  617 FORMAT( " READING IN",I3," x",I3," COVARIANCE MATRIX FROM FILE : ", A )
-  618 FORMAT( " READING IN",I3," x",I3," INVERSE COVARIANCE MATRIX FROM FILE : ", A )
-  619 FORMAT( " ILOGRETRIEVAL FLAG : ", I2)
+  617 FORMAT( " CORRELATION TYPE :             ", I2, "          : READ IN",I3," x",I3," COVARIANCE MATRIX FROM FILE : ", A )
+  618 FORMAT( " CORRELATION TYPE :             ", I2, "          : READ IN",I3," x",I3," INVERSE COVARIANCE MATRIX FROM FILE : ", A )
+  619 FORMAT( " ILOGRETRIEVAL FLAG                         : ", I10)
   620 FORMAT(/,' HALF WIDTH OF INTEGRATION INTERVAL(CM-1)   : ', F10.7 )
-625  FORMAT(" RETRIEVAL GAS # :",I3, " HAS IFOFF FLAG:", I3, " CREATING L1 REGULARIZATION MATRIX WITH LAMBDA : ", ES10.2  )
+  621 FORMAT( " CORRELATION TYPE :             ", I2, "          : NO INTERLAYER CORRELATION" )
+  622 FORMAT( " CORRELATION TYPE :             ", I2, "          : GAUSSIAN INTERLAYER CORRELATION" )
+  623 FORMAT( " CORRELATION TYPE :             ", I2, "          : EXPONENTIAL INTERLAYER CORRELATION" )
+  624 FORMAT( " CORRELATION FLAG                           : ", L10 )
+  625 FORMAT( " CORRELATION TYPE :             ", I2, "          : CREATING L1 REGULARIZATION MATRIX WITH LAMBDA : ", ES10.2  )
  ! 622 FORMAT(  ' LINESHAPE MODEL                          : ', I5, /, &
  !              ' 1-VOIGT, 2-GALATRY, 0-GALATRY IF B0 EXISTS' )
   630 FORMAT(/,'NO GASES BEING RETRIEVED.')
  ! 631 FORMAT(/,'NUMBER OF GASES BEING RETRIEVED EXCEEDS NRMAX PARAMETER...ABORT')
-  650 FORMAT(/,' MAXIMUM NUMBER OF ITERATIONS               : ', I5)
+  650 FORMAT(/,' MAXIMUM NUMBER OF ITERATIONS               : ', I10)
   651 FORMAT(' CONVERGENCE VARIABLE MUST BE GREATER THEN 0')
       RETURN
 
@@ -395,9 +400,9 @@
               '  LINE SHAPE MODEL INDEX                    : ', I5 )
 
  103  FORMAT(/,' EMISSION PARAMETERS:')
- 104  FORMAT( '  BACKGROUND TEMPERATURE                    : ', F12.4, / &
-              '  SUN REFLECTED BY                          : ', A5, /, &
-              '  NORMALIZATION                             : ', L5)
+ 104  FORMAT( '  BACKGROUND TEMPERATURE                    : ', F10.4, / &
+              '  SUN REFLECTED BY                          : ', A10, /, &
+              '  NORMALIZATION                             : ', L10)
 
 
  105  FORMAT(/,' RETRIEVAL SWITCHES: ')
@@ -431,7 +436,7 @@
 ! 111  FORMAT(/' INITIAL SOLAR WAVENUMBER SHIFT            : ', F12.7)
 ! 112  FORMAT( ' FIT SOLAR SHIFT FLAG                      : ', L5)
 
- 120  FORMAT(/,' TEMPERATURE RETRIEVAL SWITCH               : ', L5)
+ 120  FORMAT(/,' TEMPERATURE RETRIEVAL SWITCH               : ', L10)
  121  FORMAT( ' TEMPERATURE RELATIVE UNCERTAINTIES         :')
  130  FORMAT(/,A)
  612  FORMAT(6F12.4)
