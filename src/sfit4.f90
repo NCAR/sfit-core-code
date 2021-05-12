@@ -715,16 +715,17 @@
       ENDIF
 
       IF( F_KB_EPHS.AND..NOT.F_RTPHASE ) then
+
          F_RTPHASE = .TRUE.
          IF ( .NOT. F_EPHASE ) THEN
             NEPHS=3 !default value
-            EAPF0(:NEPHS+1) = 1.0D0
+            EPHSF0(:NEPHS+1) = 1.0D0
          ELSE
             IF ( IEPHS == 2 ) THEN
-              EAPF0(:NEPHS+1) = EAPF(:NEPHS+1) ! recycle input values
+              EPHSF0(:NEPHS+1) = EPHSF(:NEPHS+1) ! recycle input values
             ELSE
               NEPHS=3 !default value
-              EAPF0(:NEPHS+1) = 1.0D0 !only relevant if new NEPHS > old NEPHS -> overwritten by EPHSF in initialize, EPHSF contains the prior information if not retrieved
+              EPHSF0(:NEPHS+1) = 1.0D0 !only relevant if new NEPHS > old NEPHS -> overwritten by EPHSF in initialize, EPHSF contains the prior information if not retrieved
               !NEPHS = 3
             END IF
          ENDIF ! ephs in fw section
