@@ -1,7 +1,7 @@
 
 file.out.ascii = T
 #
-file.in.linelist = ../../../linelist/
+file.in.linelist = ../../../linelist-core/
 #
 # next non-comment entry is the number of path/files to look for
 hitran.nr = 99
