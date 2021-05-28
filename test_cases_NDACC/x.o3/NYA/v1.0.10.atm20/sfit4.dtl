@@ -1,4 +1,4 @@
-  SFIT4:v1.0.14  :Off-Release -- March 2021 RUNTIME:20210518-10:23:02
+  SFIT4:v1.0.14  :Off-Release -- March 2021 RUNTIME:20210518-11:38:01
 
  STATION.LAYERS FILE :  Create by create_station_layers from bnd.layers                                
   LAYER BOUNDARIES AND MIDPOINTS
@@ -1299,4 +1299,4 @@ RETRIEVED CHANNEL PARAMETERS FOR BANDPASS:  3    BEAM:     1
 
 .END OF RETRIEVAL.
  
-RDRV: DONE. ELAPSED TIME =      21.81
+RDRV: DONE. ELAPSED TIME =      22.02
