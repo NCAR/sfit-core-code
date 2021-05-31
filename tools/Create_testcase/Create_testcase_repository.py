@@ -29,13 +29,11 @@ def create_testcase_rep(dir='.'):
     nec_files = {'file.in.spectrum':'always',
                  'file.in.refprofile':'always',
                  'file.in.stalayers':'always',
-                 'file.in.solarlines':'fw.solar_spectrum',
-                 'file.in.isotope':'fw.isotope_separation'}
+                 'file.in.solarlines':'fw.solar_spectrum'}
     
     for necf in nec_files:
         if nec_files[necf] == 'always' or ctl.get_value(nec_files[necf]) == 'T':
             necfile = os.path.join(dir, ctl.get_value(necf))
-            print(necfile)
             if os.path.exists(necfile):
                 tarf.add(necfile, arcname=os.path.basename(necfile))
             else:
@@ -56,8 +54,48 @@ def create_testcase_rep(dir='.'):
                     print ('file  {} does not exists'.format(necfile))
                     tarf.close()
                     return()
-                
-            
+
+    # Isotope input needed?
+
+    if ctl.get_value('fw.isotope_separation') == 'T':
+        iso_file = os.path.join(dir, ctl.get_value('file.in.isotope'))
+        if os.path.exists(iso_file):
+            tarf.add(iso_file, arcname=os.path.basename(iso_file))
+        else:
+            print ('file  {} does not exists'.format(iso_file))
+            tarf.close()
+            return()
+        
+    # Apodisation and/or phase function file needed?
+
+    if ctl.get_value('fw.apod_fcn') == 'T':
+        apod_file = os.path.join(dir, ctl.get_value('file.in.modulation_fcn'))
+        if os.path.exists(apod_file):
+            tarf.add(apod_file, arcname=os.path.basename(apod_file))
+        else:
+            print ('file  {} does not exists'.format(apod_file))
+            tarf.close()
+            return()
+        
+    if ctl.get_value('fw.phase_fcn') == 'T':
+        phase_file = os.path.join(dir, ctl.get_value('file.in.phase_fcn'))
+        if os.path.exists(apod_file):
+            tarf.add(phase_file, arcname=os.path.basename(phase_file))
+        else:
+            print ('file  {} does not exists'.format(phase_file))
+            tarf.close()
+            return()
+
+# hbin.ctl existing?
+        hbin_file = os.path.join(dir, 'hbin.ctl')
+        if os.path.exists(hbin_file):
+            tarf.add(hbin_file, arcname=os.path.basename(hbin_file))
+        else:
+            print ('file  {} does not exists'.format(apod_file))
+            tarf.close()
+            return()
+    
+
     tarf.close()
                
 if __name__ == '__main__':
