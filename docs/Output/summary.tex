@@ -1,0 +1,55 @@
+\documentclass[a4paper]{article}
+
+\begin{document}
+\section{SUMMARY}
+
+The summary file (file.out.summary) is always written, it contains information about the actual run after it finished. the summary file is divided in several sections. Most of the information is also printed out on the command line and is found in sfit4.dtl. Parts are also found in the file.out.statevec.
+
+\subsection*{Header line (Section 1)}
+The first line contains information about the sfit4 version and the run time.
+
+\subsection*{Section 2}
+The second contains the headers of the files of the spectra used for the run.
+
+\subsection*{Section 3}
+contains information of the retrieved gases, the a priori and
+retrieved column. Also if they are retrieved as a profile or a
+columns and if they are in a cell.
+
+\subsection*{Section 4}
+
+contains the results of the run for each microwindow
+
+\begin{description}
+\item[IBAND:] Nr of the microwindow, correspond to the number set in bands in sfit4.ctl
+\item[NUSTART,NUSTOP,SPACE,NPTSB:] spectral details of the band (taken from file.in.spectrum (in sfit4.ctl)
+\item[PMAX:] maximum path difference (band.x.max\_opd in sfit4.ctl)
+  specified for this band. this value should correspond to the maximum
+  path difference used for recording the spectrum.
+\item[FOVDIA:] Aperture size used for the microwindow (band.x.omega in sfit4.ctl). This should correspond to the aperture size used for recording the spectrum.
+\item [MEAN\_FIT\_SNR:] SNR calculated as the mean over all spectral points and scans in this microwindow.
+\item[NSCAN:] How many scans are used for this retrieval. E.g. scans at different SZA's. The next blocks correspond to individual scans.
+\item[JSCAN:] Number of the actual scan.
+\item[INIT\_SNR:] The SNR given in the spectrum file (file.in.spectrum in sfit4.ctl). It is specified for each microwindow and SCAN individually.
+\item[EFF\_SNR:] The SNR for the microwindow taking into account the de-weighting specified in (sp.snr in sfit4.ctl) for this particular microwindow and SCAN.
+\item[FIT\_SNR:] The SNR for this microwindow and SCAN after the fit. 
+\end{description}
+
+\subsection*{Section 5}
+Contains results for the run, which are specific to the result
+\begin{description}
+\item[FITRMS:] The RMS of the fitted spectrum averaged over all MW's and SCAN's.
+\item[CHI\_2\_Y:] The CHI\_2 value of the spectrum taking into account the de-weighting.
+\item[DOFS\_ALL:] The degrees of freedom for the whole run, including for the fit of the auxilliary paramaters.
+\item[DOFS\_TRG:] Degrees of freedom for the target gas alone (target
+  gas being the first gas in the list (gas.profiles in sfit4.ctl). If
+  gas.profiles is empty the target gas is the first gas in
+  gas.columns
+\item[DOFS\_TPR:] The degrees if freedom for the temperature retrieval (rt.temperature = T in sfit4.ctl)
+\item[MAX\_ITER:] How many iterations were needed for this run.
+\item[CONVERGED:] Flag specifying if the retrieval converged (MAX\_ITER $\leq$ rt.max\_iteration set in sfit4.ctl)
+\item[DIVWARN:] Flag is T if there was a warning about possible divergance during the run.
+\end{description}
+
+
+\end{document}
