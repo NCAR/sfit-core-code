@@ -54,7 +54,7 @@
       LOGICAL :: F_WRTSOLSPEC        = .FALSE.
       LOGICAL :: F_WRTLM             = .FALSE.
       LOGICAL :: XSC_DETAIL          = .FALSE.
-      LOGICAL :: F_WRTLOS            = .TRUE.
+      LOGICAL :: F_WRTLOS            = .FALSE.
 
       INTEGER :: OUTPUTLEVL    = 0
       INTEGER :: GASOUTTYPE    = 1     ! 1: FINAL ITERATION ONLY
@@ -77,15 +77,7 @@
      IMPLICIT NONE
 
      IF (OUTPUTLEVL.GE.0) THEN
-        F_WRTSTV            = .TRUE.
-        F_WRTRPRF           = .TRUE.
-        F_WRTAPRF           = .TRUE.
-        F_WRTPBP            = .TRUE.
-        F_WRTSUMRY          = .TRUE.
-        F_WRTK              = .TRUE.
-        F_WRTSA             = .TRUE.
-        F_WRTSAINV          = .TRUE.
-        F_WRTSEINV          = .TRUE.
+        F_WRTBIN            = .TRUE.
      END IF
      IF (OUTPUTLEVL.GE.1) THEN
         F_WRTSTV            = .TRUE.
@@ -96,6 +88,9 @@
         F_WRTK              = .TRUE.
         F_WRTAK             = .TRUE.
         F_WRTSA             = .TRUE.
+        F_WRTSAINV          = .TRUE.
+        F_WRTSEINV          = .TRUE.
+        F_WRTLOS            = .TRUE.
      END IF
      IF (OUTPUTLEVL.GE.2) THEN
         F_WRTAB             = .TRUE.

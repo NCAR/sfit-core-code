@@ -4072,12 +4072,12 @@ IF( IREAD .EQ. 0 .OR. (IREAD.EQ.1 .AND. ITER.EQ.-1) )THEN !do the writing only i
 
              IF (NOPRNT.GE.0) WRITE (IPR,915) J,ZPTH(J),ZPTH(J+1),      &
      &            THETA,DS,S,DBETA,BETA,PHI,DBEND,BENDNG,PBAR1,          &
-     &            TBAR1,RHOBAR
+     &            TBAR1,RHOBAR,RFNDXP(J)
              IF (PRTLOS.GT.1) THEN
                 IF (J.EQ.1) WRITE (ILOS,910) HLOW(IHLOW),HLOW(IHIGH)
                 WRITE (ILOS,915) J,ZPTH(J),ZPTH(J+1),      &
     &            THETA,DS,S,DBETA,BETA,PHI,DBEND,BENDNG,PBAR1,          &
-    &            TBAR1,RHOBAR
+    &            TBAR1,RHOBAR,RFNDXP(J)
                 IF (J.EQ.J2) WRITE (ILOS,*) "" !EMPTY LINE
              ENDIF
 
@@ -4117,13 +4117,13 @@ IF( IREAD .EQ. 0 .OR. (IREAD.EQ.1 .AND. ITER.EQ.-1) )THEN !do the writing only i
      &        'ATMOSPHERE',/,T5,'I',T14,'ALTITUDE',T30,'THETA',T38,   &
      &        'DRANGE',T47,'RANGE',T57,'DBETA',T65,'BETA',T76,'PHI',    &
      &        T84,'DBEND',T91,'BENDING',T102,'PBAR',T111,'TBAR',T119,   &
-     &        'RHOBAR',/,T11,'FROM',T22,'TO',/,T11,'(KM)',T21,'(KM)',   &
+     &        'RHOBAR',T126,'INDEX OF REFR',/,T11,'FROM',T22,'TO',/,T11,'(KM)',T21,'(KM)',   &
      &        T30,'(DEG)',T39,'(KM)',T48,'(KM)',T57,'(DEG)',T65,        &
      &        '(DEG)',T75,'(DEG)',T84,'(DEG)',T92,'(DEG)',T102,'(MB)',  &
      &        T112,'(K)',T117,'(MOL CM-3)',/)
   905 FORMAT (' ',T10,'TANGENT',T20,A2,/,T10,'HEIGHT',/)
   910 FORMAT (' ',T14,A2,' TO ',A2,/)
-  915 FORMAT (' ',I4,2F10.3,10F9.3,1PE9.2)
+  915 FORMAT (' ',I4,1P2E9.2,1P10E9.2,1P2E9.2)
   920 FORMAT ('0',T10,'DOUBLE RANGE, BETA, BENDING',/,T10,              &
      &        'FOR SYMMETRIC PART OF PATH',T44,F9.3,T62,F9.3,T89,       &
      &        F9.3,/)
