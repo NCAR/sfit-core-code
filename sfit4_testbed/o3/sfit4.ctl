@@ -114,7 +114,6 @@ kb.line.gas = target
 out.level = 1 
 out.smeas_matrix = F 
 out.gas_spectra = F 
-out.k_matrix = T 
 out.ak_matrix = T 
 out.g_matrix = T 
 out.sa_matrix = T 

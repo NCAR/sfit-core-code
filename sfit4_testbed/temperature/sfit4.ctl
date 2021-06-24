@@ -95,5 +95,3 @@ kb.omega = T
 kb.zshift = T 
 kb.sza = T 
 out.level = 1 
-out.retprofiles = T 
-out.aprprofiles = T 
