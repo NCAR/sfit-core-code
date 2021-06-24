@@ -77,7 +77,15 @@
      IMPLICIT NONE
 
      IF (OUTPUTLEVL.GE.0) THEN
-        F_WRTBIN            = .TRUE.
+        F_WRTSTV            = .TRUE.
+        F_WRTRPRF           = .TRUE.
+        F_WRTAPRF           = .TRUE.
+        F_WRTPBP            = .TRUE.
+        F_WRTSUMRY          = .TRUE.
+        F_WRTK              = .TRUE.
+        F_WRTSA             = .TRUE.
+        F_WRTSAINV          = .TRUE.
+        F_WRTSEINV          = .TRUE.
      END IF
      IF (OUTPUTLEVL.GE.1) THEN
         F_WRTSTV            = .TRUE.
