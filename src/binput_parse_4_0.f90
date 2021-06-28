@@ -541,7 +541,7 @@ end subroutine read_file_section
        case ('type')
           read(value,*) i_kb_line_type
        case('gas')
-          S_KB_LINE_GASES = adjustl(trim(value))
+          S_KB_LINE_GASES = to_upper(adjustl(trim(value)))
        case default
           WRITE(16,*) 'BINPUT_PARSE_4_0:READ_KB_SECTION: Key ', trim(keyword(3)), ' not contained in section kb.line'
           WRITE( 0,*) 'BINPUT_PARSE_4_0:READ_KB_SECTION: Key ', trim(keyword(3)), ' not contained in section kb.line'
@@ -1239,5 +1239,30 @@ end subroutine read_file_section
 
      end subroutine read_string_list
 
+     function to_upper (str) Result (string)
+
+       !   ==============================
+       !   Changes a string to upper case
+       !   ==============================
+       
+       Implicit None
+       Character(*), Intent(In) :: str
+       Character(LEN(str))      :: string
+       
+       Integer :: ic, i
+       
+       Character(26), Parameter :: cap = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+       Character(26), Parameter :: low = 'abcdefghijklmnopqrstuvwxyz'
+       
+       !   Capitalize each letter if it is lowecase
+       string = str
+       do i = 1, LEN_TRIM(str)
+          ic = INDEX(low, str(i:i))
+          if (ic > 0) string(i:i) = cap(ic:ic)
+       end do
+       
+     End Function to_upper
+
+     
    end module binput_parse_4_0
 
