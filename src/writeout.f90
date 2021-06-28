@@ -54,7 +54,7 @@
       LOGICAL :: F_WRTSOLSPEC        = .FALSE.
       LOGICAL :: F_WRTLM             = .FALSE.
       LOGICAL :: XSC_DETAIL          = .FALSE.
-      LOGICAL :: F_WRTLOS            = .TRUE.
+      LOGICAL :: F_WRTLOS            = .FALSE.
 
       INTEGER :: OUTPUTLEVL    = 0
       INTEGER :: GASOUTTYPE    = 1     ! 1: FINAL ITERATION ONLY
@@ -88,6 +88,9 @@
         F_WRTK              = .TRUE.
         F_WRTAK             = .TRUE.
         F_WRTSA             = .TRUE.
+        F_WRTSAINV          = .TRUE.
+        F_WRTSEINV          = .TRUE.
+        F_WRTLOS            = .TRUE.
      END IF
      IF (OUTPUTLEVL.GE.2) THEN
         F_WRTAB             = .TRUE.
