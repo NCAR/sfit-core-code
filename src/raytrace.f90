@@ -4117,7 +4117,7 @@ IF( IREAD .EQ. 0 .OR. (IREAD.EQ.1 .AND. ITER.EQ.-1) )THEN !do the writing only i
      &        'ATMOSPHERE',/,T5,'I',T14,'ALTITUDE',T30,'THETA',T38,   &
      &        'DRANGE',T47,'RANGE',T57,'DBETA',T65,'BETA',T76,'PHI',    &
      &        T84,'DBEND',T91,'BENDING',T102,'PBAR',T111,'TBAR',T119,   &
-     &        'RHOBAR',T126,'INDEX OF REFR',/,T11,'FROM',T22,'TO',/,T11,'(KM)',T21,'(KM)',   &
+     &        'RHOBAR',T126,'INDEX_OF_REFR',/,T11,'FROM',T22,'TO',/,T11,'(KM)',T21,'(KM)',   &
      &        T30,'(DEG)',T39,'(KM)',T48,'(KM)',T57,'(DEG)',T65,        &
      &        '(DEG)',T75,'(DEG)',T84,'(DEG)',T92,'(DEG)',T102,'(MB)',  &
      &        T112,'(K)',T117,'(MOL CM-3)',/)
