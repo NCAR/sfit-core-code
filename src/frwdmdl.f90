@@ -611,6 +611,7 @@
                      ENDIF
                   ENDIF
 
+
                   WRITE(TITLE,710) 'ALL', IBAND, JSCAN, ITER
                   OPEN(UNIT=80, FILE=GASFNAME, STATUS='REPLACE', ERR=555)
                   WRITE (80, 640) TITLE
