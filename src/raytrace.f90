@@ -4123,7 +4123,7 @@ IF( IREAD .EQ. 0 .OR. (IREAD.EQ.1 .AND. ITER.EQ.-1) )THEN !do the writing only i
      &        T112,'(K)',T117,'(MOL CM-3)',/)
   905 FORMAT (' ',T10,'TANGENT',T20,A2,/,T10,'HEIGHT',/)
   910 FORMAT (' ',T14,A2,' TO ',A2,/)
-  915 FORMAT (' ',I4,1P2E9.2,1P10E9.2,1P2E9.2)
+  915 FORMAT (' ',I4,1P2E9.2,1P10E9.2,1P2E11.4)
   920 FORMAT ('0',T10,'DOUBLE RANGE, BETA, BENDING',/,T10,              &
      &        'FOR SYMMETRIC PART OF PATH',T44,F9.3,T62,F9.3,T89,       &
      &        F9.3,/)
