@@ -1,3 +1,11 @@
+December 2021
+
+fixed a bug for writing out the gasspectra (type 2). Thanks to Manu for spotting this. It is now working as described in sfit4_init.pdf
+
+included AK calculation fdor the full AVK matrix within sfit4.Switch on by
+out.ak_matrix = T
+out.ak_matrix.type = 2
+
 March 2021
 fixed a bug in spec when calculating the SNR from the 10mu region and a mismatch between normalized noise and the peak signal
 
