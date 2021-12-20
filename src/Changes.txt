@@ -2,7 +2,8 @@ December 2021
 
 fixed a bug for writing out the gasspectra (type 2). Thanks to Manu for spotting this. It is now working as described in sfit4_init.pdf
 
-included AK calculation fdor the full AVK matrix within sfit4.Switch on by
+Included AK calculation fdor the full AVK matrix within sfit4 as requested by Dan Smale.
+Switch on by
 out.ak_matrix = T
 out.ak_matrix.type = 2
 

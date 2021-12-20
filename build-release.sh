@@ -28,8 +28,8 @@ function traverse() {
 
 basedirname='SFIT4-Official-Release-1-0'
 
-# remove all files which are not in the repositiry
-git clean -f
+# remove all files which are not in the repository
+git clean -fx
 
 traverse docs
 
