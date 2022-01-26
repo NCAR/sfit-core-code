@@ -96,11 +96,19 @@
       IF( F_WRTAK .AND. IFPRF(1) )THEN
 
          CALL FILEOPEN( 81, 1 )
-         WRITE(81,'(A,A,A)' )TRIM(TAG), ' AVERAGING KERNELS NLEV X NLEV MATRIX FOR TARGET ONLY : ', GAS(1)
-         WRITE(81,* )NLEV, NLEV
-         DO I=1, NLEV
-             WRITE(81,'(10000ES26.18)') ( A(I+NLD,J+NLD), J=1, NLEV )
-         ENDDO
+         IF (WRTAK_TYPE.EQ.2) THEN
+            WRITE(81,'(A,A,A)' )TRIM(TAG), ' AVERAGING KERNELS N X N MATRIX FOR COMPLETE STATEVECTOR: ', GAS(1)
+            WRITE(81,* )N, N
+            DO I = 1, N
+               WRITE(81,'(10000ES26.18)') (A(I,J), J=1, N)
+            END DO
+         ELSE
+            WRITE(81,'(A,A,A)' )TRIM(TAG), ' AVERAGING KERNELS NLEV X NLEV MATRIX FOR TARGET ONLY : ', GAS(1)
+            WRITE(81,* )NLEV, NLEV
+            DO I=1, NLEV
+               WRITE(81,'(10000ES26.18)') ( A(I+NLD,J+NLD), J=1, NLEV )
+            ENDDO
+         END IF
          CALL FILECLOSE( 81, 1 )
 
       ENDIF

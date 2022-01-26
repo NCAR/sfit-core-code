@@ -63,7 +63,8 @@
       INTEGER :: RAYOUTTYPE    = 1     ! 1: SELECTION OF SA'S ONLY
                                        ! 2: PLUS DETAILED RAYTRACING
                                        ! 3: PLUS OLD MIX, MS, PT FILE
-
+      INTEGER :: WRTAK_TYPE    = 1     ! 1: ONLY AK MATRIX FOR TARGET
+                                       ! 2: FULL AK MATRIX
       CONTAINS
 
      SUBROUTINE INIT_WRITEOUT()

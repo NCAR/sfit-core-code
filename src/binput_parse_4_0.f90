@@ -1054,7 +1054,19 @@ end subroutine read_file_section
        case ('aprprofiles')
           read(value,*)  F_WRTAPRF
        case ('ak_matrix')
-          read(value,*)  F_WRTAK
+          if (len_trim(keyword(3)).eq.0) then
+             read(value,*)  F_WRTAK
+          else
+             select case (trim(adjustl(keyword(3))))
+             case ('type')
+                read(value,*) WRTAK_TYPE
+             case default
+                WRITE(16,*) 'BINPUT_PARSE_4_0:READ_OUTPUT_SECTION: Key out.ak_matrix.', trim(keyword(3)), ' not contained in section : output'
+                WRITE( 0,*) 'BINPUT_PARSE_4_0:READ_OUTPUT_SECTION: Key out.ak_matrix.', trim(keyword(3)), ' not contained in section : output'
+                call shutdown
+                stop 1
+             end select
+          end if
        case ('ab_matrix')
           read(value,*)  F_WRTAB
        case ('summary')
