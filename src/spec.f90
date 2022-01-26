@@ -16,6 +16,9 @@
 !    along with sfit.  If not, see <http://www.gnu.org/licenses/>
 !-----------------------------------------------------------------------------
 
+! July 2021 / jwh / T11
+! fixed the iteration exit in bc4 if cn2 is reached early
+
 ! March 2021 (jwh) version T10
 ! removed calcsnr() and modified to findnoise()
 ! findnoise() uses nearest mini window from pspec
@@ -109,7 +112,7 @@ real(8) function bc4( sp, wv, n, wmid, n10m, old10m, vflag ) result(zero)
 
       !real (8), parameter :: eps = 0.001d0
 
-      integer :: i, j, cnt, cn2, pos, neg, ndif
+      integer :: i, j, cnt, cn2, pos, neg, ndif, lastcn2
       real(8) :: avgsw, factor, maxsw, minsw, nstd, pstd, nrstd, prstd !,mdnsw
       real(8), allocatable  :: wavew(:), specw(:), zerod(:), ptwnd(:), newsp(:), lstwv(:), defwv(:), defsp(:)
       real(8), dimension(3) :: curve
@@ -164,7 +167,7 @@ real(8) function bc4( sp, wv, n, wmid, n10m, old10m, vflag ) result(zero)
             if( defsp(i) .lt. maxsw )cn2 = cn2 +1
          enddo
          if( verbose )write(vlun,306) ' # points in window : ', cn2
-         if( cn2 .lt. 100 )exit
+         if( cn2 .lt. 100 ) exit
 
          if( allocated( wavew ))deallocate( wavew )
          if( allocated( specw ))deallocate( specw )
@@ -198,6 +201,7 @@ real(8) function bc4( sp, wv, n, wmid, n10m, old10m, vflag ) result(zero)
 
 ! --- fit line through
          ptwnd      = wavew - wavew(1)
+         !print*, 2
          curve(1:2) = polyfit(ptwnd(:), specw(:), cn2, 1)
 
          if( allocated( zerod ))deallocate( zerod )
@@ -205,6 +209,7 @@ real(8) function bc4( sp, wv, n, wmid, n10m, old10m, vflag ) result(zero)
          if( allocated( lstwv ))deallocate( lstwv )
          allocate( lstwv( cn2 ))
          lstwv = wavew
+         lastcn2 = cn2
 
 ! --- subtract zero line from spectra
          newsp = curve(1) + curve(2)*ptwnd
@@ -274,7 +279,8 @@ real(8) function bc4( sp, wv, n, wmid, n10m, old10m, vflag ) result(zero)
       !if( abs( mdnsw - avgsw ) .gt. eps )goto 25
 
       ptwnd(:)   = wavew(:) - wavew(1)
-      curve(1:2) = polyfit(ptwnd(:), specw(:), cn2, 1)
+      !print*, 3
+      curve(1:2) = polyfit(ptwnd(:), specw(:), lastcn2, 1)
 
       write(6,302) '10µ Best fit = a + bx :', curve(1), curve(2)
       if( verbose )write(vlun,302) '10µ Best fit = a + bx : ', curve(1), curve(2)
@@ -579,8 +585,8 @@ real(8) function bc2( sp, wavelength, n, wmid, vflag, noise ) result (zero)
 
          i   = inband(1,l)    ! satarr index
          k   = inband(2,l)    ! # spectral points in this sat band
-         iil = inband(3,l)
-         iih = inband(4,l)
+         iil = inband(3,l)    ! index of low wn fort this sat band
+         iih = inband(4,l)    ! index of hi  wn fort this sat band
 
          if( k .lt. 3 )cycle  ! need at least 3 points! to fit a curve
 
@@ -601,12 +607,15 @@ real(8) function bc2( sp, wavelength, n, wmid, vflag, noise ) result (zero)
          mdwav         = (wavelength(iil) + wavelength(iih)) /2.0
          mdpnt         = mdwav - wavewindow(1)
 
+         !print*, wavewindow(1)
+
          if( satarr(1,i) .ne. 1001.0d0 .and. satarr(1,i) .ne. 992.0d0 )then
 
-            ptwnd(:)      = wavewindow(:) - wavewindow(1)
+            ptwnd(:)      = wavewindow(:) - wavewindow(1) ! start wn fit at 0.0
 
             ! --- fit a second degree polynomial to the region
             ! --- curve = a + bx + cx^2
+            !print*, 4
             curve(1:3) = polyfit( ptwnd(:), specwindow(:), k, 2 )
 !            print*, polyfit( ptwnd(:), specwindow(:), k, 2 )
 
@@ -640,6 +649,7 @@ real(8) function bc2( sp, wavelength, n, wmid, vflag, noise ) result (zero)
             if( verbose )write(vlun,306) 'npts mdpt mzer azer std off slp crv : ', k, mdwav, zero, azer, stdev, curve(1:3)
 
             ! --- if they pass the polynomial fit, add both the region and the std dev to arrays
+            !print*,  curve(3)/(wavelength(iih)-wavelength(iil)), zero, stdev
             if ( curve(3)/(wavelength(iih)-wavelength(iil)) .lt. 50. .and. zero .lt. 0.25d0 .and. stdev .lt. 0.05 )then
 
                allsatwave(count:count+k-1)=wavewindow(:)
@@ -683,6 +693,7 @@ real(8) function bc2( sp, wavelength, n, wmid, vflag, noise ) result (zero)
       if( verbose )write(vlun,304) " Points in allsat vector : ", count
 
 ! --- calculate a 2nd order poly using all points
+     !print*, 5
      curve(1:3) = polyfit(allsatwave(1:count), allsatspec(1:count), count, 2)
 
 ! --- calculate the mean std
@@ -1131,7 +1142,7 @@ subroutine kpno( opdmax, wl1, wl2, roe, lat, lon, nterp, rflag, oflag, zflag, vf
    ! calculate noise at nearest interval to fit region from a selection in pspec.input
    if( nsnr .gt. 0 ) then
       if( vflag .gt. 0 )write(6,111) 'Calculate noise...'
-      call findnoise( awavs, amps, npfile, wlim1, wlim2, spac, opdmax, noise, vflag )
+      call findnoise( awavs, amps, npfile, wlow, whi, spac, opdmax, noise, vflag )
    endif
 
 ! --- Step 1 : zero correct the whole spectra - !!for filter 6 only!!
@@ -1502,6 +1513,7 @@ goto 205
 
    curve(:) = 0.0d0
    order = 4
+   !print*, 1
    curve(1:order+1) = polyfit( x, real( amps(iil:iih), 8 ), np, order )
    if(vflag .ge. 2 ) write(6,102) 'Noise fit parameters : ', curve(:)
    do i=1, np
