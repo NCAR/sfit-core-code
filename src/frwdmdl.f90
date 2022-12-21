@@ -682,6 +682,33 @@
                   ENDDO
                   CLOSE (80)
 
+!  --- MT-CKD continuum if calculatedcalculated
+                  if (F_MTCKD) then
+                     call MTCKDTRAN(IBAND,JSCAN,2,MONONE,MXONE)
+                     !  --- COMPUTE FFTS
+                     CALL FSPEC1 (IBAND, MONONE, MXONE)
+                     CALL FSPEC2 (IBAND, MONONE, PHI)
+                     IF( GASOUTTYPE .EQ. 1 .AND. ITER .EQ. -1 )THEN
+                        WRITE(GASFNAME,751)IBAND,JSCAN
+                     ELSEIF( GASOUTTYPE .EQ. 2 )THEN
+                        IF (ITER == -1 ) THEN
+                           WRITE(GASFNAME,751)IBAND,JSCAN
+                        ELSE
+                           WRITE(GASFNAME,761)IBAND,JSCAN,ITER
+                        ENDIF
+                     ENDIF
+                     WRITE(TITLE,710) 'MTCKD', IBAND, JSCAN, ITER
+
+                     OPEN(UNIT=80, FILE=GASFNAME, STATUS='REPLACE', ERR=555)
+                     WRITE (80, 640) TITLE
+                  WRITE (80, *) WA, WE, SP, N3
+                     DO J = 1, N3
+                        I = N1 + (J - 1)*NSPAC(IBAND)
+                        WRITE (80, *) DBLE(TCONV(I))
+                     ENDDO
+                     CLOSE (80)
+                  ENDIF
+
 !  --- Continuum absorption if calculated
                   if (F_CONTINUUM) then
                      call GASNTRAN(NRET+2,IBAND,JSCAN,2,MONONE,MXONE)
@@ -899,8 +926,11 @@
  710  FORMAT('GAS ',a7,' BAND ', I2, ' SCAN ', I2, ' ITER ', I3)
  730  FORMAT('spc.sol.',I2.2,'.',I2.2,'.final')
  740  FORMAT('spc.sol.',I2.2,'.',I2.2,'.',I2.2)
-750   FORMAT('spc.CON.',I2.2,'.',I2.2,'.final')
-760   FORMAT('spc.CON.',I2.2,'.',I2.2,'.',I2.2)
+ 750  FORMAT('spc.CON.',I2.2,'.',I2.2,'.final')
+ 751  FORMAT('spc.MTCKD.',I2.2,'.',I2.2,'.final')
+      
+ 760   FORMAT('spc.CON.',I2.2,'.',I2.2,'.',I2.2)
+ 761   FORMAT('spc.MTCKD.',I2.2,'.',I2.2,'.',I2.2)
  770  FORMAT('spc.REST.',I2.2,'.',I2.2,'.final')
  780  FORMAT('spc.REST.',I2.2,'.',I2.2,'.',I2.2)
 ! 750  FORMAT('GAS SOLAR',' BAND ', I2, ' SCAN ', I2, ' ITER ', I3)

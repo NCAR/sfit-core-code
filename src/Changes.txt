@@ -1,3 +1,8 @@
+December 2022
+
+included mt-ckd H2O continuum (version 30787 Date: 2016-12-14 11:27:52 -0500)
+
+
 December 2021
 
 fixed a bug for writing out the gasspectra (type 2). Thanks to Manu for spotting this. It is now working as described in sfit4_init.pdf

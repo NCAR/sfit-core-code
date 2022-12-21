@@ -440,6 +440,8 @@ end subroutine read_file_section
        read(value,*) raytonly
     case ('filter_transmission')
        read(value,*) f_meas_transmis
+    case ('mtckd_continuum')
+       read(value,*) f_mtckd
     case ('continuum')
        if (len_trim(keyword(3)).eq.0) then
           read(value,*) f_continuum

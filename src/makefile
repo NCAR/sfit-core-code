@@ -102,7 +102,9 @@ voigt_sdv_lm.o \
 writeout.o \
 andex.o \
 xsections.o \
-continuum.o
+continuum.o \
+
+
 
 #convert_old_data_files.o
 
@@ -110,17 +112,25 @@ all : sfit4 hbin pspec # convert_rdrv_394
 
 
 
-sfit4: $(OBJS) rdrv40.o
+sfit4: $(OBJS) rdrv40.o mt-ckd-cont.o h2o_continuum.o
 	$(FC) -o $@ $^ $(FFLAGS) $(LIBS) $(VLIB)
 
 #convert_rdrv_394 : convert_rdrv_394.o $(OBJS) convert_old_data_files.o read_binput_394.o
 #	$(FC) -o $@ $^ $(FFLAGS) $(LIBS) $(VLIB)
 
-hbin: hbin.o hitran.o $(OBJS)
+hbin: hbin.o hitran.o $(OBJS) mt-ckd-cont.o h2o_continuum.o
 	$(FC) -o $@ $^ $(FFLAGS) $(LIBS) $(VLIB)
 
-pspec: pspec.o spec.o fitting.o  $(OBJS)
+pspec: pspec.o spec.o fitting.o  $(OBJS) mt-ckd-cont.o h2o_continuum.o
 	$(FC) -o $@ $^ $(FFLAGS) $(LIBS) $(VLIB)
+
+
+# They need extra lines because of the other arguments provided to gfortran
+mt-ckd-cont.o : mt-ckd-cont.f90 
+	$(FC) -c $^ $(FFLAGS) $(LIBS) $(VLIB) -fdefault-real-8 -fdefault-integer-8 -frecord-marker=4
+h2o_continuum.o : h2o_continuum.f90 
+	$(FC) -c $^ $(FFLAGS) $(LIBS) $(VLIB) -fdefault-real-8 -fdefault-integer-8 -frecord-marker=4
+
 
 
 clean:
@@ -235,7 +245,7 @@ tips_2017.o \
 
 transmis.o \
 : params.o bandparam.o retvparam.o vibfcn.o xsections.o molcparam.o lineparam.o\
-continuum.o
+continuum.o h2o_continuum.o mt-ckd-cont.o
 
 vibfcn.o \
 : params.o retvparam.o molcparam.o #writeout.o
