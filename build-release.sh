@@ -26,7 +26,7 @@ function traverse() {
 
 
 
-basedirname='SFIT4-Official-Release-1-0'
+basedirname='SFIT4-Preliminary-Release-1-1'
 
 # remove all files which are not in the repository
 git clean -fx

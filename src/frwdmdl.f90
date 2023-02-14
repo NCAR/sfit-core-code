@@ -697,6 +697,7 @@
                            WRITE(GASFNAME,761)IBAND,JSCAN,ITER
                         ENDIF
                      ENDIF
+                     
                      WRITE(TITLE,710) 'MTCKD', IBAND, JSCAN, ITER
 
                      OPEN(UNIT=80, FILE=GASFNAME, STATUS='REPLACE', ERR=555)
