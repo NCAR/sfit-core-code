@@ -110,7 +110,8 @@ class test_sfit4:
         extra_gas = filter(lambda x: self.gases.count(x) == 0, self.results.keys())
 
         if len(list(extra_gas)) > 0:
-            print ('No details found for gas(es) '+ string.join(extra_gas))
+            print(extra_gas)
+            print ('No details found for gas(es) ',extra_gas)
         
     def run_sfit4_in_testcase(self, sfit4=True, hbin=True, tips=False, error = True):
 
