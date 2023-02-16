@@ -1,4 +1,4 @@
-Mathias Palm 11.2019
+Mathias Palm 11.2019,02.2023
 
 
 Running the testbed for sfit4.
@@ -18,7 +18,7 @@ afterwards go into <TESTCASE-DIR> and run
 script/run_testcases.py [--nohbin]] [--nosfit4] [--noerror] [--tips]
 
 NOTES:
-- run_testcases.py runs only with python2.7
+- run_testcases.py runs only with python3
 - until now, the directory to the linelist in hbin.ctl has to be updated by
   hand.
 - hbin.ctl in the sfit4_testbed directory is copied i every directory and run there.
