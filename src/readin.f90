@@ -313,7 +313,11 @@
       WRITE(16,*) ' LINE SHAPE MODEL:'
       SELECT CASE ( LSHAPEMODEL )  ! USER CHOICE OF LINE SHAPE MODEL
          CASE (0)
-            WRITE (16,*) '  0 = CHOOSE MODEL DEPENDING ON EXISTANCE OF PARAMETERS'
+            WRITE (16,*) '  0 = DEPRECIATED AND REMOVED'
+            WRITE (00,*) '  LSHAPE MODEL 0 = DEPRECIATED AND REMOVED'
+            WRITE (00,*) '  CHOOSE MODEL 0,1,2 or 3'
+            CALL SHUTDOWN
+            STOP '2'
          CASE (1)
             WRITE (16,*) '  1 = FORCE VOIGT FOR ALL LINES'
          CASE (2)
@@ -323,8 +327,8 @@
          CASE (4)
             WRITE (16,*) '  4 = USE PCQSDHC (Tran2013)'
          CASE DEFAULT
-            WRITE(16,*)' LINE SHAPE MODEL FLAG OUT OF RANGE MUST BE 0, 1, 2, 3)'
-            WRITE(00,*)' LINE SHAPE MODEL FLAG OUT OF RANGE MUST BE 0, 1, 2, 3)'
+            WRITE(16,*)' LINE SHAPE MODEL FLAG OUT OF RANGE MUST BE 1, 2, 3)'
+            WRITE(00,*)' LINE SHAPE MODEL FLAG OUT OF RANGE MUST BE 1, 2, 3)'
             CALL SHUTDOWN
             STOP '2'
       END SELECT
