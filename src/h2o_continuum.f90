@@ -1,7 +1,10 @@
 module h2o_continuum
 
   use params
-  use xsections
+  use bandparam
+  use retvparam
+  use molcparam
+  use raytrace
 
   implicit none
   

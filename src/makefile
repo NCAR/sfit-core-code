@@ -103,6 +103,7 @@ writeout.o \
 andex.o \
 xsections.o \
 continuum.o \
+h2o_continuum.o
 
 
 
@@ -243,9 +244,13 @@ synspec.o \
 tips_2017.o \
 : params.o
 
+h2o_continuum.o \
+:mt-ckd-cont.o
+
+
 transmis.o \
 : params.o bandparam.o retvparam.o vibfcn.o xsections.o molcparam.o lineparam.o\
-continuum.o h2o_continuum.o mt-ckd-cont.o
+continuum.o h2o_continuum.o
 
 vibfcn.o \
 : params.o retvparam.o molcparam.o #writeout.o
@@ -260,4 +265,4 @@ writeout.o \
 : params.o datafiles.o retvparam.o molcparam.o isotope.o bandparam.o
 
 xsections.o \
-: params.o retvparam.o vibfcn.o tips_2017.o isotope.o lineparam.o bandparam.o molcparam.o voigt_sdv_lm.o lineshape_pcqsdhc.o
+: params.o retvparam.o vibfcn.o tips_2017.o isotope.o lineparam.o bandparam.o molcparam.o voigt_sdv_lm.o lineshape_pcqsdhc.o h2o_continuum.o

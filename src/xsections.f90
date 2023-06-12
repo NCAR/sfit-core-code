@@ -28,6 +28,7 @@
       USE MOLCPARAM
       USE VOIGT_SDV_LM
       USE LINESHAPE_PCQSDHC
+      USE H2O_CONTINUUMq
       IMPLICIT NONE
 
       INTEGER :: NMONSM, NCROSS
@@ -53,7 +54,7 @@
       REAL(DOUBLE) :: TXE, VIBFAC, STIMFC, SSL, ACOFB, SCOFB, ALOR, ADOP, &
                       AKZERO, YDUM, OPTMAX, XDUM, AKV, OPTCEN, DELLOR, WLIN, START, &
                       SSTOP, ANUZ, QT, QTSTDTEMP, GI, SSLOLD, BETAP, GZ, LMTVAL
-      REAL(DOUBLE) :: AKV_R, AKV_I, G2, LM, S0=0.0D0, S2=0.0D0
+      REAL(DOUBLE) :: AKV_OFFSET, AKV_R, AKV_I, G2, LM, S0=0.0D0, S2=0.0D0
       REAL(DOUBLE) :: ANUVC = 0.0d0, ETA0=0.0D0
 
       REAL (DOUBLE), DIMENSION(4) :: SDVLM_PARAM ! PARAMETERS FOR SDV AND/OR LINEMIXING
@@ -313,6 +314,20 @@
 !print*, 'kro 8 azero ', AZERO(N), P(K), PSLIN(N)
 !  --- IF NO PRESSURE SHIFT, pCqSDHC calculates it own pressure shift
                IF( (.NOT. FPS).OR.(LSHAPEMODEL.EQ.4) ) WLIN = AZERO(N)
+                              IF ((MO.EQ.1).AND.F_MTCKD) THEN
+                  ! VERY WIDE CALCULATIONS FOR USE WITH MTCKD H2O CONTINUUM
+                  ! THE LINES ARE SET TO ZERO AT THE START AND END TO AVOIND DOUBLE CALCULATION OF CONTINUUM
+                  START = WLIN - 25.0
+                  SSTOP = WLIN + 25.0
+                  ANUZ = WMON(IBAND) - 25.0
+                  XDUM = ALOGSQ*(ANUZ - WLIN)/ADOP
+                  XDUM = ABS(XDUM)
+                  AKV_OFFSET  = AKZERO*VOIGT(XDUM,YDUM)
+               ELSE
+                  START = WLIN - DIST(N,K)
+                  SSTOP = WLIN + DIST(N,K)
+                  AKV_OFFSET = 0.0D0
+               END IF
                START = WLIN - DIST(N,K)
                SSTOP = WLIN + DIST(N,K)
                JSTART = FLOOR((START - WMON(IBAND))/DN(IBAND) + 1.00000001D0)
