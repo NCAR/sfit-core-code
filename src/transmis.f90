@@ -300,7 +300,7 @@
                         END IF
                         IF (F_MTCKD) THEN
                            ! ATTACH H2O CONTINUUM ABSORPTION
-                           TCALC(IPOINT,MSTOR) = TCALC(IPOINT,MSTOR) + MTCKD(1, K, ICINDX2)
+                           TCALC(IPOINT,MSTOR) = TCALC(IPOINT,MSTOR) + MTCKD(1, K, MSTOR)
                            
                            
                            IF (IEMISSION/=0) THEN
@@ -310,7 +310,7 @@
                               DO ALT=1,KSMAX2
                                  IF (ZBAR(ALT) > ZBAR(K)) THEN
                                     TCALC_E(IPOINT,MSTOR,ALT) = &
-                                         TCALC_E(IPOINT,MSTOR,ALT) + MTCKD(1, ALT, ICINDX2)
+                                         TCALC_E(IPOINT,MSTOR,ALT) + MTCKD(1, ALT, MSTOR)
                                  ENDIF
                               ENDDO
                            ENDIF
@@ -370,7 +370,7 @@
                        END IF
                        IF (F_MTCKD) THEN
                           ! ATTACH H2O CONTINUUM ABSORPTION
-                          TCALC(IPOINT,MSTOR) = TCALC(IPOINT,MSTOR) + MTCKD(1, K, ICINDX)
+                          TCALC(IPOINT,MSTOR) = TCALC(IPOINT,MSTOR) + MTCKD(1, K, MSTOR)
 
                           IF (IEMISSION/=0) THEN
                              ! TRANSMISSION CALCULATED BELOW THE LAYER ALT, NEEDED
@@ -379,7 +379,7 @@
                              DO ALT=1,KSMAX2
                                 IF (ZBAR(ALT) > ZBAR(K)) THEN
                                    TCALC_E(IPOINT,MSTOR,ALT) = &
-                                        TCALC_E(IPOINT,MSTOR,ALT) + MTCKD(1, ALT, ICINDX)
+                                        TCALC_E(IPOINT,MSTOR,ALT) + MTCKD(1, ALT, MSTOR)
                                 ENDIF
                              ENDDO
                           ENDIF
@@ -648,7 +648,7 @@
                ICINDX = MXONE + J - 1
                MSTOR = MADD + J - 1
                WAVE_NR = WSTART(IBAND) + (J-1)*DN(IBAND)
-               TCALC(IPOINT,MSTOR) = TCALC(IPOINT,MSTOR) + MTCKD(1, K, ICINDX)
+               TCALC(IPOINT,MSTOR) = TCALC(IPOINT,MSTOR) + MTCKD(1, K, MSTOR)
 
                
                IF (IEMISSION.EQ.1) THEN
@@ -659,7 +659,7 @@
                   DO ALT=1,KSMAX2
                      IF (ZBAR(ALT) > ZBAR(K)) THEN
                         TCALC_E(IPOINT,MSTOR,ALT) = &
-                             TCALC_E(IPOINT,MSTOR,ALT) + MTCKD(1,ALT,ICINDX)
+                             TCALC_E(IPOINT,MSTOR,ALT) + MTCKD(1,ALT,MSTOR)
                      END IF
                   END DO
                END IF

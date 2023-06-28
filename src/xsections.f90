@@ -359,7 +359,7 @@
                      XDUM = ABS(XDUM)
                      AKV  = AKZERO*VOIGT(XDUM,YDUM)
                   ENDIF
-                  CROSS(NPOINT,K,J+INDXX) = CROSS(NPOINT,K,J+INDXX) + AKV*OPTMAX
+                  CROSS(NPOINT,K,J+INDXX) = CROSS(NPOINT,K,J+INDXX) + AKV*OPTMAX -AKV_OFFSET
                   !print*, npoint, indxx, j, k, CROSS(NPOINT,K,J+INDXX), AKV, OPTMAX, xdum, ydum
                ENDDO ! J
             ENDDO ! LINES
