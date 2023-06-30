@@ -64,8 +64,9 @@ contains
     ! calculates the continuum absorption for a give atmoshere
     ! It is a wrapper for the MT-CKD continuum and sets up the variables for
     
-    
-    
+    ! The result is in the array mtckd(cont_nr,alts,spec)
+    ! The continuum is calculated as the combined continuum for all gases, not separated for the gases alone.
+    ! clouds and other effects are also not included
     
     real(double) :: V1ABS,V2ABS,DVABS, ABSRB
     integer :: NPTABS, NMOL_C,LAYER ,LSTWDF,NPTC,NPTh

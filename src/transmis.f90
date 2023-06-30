@@ -100,6 +100,7 @@
       REAL(DOUBLE), DIMENSION(:),   ALLOCATABLE :: cross_all
 
       IF (F_MTCKD) CALL CALC_H2O_CONTINUUM()
+! CALCULATES THE MTCKD CONTINUUM IF ASKED OR. THE RESULT IS STORED IN MTCKD(1,ALT,SPEC)
 
       MONONE = 1
       MXONE  = 1
@@ -341,10 +342,10 @@
                               IF (ZBAR(ALT) > ZBAR(K)) THEN
                                  TCALC_E(IPOINT,MSTOR,ALT) = &
                                       TCALC_E(IPOINT,MSTOR,ALT) + CROSS_FACMAS(NRET+1,K,MSTOR)
-                              END IF
-                              IF (F_MTCKD) THEN
-                                 ! ATTACH H2O CONTINUUM ABSORPTION
-                                 TCALC_E(IPOINT,MSTOR,ALT) = TCALC_E(IPOINT,MSTOR,ALT) + MTCKD(1, K, MSTOR)
+                                 IF (F_MTCKD) THEN
+                                    ! ATTACH H2O CONTINUUM ABSORPTION
+                                    TCALC_E(IPOINT,MSTOR,ALT) = TCALC_E(IPOINT,MSTOR,ALT) + MTCKD(1, K, MSTOR)
+                                 END IF
                               END IF
                            END DO
                         END IF
@@ -363,18 +364,6 @@
                                  ENDIF
                               ENDDO
                            ENDIF
-                        END IF
-                     
-                        IF (IEMISSION/=0) THEN
-                           ! TRANSMISSION CALCULATED BELOW THE LAYER ALT, NEEDED
-                           ! FOR CALCULATION OF CONTRIBUTION TO EMISSION FROM 
-                           ! LAYER ALT TO THE GROUND 
-                           DO ALT=1,KSMAX2
-                              IF (ZBAR(ALT) > ZBAR(K)) THEN
-                                 TCALC_E(IPOINT,MSTOR,ALT) = &
-                                      TCALC_E(IPOINT,MSTOR,ALT) + MTCKD(1, ALT, MSTOR)
-                              ENDIF
-                           ENDDO
                         END IF
                      END IF
                   END DO
