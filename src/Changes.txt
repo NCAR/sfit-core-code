@@ -1,3 +1,8 @@
+July 2023
+v1.0.21
+
+Bavo found a bug in the calculation of the KB matrices. The apriori of the phase and modulation efficiency was used instead of the retrieved value.
+
 December 2021
 
 fixed a bug for writing out the gasspectra (type 2). Thanks to Manu for spotting this. It is now working as described in sfit4_init.pdf
