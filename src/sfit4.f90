@@ -710,7 +710,7 @@
          IEAP = 2 !always use polynomial
          EAPPAR = 1.0D0 ! This is the value of the EAPOD component of the state vector PARM, set in INIT_PARM()
       end IF
-      IF( F_KB_EAP.AND.F_RTAPOD ) then
+      IF( F_RTAPOD ) then
         EAPF(:NEAP) = EAPF0(:NEAP) ! in init_parm the EAPF is copied to EAPF0 as apriori state, ... so apriori is conserved if F_RTAPOD was True before KB (required because PARM is copied from original state), and IEAP=2 fw input is also conserved if F_RTAPOD was false
       ENDIF
 
@@ -734,7 +734,7 @@
          IEPHS = 2
          EPHSPAR = 1.0D0
       end IF
-      IF( F_KB_EPHS.AND.F_RTPHASE ) then
+      IF( F_RTPHASE ) then
             EPHSF(:NEPHS+1)=EPHSF0(:NEPHS+1) ! in initialize EPHSF0 is set as EPHSF (which contains the retrieved phase at this stage) and we need EPHSF0 to contain the apriori input
       ENDIF
 

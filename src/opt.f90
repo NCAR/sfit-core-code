@@ -575,7 +575,7 @@
       ENDIF
 
       IF( F_WRTSEINV )THEN
-         WRITE(CFORMAT, '(A,I5,A)') '(', M, 'ES26.18)'
+         WRITE(CFORMAT, '(A,I6,A)') '(', M, 'ES26.18)'
          CALL FILEOPEN( 67, 2 )
          WRITE(67,*) TRIM(TAG), ' SEINV (DIAGONAL) M X 1'
          WRITE(67,*) M, 1

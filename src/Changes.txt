@@ -1,3 +1,8 @@
+July 2023
+v1.0.21
+
+Bavo found a bug in the calculation of the KB matrices. The apriori of the phase and modulation efficiency was used instead of the retrieved value.
+
 December 2022
 
 included mt-ckd H2O continuum (version 30787 Date: 2016-12-14 11:27:52 -0500)
