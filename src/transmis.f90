@@ -652,23 +652,23 @@
       DO I = 1, NMON
          WAVE_NR = WSTART(IBAND) + (i-1)*DN(IBAND)
          if( ABS( TCALC(IPOINT,MADD+I-1)) .GT. 664.0 ) THEN
-            ! LIMIT SO ONLY GET EXPONENT < 300
+            ! LIMIT SO ONLY GET EXPONENT < 664
             TCALC(IPOINT,MADD+I-1) = 664.0d0
          ENDIF
          if (IEMISSION.EQ.1) then
             DO ALT=1,KSMAX2
                IF( ABS( TCALC_E(IPOINT,MADD+I-1,ALT)) .GT. 664.0 ) THEN
-                  ! LIMIT SO ONLY GET EXPONENT < 300
+                  ! LIMIT SO ONLY GET EXPONENT < 664
                   TCALC_E(IPOINT,MADD+I-1,ALT) = 664.0d0
                ENDIF
 
                TCALC_E(IPOINT,MAdd+i-1,ALT) = exp(-TCALC_E(IPOINT,Madd+i-1,ALT))
             end DO
             TCALC(IPOINT, MADD+I-1) = 0.0D0
-                             ! Background
-            !                  TCALC(IPOINT, MADD+I-1) &
-            !                       = PLANCK(WAVE_NR,EMISSION_T_BACK) !&
-            !* EXP((-TCALC(IPOINT,MADD+I-1)))
+            ! Background
+            ! TCALC(IPOINT, MADD+I-1) &
+            !   = PLANCK(WAVE_NR,EMISSION_T_BACK) !&
+            !      * EXP((-TCALC(IPOINT,MADD+I-1)))
             TCALC_E(IPOINT,MADD+I-1,KMAX+1) = TCALC(IPOINT, MADD+I-1)
             TCALC_S(IPOINT, MADD+I-1, 1)=0.D0
             DO K=2,KSMAX2

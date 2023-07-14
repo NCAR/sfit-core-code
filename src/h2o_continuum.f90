@@ -226,16 +226,16 @@ contains
            close(10)
 
            call xint(v1abs,v2abs,dvabs,absrb,wstart(iband),dn(iband),mtckd(1, k, mxone:mxone+nm(iband)-1),1,nm(iband))
-           open(11, file='h2ocont_fine')
-           DO I=1,nm(iband)
-              VI=wstart(iband)+dble(I-1)*dn(iband)
-              WRITE (11, 910) VI, mtckd(1, k, i)
-           end DO
-           !          print *, k, mxone,mxone+nmon
-           close(11)
-910        FORMAT(F10.3,1P,E12.3)
-       end do
-    end do
+        end do
+        open(11, file='h2ocont_fine')
+        DO I=1,nm(iband)
+           VI=wstart(iband)+dble(I-1)*dn(iband)
+           WRITE (11, 910) VI, (mtckd(1, k, i), k=1,ksmax2)
+        end DO
+        !          print *, k, mxone,mxone+nmon
+        close(11)
+910     FORMAT(F10.3,1P,100(E13.5))
+     end do
     mxone = mxone + nmon
   end subroutine calc_h2o_continuum
 
