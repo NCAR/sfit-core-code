@@ -34,7 +34,7 @@ git clean -fx
 traverse docs
 
 # Edit the file .fitattribues to exclude files and directories from the Release
-git archive --prefix=$basedirname/ --worktree-attributes -o $basedirname.tar Official_Release_1.0 #V1.0.8 
+git archive --prefix=$basedirname/ --worktree-attributes -o $basedirname.tar Pre-Release-v1.1
 
 # The documentation is created from the tex files
 
@@ -43,5 +43,3 @@ git archive --prefix=$basedirname/ --worktree-attributes -o $basedirname.tar Off
 
 find docs -name '*.pdf' -exec tar --transform 's,^,'$basedirname'/,' -rf $basedirname.tar {} ';'
 
-# compress tar file
-#gzip  -f SFIT4-Official-Release-1-0.tar
