@@ -230,9 +230,11 @@ class test_sfit4:
                 kb_orig = Kout(kbfile)
                 result = {'kb': kb_orig.get_alldata('')}
                 self.results_orig[tc].update(result)
-                
+                print(self.testcase_dir)
+                print(self.results[tc]['dir'])
                 kbfile = os.path.join(self.testcase_dir,
                                         self.results[tc]['dir'],'kb.out')
+                print(kbfile)
                 kb = Kout(kbfile)
                 result = {'kb': kb.get_alldata('')}
                 self.results[tc].update(result)
