@@ -20,7 +20,8 @@ contains
     IMPLIcit none
     real (double) :: v1a,v2a,dva,vft,dvr3, argmin, onepl, onemi
     real (double) :: b,b1,b2,p,c,conti,recdva,vi,vj
-    real (double), dimension(*) :: a,r3
+    real (double), dimension(:) :: a
+    real (double), dimension(:) :: r3
     integer :: n1r3,ilo,ihi,i,j
     integer(4) :: n2r3
     !                                                       
@@ -30,9 +31,9 @@ contains
     !     INCREMENTS OF DVR3
     !     copied from mt-ckd continuum program
     !                                                       
-    ONEPL = 1.001d0
-    ONEMI = 0.999d0
-    ARGMIN = 34.0d0
+    ONEPL = 1.001e0
+    ONEMI = 0.999e0
+    ARGMIN = 34.0e0
     !                                                           
     RECDVA = 1./DVA                                       
     ILO = int((V1A+DVA-VFT)/DVR3+1.+ONEMI)                     
@@ -83,6 +84,10 @@ contains
     real(double) :: V1h,V2h,DVh,Ch,csh2o,cfh2o
     real(double) :: XSELF,XFRGN,XCO2C,XO3CN,XO2CN,XN2CN,XRAYL
     real(double) :: vi,vmrh2o,W_dry,wa,wn2,wtot,xcnt,xlength
+
+    real(double),dimension(:), allocatable :: cont_fine ! for the fine interpolation of the cont array.
+    
+    character (len = 32) :: fname
     
     CHARACTER*18 HNAMCNT,HVRCNT
     !                                                                         F00100
@@ -129,7 +134,7 @@ contains
     
     do iband = 1, nband
        do k = 1, ksmax2
-          pave = p(k)*1013.15d0 ! convert in mbar
+          pave = p(k)*1013.15e0 ! convert in mbar
           tave = t(k)
 
           w_dry = ccc(kvert,k)
@@ -200,43 +205,53 @@ contains
           
           nmon = nm(iband)
           dvabs = 2.0d0
-          v1abs = floor(wstart(iband))
-          v2abs = ceiling((wstart(iband) + nm(iband)*dn(iband))/dvabs)*int(dvabs)
+          ! calculation of the continuum must be larger than the MW!
+          v1abs = floor(wstart(iband)-dvabs)
+          v2abs = ceiling(wstart(iband) + nm(iband)*dn(iband)+2*dvabs)
           nptabs = int((v2abs - v1abs)/dvabs)
           v1 = v1abs
           v2 = v2abs
           dv = dvabs
 
-!          print *, wstart(iband), wstart(iband) + nm(iband)*dn(iband), v1,v2,dv,nptabs
+!          print *, wstart(iband), wstop(iband), wstart(iband) + nm(iband)*dn(iband), v1,v2,dv,nptabs
           
           absrb(1:n_absrb)=0.0
           
           call contnm(1)
           !
 !          writes out the continuum absorption at every step. Can be used to compare to original
-!          cntnm absorption code by AER         
-          open(10, file='h2ocont')
-           write(10,*), wk(1), wk(2), wk(3), wk(4), wk(5), wk(6), wk(7)
-           write(10,*), wbroad, pave
-           write(10,*), v1,v2,dv
-           DO I=1,NPTABS
-              VI=V1ABS+dble(I-1)*DVABS
-              WRITE (10, 910) VI, ABSRB(I)
-           end DO
-           close(10)
+          !          cntnm absorption code by AER, only the last altitude will be kept
+          ! open(10, file='h2ocont')
+          ! write(10,*), wk(1), wk(2), wk(3), wk(4), wk(5), wk(6), wk(7)
+          ! write(10,*), wbroad, pave, k
+          ! write(10,*), v1,v2,dv
+          ! DO I=1,NPTABS
+          !    VI=V1ABS+dble(I-1)*DVABS
+          !    WRITE (10, 910) VI, ABSRB(I)
+          ! end DO
+          ! close(10)
 
-           call xint(v1abs,v2abs,dvabs,absrb,wstart(iband),dn(iband),mtckd(1, k, mxone:mxone+nm(iband)-1),1,nm(iband))
-        end do
-        open(11, file='h2ocont_fine')
-        DO I=1,nm(iband)
-           VI=wstart(iband)+dble(I-1)*dn(iband)
-           WRITE (11, 910) VI, (mtckd(1, k, i), k=1,ksmax2)
-        end DO
-        !          print *, k, mxone,mxone+nmon
-        close(11)
+          if (allocated(cont_fine)) deallocate(cont_fine)
+          allocate(cont_fine(nm(iband)))
+          ! cannot hand over the slice of mtckd only
+          call xint(v1abs,v2abs,dvabs,absrb,wstart(iband),dn(iband),cont_fine,1,nm(iband))
+          ! for some reason, the last entry in cont_fine is zero. This
+          ! is not a problem, because the calculation of the continuum
+          ! absorptin is too big anyway.
+          mtckd(1, k, mxone:mxone+nm(iband)-1) = cont_fine(1:nm(iband)-1)
+          deallocate(cont_fine)
+          
+       end do
+        ! write(fname, '(a,I0.2)') 'h2o_continuum_fine_', iband
+        ! open(11, file=fname)
+        ! DO I=1,nm(iband)-1
+        !    VI=wstart(iband)+dble(I-1)*dn(iband)
+        !    WRITE (11, 910) VI, (mtckd(1, k, mxone+i), k=1,ksmax2)
+        ! end DO
+        ! close(11)
+        mxone = mxone + nm(iband)
 910     FORMAT(F10.3,1P,100(E13.5))
      end do
-    mxone = mxone + nmon
   end subroutine calc_h2o_continuum
 
 

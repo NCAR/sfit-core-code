@@ -214,6 +214,13 @@
          CALL SHUTDOWN
          STOP 2
       ENDIF
+      ! -- if the MTCKD continuum calculated
+      IF (F_MTCKD) THEN
+         IF (ALLOCATED(MTCKD)) DEALLOCATE(MTCKD)
+         ALLOCATE(MTCKD(1,KMAX+NCELL,NMONSM))
+         WRITE(*,*) 'CONTINUUMS MODEL MT-CKD'
+         WRITE(16,*) 'CONTINUUMS MODEL MT-CKD'
+      END IF
 
       WRITE (16, 212) NMONSM, NCROSS
 
@@ -1112,13 +1119,6 @@
          END if
       END IF
 
-      ! -- if the MTCKD continuum calculated
-      IF (F_MTCKD) THEN
-         IF (ALLOCATED(MTCKD)) DEALLOCATE(MTCKD)
-         ALLOCATE(MTCKD(1,KMAX+NCELL,NCROSS+1))
-         WRITE(*,*) 'CONTINUUMS MODEL MT-CKD'
-         WRITE(16,*) 'CONTINUUMS MODEL MT-CKD'
-      END IF
 
       ! --- INSERT  CHANNEL PARAMETERS INTO STATE VECTOR PARM()
       NCHAN = 0
