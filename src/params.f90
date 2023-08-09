@@ -81,7 +81,7 @@
 ! Bronstein 1995 - german edition
       REAL(DOUBLE), PARAMETER :: c_boltz  = 1.380648D-23   ! Boltzmann's constant
       REAL(DOUBLE), PARAMETER :: v_light  = 299792458.0D0  ! speed of light
-      REAL(DOUBLE), PARAMETER :: c_planck = 6.58211928D-34! Planck's constant
+      REAL(DOUBLE), PARAMETER :: c_planck = 6.62607015D-34! Planck's constant
 
 
 ! ********************************************************************
