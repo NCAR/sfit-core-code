@@ -1,3 +1,21 @@
+!-----------------------------------------------------------------------------
+!    Copyright (c) 2013-2014 NDACC/IRWG
+!    This file is part of sfit.
+!
+!    sfit is free software: you can redistribute it and/or modify
+!    it under the terms of the GNU General Public License as published by
+!    the Free Software Foundation, either version 3 of the License, or
+!    any later version.
+!
+!    sfit is distributed in the hope that it will be useful,
+!    but WITHOUT ANY WARRANTY; without even the implied warranty of
+!    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!    GNU General Public License for more details.
+!
+!    You should have received a copy of the GNU General Public License
+!    along with sfit.  If not, see <http://www.gnu.org/licenses/>
+!-----------------------------------------------------------------------------
+
       MODULE CHANNEL
 
 ! PWJ 2004
@@ -21,7 +39,8 @@
       INTEGER, DIMENSION(MAXBND,MAX_NUM_OF_BEAMS,4) :: CHANNEL_IFIX
                                             ! CHANNEL SPECTRUM VALUES (pwj)
       INTEGER :: FIRST_CHANNEL_PARM_NUM     ! THE POSITION OF FIRST CHANNEL
-                                            ! PARM IN STATE VECTOR  (pwj)
+      ! PARM IN STATE VECTOR  (pwj)
+      INTEGER :: NCHAN =0                     ! MP number of beams retrieved
 
       CONTAINS
 
@@ -136,7 +155,7 @@
 
       INTEGER, INTENT(INOUT)      :: NVAR
       REAL(DOUBLE), INTENT(INOUT) :: PARM(NMAX), SPARM(NMAX)
-      CHARACTER, INTENT(INOUT)    :: PNAME(NMAX)*(14)
+      CHARACTER, INTENT(INOUT)    :: PNAME(NMAX)*(16)
 
       INTEGER :: IBAND, IBEAM, K
 
@@ -144,6 +163,7 @@
 ! ---  AND KEEP THE START NUMBER IN THE PARM()---------------------------
 ! --- USE LACK OF SIGMA VALUES TO SIGNIFY A NON-FIT PARAMETER
 
+      NCHAN = 0
       FIRST_CHANNEL_PARM_NUM = NVAR + 1
 
       DO IBAND = 1, NBAND
@@ -156,15 +176,20 @@
                END IF
                IF (CHANNEL_IFIX(IBAND,IBEAM,K) .EQ. 0) CYCLE
                NVAR = NVAR + 1
+               NCHAN = NCHAN + 1
                SELECT CASE (K)
                CASE (1)
-                  PNAME(NVAR) = 'PEAK_AMP'
+                  !PNAME(NVAR) = 'PEAK_AMP'
+                  WRITE(PNAME(NVAR), '(A8,I1,"_",I1)') 'PeakAmp_', IBAND, IBEAM
                CASE (2)
-                  PNAME(NVAR) = 'CHAN_SEP'
+                  !PNAME(NVAR) = 'CHAN_SEP'
+                  WRITE(PNAME(NVAR), '(A8,I1,"_",I1)') 'ChanSep_', IBAND, IBEAM
                CASE (3)
-                  PNAME(NVAR) = 'ZERO_PH_REF'
+                  !PNAME(NVAR) = 'ZERO_PH_REF'
+                  WRITE(PNAME(NVAR), '(A8,I1,"_",I1)') 'ZroPhsR_', IBAND, IBEAM
                CASE (4)
-                  PNAME(NVAR) = 'DELTA_PEAK_AMP'
+                  !PNAME(NVAR) = 'DELTA_PEAK_AMP'
+                  WRITE(PNAME(NVAR), '(A8,I1,"_",I1)') 'DlPkAmp_' , IBAND, IBEAM
                END SELECT
                PARM(NVAR)  = 1.0D0
                SPARM(NVAR) = SCHAN_SCALE(IBAND,IBEAM,K)
@@ -301,9 +326,10 @@
          FIT_CHANNEL_PARMS = YCTEMP
          IF( F_WRTCHANNEL )TEMP = PSUM   !for_channel_value_files
       ELSE
-         WRITE (6, *) ' UNKNOWN CHANNEL SPECTRUM MODEL : ', CH_MOD
-         WRITE (6, *) ' PROGRAM ABNORMALLY EXITED!'
-         STOP 'STOP AT FUNCTON FIT_CHAN_PARMS'
+         WRITE(16, *) ' CHANNEL:FIT_CHANNEL_PARMS: UNKNOWN CHANNEL SPECTRUM MODEL : ', CH_MOD
+         WRITE( 0, *) ' CHANNEL:FIT_CHANNEL_PARMS: UNKNOWN CHANNEL SPECTRUM MODEL : ', CH_MOD
+         CALL SHUTDOWN
+         STOP 1
       ENDIF
 
    10 CONTINUE

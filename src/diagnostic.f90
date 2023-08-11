@@ -1,3 +1,21 @@
+!-----------------------------------------------------------------------------
+!    Copyright (c) 2013-2014 NDACC/IRWG
+!    This file is part of sfit.
+!
+!    sfit is free software: you can redistribute it and/or modify
+!    it under the terms of the GNU General Public License as published by
+!    the Free Software Foundation, either version 3 of the License, or
+!    any later version.
+!
+!    sfit is distributed in the hope that it will be useful,
+!    but WITHOUT ANY WARRANTY; without even the implied warranty of
+!    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!    GNU General Public License for more details.
+!
+!    You should have received a copy of the GNU General Public License
+!    along with sfit.  If not, see <http://www.gnu.org/licenses/>
+!-----------------------------------------------------------------------------
+
       MODULE DIAGNOSTIC
 
       USE OPT
@@ -16,6 +34,7 @@
       INTEGER                            :: I, J
       REAL(DOUBLE), DIMENSION(N,M)       :: NM
       REAL(DOUBLE), DIMENSION(N,N)       :: IDEN
+      CHARACTER (len=31)                 :: cformat
 
       !INTEGER                            :: INFO
       !REAL(DOUBLE), DIMENSION(4*NLEV)    :: WORK
@@ -37,12 +56,14 @@
       END IF
 
       if (F_WRTG) then
+         ! ADAPT FORMAST STRING SO THAT A ROW IS IN ONE LINE OF THE TEXTFILE
+         WRITE(CFORMAT, '(A,I5,A)') '(', M, 'ES26.18)' 
          CALL FILEOPEN( 93, 2 )
          WRITE(93,'(A,A)' )TRIM(TAG), ' GAIN MATRIX FOR FULL STATEVECTOR: '
          WRITE(93,*) N, M, ISMIX, NLEV
-         WRITE(93,10) ADJUSTR(PNAME(:N))
+         WRITE(93,10) (trim(ADJUSTL(PNAME(i))),i=1,N)
          DO I=1,N
-            WRITE(93,'(10000ES26.18)') ( G(I,J), J=1, M )
+            WRITE(93,TRIM(CFORMAT)) ( G(I,J), J=1, M )
          ENDDO
          CALL FILECLOSE( 93, 1 )
       end if
@@ -65,20 +86,29 @@
 
 !  --- CALCULATE TRACE OF AK KERNEL FOR TEMPERATURE IF RETRIEVED
       IF( IFTEMP )THEN
-         DO I = NTEMP1, NTEMP1+NLEV
+         DO I = NTEMP1, NTEMP1 + NLEV - 1
             DOF(3) = DOF(3) + A(I,I)
          END DO
       ENDIF
 
 !  --- WRITE AK FOR TARGET
+      ! IF COLUMN RETRIEVAL ONLY, THIS MATRIX IS USELESS.
       IF( F_WRTAK .AND. IFPRF(1) )THEN
 
          CALL FILEOPEN( 81, 1 )
-         WRITE(81,'(A,A,A)' )TRIM(TAG), ' AVERAGING KERNELS NLEV X NLEV MATRIX FOR TARGET ONLY : ', GAS(1)
-         WRITE(81,* )NLEV, NLEV
-         DO I=1, NLEV
-             WRITE(81,'(10000ES26.18)') ( A(I+NLD,J+NLD), J=1, NLEV )
-         ENDDO
+         IF (WRTAK_TYPE.EQ.2) THEN
+            WRITE(81,'(A,A,A)' )TRIM(TAG), ' AVERAGING KERNELS N X N MATRIX FOR COMPLETE STATEVECTOR: ', GAS(1)
+            WRITE(81,* )N, N
+            DO I = 1, N
+               WRITE(81,'(10000ES26.18)') (A(I,J), J=1, N)
+            END DO
+         ELSE
+            WRITE(81,'(A,A,A)' )TRIM(TAG), ' AVERAGING KERNELS NLEV X NLEV MATRIX FOR TARGET ONLY : ', GAS(1)
+            WRITE(81,* )NLEV, NLEV
+            DO I=1, NLEV
+               WRITE(81,'(10000ES26.18)') ( A(I+NLD,J+NLD), J=1, NLEV )
+            ENDDO
+         END IF
          CALL FILECLOSE( 81, 1 )
 
       ENDIF
@@ -98,7 +128,6 @@
          ENDDO
          CALL FILECLOSE( 82, 1 )
 
-10       FORMAT( 2000( 12X, A14 ))
       ENDIF
 
 !  --- CALCULATE SMOOTHING ERROR FOR TARGET GAS
@@ -155,6 +184,8 @@
 !          WRITE(85,'(10000ES26.18)') ( Q(I,J), J=1, NLEV )
 !      ENDDO
 !      CALL FILECLOSE( 85, 1 )
+
+ 10   FORMAT( 2000( 12X, A14 ))
 
       END SUBROUTINE DOFS
 

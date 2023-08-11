@@ -1,3 +1,21 @@
+!-----------------------------------------------------------------------------
+!    Copyright (c) 2013-2014 NDACC/IRWG
+!    This file is part of sfit.
+!
+!    sfit is free software: you can redistribute it and/or modify
+!    it under the terms of the GNU General Public License as published by
+!    the Free Software Foundation, either version 3 of the License, or
+!    any later version.
+!
+!    sfit is distributed in the hope that it will be useful,
+!    but WITHOUT ANY WARRANTY; without even the implied warranty of
+!    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!    GNU General Public License for more details.
+!
+!    You should have received a copy of the GNU General Public License
+!    along with sfit.  If not, see <http://www.gnu.org/licenses/>
+!-----------------------------------------------------------------------------
+
       MODULE VIBFCN
 
 ! --- DEFAULT VIBRATION FUNCTION CALCULATION
@@ -11,6 +29,20 @@
       IMPLICIT NONE
 
 ! --- VIBRATIONAL FUNCTION DATA
+
+! June 2020 - JWH
+!  - Add PH3 from ATM2020
+
+!===== Oct. 2018 =====!
+! Updated HFC-134a (F134A) and HFC-23 (CHF3)
+!
+! Corrected IVIB vibrational values for CFC-11, HCFC-22, COCL2 and F141B
+! by M. Takeda
+!=====================!
+
+! December 2017 - EM@ULIEGE
+! add CHF3/HFC-23 - Based on GCT information (available on mark4sun)
+! add vibrational frequencies and degeneracies for F141B - Based on GCT information
 
 ! June 2013
 ! add isotopes to N2O # 6 7 8 / from Toth via ggg linelist
@@ -48,12 +80,12 @@
 
       DATA NMODE/ &
         3,  3,  3,  3,  1,  4,  1,  1,  3,  3,                       & !1-10
-        4,  9,  1,  1,  1,  1,  1,  1,  3,  6,                       & !11-20
+        4,  9,  1,  2,  1,  1,  1,  1,  3,  6,                       & !11-20
         3,  3,  6,  6, 11,  9,  8,  3,  6,  6,                       & !21-30
         4,  9,  6, 12,  4,  6,  6, 11, 12,  5,                       & !31-40
         1,  9,  6,  6,  6,  9,  3,  9,  1, 15,                       & !41-50
-        6,  0,  0,  0,  0,  0,  0,  3,  1,  1,                       & !51-60
-       12, 12,  1, 12,  8, 11, 27, 15,  8,  0,                       & !61-70
+        6,  0,  0,  0,  4,  0,  0,  3, 18,  1,                       & !51-60
+       12, 12, 12, 12,  0,  0, 27, 15,  8,  9,                       & !61-70
        18, 33, 27, 27, 21, 30,  0,  0,  0,  0,                       & !71-80
         0,  0,  0,  0,  0,  0,  0,  0,  0,  0,                       & !81-90
         0,  0,  0,  0,  0,  0,  0,  0,  0/                             !91-99
@@ -103,7 +135,7 @@
       909, 1,  435,2, 1283,3,  632,3, 52*0,                          & !CF4
       1102,1,  667,1,  468,1,  262,1,  321,1,  923,1,  462,1, 1161,1,& !CCL2F2
        437,1, 42*0,                                                  &
-      1085,1,  535,1,  350,1,  847,2,  394,2,  241,2, 48*0,          & !CCL3F
+      1083,1,  535,1,  351,1,  847,2,  395,2,  243,2, 48*0,          & !CCL3F  Updated by M. Takeda
        344,1,  526,1, 1010,1, 1386,1, 2951,1,  239,2,  303,2, 724,2, & !CH3CCL3
       1088,2, 1455,2, 3013,2,  239,2, 36*0,                          &
        459,1,  217,2,  799,3,  314,3, 52*0,                          & !CCL4
@@ -117,9 +149,9 @@
 
       DATA (((IVIB(J,K,L),J=1,2),K=1,MAXVIBVALS),L=41,50)/ &
       2359,1, 58*0,                                                  & !N2
-      3021,1, 1313,1, 1107,1,  809,1,  596,1,  413,1, 1351,1, 1127,1,& !F22
-       366,1, 42*0,                                                  &
-      1828,1,  574,1,  303,1,  586,1,  851,1,  445,1, 48*0,          & !COCL2
+      3023,1, 1311,1, 1116,1,  809,1,  595,1,  422,1, 1347,1, 1178,1,& !CHF2CL Updated by M. Takeda
+       365,1, 42*0,                                                  &
+      1830,1,  574,1,  303,1,  586,1,  849,1,  445,1, 48*0,          & !COCL2  Updated by M. Takeda
       2973,1, 1306,1,  611,1, 3056,1, 1443,2,  955,2, 48*0,          & !CH3BR
       2933,1, 1252,1,  533,1, 3060,2, 1436,2,  882,2, 48*0,          & !CH3I
       3570,1, 2943,1, 1770,1, 1387,1, 1229,1, 1105,1,  625,1, 1033,1,& !HCOOH
@@ -135,11 +167,13 @@
       5000,1, 58*0,                                                  & !OTHER
       5000,1, 58*0,                                                  & !OTHER
       5000,1, 58*0,                                                  & !OTHER
-      5000,1, 58*0,                                                  & !OTHER
+      3337,1, 992,1, 3444,2, 1180,2, 52*0,                           & !PH3
       5000,1, 58*0,                                                  & !OTHER
       5000,1, 58*0,                                                  & !OTHER
        945,1,  449,1, 1108,1, 54*0,                                  & !OCLO
-      5000,1, 58*0,                                                  & !F134A
+      2981,1, 1462,1, 1428,1, 1301,1, 1185,1, 1104,1,  843,1,  666,1,& !F134A  Updated by M. Takeda
+       549,1,  408,1,  225,1, 3010,1, 1294,1, 1191,1,  973,1,  540,1,&
+       358,1,  110,1,   24*0,                                        &
       5000,1, 58*0/                                                    !C3H8
 
       DATA (((IVIB(J,K,L),J=1,2),K=1,MAXVIBVALS),L=61,70)/ &
@@ -147,13 +181,12 @@
       1135,2, 1455,2, 3013,2,  239,2, 36*0,                          &
       1100,1,  807,1,  348,1,  675,1,  372,1, 1250,2,  619,2,  372,2,& !CFC113
        778,2,  271,2,  114,2,   68,2, 36*0,                          &
-      5000,1, 58*0,                                                  & !F141B
+       340,1,  681,1, 1095,1, 1163,1, 2928,1,  330,2,  300,2,  757,2,& !F141B  Updated by M. Takeda
+      1120,2, 1387,2, 3013,2,  230,2, 36*0,                          &
       3681,1, 3000,1, 2844,1, 1477,1, 1455,1, 1345,1, 1060,1, 1033,1,& !CH3OH
-      2960,1, 1477,1, 1165,1,  295,1,   36*0,                        &
-      2954,1, 2267,1, 1385,1,  920,1, 3009,2, 1448,2, 1041,2,  362,2,& !CH3CNPL
-        44*0,                                                        &
-      2985,2, 2969,2, 2954,1, 2896,1, 1472,2, 1468,1, 1388,1, 1379,1,& !C2H6PL
-      1190,2,  995,1,  822,2, 38*0,                                  &
+      2960,1, 1477,1, 1165,1,  295,1, 36*0,                          &
+      5000,1, 58*0,                                                  & !OTHER
+      5000,1, 58*0,                                                  & !OTHER
       3164,1, 3121,1, 3058,1, 1880,1, 1806,1, 1475,1, 1471,1, 1400,1,& !PAN
       1352,1, 1172,1, 1065,1,  999,1,  984,1,  828,1,  806,1,  736,1,&
        727,1,  616,1,  585,1,  495,1,  373,1,  327,1,  316,1,  100,1,&
@@ -162,7 +195,7 @@
        919,1,  509,1, 2967,1, 1420,1,  867,1,  763,1,  150,1,  30*0, &
       2954,1, 2267,1, 1385,1,  920,1, 3009,2, 1448,2, 1041,2,  362,2,& !CH3CN
         44*0,                                                        &
-      5000,1, 58*0/                                                    !OTHER
+      3035,1, 1141,1,  700,1, 1378,2, 1158,2,  508,2, 48*0/            !CHF3
 
       DATA (((IVIB(J,K,L),J=1,2),K=1,MAXVIBVALS),L=71,80)/ &
 
@@ -215,7 +248,7 @@
       CONTAINS
 
 !----------------------------------------------------------------------
-      SUBROUTINE QVIB( XSC_DETAIL )
+      SUBROUTINE QVIB( XCS_DETAIL )
 
 !  COMPUTE VIBRATIONAL PARTITION FUNCTION FOR RETRIEVAL AND BACKGROUND
 !  GASES FOR EACH LAYER TEMPERATURE AND AT THE REFERENCE TEMPERATURE
@@ -225,8 +258,8 @@
 !           TORSIONAL MODES NOT INCLUDED -- C2H6(#38), CLONO2 (#27)
 !     IVIB=ARRAY CONTAINING FUNDAMENTAL FREQUENCIES AND DEGENERACIES
 
-      LOGICAL, INTENT(IN) :: XSC_DETAIL
-      INTEGER             :: KLEVEL, I, K, N, IMODE, ISUBS(MAXSPE)
+      LOGICAL, INTENT(IN) :: XCS_DETAIL
+      INTEGER             :: KLEVEL, I, K, N, IMODE, ISUBS(MAXGAS)
       REAL(DOUBLE)        :: TEMP, FREQ
 
       KLEVEL = KMAX + 1
@@ -254,15 +287,15 @@
          ISUBS(N) = I
       END DO
 
-      IF( XSC_DETAIL )THEN
+      IF( XCS_DETAIL )THEN
 !  --- WRITE OUT VIBRATIONAL PARTITION FUNCTIONS
-         WRITE (16, 100)
-         WRITE (16, 5, ADVANCE='NO')
+         WRITE(16, 100)
+         WRITE(16, 5, ADVANCE='NO')
          WRITE(16, 6) NAME(ICODE(ISUBS(:N)))
          DO K = 1, KLEVEL
             IF (K <= KMAX) TEMP = T(K)
             IF (K == KLEVEL) TEMP = 296.D0
-            WRITE (16, 7, ADVANCE='NO') TEMP
+            WRITE(16, 7, ADVANCE='NO') TEMP
             WRITE(16, 9) QV(ISUBS(:N),K)
          END DO
       ENDIF

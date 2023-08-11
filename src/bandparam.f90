@@ -1,3 +1,21 @@
+!-----------------------------------------------------------------------------
+!    Copyright (c) 2013-2014 NDACC/IRWG
+!    This file is part of sfit.
+!
+!    sfit is free software: you can redistribute it and/or modify
+!    it under the terms of the GNU General Public License as published by
+!    the Free Software Foundation, either version 3 of the License, or
+!    any later version.
+!
+!    sfit is distributed in the hope that it will be useful,
+!    but WITHOUT ANY WARRANTY; without even the implied warranty of
+!    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!    GNU General Public License for more details.
+!
+!    You should have received a copy of the GNU General Public License
+!    along with sfit.  If not, see <http://www.gnu.org/licenses/>
+!-----------------------------------------------------------------------------
+
       MODULE BANDPARAM
 
       USE PARAMS
@@ -21,6 +39,7 @@
       REAL(DOUBLE) :: DLINES = 4.0D0            ! INTERVAL OUTSIDE REGION FOR INPUT OF LINE DATA [cm-1]
       REAL(DOUBLE) :: DELNU                     ! HALF-WIDTH OF INTERVAL FOR CALCULATING EACH LINE SHAPE
       REAL(DOUBLE) :: SNR = 1.0                 ! DEFAULT YIKES!
+      REAL(DOUBLE) :: RESUNITS = 10.0           ! EXTEND EACH BAND FOR POSSIBLE SHIFT (HISTORICAL DEFAULT VALUE = 10.0)
 
       REAL(DOUBLE), DIMENSION(MAXBND) :: WAVE3  ! BEGINNING WAVENUMBER FOR INTEGRATION
       REAL(DOUBLE), DIMENSION(MAXBND) :: WAVE4  ! ENDING WAVENUMBER FOR INTEGRATION
@@ -28,7 +47,7 @@
       REAL(DOUBLE), DIMENSION(MAXBND) :: WAVE6  ! ENDING WAVENUMBER FOR LINE LIST
       REAL(DOUBLE), DIMENSION(MAXBND) :: WSTART ! FIRST W# CALCULATED READING T15 IN BAND
       REAL(DOUBLE), DIMENSION(MAXBND) :: WSTOP  ! LAST  W# CALCULATED READING T15 IN BAND
-      REAL(DOUBLE), DIMENSION(MAXBND) :: WMON   ! STARTING wave# of band ???? WAVE1
+      REAL(DOUBLE), DIMENSION(MAXBND) :: WMON   ! STARTING WAVE# OF BAND ???? WAVE1
       REAL(DOUBLE), DIMENSION(MAXBND) :: SPAC   ! POINT SPACING IN BAND
       REAL(DOUBLE), DIMENSION(MAXBND) :: DN     ! POINT SPACING FOR MONOCHROMATIC CALCULATIONS
       REAL(DOUBLE), DIMENSION(MAXBND) :: PMAX   ! MAXIMUM PATH DIFFERENCE [CM]
@@ -37,11 +56,11 @@
       REAL(DOUBLE), DIMENSION(MAXBND) :: OMEGA0 ! FIELD OF VIEW IN [MRAD]
       REAL(DOUBLE), DIMENSION(MAXBND) :: WAVFAC ! FACTOR OF WAVENAMUBER FOR EACH BAND
 
-      REAL(DOUBLE), DIMENSION(MAXBND,MAXSPE)  :: SCNSNR  ! SNR BY SCAN AND BAND
+      REAL(DOUBLE), DIMENSION(2,MAXBND,MAXSPE)  :: SCNSNR  ! SNR BY SCAN & BAND, INIT AND ACTUAL
 
       INTEGER, DIMENSION(MAXBND,MOLMAX)       :: IGASB ! ID OF GASES RETRIEVED IN BAND I
       INTEGER, DIMENSION(MAXBND,MOLMAX)       :: NGASB ! NRET INDEX OF GAS RETRIEVED IN BAND I
-      INTEGER, DIMENSION(MOLMAX,0:2,0:MAXBND) :: NGIDX = 0
+      INTEGER, DIMENSION(MOLMAX+1,0:2,0:MAXBND) :: NGIDX = 0
 																	! INDEX REGION IN PARM OF GAS I AND FLAG BAND
 																	! I,0,K IS FLAG THAT GAS I IS IN BAND K
 																	! I,1,K IS LOWER INDEX IN PARM

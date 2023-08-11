@@ -1,4 +1,116 @@
+July 2023
+v1.0.21
+
+Bavo found a bug in the calculation of the KB matrices. The apriori of the phase and modulation efficiency was used instead of the retrieved value.
+
+December 2022
+
+included mt-ckd H2O continuum (version 30787 Date: 2016-12-14 11:27:52 -0500)
+
+
+December 2021
+
+fixed a bug for writing out the gasspectra (type 2). Thanks to Manu for spotting this. It is now working as described in sfit4_init.pdf
+
+Included AK calculation fdor the full AVK matrix within sfit4 as requested by Dan Smale.
+Switch on by
+out.ak_matrix = T
+out.ak_matrix.type = 2
+
+March 2021
+fixed a bug in spec when calculating the SNR from the 10mu region and a mismatch between normalized noise and the peak signal
+
+February 2021
+
+set USE_TIPS for False by default
+
+Dezember 2020
+
+
+Fix in creation of the L1 matrix (v1.0.11)
+Fix of calculation of temperature KB matrices and temperature retrieval.
+
+
+June 2020
+
+-----
+Fixed bug in TIPS to prevent isotopes not allowed in TIPS (but in SFIT) to pass through TIPS. -jwh
+-----
+Added extra isotopes of NH3  to accommodate ATM list.
+
+
+official release of stable version 1.0
+
+write out of AB fixed (request of Dan Smale)
+division by zero bug in raytrace resolved
+
+sfit4 prints out the version string if any command line argument is given (will become more specific, only use -v or --version) (requested by Bavo Langerock)
+
+November 2019
+
+changes in sfit4.ctl since v0.9.4.4
+removed keys:
+kb.dwshift
+kb.max_opd
+
+prints out the version when sfit4 -v (or --version)
+
+The internal spectrscopy for some gases have changed. This is important for
+retrieval of PAN and should not affect the other gases.
+
+introduced sfit4_testbed
+
+The file file.in.phase_fcn contains a value for the 0-th order of the
+phase function when the phase function is modelled by a polynomial.  See sfit4_eapod_ephs.tex
+
+The file must contain 1 more value than the fw.phase_fcn.order.
+
+Feb 2018
+
+Add switch fw.tips = T or F, Use the official TIPS routine to calculate the
+internal partition function, instead of an approximation. This can be very time consuming and has only little effect.
+
+IFOFF = 6 : Internally create the -P L1 matrix and scale by layer thickness and L1LAMBDA
+Set L1LAMBDA to use this functionality of program will stop
+Implemented by gas. L1 is multiplied by L1LAMBDA.
+
+
+
+
+Use the Nov 2019 linelist with V1.0!
+Must use the tagged hbin.ctl file as input to hbin.
+
+
+
+June 2014
+JWH
+- spec.f90: Fix bug where interpolation factor was being misinterpreted to change the
+     sinc function radius & hence the resolution
+  Reduced limit extension required as a result of above fix
+  Added more detail to console output
+
+
+
 Notes for pre release versions V003.*
+
+December 2013 Mathias Palm
+
+- Appended DWNumShft, LineInt, LinePAir and LineTAir with the gasnames
+  the entries apply to.
+- Introduced a second molecule of HF (needed for HITRAN 2012)
+- changed the match of extra parameters (line mixing, beta for
+  Galatry, SDV parameters for CO as given in HITRAN 2012) from
+  wavenumber to quantum numbers in hbin.f90.
+  The Line mixing parameter file created by Frank Hase has been
+  modified accordingly.
+- kb matrices are calculated even if empirical apodisation and phase
+  are not included into the forward model. Both functions are taken as
+  a three dimensional function with the apriori value 1.
+- Added two more isotopes for HCL which appear in HITRAN 2012 with the
+  isotopologue number 25 an 27. I guess this are DCL isotopes and
+  assigned them the weigth 38 and 40 (the weigths of 15 and 17 plus 2
+  for deuterium)
+
 
 ---------------------
 July 2013
@@ -33,15 +145,29 @@ frwdmdl.f90
 - fixed a bug for calculation of analytic K-matrix when using emission
 
 
-Mai 2013
+---------------------
+20 May 2013 v0.9.2.2
+- add soft landing on error stop
+ stop 0 - normal stop
+fatal don't go on:
+ stop 1 - reading inputs
+- fixed up T retrieval sandbox
+- fixed (again!) spc out on iterations
+- fixed reset of T parm array in Kb calc
+- put kb calculation in subroutine kbcalculate
+- fixed bug in deallocate(A) in kbcalculate
+- changed ITER=-1 on FM only (maxiter=0 or RETFLG=F) - print out spc files
+- fixed converg flag to be unset on non-convergence
 
+
+---------------------
+Mai 2013
 - Introduced key kb.gas for calculation of Kb matrices for profile changes if gases are
   retrieved as a column.
 - moved the test if gas.layers is consistent with the number of layers
   in station.layers and isotope.inp. It was possible to have these
   numbers differ if there are no gases retrieved as a profile.
-- fixed a problem n binput_parse_4.0.f90 related to the ordering of
-input of  scale factors
+- fixed a problem n binput_parse_4.0.f90 related to the ordering of input of  scale factors
 - cleaned up the solar shift.
 
 

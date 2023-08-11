@@ -1,4 +1,47 @@
+!-----------------------------------------------------------------------------
+!    Copyright (c) 2013-2014 NDACC/IRWG
+!    This file is part of sfit.
+!
+!    sfit is free software: you can redistribute it and/or modify
+!    it under the terms of the GNU General Public License as published by
+!    the Free Software Foundation, either version 3 of the License, or
+!    any later version.
+!
+!    sfit is distributed in the hope that it will be useful,
+!    but WITHOUT ANY WARRANTY; without even the implied warranty of
+!    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!    GNU General Public License for more details.
+!
+!    You should have received a copy of the GNU General Public License
+!    along with sfit.  If not, see <http://www.gnu.org/licenses/>
+!-----------------------------------------------------------------------------
+
+! July 2021 / jwh / T11
+! fixed the iteration exit in bc4 if cn2 is reached early
+
+! March 2021 (jwh) version T10
+! removed calcsnr() and modified to findnoise()
+! findnoise() uses nearest mini window from pspec
+! fixed bug in moise calculation in bc2, mismatch in normalization
+! convinced interpolation scheme requires point spacing of 0.5/opdmax for sfit4 compatibility
+
+! January 2020
+! fixed an integer conversion bug used in interpolation around line 990
+
+! November 2019
+! 1. fixed bug letting arrays of len=1 into zero fit regions
+! 2. added (arbitrary) limit of 0.05 or 5% zero as a maximum (amplitude).  So is a fitted zero level is greater then that
+!    it is disregarded.  If the Zero is greater then this there is a problem somewhere.
+! 3. Removed calcsnr2 routine as it was not being called.
+
+! March 2015
+! added option zflag=1 to uses same baseline correction as zflag=2 but use standard snr calculation
+!  zflag=2 uses baseline correction noise value - often is too low noise
+! fixes to opd calculation noting bruker method res = 0.9/opd
+
 module spec
+
+use fitting
 
 implicit none
 
@@ -6,7 +49,742 @@ integer       (4) :: nsnr
 real          (8) :: psnr(2,100)
 character(len=2)  :: snrid(100)
 
+integer :: vrsn, blun, rlun, tlun, clun, nlun, olun, ilun, vlun
+
+ ! blun 7  - input bnr file
+ ! clun 8  - cinput
+ ! ilun 9  - input file pspec.inp
+ ! rlun 10 - ratio file
+ ! tlun 15 - output bnr file newratio.ispec
+ ! olun 16 - simple output for fitbn tag & zero
+ ! nlun 20 - t15asc
+ ! (bp_nr = 10 sfit4.ctl)
+
+parameter( vrsn=3, blun=7, clun=8, ilun=9, rlun=11, tlun=15, olun=16, nlun=20, vlun=12 )
+
 contains
+
+real(8) function mktag( yy, mm, dd, hh, nn, ss) result( tag )
+
+   integer (4), intent(in) :: yy, mm, dd, hh, nn, ss
+   real    (8)             :: dec
+
+   ! make time tag
+
+   !print *, yy, mm, dd, hh, nn, ss, sza, azm, dur, res, fov
+   tag = real(dd,8) + 100.d0*real(mm,8) + 10000.d0*real(yy,8)
+   dec = ((real(ss,8)/60.d0 + real(nn,8))/60.d0 + real(hh,8))/24.d0
+   !print 107, tag, dec
+   tag = tag + dec
+   !print *, ((real(ss)/60. + real(nn))/60. + real(hh))/24.
+
+   print 107, tag
+
+   return
+
+107 format( "     File time tag : ", f16.7, 2x, f16.7, g27.17, d15.7 )
+
+end function mktag
+
+!******************************************************************************
+real(8) function bc4( sp, wv, n, wmid, n10m, old10m, vflag ) result(zero)
+
+! use this method just for 10micron O3 region
+
+
+! another take completely
+! looks at all points near zero
+! tries to eliminate those not randomly around 'zero'
+! then makes a sraight line through them
+
+! computes straight line through selected (possible) fully absorbed regions
+! in the bandpass 750 - 1350 cm-1
+! returns the zero offset computed at wavenumber wmid
+! returns sp the entire spectra with the baseline corrected
+
+      implicit none
+
+      logical verbose
+      integer(4),    intent (in)    :: n, n10m, vflag
+      real   (8),    intent (in)    :: wv(:), sp(:)
+      real   (8),    intent (in)    :: wmid
+      real   (8),    intent (out)   :: old10m(2,n10m)
+
+      !real (8), parameter :: eps = 0.001d0
+
+      integer :: i, j, cnt, cn2, pos, neg, ndif, lastcn2
+      real(8) :: avgsw, factor, maxsw, minsw, nstd, pstd, nrstd, prstd !,mdnsw
+      real(8), allocatable  :: wavew(:), specw(:), zerod(:), ptwnd(:), newsp(:), lstwv(:), defwv(:), defsp(:)
+      real(8), dimension(3) :: curve
+
+      ndif     = 1
+      verbose = .false.
+      if( vflag .gt. 0 )verbose = .true.
+
+      if( verbose )write(vlun,303) 'bc4: midpoint spectral value : ', wmid
+      zero = 0.0d0
+! --- quick check that we are in the right region
+      if( wmid .lt. 1000. .or. wmid .gt. 1060. )then
+         print *," bc4: Spectra out of range - no 10µ baseline corection applied not!"
+        ! return
+      endif
+
+! --- get 20% of lowest valued points
+
+      factor = 0.25d0
+      maxsw  = maxval(sp)
+      if( verbose )write(vlun,303) ' initial max spectral value : ', maxsw
+
+      cn2 = 0
+      do i=1, n
+         if( sp(i) .lt. maxsw )cn2 = cn2 +1
+      enddo
+      if( verbose )write(vlun,306) ' initial # points in window : ', cn2
+      if( cn2 .lt. 1000 ) call exit(5)
+
+      allocate( defwv( cn2 ), defsp( cn2 ))
+
+      cn2 = 0
+      do i=1, n
+         if( sp(i) .lt. maxsw )then
+            cn2 = cn2 +1
+            defsp(cn2) = sp(i)
+            defwv(cn2) = wv(i)
+         endif
+      enddo
+
+      cnt = cn2
+
+      do j=1, 20
+
+         if( verbose )write(vlun,*)''
+         cn2 = 0
+         maxsw = maxval(defsp)
+         !print *, maxsw
+         maxsw = factor * maxsw
+         if( verbose )write(vlun,306) ' iter,  factor, maxsp : ', j, factor, maxsw
+         do i=1, cnt
+            if( defsp(i) .lt. maxsw )cn2 = cn2 +1
+         enddo
+         if( verbose )write(vlun,306) ' # points in window : ', cn2
+         if( cn2 .lt. 100 ) exit
+
+         if( allocated( wavew ))deallocate( wavew )
+         if( allocated( specw ))deallocate( specw )
+         if( allocated( ptwnd ))deallocate( ptwnd )
+         if( allocated( newsp ))deallocate( newsp )
+         allocate( newsp( cn2 ))
+         allocate( wavew( cn2 ))
+         allocate( specw( cn2 ))
+         allocate( ptwnd( cn2 ))
+         newsp = 0.0d0
+         wavew = 0.0d0
+         specw = 0.0d0
+         ptwnd = 0.0d0
+
+         cn2 = 0
+         do i=1, cnt
+            if( defsp(i) .lt. maxsw )then
+               cn2 = cn2 +1
+               specw(cn2) = defsp(i)
+               wavew(cn2) = defwv(i)
+            endif
+         enddo
+
+         if( verbose )write(vlun,303) ' min & max wavenumber : ', minval(wavew), maxval(wavew)
+         maxsw = maxval(specw)
+         if( verbose )write(vlun,303) ' max spectral value : ', maxsw
+         minsw = minval(specw)
+         if( verbose )write(vlun,303) ' min spectral value : ', minsw
+         avgsw = sum(specw(:)) / real(cn2,8)
+         if( verbose )write(vlun,303) ' mean spectral value : ', avgsw
+
+! --- fit line through
+         ptwnd      = wavew - wavew(1)
+         !print*, 2
+         curve(1:2) = polyfit(ptwnd(:), specw(:), cn2, 1)
+
+         if( allocated( zerod ))deallocate( zerod )
+         allocate( zerod( cn2 ))
+         if( allocated( lstwv ))deallocate( lstwv )
+         allocate( lstwv( cn2 ))
+         lstwv = wavew
+         lastcn2 = cn2
+
+! --- subtract zero line from spectra
+         newsp = curve(1) + curve(2)*ptwnd
+         zerod = specw - newsp
+         if( verbose )write(vlun,303) ' offset & slope : ', curve(1), curve(2)
+
+!         do i=1, cn2, 100
+!            print 307, i, wavew(i), specw(i), newsp(i), zerod(i)
+!         enddo
+
+         maxsw = maxval(zerod)
+         if( verbose )write(vlun,303) ' max zeroed value : ', maxsw
+         minsw = minval(zerod)
+         if( verbose )write(vlun,303) ' min zeroed value : ', minsw
+         avgsw = sum(zerod(:)) / real(cn2,8)
+         if( verbose )write(vlun,303) ' mean zeroed value : ', avgsw
+
+         pos   = 0
+         neg   = 0
+         nstd  = 0.0d0
+         pstd  = 0.0d0
+         nrstd = 0.0d0
+         prstd = 0.0d0
+         do i=1, cn2
+            if( zerod(i) .gt. 0.0 )then
+               pos = pos +1
+               pstd = pstd + zerod(i)
+            else
+               neg = neg +1
+               nstd = nstd + zerod(i)
+            endif
+         enddo
+
+         pstd = pstd / real(pos,8)
+         nstd = nstd / real(neg,8)
+
+         do i=1, cn2
+            if( zerod(i) .gt. 0.0 )then
+               prstd = prstd + (pstd - zerod(i))**2
+            else
+               nrstd = nrstd + (nstd - zerod(i))**2
+            endif
+         enddo
+
+         nstd = sqrt(nrstd)
+         pstd = sqrt(prstd)
+
+         if( verbose )write(vlun,306) ' zeroed points greater then 0 : ', pos, pstd
+         if( verbose )write(vlun,306) ' zeroed points less then 0 : ', neg, nstd
+
+         if( abs(real( pos - ndif*neg,4)) .le. 0.01*cn2 )exit
+
+         if( abs(real( pos - ndif*neg,4)) .le. 0.03*cn2 )then
+            if( pos .gt. ndif*neg ) factor = factor * 1.03d0
+            if( pos .lt. ndif*neg ) factor = factor * 0.97d0
+         else
+            if( pos .gt. ndif*neg ) factor = factor * 1.15d0
+            if( pos .lt. ndif*neg ) factor = factor * 0.8d0
+         endif
+
+! --- actual zero offset for this band
+         zero = curve(1) + curve(2) * (wmid - wavew(1))
+         if( verbose )write(vlun,303) 'Zero at midpt : ', zero, wmid
+
+      enddo
+
+      !if( abs( mdnsw - avgsw ) .gt. eps )goto 25
+
+      ptwnd(:)   = wavew(:) - wavew(1)
+      !print*, 3
+      curve(1:2) = polyfit(ptwnd(:), specw(:), lastcn2, 1)
+
+      write(6,302) '10µ Best fit = a + bx :', curve(1), curve(2)
+      if( verbose )write(vlun,302) '10µ Best fit = a + bx : ', curve(1), curve(2)
+
+! actual zero offset for this band
+      zero = curve(1) + curve(2) * (wmid-wavew(1))
+      write(6,303) 'Zero at midpt : ', zero, wmid
+      if( verbose )write(vlun,303) 'Zero at midpt : ', zero, wmid
+
+ ! generate this line
+      old10m(1,1) = wv(1) - (wv(n)-wv(1))/(n10m-1)
+      do i=1, n10m
+         old10m(1,i) = old10m(1,1) + i * (wv(n)-wv(1))/(n10m-1)
+         old10m(2,i) = curve(1) + curve(2) * (old10m(1,i)-old10m(1,1))
+      enddo
+
+      if( allocated( wavew )) deallocate( wavew )
+      if( allocated( specw )) deallocate( specw )
+      if( allocated( ptwnd )) deallocate( ptwnd )
+      if( allocated( newsp )) deallocate( newsp )
+      if( allocated( zerod )) deallocate( zerod )
+      if( allocated( lstwv )) deallocate( lstwv )
+      if( allocated( defwv )) deallocate( defwv )
+      if( allocated( defsp )) deallocate( defsp )
+
+      return
+
+! 25   print *, ' bc4 no convergence.'
+!      call exit(8)
+
+      return
+
+! 10   format(3(a,g12.5))
+! 11   format( a, f0.1)
+ 302  format( a32, f21.8, 6f20.8 )
+ 303  format( a32, 6f20.8 )
+! 305  format( a32, 4f12.9 )
+ 306  format( a32, i12, 10f20.8 )
+! 307  format( i4, f10.4, 3f12.4 )
+
+end function bc4
+
+
+!---------------------------------------------------------------------------------
+
+real(8) function bc2( sp, wavelength, n, wmid, vflag, noise ) result (zero)
+
+! reset zeromax to 0.15 or 15%, note spectrum is normalized.  15% is way too much to be a good spectrum
+! if its over zeromax zero is set to -999 & no zeroed.bnr is written
+! bug - changed zerod.bnr to real 4 as it should be
+! write out the zero value to the 1st line of the t15asc file for diagnostics
+!
+!
+! Found snr regions with 1 point getting to a fit!
+! inserted at line 456 in spec.f90
+! if( k .lt. 3 )cycle  ! need at least 3 points! to fit a curve
+!
+! Added at line 688
+!       else if( abs(zero) .gt. zeromax )then
+!          write(6,302) 'Zero for this region too large: ', zero
+!          zero  = -999.0d0
+!          noise = 0.0d0
+!          sp(:) = real(initmax,4) * sp(:)
+!          print *, 'No zero offset applied, value found is too large...return now.'
+!
+! set zeromax to 0.05, arbitrary but if the code fails for any reason that yields a large offset something went wrong
+! reset zero and noise
+
+! second improved but similar implmentation to orig
+! added more points near 1000 for O3
+! changed criteria for saturated window
+! still not always working but close
+
+! computes straight line thruough selected (possible) fully absorbed regions
+! in the bandpass 750 - 1350 cm-1
+! returns the zero offset comuputed at wavenumber wmid
+! returns sp the entire spectra with the baseline corrected
+
+      implicit none
+
+      logical verbose, blockout
+
+      integer(4),    intent (in)    :: n, vflag
+      real   (8),    intent (in)    :: wavelength(:)
+      real   (8),    intent (inout) :: sp(:)
+      real   (8),    intent (in)    :: wmid
+      real   (8),    intent (out)   :: noise
+
+      integer, parameter :: nsat = 41  ! # of saturated regions
+      integer, parameter :: n10m = 500 ! # of points in 10 micron region
+
+      integer                    :: i, k, l, mm, count, count2, count3, stdcount, iswap1
+      integer                    :: iih, iil, above, below
+      integer(4), dimension(1)   :: ihi, ilow, iswap
+      integer, dimension(4,nsat) :: inband
+      real(8), dimension(2,nsat) :: satarr
+      real(8), dimension(nsat)   :: stdarr
+      real(8)                    :: temp, initmax, dstncmax, mean, zeromax
+      real(8)                    :: stdev, meansw, runningsum, meanstd, runningmeanstd, distnc, mdwav, mdpnt, azer
+      real(8), allocatable       :: wavewindow(:), specwindow(:), zeroed(:), ptwnd(:), newsp(:)
+      real(8), allocatable       :: allsatwave(:), allsatspec(:)
+      real(8), dimension(2,n10m) :: old10m
+
+      real(8), dimension(3)      :: curve = 0.0d0
+
+      verbose  = .false.
+      blockout = .false.
+      if( vflag .gt. 0 )verbose  = .true.
+      if( vflag .gt. 1 )blockout = .true.
+      !print*,blockout
+      dstncmax = 50.0d0
+      zeromax  = 0.15d0
+      zero     = 0.0d0
+! quick check that we are in the right region
+      if( wmid .lt. 760. .or. wmid .gt. 1340. )then
+         write(6,301)"bc2 : Spectra out of range - no baseline corection applied."
+         zero = -999.d0
+         return
+      endif
+
+     print *, ''
+     print *, 'Attempt zero correcting this spectrum in 10µ region...'
+
+     ! the saturated regions - narrow
+     satarr(1,1)  = (751.28d0)
+     satarr(2,1)  = (751.41d0)
+     satarr(1,37) = (752.75d0)
+     satarr(2,37) = (752.90d0)
+     satarr(1,2)  = (754.20d0)
+     satarr(2,2)  = (754.40d0)
+     satarr(1,38) = (754.56d0)
+     satarr(2,38) = (754.73d0)
+     satarr(1,39) = (755.71d0)
+     satarr(2,39) = (755.83d0)
+     satarr(1,40) = (757.22d0)
+     satarr(2,40) = (757.38d0)
+     satarr(1,41) = (758.75d0)
+     satarr(2,41) = (758.82d0)
+     satarr(1,34) = (760.26d0)
+     satarr(2,34) = (760.30d0)
+     satarr(1,3)  = (776.9300d0)
+     satarr(2,3)  = (777.0200d0)
+     satarr(1,4)  = (784.4400d0)
+     satarr(2,4)  = (784.4800d0)
+     satarr(1,5)  = (795.8600d0)
+     satarr(2,5)  = (795.9200d0)
+     satarr(1,6)  = (798.5300d0)
+     satarr(2,6)  = (798.5800d0)
+     satarr(1,7)  = (803.5350d0)
+     satarr(2,7)  = (803.5650d0)
+     satarr(1,35) = (827.6500d0)
+     satarr(2,35) = (827.7500d0)
+     satarr(1,36) = (839.80d0)
+     satarr(2,36) = (839.95d0)
+     satarr(1,8)  = (849.5700d0)
+     satarr(2,8)  = (849.6000d0)
+     satarr(1,9)  = (852.4100d0)
+     satarr(2,9)  = (852.4500d0)
+
+     satarr(1,37) = (1001.0d0)
+     satarr(2,37) = (1070.0d0)
+
+!     satarr(1,42) = (992.0)
+!     satarr(2,42) = (1000.0)
+
+!     satarr(1,37) = (00.0)
+!     satarr(2,37) = (00.0)
+
+     satarr(1,10) = (1106.7150d0)
+     satarr(2,10) = (1106.7400d0)
+     satarr(1,11) = (1135.7100d0)
+     satarr(2,11) = (1135.7800d0)
+     satarr(1,12) = (1174.4500d0)
+     satarr(2,12) = (1174.6000d0)
+     satarr(1,13) = (1186.9500d0)
+     satarr(2,13) = (1187.0800d0)
+     satarr(1,14) = (1198.1400d0)
+     satarr(2,14) = (1198.2200d0)
+     satarr(1,15) = (1212.1800d0)
+     satarr(2,15) = (1212.3200d0)
+     satarr(1,16) = (1244.0500d0)
+     satarr(2,16) = (1244.2000d0)
+     satarr(1,17) = (1260.1000d0)
+     satarr(2,17) = (1260.50d0)
+     satarr(1,18) = (1268.2800d0)
+     satarr(2,18) = (1268.5000d0)
+     satarr(1,19) = (1271.40d0)
+     satarr(2,19) = (1272.00d0)
+     satarr(1,20) = (1287.2000d0)
+     satarr(2,20) = (1287.5000d0)
+     satarr(1,21) = (1287.7500d0)
+     satarr(2,21) = (1287.8500d0)
+     satarr(1,22) = (1288.1500d0)
+     satarr(2,22) = (1288.5000d0)
+     satarr(1,23) = (1296.4500d0)
+     satarr(2,23) = (1296.5100d0)
+     satarr(1,24) = (1296.6500d0)
+     satarr(2,24) = (1296.7700d0)
+     satarr(1,25)=(1305.30d0)
+     satarr(2,25)=(1306.43d0)
+     satarr(1,26)=(1319.0000d0)
+     satarr(2,26)=(1320.50d0)
+     satarr(1,27)=(1336.7500d0)
+     satarr(2,27)=(1337.07d0)
+     satarr(1,28)=(1337.55d0)
+     satarr(2,28)=(1337.89d0)
+     satarr(1,29)=(1340.00d0)
+     satarr(2,29)=(1340.70d0)
+     satarr(1,30)=(1349.20d0)
+     satarr(2,30)=(1349.52d0)
+     satarr(1,31)=(1346.97d0)
+     satarr(2,31)=(1347.11d0)
+     satarr(1,32)=(1347.86d0)
+     satarr(2,32)=(1348.09d0)
+     satarr(1,33)=(1349.20d0)
+     satarr(2,33)=(1349.52d0)
+
+! Now put in increasing wavenumber order
+   do i=1, nsat-1
+      iswap = minloc(satarr(1,i:nsat))
+      iswap1 = iswap(1)+i-1
+      if( iswap1 .ne. i )then
+         temp = satarr(1,i)
+         satarr(1,i) = satarr(1,iswap1)
+         satarr(1,iswap1) = temp
+         temp = satarr(2,i)
+         satarr(2,i) = satarr(2,iswap1)
+         satarr(2,iswap1) = temp
+      endif
+   enddo
+
+! --- start with 'normalized' spectrum
+   initmax = real( maxval(sp), 8 )
+   sp(:)   = sp(:)/real( initmax, 4 )
+   write(6,303) 'Max spectral value : ', initmax
+
+! --- pick the saturated regions
+! --- first count to find out how big the "allsat" arrays should be
+      count2 = 0
+      count3 = 0
+      above  = 0
+      below  = 0
+      distnc = 1000.0d0
+      l = 0
+
+      do i = 1, nsat
+
+         if (wavelength(1) .lt. satarr(1,i) .and. wavelength(n) .gt. satarr(2,i)) then
+            l = l +1
+            count3 = count3 +1
+            inband(1,l) = i
+
+            ilow = minloc(( wavelength-satarr(1,i) ), mask=(wavelength-satarr(1,i)) > 0.0 )
+
+            ihi  = minloc(( wavelength-satarr(2,i) ), mask=(wavelength-satarr(2,i)) > 0.0 )
+
+            iil  = ilow(1)
+            iih  = ihi(1) -1
+
+            inband(2,l) = iih - iil +1
+
+            ! special case for 10 mic - uses bc4
+            !if( satarr(1,i) .eq. 1001.0 ) inband(2,l) = n10µ
+            inband(3,l) = iil
+            inband(4,l) = iih
+
+            meansw = (satarr(2,i) + satarr(1,i))/2.
+            if( meansw .lt. wmid )below = below +1
+            if( meansw .gt. wmid )above = above +1
+            if( abs(meansw-wmid) .lt. distnc )distnc = abs( meansw - wmid)
+
+            count2 = count2 + inband(2,l)
+         endif
+
+      enddo
+
+      if( count2 .eq. 0 )go to 667
+      if( verbose )write(vlun,*) ''
+      if( verbose )write(vlun,304) ' # sat points in spec : ', count2
+      if( verbose )write(vlun,304) ' # sat bands in spec : ', count3
+      if( verbose )write(vlun,304) ' # sat bands below midpt : ', below
+      if( verbose )write(vlun,304) ' # sat bands above midpt : ', above
+      if( verbose )write(vlun,310) ' Closest sat band to midpt : ', distnc
+
+!0test
+      if( (above .eq. 0 .or. below .eq. 0) .and. distnc .gt. dstncmax )return
+
+      allocate(allsatwave(count2))
+      allocate(allsatspec(count2))
+
+! --- ouput region by region for plotting
+      if( blockout )open(unit=98,file='pspec_zero_blocks.dtl')
+      if( blockout )write(98,'(a8,i5)') 'nblocks', count3
+
+! --- now loop through each saturated feature and calculate for flatness
+      count  = 1
+      above  = 0
+      below  = 0
+      distnc = 1000.0d0
+
+      do l = 1, count3 !through each region
+
+         i   = inband(1,l)    ! satarr index
+         k   = inband(2,l)    ! # spectral points in this sat band
+         iil = inband(3,l)    ! index of low wn fort this sat band
+         iih = inband(4,l)    ! index of hi  wn fort this sat band
+
+         if( k .lt. 3 )cycle  ! need at least 3 points! to fit a curve
+
+! --- reset the wavewindow and specwindow which will be used each time
+         if( allocated(wavewindow) ) deallocate( wavewindow )
+         if( allocated(specwindow) ) deallocate( specwindow )
+         if( allocated(zeroed) ) deallocate( zeroed )
+         if( allocated(newsp) ) deallocate( newsp )
+         if( allocated(ptwnd) ) deallocate( ptwnd )
+
+         allocate(wavewindow(k))
+         allocate(specwindow(k))
+         allocate(zeroed(k))
+         allocate(ptwnd(k), newsp(k))
+
+         wavewindow(:) = wavelength(iil:iih)
+         specwindow(:) = real(sp(iil:iih),8)
+         mdwav         = (wavelength(iil) + wavelength(iih)) /2.0
+         mdpnt         = mdwav - wavewindow(1)
+
+         !print*, wavewindow(1)
+
+         if( satarr(1,i) .ne. 1001.0d0 .and. satarr(1,i) .ne. 992.0d0 )then
+
+            ptwnd(:)      = wavewindow(:) - wavewindow(1) ! start wn fit at 0.0
+
+            ! --- fit a second degree polynomial to the region
+            ! --- curve = a + bx + cx^2
+            !print*, 4
+            curve(1:3) = polyfit( ptwnd(:), specwindow(:), k, 2 )
+!            print*, polyfit( ptwnd(:), specwindow(:), k, 2 )
+
+
+            ! --- zero offset at midpoint
+            zero = curve(1) + curve(2)*mdpnt + curve(3)*mdpnt*mdpnt
+
+            ! --- subtract zero line from spectra
+            newsp  = curve(1) + curve(2)*ptwnd + curve(3)*ptwnd**2
+            zeroed =  specwindow - newsp
+
+            ! --- calculate the standard deviation in that region too
+
+            ! --- average value of the zeroed spectrum
+            azer = sum(zeroed(:)) / max(1.0d0,real(k,8))
+
+            ! --- calculate the standard deviation, intermediate step required here
+            runningsum = 0.0d0
+            do mm = 1, k
+               runningsum=runningsum+((zeroed(mm)-azer)**2)
+            enddo
+            stdev = sqrt(runningsum/real(k,8))
+
+            ! --- for plotting blocks
+            if( blockout )then
+               write(98,'(a8,2i5,10f14.4)') 'block', l, k, curve(1:3), zero, stdev, wavelength(iih)-wavelength(iil), mdwav
+               do i=1, k
+                  write(98,307) i, ptwnd(i), wavewindow(i), specwindow(i), newsp(i), zeroed(i)
+               enddo
+            endif
+            if( verbose )write(vlun,306) 'npts mdpt mzer azer std off slp crv : ', k, mdwav, zero, azer, stdev, curve(1:3)
+
+            ! --- if they pass the polynomial fit, add both the region and the std dev to arrays
+            !print*,  curve(3)/(wavelength(iih)-wavelength(iil)), zero, stdev
+            if ( curve(3)/(wavelength(iih)-wavelength(iil)) .lt. 50. .and. zero .lt. 0.25d0 .and. stdev .lt. 0.05 )then
+
+               allsatwave(count:count+k-1)=wavewindow(:)
+               allsatspec(count:count+k-1)=specwindow(:)
+               stdarr(l) = stdev
+               count     = count + k
+
+               if( mdwav .lt. wmid )below = below +1
+               if( mdwav .gt. wmid )above = above +1
+               if( abs(mdwav-wmid) .lt. distnc )distnc = abs( mdwav - wmid)
+
+               if( verbose )write(vlun,306) 'good region : npts mdpt mzer stdv : ', k, mdwav, zero, stdev
+
+            endif
+
+         else
+            ! --- 60cm-1 around 10 micron O3 treat this as a large band & try to get 50 (n10µ)
+            !     zeroed data points from it
+            zero = bc4( specwindow, wavewindow, k, mdwav, n10m, old10m, vflag )
+
+            allsatwave(count:count+n10m-1) = old10m(1,:)
+            allsatspec(count:count+n10m-1) = old10m(2,:)
+            stdarr(l) = 0.05d0 ! did not calc yet   stdev
+            count     = count + n10m
+
+            if( mdwav .lt. wmid )below = below +1
+            if( mdwav .gt. wmid )above = above +1
+            if( abs(mdwav-wmid) .lt. distnc )distnc = abs( mdwav - wmid)
+
+            if( verbose )write(vlun,306) 'good region : npts mdpt mzer stdv : ', n10m, mdwav, zero, stdev
+
+         endif
+
+      end do ! finished that region
+      count = count - 1
+
+      if( blockout )close(98)
+      if( verbose )write(vlun,304) ' Found sat bands below midpt : ', below
+      if( verbose )write(vlun,304) ' Found sat bands above midpt : ', above
+      if( verbose )write(vlun,310) ' Closest sat band to midpt : ', distnc
+      if( verbose )write(vlun,304) " Points in allsat vector : ", count
+
+! --- calculate a 2nd order poly using all points
+     !print*, 5
+     curve(1:3) = polyfit(allsatwave(1:count), allsatspec(1:count), count, 2)
+
+! --- calculate the mean std
+      runningmeanstd = 0.0d0
+      stdcount       = 0
+      do i = 1, nsat
+       if( abs(stdarr(i)) .gt. tiny( 0.0d0 ))then
+         runningmeanstd = runningmeanstd + stdarr(i)
+         stdcount       = stdcount + 1
+       endif
+      enddo
+      meanstd = runningmeanstd/stdcount
+
+      write(6,303) 'Best fit= a + bx + cx^2, std : ', curve(1), curve(2), curve(3), meanstd
+
+! --- calculate the rms noise of this zero vector
+      noise = 0.0d0
+      !do i=1, count
+      !   noise = noise + &
+      !     ( allsatspec(i) - ( curve(1) + ( curve(2) + curve(3)*allsatwave(i) )*allsatwave(i)) ) * &
+      !     ( allsatspec(i) - ( curve(1) + ( curve(2) + curve(3)*allsatwave(i) )*allsatwave(i)) )
+      !   write(66,*) allsatwave(i), allsatspec(i), (curve(1) + (curve(2) + curve(3)*allsatwave(i) ) * allsatwave(i)), &
+      !               allsatspec(i) - (curve(1) + (curve(2) + curve(3)*allsatwave(i) ) * allsatwave(i))
+      !enddo
+      !noise = sqrt( noise / real( count, 8 ))
+
+! --- assume horizontal band - these points are random around zero by definition if we got this far
+      mean = sum(allsatspec(1:count)) / real( count, 8 )
+      noise = sqrt(dot_product(allsatspec(1:count)-mean, allsatspec(1:count)-mean) / real( count, 8 ) )
+      !print *, noise, mean
+      !noise = sqrt(dot_product(allsatspec(1:count), allsatspec(1:count)) / real( count, 8 ) )
+      !print *, noise
+      noise = sqrt(real(initmax,4)) * noise
+      !print*, noise
+
+! --- actual zero offset for this band
+      zero = curve(1) + curve(2)*wmid + curve(3)*wmid*wmid
+
+! --- don't go too far afield !!!
+! --- 40 gets o3 at 1002 and mid pt of 10µ region ~1025
+      if(( above .eq. 0 .or. below .eq. 0 ) .and. distnc .gt. dstncmax )then
+         write(6,302) 'Zero found for this region : ', zero
+         zero = -999.0d0
+         sp(:) = real(initmax,4) * sp(:)
+         print *, '*** No zero offset applied...return now.'
+      else if( abs(zero) .gt. zeromax )then
+         write(6,302) 'Zero for this region : ', zero
+         zero = -999.0d0
+         noise = 0.0d0
+         sp(:) = real(initmax,4) * sp(:)
+         print *, '*** No zero offset applied, offset found is too large...return now.'
+     else
+         print *, ''
+         print *, 'Zero correcting this spectrum.'
+! --- send back the entire spectrum zero level adjusted
+!     and scaled back to original peak value
+         do i=1, n
+           temp  = real(wavelength(i),8)
+           sp(i) = real(initmax,4) * (sp(i) - real(curve(1) + ( curve(2)+ curve(3)*temp )*temp ,4))
+         enddo
+      endif
+
+      if( allocated( wavewindow) ) deallocate( wavewindow )
+      if( allocated( specwindow) ) deallocate( specwindow )
+      if( allocated( zeroed) )     deallocate( zeroed )
+      if( allocated( newsp) )      deallocate( newsp )
+      if( allocated( ptwnd) )      deallocate( ptwnd )
+      if( allocated( allsatwave) ) deallocate( allsatwave )
+      if( allocated( allsatspec) ) deallocate( allsatspec )
+
+      return
+
+667   continue
+      print *, ' None of the saturated regions are in this file'
+      print *, ' Spectrum is probably not filter 6...'
+      zero = 0.0d0
+
+      return
+
+! 10   format(3(a,g12.5))
+ 301  format( /, a )
+ 302  format( a32, 6f12.5 )
+ 303  format( a32, 6f20.8 )
+ 304  format( a32, 6i8 )
+! 305  format( a32, 4f12.9 )
+ 306  format( a32, i12, 10f12.4 )
+ 307  format( i4, f10.4, 5f12.5 )
+ 310   format( a32, f12.1)
+
+end function bc2
+
 
 !---------------------------------------------------------------------------------
 !
@@ -17,222 +795,241 @@ contains
 !
 subroutine ratio( outspec, wstart, dnue, np )
 
-integer, intent(inout)                           :: np
-real (kind=4), dimension(np),  intent(inout)     :: outspec
-real (kind=8), intent(inout)                     :: dnue, wstart
+   integer, intent(inout)                         :: np
+   real (kind=8), dimension(np), intent(inout)    :: outspec
+   real (kind=8), intent(inout)                   :: dnue, wstart
 
-character (len=80)                            :: rtitl
-real      (kind=4), dimension(:), allocatable :: rmp, rwv, wavs
-real      (kind=8)                            :: rlo, rhi, rspac, y !interp, y
-integer   (kind=4)                            :: i, iil, rpts, startpt, endpt
-integer   (kind=4), dimension(1)              :: ilow
+   character (len=80)                             :: rtitl
+   real      (kind=8), dimension(:), allocatable  :: rmp, rwv, wavs
+   real      (kind=8)                             :: rlo, rhi, rspac, y !interp, y
+   integer   (kind=4)                             :: i, iil, rpts, startpt, endpt
+   integer   (kind=4), dimension(1)               :: ilow
 
-!  outspec  - pointer to the spectrum on input and output.
-!              on output it is the intersection of the 2 spectra
-!  wstart   - starting wavenumber of spectrum on input and output and may change
-!  dnue     - point spacing same in input and output
-!  np       - number of points may change on output
+   !  outspec  - pointer to the spectrum on input and output.
+   !              on output it is the intersection of the 2 spectra
+   !  wstart   - starting wavenumber of spectrum on input and output and may change
+   !  dnue     - point spacing same in input and output
+   !  np       - number of points may change on output
 
-print *,''
-print *, 'Ratio data spectra with low-res ratio spectrum.'
+   write(6,111) 'Ratio data spectra with low-res ratio spectrum.'
 
-! read in data from bnr - already open and rewound
+   ! read in data from bnr - already open and rewound
 
-read(9) rtitl
-print *, rtitl
+   read(rlun) rtitl
+   write(6,112) rtitl
 
-read(9) rlo, rhi, rspac, rpts
-print *,''
-print *, "Ratio spectra:"
-write(*,'(1x,a10,f20.10)')'low wave#  ',rlo
-write(*,'(1x,a10,2f20.10)')'high wave#  ',rhi
-write(*,'(1x,a10,f20.10)')'spacing  ',rspac
-write(*,'(1x,a10,i20)')'# points  ',rpts
+   read(rlun) rlo, rhi, rspac, rpts
+   write(6,102)'Low wavenumber : ', rlo
+   write(6,102)'High wavenumber : ', rhi
+   write(6,102)'Spacing : ', rspac
+   write(6,101)'Number of points : ', rpts
 
-allocate( rmp( rpts ), rwv(rpts) )
-read(9) rmp
+   allocate( rmp( rpts ), rwv(rpts) )
+   read(rlun) rmp
 
-!print *,'enter a new rpts:'
-!read(5,*) rpts
+   !print *,'enter a new rpts:'
+   !read(5,*) rpts
 
-! create abscissa array of ratio spectrum for interpolation
-do i=1, rpts
-   rwv(i)= i-1
-   end do
-rwv = real( rwv * rspac + rlo, 4 )
-!print *, rwv(1)
+   ! create abscissa array of ratio spectrum for interpolation
+   do i=1, rpts
+      rwv(i)= real(i-1,4)
+      end do
+   rwv = real( rwv * rspac + rlo, 4 )
+   !print *, rwv(1)
 
-! create abscissa array of data spectrum for interpolation
-allocate( wavs( np ))
-do i=1, np
-   wavs(i)= i-1
-   end do
-wavs = real( wavs * dnue + wstart, 4 )
+   ! create abscissa array of data spectrum for interpolation
+   allocate( wavs( np ))
+   do i=1, np
+      wavs(i)= real(i-1,4)
+      end do
+   wavs = real( wavs * dnue + wstart, 4 )
 
-print *,''
-print *, "Data spectra:"
-write(*,'(1x,a10,f20.10)')'low wave#  ',wavs(1)
-write(*,'(1x,a10,2f20.10)')'high wave#  ',wavs(np)
-write(*,'(1x,a10,f20.10)')'spacing  ',dnue
-write(*,'(1x,a10,i20)')'# points  ',np
+   write(6,111) "Data spectra :"
+   write(6,102)'low wavenumber : ', wavs(1)
+   write(6,102)'high wavenumber : ', wavs(np)
+   write(6,102)'spacing : ', dnue
+   write(6,101)'# points : ', np
+   write(6,*)''
 
-print *,''
+   if(( wavs(1) .GT. rhi ) .OR. ( wavs(np) .LT. rlo )) then
+      print *,' ratio and data spectra do not overlap...'
+      ! we don't change a thing
+      deallocate( wavs, rwv, rmp )
+      return
+      endif
 
-if(( wavs(1) .GT. rhi ) .OR. ( wavs(np) .LT. rlo )) then
-   print *,' ratio and data spectra do not overlap...'
-   ! we don't change a thing
+   ! interpolate envelope spectra and ratio to atm spectra
+   startpt = 0
+   endpt   = np
+   do i= 1, np
+
+      ilow = minloc(( rwv-wavs(i) ) , mask=(rwv-wavs(i)) > 0.0 )
+
+      if( ilow(1) .EQ. 0 ) then
+         print *, ' End of ratio spectrum :', i, wavs(i)
+         endpt = i -1
+         exit
+      endif
+
+      if( startpt .eq. 0 ) then
+        if( ilow(1) .LT. 4 ) then
+           cycle
+        else
+           write(6,102)'Starting wavenumber for ratio : ', rwv(ilow(1)-1), wavs(i)
+           startpt = i
+        endif
+      endif
+
+      iil = ilow(1) - 3
+      !print *, ilow(1), iil
+      !print *, rmp(iil:iil+4), rwv(ilow(1)-1), wavs(i), rwv(ilow(1))
+      !print *, rspac
+      y = interp( rmp(iil:iil+4), rspac, rwv(ilow(1)-1), wavs(i) )
+
+      ! shift spectrum to the left if the ratio started at a higher wavenumber
+      !  than the data (or start == 1)
+      outspec(i-startpt+1) = outspec(i) / real( y, 4 )
+
+      !print *, rwv(ilow(1)-1), wavs(i), y, rmp(ilow(1)-1)
+      !print *,''
+
+   enddo
+
+   ! reset output starting wavenumber & number of points
+   wstart = real(wavs(startpt),8)
+   np = np - startpt +1 - (np-endpt)
+
    deallocate( wavs, rwv, rmp )
-   return
-   endif
 
-! interpolate envelope spectra and ratio to atm spectra
-startpt = 0
-endpt   = np
-do i= 1, np
+return
 
-   ilow = minloc(( rwv-wavs(i) ) , mask=(rwv-wavs(i)) > 0.0 )
-
-   if( ilow(1) .EQ. 0 ) then
-      print *, ' End of ratio spectrum :', i, wavs(i)
-      endpt = i -1
-      exit
-   endif
-
-   if( startpt .eq. 0 ) then
-     if( ilow(1) .LT. 4 ) then
-        cycle
-     else
-        print *,' Setting starting wavenumber for ratio : ', i, rwv(ilow(1)-1), wavs(i)
-        startpt = i
-     endif
-   endif
-
-   iil = ilow(1) - 3
-   !print *, ilow(1), iil
-   !print *, rmp(iil:iil+4), rwv(ilow(1)-1), wavs(i), rwv(ilow(1))
-   !print *, rspac
-   y = interp( rmp(iil:iil+4), rspac, rwv(ilow(1)-1), wavs(i) )
-
-   ! shift spectrum to the left if the ratio started at a higher wavenumber
-   !  than the data (or start == 1)
-   outspec(i-startpt+1) = outspec(i) / real( y, 4 )
-
-   !print *, rwv(ilow(1)-1), wavs(i), y, rmp(ilow(1)-1)
-   !print *,''
-
-enddo
-
-! reset output starting wavenumber & number of points
-wstart = wavs(startpt)
-np = np - startpt +1 - (np-endpt)
-
-deallocate( wavs, rwv, rmp )
+ 101  format( a32, i20 )
+ 102  format( a32, 2f20.12, f20.12, i10 )
+ 111  format( /, a )
+ 112  format( 4x, a )
 
 end subroutine ratio
 
 
 !---------------------------------------------------------------------------------
-subroutine sincinterp ( inspec, outspec, n, wlow, space, opdmax, nterp )
+subroutine sincinterp ( inspec, outspec, n, wlow, space, opdmax, nterp, vflag )
 
    ! From F. Hase 2002
 
-   integer (4), intent(in)                 :: nterp
+   integer (4), intent(in)                 :: nterp, vflag
    integer (4), intent(inout)              :: n
    real    (8), intent(inout)              :: wlow, space, opdmax
-   real    (4), dimension(n),  intent(in)  :: inspec
-   real    (4), dimension(:), allocatable, intent(out) :: outspec
+   real    (8), dimension(n),  intent(in)  :: inspec
+   real    (8), dimension(:), allocatable, intent(out) :: outspec
 
    integer (4) :: nofpts_in, nofpts_out, sincradius, nmaxsinc, ninterpol
    integer (4) :: i, j, npos
    real    (8) :: deltanue_out, deltanue_lu, deltanue_in, firstnue_in, firstnue_out
-   real    (8) :: fnpos, remain, normsinc, xwert, ywert, faktor, dfirstnue
+   real    (8) :: fnpos, remain, normsinc, xwert, ywert, faktor !, dfirstnue
 
    real    (8), parameter                 :: pi  = 3.141592653589793d0
    real    (8), parameter                 :: eps = 1.0d-5
    real    (8), dimension(:), allocatable :: sinc
 
-   nmaxsinc  = 50
-   ninterpol = nterp
-
+   nmaxsinc    = 50
+   ninterpol   = nterp
    firstnue_in = wlow
-   !print *, ' firstnue_in          : ', firstnue_in
-
    deltanue_in = space
-   !print *, ' deltanue_in          : ', deltanue_in
-
    nofpts_in   = n
-   !print *, ' nofpts_in            : ', nofpts_in
 
-   if( abs(deltanue_in) .ge. 1.00001d0 / (2.0d0 * opdmax) )then
-      call warnout('Input spectrum undersampled!...return input spectrum ',0)
-      allocate ( outspec( nofpts_in ))
-      outspec = inspec
-      return
-   end if
+   if(vflag .ge. 1 )write(6,102)'Low wavenumber in : ', firstnue_in
+   write(6,102)'Point spacing in : ', deltanue_in
 
-   write(6,102) 'OPDMAX                      : ', opdmax
-   write(6,101) 'Interpolation factor        : ', ninterpol
+   if(vflag .ge. 1 )write(6,101)'Number of points in : ', nofpts_in
+   write(6,102)'Desired OPD : ', opdmax
+   write(6,102)'Effective resolution (B) : ', 0.9d0 / opdmax
 
+   ! sfit requires .5/opd definition, - this works when Bruker spectra is zero filled
+   !  by x2.  But not so well if x1.  This is not checked in pspec unless a reduction
+   !  is OPD is desired.
+   ! Check minimal spacing at this OPD -  Bruker definition 0.9
+   ! boxcar minimal spacing is 0.603/L
+!   deltanue_lu = 0.603d0 / opdmax
+   ! best for sfit
    deltanue_lu = 0.5d0 / opdmax
-   write(6,102)' Minimal spacing             : ', deltanue_lu
+   ! Bruker definition
+!   deltanue_lu = 0.9d0 / opdmax
+     ! for testing
+!    deltanue_lu = 1.0d0 / opdmax
 
-   if( ninterpol .gt. 0 )then
-      deltanue_out = deltanue_lu / real(ninterpol,8)
-   else
-      deltanue_out = deltanue_in
-      deltanue_lu = deltanue_in
-      ninterpol = 1
+   if(vflag .ge. 1 )write(6,102)'Required minimal spacing : ', deltanue_lu
+
+   if( abs(deltanue_in) .ge. deltanue_lu )then
+      print*, 'Input spectrum undersampled***************************************************'
+      write(6,102) 'Effective opdmax (B) : ', 0.90001d0 / deltanue_in
+      write(6,102) '0.9/opdmax (B) : ', 0.90001d0 / opdmax
+      write(6,102) '0.5/opdmax : ', deltanue_lu
+      write(6,102) '0.5/min space : ', 0.5/deltanue_in
+      write(6,102) 'Change desired OPD to : ', 0.5/deltanue_in
+      write(6,102) 'STOP.'
+      !write(*,*) 'Resetting minimum sample to input spacing**********************************'
+      !write(6,102) 'Effective opdmax : ', 0.5d0 / deltanue_lu
+      stop
    endif
-   write(6,102)' Final spacing               : ', deltanue_out
 
-   sincradius = nint(nmaxsinc * ninterpol * deltanue_lu / deltanue_in) + 1
-   !print *, ' sincradius           : ', sincradius
+   if(vflag .ge. 2 )write(6,101)'Interpolation factor : ', ninterpol
 
-   firstnue_out = (int((firstnue_in + sincradius * deltanue_in) / deltanue_out) + 2) * deltanue_out
-   write(6,102)' Final first wavenumber      : ', firstnue_out
+   deltanue_out = deltanue_lu / real(ninterpol,8)
+
+   if(vflag .ge. 1 )write(6,102)'Final spacing : ', deltanue_out
+
+   faktor = deltanue_in / deltanue_lu
+   if(vflag .ge. 2 )write(6,102)'Input/req. spacing ratio : ', faktor !, nint(1./faktor)
+
+   sincradius = nint(nmaxsinc / faktor) + 1
+   if(vflag .ge. 1 )write(6,101)'Sinc radius [(Nu_in) pts] : ', sincradius
+
+   firstnue_out = real((int((firstnue_in + sincradius * deltanue_in) / deltanue_out) + 2), 8) * deltanue_out
+   ! New delta nu
+   !dfirstnue = firstnue_out - firstnue_in - 2*deltanue_in
+   !write(6,102)'dfirstnue : ', dfirstnue
+
+   if(vflag .ge. 1 )write(6,102)'Sinc radius [cm-1] : ', sincradius*deltanue_in
+
+   if(vflag .ge. 1 )write(6,102)'Sinc width [cm-1] : ', deltanue_in / faktor
+
+   !if(vflag .ge. 1 )write(6,102)'First wavenumber out : ', firstnue_out
 
    nofpts_out = int(real(nofpts_in - 2 * sincradius,8) * deltanue_in / deltanue_out) - 4
-   write(6,101)' Number of points            : ', nofpts_out
+   if(vflag .ge. 1 )write(6,101)'Number of points out : ', nofpts_out
 
-   dfirstnue = firstnue_out - firstnue_in
-   !print *, ' dfirstnue            : ', dfirstnue
+   if(vflag .ge. 2 )write(6,102)'Final wavenumber region : ', firstnue_out, firstnue_out + nofpts_out*deltanue_out
 
-   !faktor = ninterpol * deltanue_in / deltanue_lu
-   faktor = deltanue_in / deltanue_lu
-   !print *, ' faktor               : ', faktor
-
-   allocate ( outspec( nofpts_out ))
-   outspec = 0.0
-
-   allocate ( sinc( -sincradius : sincradius ))
-   sinc = 0.0d0
+   allocate ( outspec( nofpts_out ), sinc( -sincradius : sincradius ))
+   outspec = 0.0d0
+   sinc    = 0.0d0
 
    ! loop over new output spectrum
    do i = 1, nofpts_out
 
-      fnpos  = 1.0d0 + (dfirstnue + (i-1) * deltanue_out) / deltanue_in
+      fnpos  = 1.0d0 + (firstnue_out + (i-1) * deltanue_out - firstnue_in) / deltanue_in
       npos   = nint(fnpos)
+      npos = int( floor(fnpos), 4)
       remain = fnpos - real(npos,8)
-
-      !print *, ' fnpos                        : ', fnpos
-      !print *, ' npos                         : ', npos
-      !print *, ' remain                       : ', remain
+      !print *, ' fnpos                        : ', i, fnpos, npos, remain
+      !print *, ' Initial spectra              : ', wlow + space*npos, inspec(npos)
+      !print *, ' final spectra nue            : ', firstnue_out + i*deltanue_out
 
       ! generate sinc function
+      !if(i.eq.10)write(44,*) sincradius
       normsinc = 0.0d0
       do j = -sincradius, sincradius
          xwert = faktor * abs(real(j,8) - remain) + eps
          sinc(j) = sin(pi * xwert) / xwert * cos (0.5d0 * pi * xwert / (faktor * sincradius))
          normsinc = normsinc + sinc(j)
-         !write(44,*)  xwert, sinc(j), normsinc
+         !if(i.eq.10)write(44,*)  j, xwert, j*deltanue_in, j*deltanue_out, sinc(j), normsinc
       end do
-      !stop
-
-      !print *, ' normsinc  : ', normsinc
+      !print *, ' normsinc  : ', i, normsinc
 
       ! interpolation
       ywert = 0.0d0
       do j = -sincradius, sincradius
+         !print *, j, npos+j
          ywert = ywert + sinc(j) * real(inspec(npos+j),8)
       end do
 
@@ -252,184 +1049,187 @@ subroutine sincinterp ( inspec, outspec, n, wlow, space, opdmax, nterp )
  102  format( a32, 2f20.6)
 ! 103  format( a32, 2f20.12)
 ! 104  format( a32, 2e20.12 )
-
-! 10   format( a, f10.3, i5 )
- ! 102  format( a32, f11.4, i2, es15.6, i10 )
+! 105  format( a, f10.3, i5 )
+! 106  format( a32, f11.4, i2, es15.6, i10 )
 
 end subroutine sincinterp
 
 
 !---------------------------------------------------------------------------------
-subroutine calcsnr( wavs, amps, npfile, wlim1, wlim2, spac, opdmax, nterp, noise )
+subroutine kpno( opdmax, wl1, wl2, roe, lat, lon, nterp, rflag, oflag, zflag, vflag, bflag, loc )
 
-   ! calculate the snr from a small region near the microwindow wanted
-   ! use peak signal inmicrowindow
-   ! degrade resolution and or interpolate points first so snr is appropriate
-   ! to fitted window
-
-   integer   (4), intent(in)   :: npfile, nterp
-   real      (8), intent(in)   :: wavs(npfile), spac, opdmax, wlim1, wlim2
-   real      (4), intent(in)   :: amps(npfile)
-   real      (4), dimension(:), allocatable :: outspec
-   integer   (4)               :: i, k, iil, iih, np
-   integer   (4), dimension(1) :: ilow, ihi
-   real      (8)               :: noise, mind, mean, wstart, dnue, opdm, w1, w2
-
-
-   ! get snr nearest to our mw
-   mind = 10000.
-   do i=1, nsnr
-      noise = abs( (psnr(1,i)+psnr(2,i))/2. - (wlim1+wlim2)/2.)
-      if( noise .lt. mind )then
-         mind = noise
-         k = i
-      endif
-   enddo
-
-   ! get the spectra in this region +- 1 wavenumber more
-   w1 = psnr(1,k)-3.
-   w2 = psnr(2,k)+3.
-   ilow = minloc(( wavs-w1 ), mask=((wavs-w1) > 0.0D0))
-   ihi  = minloc(( wavs-w2 ), mask=((wavs-w2) > 0.0D0))
-   iil = ilow(1) - 1
-   iih = ihi(1)
-   np = iih-iil+1
-
-   write(6,102) '   snr region                 : ', psnr(:,k)
-   write(6,102) '   resample region            : ', wavs(iil), wavs(iih)
-   write(6,101) '   points in resample calc.   : ', np
-
-   if( np .le. 2 ) then
-       write(*,104) '*** calcsnr : Less than 3 points found(1)'
-       stop 1
-   end if
-
-   ! resample and / or degrade resolution
-   ! nterp =  0 - skip resample & resolution degradation
-   ! nterp =  1 - minimally sample at opdmax
-   ! nterp >  1 - interpolate nterp-1 points
-
-   if( nterp .eq. 0 )then
-      allocate( outspec( np ))
-      outspec = amps(iil:iih)
-   else
-      print*,'Resample snr region...'
-      opdm = opdmax
-      dnue = spac
-      wstart = wavs(iil)
-      call sincinterp( amps(iil:iih), outspec, np, wstart, dnue, opdm, nterp )
-   endif
-
-   ! get back the snr sub-region
-   iil = 0
-   do i=1, np
-      if( (i-1)*dnue + wstart .gt. psnr(1,k) )then
-         iil = i -1
-         exit
-      endif
-   enddo
-   if( iil .eq. 0 )stop 2
-   iih = 0
-   do i=iil, np
-      if( (i-1)*dnue + wstart .gt. psnr(2,k) )then
-         iih = i -1
-         exit
-      endif
-   enddo
-   if( iih .eq. 0 )stop 3
-
-   np = iih-iil+1
-   mean = sum(outspec(iil:iih)) / real( np, 8 )
-   noise = sqrt(dot_product(outspec(iil:iih)-mean, outspec(iil:iih)-mean) / real( np, 8 ) )
-
-   write(6,101) '   points in snr region     : ', np
-   write(6,102) '   mean signal              : ', mean
-   write(6,102) '   rms noise                : ', noise
-   write(6,102) '   mean snr                 : ', mean/noise
-
-  return
-
- 101  format( a32, i20 )
- 102  format( a32, 2f20.12)
-! 103  format( a32, 2e20.12 )
- 104  format( a48 )
-
-
-end subroutine calcsnr
-
-
-!---------------------------------------------------------------------------------
-subroutine kpno( opdmax, wl1, wl2, roe, lat, lon, nterp, rflag, flag, loc )
-
-   character (len=80)  :: title
+   character (len=80)  :: title, bfile
    character (len=1)   :: loc
-   real      (4), dimension(:), allocatable :: amps, outspec
-   real      (8), dimension(:), allocatable :: wavs
-   real      (8) opdmax, wlow, whi, spac, wlim1, wlim2, wl1, wl2, wstart, dnue, roe, noise, peak
-   integer   (4) :: npfile, i, iil, iih, np, nterp, rflag, flag
-   integer   (4), dimension(1) :: ilow, ihi
+   real      (4), dimension(:), allocatable :: amps4
+   real      (8), dimension(:), allocatable :: amps, outspec
+   real      (8), dimension(:), allocatable :: wavs, awavs
+   integer   (4), dimension(1)              :: ilow, ihi
+   real      (8) :: opdmax, wlow, whi, spac, wlim1, wlim2, wl1, wl2, wstart, dnue, roe, noise, peak
+   logical       :: writezero
+   integer   (4) :: npfile, i, iil, iih, np, nterp, rflag, bflag, oflag, vflag
    integer       :: yy, mm, dd, hh, nn, ss
-   real          :: sza, azm, dur, res, fov
-   real      (8) :: lat, lon !tag
+   real      (8) :: sza, azm, dur, res, fov, noise10, snr10, snr1
+   real      (8) :: lat, lon, pspc, tag, wmid, zero, zflag, snr
 
-   write(*,102) "Desired limits for this window :", wl1, wl2
+   writezero = .false.
+   if( vflag .gt. 0 )writezero = .true.
 
-   flag = 0
-   if( opdmax .lt. tiny( 1.0d0 ))then
-      print*,' opdmax is 0'
-      stop 1
+   write(6,101) 'Interpolation flag : ', nterp
+   write(6,101) 'Ratio flag : ', rflag
+   write(6,102) 'Zero flag : ', zflag
+
+   noise = 0.0d0
+   zero  = 0.0d0
+
+   ! wl1   - wanted low wv #
+   ! wl2   - wanted high wv #
+   ! wmid  - mid point in this region region
+
+   ! wlow  - low wv # in input file
+   ! whi   - high wv # in input file
+
+   ! wlim1 - extended low wv # for interpolation & ratio
+   ! wlim2 - extended high wv # for interpolation & ratio
+
+   wmid = (wl2+wl1)/2.
+   write(6,102) "Limits for this window : ", wl1, wmid, wl2
+
+   bflag = 0
+   if( opdmax .lt. tiny( 0.0d0 ))then
+      print*,' opdmax is 0. ?!'
+      stop '1'
    endif
 
    ! bnr has been rewound - get title
-   read(7) title
-   print*,'BNR header:'
-   print '(4x,a)', trim(title)
+   read(blun) title
+   write(6,111) 'BNR header:'
+   write(6,112) trim(title)
 
    res = 0.0
    call parsetitle( title, yy, mm, dd, hh, nn, ss, sza, azm, dur, res, fov, loc, roe )
    !print *, yy, mm, dd, hh, nn, ss, sza, azm, dur, res, fov
-   !tag = real(dd) + 100.*real(mm) + 10000.*real(yy) + ((real(ss)/60. + real(nn))/60. + real(hh))/24.
 
-   ! get spectra paameters
-   read(7) wlow, whi, spac, npfile
-   write(*,102) "Spectral params           : ", wlow, whi, spac, npfile
-   print*,''
+   ! get spectra parameters from bnr
+   read(blun) wlow, whi, spac, npfile
+   write(6,102)'Low wavenumber : ', wlow
+   write(6,102)'High wavenumber : ', whi
+   write(6,102)'Spacing : ', spac
+   write(6,101)'Number of points : ', npfile
 
    ! get amplitude data from bnr
-   allocate( amps( npfile ), wavs( npfile ))
-   read (7, err = 200) amps
+   if( allocated( amps ) )deallocate( amps )
+   if( allocated( wavs ) )deallocate( wavs, awavs )
+   allocate( amps( npfile ), wavs( npfile ), awavs( npfile ))
+   !read (blun, err = 201) amps
+   !print *, 'R8 amps'
+   !goto 202
 
-   ! calculate wavenumbers
+   allocate( amps4( npfile ))
+   read (blun, err = 200) amps4
+   !print *, 'R4 amps'
+   amps(:) = real( amps4(:), 8 )
+   deallocate( amps4 )
+
+   ! calculate wavenumber array
    do i=1, npfile
        wavs(i)= real( i-1, 8 )
    end do
-   wavs = wavs*spac + wlow
+   wavs  = wavs*spac + wlow
+   awavs = wavs
 
-   ! widen band for interpolation
-   wlim1 = wl1 - 10.0
-   wlim2 = wl2 + 10.0
+! --- Step 0 : Find noise for initial spectrum
 
-   write(*,102) "Limits for interpolation     : ", wlim1, wlim2
+   ! calculate noise at nearest interval to fit region from a selection in pspec.input
+   if( nsnr .gt. 0 ) then
+      if( vflag .gt. 0 )write(6,111) 'Calculate noise...'
+      call findnoise( awavs, amps, npfile, wlow, whi, spac, opdmax, noise, vflag )
+   endif
+
+! --- Step 1 : zero correct the whole spectra - !!for filter 6 only!!
+
+   ! return spectrum (amps) in place
+   ! return value zero is for the mid point of the wanted window
+   ! zflag  :
+   !     = 0 no zero offset,
+   !     = 0 < zflag < 1, use this value for baselincorrect,
+   !     = 1 use combo 2 + 4 for 10µ region, calculate noise in the small region (standard method)
+   !     = 2 use combo 2 + 4 for 10µ region calculate noise as the rms noise from the zero
+   !        (allsatspec) vector - by definition random around zero
+
+   noise10 = 0.0d0
+   if( idint(zflag) .eq. 0 )then
+      zero    = 0.0d0
+
+   else if( abs(zflag) .gt. 0. .and. abs(zflag) .lt. 1. )then
+      zero    = zflag
+      amps(:) = amps(:) - real(zero,4)
+
+   else if( idint(zflag) .eq. 1 .or. idint(zflag) .eq. 2 )then
+
+      zero = bc2( amps, wavs, npfile, wmid, vflag, noise10 )
+
+      if( zero .ne. -999.0d0 )then
+         write(6,103) ' Saving zeroed spectrum : ', adjustr( 'zeroed.bnr' )
+         write(6,102) 'Zero offset determined : ', zero
+         write(6,102) ' at wavenumber : ', wmid
+         write(6,102) 'RMS Noise from zero : ', noise10
+
+         if( writezero )then
+            open( unit=33, file='zeroed.bnr',status='unknown', form='unformatted' )
+            write(33) title
+            write(33) wlow, whi, spac, npfile
+            write(33) real(amps,4)  !/maxval(amps)
+            close(33)
+            write(vlun,102) 'Zero offset determined : ', zero
+            write(vlun,102) ' at wavenumber : ', wmid
+            write(vlun,102) 'RMS Noise from zero : ', noise10
+
+         endif
+
+      endif
+   else
+      print *, "!! zflag not a valid option : ", zflag
+      print *, "Valid zflag options: 0, 0 < zflag < 0.99, 1, 2"
+      call exit(2)
+
+   endif
+
+! --- Step 2 : Extend micro window region for interpolation
+
+   ! Choose a region around the desired band for ratio and interpolation
+   ! take any interpolation into account
+   if( nterp .ne. 0 )then
+      write(6,111) 'Extend spectral region for interpolation...'
+      pspc = 60./opdmax
+      if( vflag .gt. 0 )write(6,102) 'Interpolation extension : ', pspc
+   else
+      pspc = 0.0d0
+   endif
+
+   wlim1 = real(wl1 - pspc,8)
+   wlim2 = real(wl2 + pspc,8)
+
+   write(6,102) "Desired microwindow region : ", wl1, wl2
+   if(vflag .ge. 1 )write(6,102) "Extended limits : ", wlim1, wlim2
+   if(vflag .ge. 1 )write(6,102) "File limits : ", wlow, whi
 
    if( wlim1 .gt. whi .or. wlim2 .lt. wlow )then
        write ( *, 801) wlim1, wlim2
-       flag = 1
+       bflag = 1
        return
-       !close (7)
-       !stop 'kpno'
    endif
 
    ! reset if we don't have the bandwidth
    if( wlim1 .lt. wlow ) then
-       write(*,*) " ***Desired interpolation low limit less than bnr file limit."
+       write(*,*) "***Desired interpolation low limit less than bnr file limit."
        wlim1 = wlow
-       write(*,102) " Re-setting to file limit", wlim1
+       write(*,102) "Re-setting to file limit", wlim1
    endif
 
    if( wlim2 .gt. whi ) then
-       write(*,*) " ***Desired interpolation high limit greater than bnr file limit."
-       wlim2 = whi
-       write(*,102) " Re-setting to file limit", wlim2
+       write(*,*) "***Desired interpolation high limit greater than bnr file limit."
+       wlim2 = whi - spac
+       write(*,102) "Re-setting to file limit", wlim2
    endif
 
    if( wavs(1)-wlim1 .gt. 0.0 ) then
@@ -438,20 +1238,17 @@ subroutine kpno( opdmax, wl1, wl2, roe, lat, lon, nterp, rflag, flag, loc )
       goto 99
    end if
 
-   if( wavs(npfile)-wlim2 .le. 0.0 ) then
+   if( wavs(npfile)-wlim2 .lt. 0.0 ) then
        write(*,104) '***Requested upper bound out of range'
        goto 99
    end if
 
-   ! calculate snr at nearest interval
-   print *, ' Calculate snr...'
-   call calcsnr( wavs, amps, npfile, wlim1, wlim2, spac, opdmax, nterp, noise )
+! --- Step 3 : Interpolate if requested
 
    ! back to the fit microwindow
    ! resample and / or degrade resolution
    ilow = minloc(( wavs-wlim1 ), mask=((wavs-wlim1) > 0.0D0))
    ihi  = minloc(( wavs-wlim2 ), mask=((wavs-wlim2) > 0.0D0))
-
    iil = ilow(1) - 1
    iih = ihi(1)
 
@@ -460,40 +1257,51 @@ subroutine kpno( opdmax, wl1, wl2, roe, lat, lon, nterp, rflag, flag, loc )
        goto 99
    end if
 
-   np = iih-iil+1
+   np     = iih-iil+1
    wstart = wavs(iil)
-   dnue = spac
-
+   dnue   = spac
    deallocate( wavs )
 
-   !print *, opdmax, 0.9/res, nterp
    ! nterp =  0 - skip resample & resolution degradation
    ! nterp =  1 - minimally sample at opdmax
-   ! nterp >  1 - interpolate nterp-1 points
-
+   ! nterp >  1 - interpolate nterp-1 points at opdmax (max interp = 64 points)
    if( nterp .eq. 0 )then
       allocate( outspec( np ))
       outspec = amps(iil:iih)
+   else if( nterp .gt. 0 .and. nterp .le. 64 ) then
+      write(6,111) 'Resample fit microwindow...'
+      !if( vflag .gt. 1 )write(6,*)"to interp (index range, npt, wstrt, dnu) : ", iil, iih, np, wstart, dnue
+      call sincinterp( amps(iil:iih), outspec, np, wstart, dnue, opdmax, nterp, vflag )
+      !if( vflag .gt. 1 )write(6,*)'from interp (npt, wstrt, dnu) : ',np, wstart, dnue
    else
-      print*,'Resample fit microwindow...'
-      call sincinterp( amps(iil:iih), outspec, np, wstart, dnue, opdmax, nterp )
+      print*, ' Nterp is out of range (0 - 64)... stop'
+      stop
    endif
 
-   ! ratio if requested
+! --- Find peak value in fit region for SNR calculation before ratio
+   peak = real( maxval( outspec(:) ), 8 )
+
+
+! --- Step 4: Ratio if requested
+
+   !if( vflag .gt. 0 )write(6,109) 'Spectra segment before ratio : ',iil, wavs(iil), iih, wavs(iih), iih-iil
    if( rflag .eq. 1 ) call ratio( outspec, wstart, dnue, np )
+
+
+! --- Final extract band for T15 file
 
    ! test that we still have a valid band
    allocate( wavs( np ))
    do i=1,np
        wavs(i)= real( i-1, 8 )
    end do
-
    wavs = wavs*dnue + wstart
 
    ilow = minloc(( wavs-wl1 ), mask=((wavs-wl1) > 0.0D0 ))
    ihi  = minloc(( wavs-wl2 ), mask=((wavs-wl2) > 0.0D0 ))
-
-   iil = ilow(1) - 1
+   !print*, wl1, wl2, wstart, wavs(np)
+   iil = ilow(1)
+   if(iil .ne. 1 )iil = ilow(1) - 1
    iih = ihi(1)
 
    if( (iih-iil) .le. 2 ) then
@@ -505,39 +1313,62 @@ subroutine kpno( opdmax, wl1, wl2, roe, lat, lon, nterp, rflag, flag, loc )
    whi  = wavs(iih)
    np   = iih-iil+1
 
-   peak = maxval( outspec(iil:iih) )
+! --- Calculate SNR
+!     Use 'snr region' if it exists else use 10µ noise calculation
+!     If we have both calculate and show both
+   snr   = 0.0
+   snr1  = 0.0
+   snr10 = 0.0
+   if( noise10 .ne. 0.0 ) snr10 = peak/noise10
+   if( noise .gt. 1.0d-10 ) then
+      snr1  = peak/noise
+      snr = snr1
+   else if( snr10 .ne. 0.0 ) then
+      snr = snr10
+   endif
+
+! --- Write out final spectrum
+   print *,''
+   write(6,111)'Final spectra : '
+   write(*,102)'Low wavenumber : ',wlow
+   write(*,102)'High wavenuumber : ',whi
+   write(*,102)'Spacing : ',dnue
+   write(*,101)'Number of points : ',np
+   write(*,102)'Peak signal : ',peak
+   write(*,102)'RMS SNR in fit region : ', snr, snr1, snr10
 
    print *,''
-   print *,"Final spectra:"
-   write(*,102)'  low wavenumber             : ',wlow
-   write(*,102)'  high wavenuumber           : ',whi
-   write(*,102)'  spacing                    : ',dnue
-   write(*,101)'  number of points           : ',np
-   write(*,102)'  peak signal                : ',peak
-   write(*,102)'  RMS SNR                    : ',peak/noise
 
-   print *,''
-   print *, ' writing to t15asc'
+   if( oflag .eq. 1 .or. oflag .eq. 3 )then
 
-   ! write to t15asc
-   !write(20, 105) tag
-   write(20, 106) sza, roe, lat, lon, peak/noise
-   write(20, 107) yy, mm, dd, hh, nn, ss
-   write(20, 888) title
-   write(20, * ) wlow, whi, dnue, np
-   write(20, '(e16.6)' ) (outspec(i), i=iil, iih)
+! --- Write to t15asc
+      write(6, 103) 'Writing to : ',  adjustr( 't15asc.4' )
+      write(tlun, 106) sza, roe, lat, lon, snr, zero
+      write(tlun, 107) yy, mm, dd, hh, nn, ss
+      write(tlun, 888) title
+      write(tlun, 108) wlow, whi, dnue, np
+      !if( oflag .eq. 3 ) outspec(iil:iih) = outspec(iil:iih)/maxval(outspec(iil:iih))
+      write(tlun, '(e16.6)' ) (outspec(i), i=iil, iih)
+   endif
 
-   ! write out a bnr while we are at it
-   !bfile(1:12) = 'newratio.bnr'
-   !print *, ' writing to bnr    : ', bfile
-   !open(unit=15, file=bfile, form = 'unformatted')
-   !write(15) title
-   !write(15) wlow, whi, dnue, np
-   !write(15) outspec(iil:iih)
-   !close(15)
+   if( oflag .eq. 2 .or. oflag .eq. 3 )then
 
-   deallocate( amps, wavs, outspec )
-   flag = 0
+! --- Write out a bnr while we are at it
+      write(bfile, 105) tag, ".bnr"
+      write(bfile, 110) "t15.bnr"
+      write(6, 103) 'Writing to bnr : ', adjustr( trim(bfile) )
+      open(unit=nlun, file=trim(bfile), form = 'unformatted')
+      write(nlun) title
+      write(nlun) wlow, whi, dnue, np
+      !if( oflag .eq. 4 ) outspec(iil:iih) = outspec(iil:iih)/maxval(outspec(iil:iih))
+      write(nlun) outspec(iil:iih)
+      !print*,  outspec(iil:iih)
+      close(nlun)
+
+   endif
+
+   deallocate( amps, wavs, outspec, awavs )
+   !flag = 0
 
    return
 
@@ -548,15 +1379,192 @@ subroutine kpno( opdmax, wl1, wl2, roe, lat, lon, nterp, rflag, flag, loc )
    stop 'kpno'
 
  101  format( a32, i20 )
- 102  format( a32, 2f20.12, es15.6, i10 )
+ 102  format( a32, 2f20.8, f20.8, i10 )
  104  format( a48 )
-! 105  format( f16.5 )
+ 103  format( a32, a40 )
+ 105  format( f16.5, a4 )
  106  format( 10f12.5 )
  107  format( i10, 10i5 )
+ 108  format( 3f22.12, i15 )
+! 109  format( /, a32, 3(i20,f20.12))
+ 110  format( a7 )
+ 111  format( /, a )
+ 112  format( 4x, a )
+ !113  format( a )
  801  format(5x,'user range ',2f10.4,' not on tape!')
  888  format(a80)
 
 end subroutine kpno
+
+
+!---------------------------------------------------------------------------------
+! use small regions of spectra (high resolution expected) where no atmospheric absorption is *expected*
+subroutine findnoise( wavs, amps, npfile, wlim1, wlim2, spac, opdmax, noise, vflag )
+
+   ! find RMS noise from a small region near the microwindow wanted
+
+   integer   (4), intent(in)    :: npfile, vflag
+   real      (8), intent(in)    :: wavs(npfile), spac, wlim1, wlim2, opdmax
+   real      (8), intent(in)    :: amps(npfile)
+   real      (8), intent(inout) :: noise
+   real      (8), dimension(:), allocatable :: x, y, curve
+   integer   (4)                :: i, k, l, iil, iih, np, order
+   integer   (4), dimension(1)  :: ilow, ihi
+   real      (8)                :: mind, mean, wstart, dnue, w1, w2, opdm
+
+!print*, wavs
+
+! --- Get snr region nearest to our fit mw
+!     this is over ridden by the next loop - NOT Mar 2021
+   k    = 0
+   mind = 10000.d0
+   do i=1, nsnr
+      !print*, i, psnr(:,i), wlim1, wlim2
+      noise = abs( (psnr(1,i)+psnr(2,i))/2. - (wlim1+wlim2)/2.)
+      if( noise .lt. mind )then
+         mind = noise
+         k = i
+      endif
+   enddo
+   !print*, k, psnr(:,k), wlim1, wlim2
+
+goto 205
+
+  ! skip this
+  !  loop through snr regions get first that we have spectra for
+   k = 0
+   l = 0
+200 continue
+   do i=k+1, nsnr
+      !print*, psnr(1,i), wavs(1), psnr(2,i), wavs(npfile)
+      if( psnr(1,i) .gt. wavs(1) .and. psnr(2,i) .lt. wavs(npfile) )then
+         k = i
+         exit
+      endif
+   enddo
+   if( k .eq. 0 )then
+      write(6,*) 'No SNR region in this spectrum...set noise to -999'
+      noise = -999.
+      return
+   endif
+   if( l .ne. 0 .and. k .eq. l )then
+      write(6,*) 'No more SNR regions in this spectrum...set noise to -999'
+      noise = -999.
+      return
+   endif
+   l = k
+
+205 continue
+  if( vflag .gt. 1 )then
+      open(66,file='noisefit.txt')
+      write(66,*)' 1. Nearest exact noise region in raw spectrum'
+      w1 = psnr(1,k)
+      w2 = psnr(2,k)
+      ilow = minloc(( wavs-w1 ), mask=((wavs-w1) > 0.0D0))
+      ihi  = minloc(( wavs-w2 ), mask=((wavs-w2) > 0.0D0))
+      iil = ilow(1) - 1
+      iih = ihi(1)
+      write(66,*) 1, iih - iil + 1
+      do i=iil, iih
+         write(66,*) wavs(i), amps(i)
+      enddo
+   endif
+
+   ! get the spectra in this region
+
+   w1 = psnr(1,k)
+   w2 = psnr(2,k)
+   ilow = minloc(( wavs-w1 ), mask=((wavs-w1) > 0.0D0))
+   ihi  = minloc(( wavs-w2 ), mask=((wavs-w2) > 0.0D0))
+   iil = ilow(1) - 1
+   iih = ihi(1)
+   np = iih-iil+1
+
+   write(6,102) 'Found noise calc. region : ', psnr(1,k), psnr(2,k)
+   if(vflag .ge. 1 )write(6,101) 'Points in regon : ', np
+
+   if( np .le. 2 ) then
+       write(*,104) '*** findnoise : Less than 3 points found(1)...cycle to next SNR region'
+       goto 200
+   end if
+
+   if( vflag .gt. 1 )then
+      write(66,*)'2. Extended noise region in raw spectrum'
+      write(66,*) 2, iih - iil + 1
+      do i=iil, iih
+         write(66,*) wavs(i), amps(i)
+      enddo
+   endif
+
+   dnue   = spac
+   wstart = wavs(iil)
+   mean   = real(sum(amps(iil:iih)), 8) / real( np, 8 )
+   if(vflag .ge. 0 )write(6,102) 'Mean signal in snr region : ', mean
+
+   ! assume horizontal band
+   !noise = sqrt(dot_product(outspec(iil:iih)-mean, outspec(iil:iih)-mean) / real( np, 8 ) )
+
+   ! fit a parabola
+   allocate( x(np), y(np), curve(5) )
+   do i=1, np
+      x(i) = real(i,8)
+   enddo
+   !print*, size(x), size( outspec(iil:iih))
+
+   curve(:) = 0.0d0
+   order = 4
+   !print*, 1
+   curve(1:order+1) = polyfit( x, real( amps(iil:iih), 8 ), np, order )
+   if(vflag .ge. 2 ) write(6,102) 'Noise fit parameters : ', curve(:)
+   do i=1, np
+      y(i) = amps(iil+i-1) - (curve(1) + (curve(2) + (curve(3) + (curve(4) + curve(5)*x(i)) * x(i)) * x(i)) * x(i))
+   enddo
+
+   if( vflag .gt. 1 )then
+      write(66,*)'3. Exact noise region in resampled spectrum, i, w#, spec, fit, diff'
+      write(66,*) 4, np, iil*dnue + wstart, dnue
+      !write(6, *)'Exact noise region in resampled spectrum, i, w#, spec, fit, diff'
+      !write(6, *) 4, np, iil*dnue + wstart, dnue
+      do i=1, np
+         write(66,*) x(i), wavs(iil+i-1), amps(iil+i-1), &
+              & (curve(1) + (curve(2) + (curve(3) + (curve(4) + curve(5)*x(i)) * x(i)) * x(i)) * x(i)), y(i)
+      enddo
+      close(66)
+   endif
+
+   noise = 0.0d0
+   do i=1, np
+      noise = noise + y(i) * y(i)
+   enddo
+   noise = sqrt( noise / real(np,8) )
+
+   if(vflag .ge. 0 )write(6,102) 'RMS noise : ', noise
+
+   opdm = 0.5d0 / spac
+   !print*, opdmax, opdm, sqrt( opdmax / opdm )
+   if(vflag .ge. 0 )write(6,102) 'Point ratio (min sampled) : ', opdmax / opdm
+
+   ! correct for oversampled spectra
+   if( opdmax .lt. opdm )then
+      k=1
+      ! if( nterp .gt. 0 )k = nterp
+      noise = noise * sqrt( opdm / opdmax ) * real(k,8)
+      if(vflag .ge. 0 )write(6,102) 'RMS noise (corrected) : ', noise
+      !if(vflag .ge. 0 )write(6,102) 'SNR in snr region (min sample): ', mean/noise
+   endif
+
+   deallocate( x, y, curve )
+
+   return
+
+ 101  format( a32, i20 )
+ 102  format( a32, 10f20.8)
+ !103  format(/, a32, 2e20.12 )
+ 104  format( a48 )
+ !105  format( /, a )
+
+
+end subroutine findnoise
 
 
 !---------------------------------------------------------------------------------
@@ -565,9 +1573,11 @@ subroutine parsetitle( title, yy, mm, dd, hh, nn, ss, sza, azm, dur, res, fov, l
 character (len=80), intent(out)   :: title
 character (len=1), intent(inout)  :: loc
 integer, intent(out)              :: yy, mm, dd, hh, nn, ss
-real, intent(out)                 :: sza, azm, dur, fov, res
-real(8)                           :: roe
-integer                           :: m = 0
+real(8), intent(out)              :: sza, azm, dur, fov, res
+real(8)                           :: roe, hour, alt, lat, lon
+!real(4)                           :: opd
+character (len=3)                 :: mstr
+integer                           :: m = 0, i, h2, n2, s2
 
 ! from bnr.c
 !// 1char key for values in header
@@ -584,6 +1594,12 @@ integer                           :: m = 0
 !// T  - latitude
 !// N  - longitude positive West
 !// E  - ROE in direction of azimuth
+!// O  - optical path difference
+
+character (len=3), dimension(12)  :: month_str = (/ &
+     'JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', &
+     'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC' /)
+
 
 !06/17/2004 15:09:24UT Z:54.203 A:335.332 D:1443.00 R:0.0035 P:BX F:3.8636mr
 read(title,1,err=11)mm, dd, yy, hh, nn, ss, sza, azm, dur, res, fov
@@ -622,19 +1638,62 @@ m = m + 1
 read(title,6,err=16)loc, yy, mm, dd, hh, nn, ss, sza, res, fov, dur
 azm = -999.0
 goto 10
-!also, required in pspec.f90 open unformatted needs access='stream'
-!either as a pre-compiler option or a flag in pspec.input
 
 16 continue
 m = m + 1 !6
 !sfit4 v0.9.4.1 (ckopus.c)
 !20120901 17:08:39UT Z:76.436 A:266.26 D:0204.7 R:0.0035 P:BX V:01.9139 E:6380
-read(title,7,err=21)yy, mm, dd, hh, nn, ss, sza, azm, dur, res, fov, roe
+read(title,7,err=17)yy, mm, dd, hh, nn, ss, sza, azm, dur, res, fov, roe
 goto 10
 
-21 print*, 'spec:parsetitle: header read', m
+17 continue
+m = m + 1
+!BIRA type of spectra headers
+!20110125 04:04:55  102s ZT=04:05:45 OPD= 81.97 FOV= 6.36 APF=BX aS 61.553  28.45
+!ZT is the median of the recording time... and was used to get the ZA
+!print *,trim(title)
+read(title,8,err=18)yy, mm, dd , dur, hh, nn, ss, fov, sza
+!print *,yy,mm,dd,hh,nn,ss,dur,fov,sza
+goto 10
+
+18 continue
+m = m + 1
+! zephyr2
+!20090602 09:54:13  205s ZT=09:55:55 OPD=257.14 FOV= 2.75 APF=BX aS 60.531 999.99
+read(title,9,err=19)yy, mm, dd, dur, hh, nn, ss, fov, sza, azm
+goto 10
+
+19 continue
+m = m + 1
+! Jungfraujoch headers
+! JJB-S09A01JK.MOY 01 OCT 2009  4.400 mK 1.45 mm Ap.ZA=72.359 S/N= 3201 h= 8.299
+read(title,100,err=20) dd, mstr, yy, fov, sza, hour
+do i = 1,12
+   if (mstr.eq.month_str(i)) mm = i
+end do
+hour = hour -1
+hh = floor(hour)
+nn = floor(mod(hour,1.0d0)*60.0d0)
+ss = floor(mod(hour*60.0d0,1.0d0)*60.0d0)
+goto 10
+
+20 continue
+!NAI
+! Grp 1: 20170821 17:41:56-17:42:19 42.72  106.34 2421.0!?5?2 ?@p?#?W?@??+$??2
+read(title,40,err=31)yy, mm, dd, hh, nn, ss, h2, n2, s2, lat, lon, alt
+40 format(7x,i4,i2,i2,6(1x,i2),1x,f6.0,f7.0,f6.0)
+!print*, yy, mm, dd, hh, nn, ss, h2, n2, s2, sza, azm, alt
+hour = ((hh + (nn + ss/60.)/60.) + (h2 + (n2 + s2/60.)/60.))/2.
+hh   = floor(hour)
+nn   = floor(mod(hour,1.0d0)*60.0d0)
+ss   = floor(mod(hour*60.0d0,1.0d0)*60.0d0)
+!print*, hh, nn, ss
+goto 10
+
+
+31 print*, 'spec:parsetitle: header read', m
 print*,yy, mm, dd, hh, nn, ss, sza, azm
-stop
+stop '4'
 
 10 continue
 return
@@ -646,24 +1705,26 @@ return
 5 format(2(i2,1x),i4,1x,2(i2,1x),i2,5x,f6.0,3x,f7.0,3x,f6.0,3x,f6.0,8x,f6.0)
 6 format(a1,2x,i4,5(1x,i2),5x,f5.1,5x,f6.4,5x,f4.1,5x,f5.1)
 7 format(i4,2i2,1x,2(i2,1x),i2,5x,f7.0,3x,f6.0,3x,f6.0,3x,f6.0,8x,f7.0,3x,f4.0)
-
+8 format(i4,2(i2),11x,f3.0,5x,3(i2,1x),15x,f6.0,10x,f6.0)
+9 format(i4,i2,i2,11x,f3.0,5x,3(i2,1x),16x,f4.0,11x,f6.0,1x,f6.0)
+100 format(17x, i2, 1x, a3, 1x, i4, 10x, f5.2, 10x, f6.3, 13x, f5.3)
 end subroutine parsetitle
 
 
 !---------------------------------------------------------------------------------
-subroutine warnout(text,predec)
+subroutine warnout(text)
 
-implicit none
+   implicit none
 
-character (len=*) :: text
-integer,intent(in) :: predec
-integer :: intdec
+   character (len=*) :: text
+   integer :: intdec
 
-print *,'warning:'
-print *, trim(text)
-print *,'to shutdown program: enter 0, to go on: enter 1. '
-read *, intdec
-if (intdec .eq. 0 .or. predec .eq. 0) stop
+   print *,'warning:'
+   print *, trim(text)
+   print *,'to shutdown program: enter 0, to go on: enter 1. '
+   read *, intdec
+   !if (intdec .eq. 0 .or. predec .eq. 0) stop
+   if (intdec .eq. 0 ) call exit (6)
 
 end subroutine warnout
 
@@ -673,30 +1734,30 @@ end subroutine warnout
 !
 real(8) function interp( rmp, rspac, rwv, wav )
 
-implicit none
+   implicit none
 
-real(4), dimension(5) :: rmp
-real(8) :: rspac, a,b,c,d,e,f,g,h,j,k,n
-real(4) :: rwv, wav
+   real(8), dimension(5) :: rmp
+   real(8) :: rspac, a,b,c,d,e,f,g,h,j,k,n
+   real(8) :: rwv, wav
 
-!print *, wav, rwv, rspac, rmp
-n = (wav-rwv)/rspac
+   !print *, wav, rwv, rspac, rmp
+   n = (wav-rwv)/rspac
 
-a = rmp(2) - rmp(1)
-b = rmp(3) - rmp(2)
-c = rmp(4) - rmp(3)
-d = rmp(5) - rmp(4)
+   a = real( rmp(2) - rmp(1), 8)
+   b = real( rmp(3) - rmp(2), 8)
+   c = real( rmp(4) - rmp(3), 8)
+   d = real( rmp(5) - rmp(4), 8)
 
-e = b - a
-f = c - b
-g = d - c
+   e = b - a
+   f = c - b
+   g = d - c
 
-h = f - e
-j = g - f
+   h = f - e
+   j = g - f
 
-k = j - h
+   k = j - h
 
-interp = rmp(3) + n*((b+c)/2. - (h+j)/12.) + n**2*(f/2. - k/24.) + n**3*(h+j)/12. + n**4*k/24.
+   interp = rmp(3) + n*((b+c)/2. - (h+j)/12.) + n**2*(f/2. - k/24.) + n**3*(h+j)/12. + n**4*k/24.
 
 return
 

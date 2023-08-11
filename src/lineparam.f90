@@ -1,3 +1,21 @@
+!-----------------------------------------------------------------------------
+!    Copyright (c) 2013-2014 NDACC/IRWG
+!    This file is part of sfit.
+!
+!    sfit is free software: you can redistribute it and/or modify
+!    it under the terms of the GNU General Public License as published by
+!    the Free Software Foundation, either version 3 of the License, or
+!    any later version.
+!
+!    sfit is distributed in the hope that it will be useful,
+!    but WITHOUT ANY WARRANTY; without even the implied warranty of
+!    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!    GNU General Public License for more details.
+!
+!    You should have received a copy of the GNU General Public License
+!    along with sfit.  If not, see <http://www.gnu.org/licenses/>
+!-----------------------------------------------------------------------------
+
       MODULE LINEPARAM
 
 ! --- HITRAN LINE PARAMETERS
@@ -25,10 +43,12 @@
       REAL(DOUBLE), DIMENSION(:),   ALLOCATABLE :: TDLIN   ! COEFFICIENT TEMP. DEP. AIR H-W
       REAL(DOUBLE), DIMENSION(:),   ALLOCATABLE :: BETA    ! BETA0 FOR GALATRY ROUTINE
       INTEGER,      DIMENSION(:),   ALLOCATABLE :: LGAS    ! LINE INDEX NUMBER
-      REAL(DOUBLE), DIMENSION(:),   ALLOCATABLE :: GAMMA0  ! GAMMA2 FOR SDV (BOONE) ROUTINE
+      REAL(DOUBLE), DIMENSION(:),   ALLOCATABLE :: GAMMA0  ! GAMMA0 FOR SDV (BOONE) ROUTINE
       REAL(DOUBLE), DIMENSION(:),   ALLOCATABLE :: GAMMA2  ! GAMMA2 FOR SDV (BOONE) ROUTINE
-      REAL(DOUBLE), DIMENSION(:),   ALLOCATABLE :: ETA2    ! ETA2 FOR SDV (BOONE) ROUTINE
+      REAL(DOUBLE), DIMENSION(:),   ALLOCATABLE :: SHIFT0  ! PRESSURE SHIFT FOR LSHAPE (TRAN) ROUTINE
+      REAL(DOUBLE), DIMENSION(:),   ALLOCATABLE :: SHIFT2  ! T-DEP OF P-SHIFT FOR LSHAPE (TRAN) ROUTINE
       REAL(DOUBLE), DIMENSION(:),   ALLOCATABLE :: LMTK1, LMTK2, YLM ! LINE MIXING PARAMETERS
+      REAL(DOUBLE), DIMENSION(:,:),   ALLOCATABLE :: DIST ! STORES THE DIST VALUE (CUT OFF FOR CALCULATING LINESHAPE FOR EACH LINE
 
 
       INTEGER :: NR_SDVGAS, NR_LMGAS
@@ -48,8 +68,16 @@
                                                 ! 1 = FORCE VOIGT FOR ALL LINES
                                                 ! 2 = USE GALATRY FOR LINES WITH PARAMETERS, VOIGT ELSE
                                                 ! 3 = USE SDV FOR LINES WITH PARAMETERS
+                                                ! 4 = USE pCqSDHC
 
-      INTEGER, PARAMETER   :: GALATRY_FLAG=1,FCIA_FLAG=2,SCIA_FLAG=3,SDV_FLAG=4,LM_FLAG=5
+      ! if lshapemodel = 0, the following switches may be used to switch certain features
+      ! by default all switched on for default line shape
+      logical :: lsm_sdv = .false.              ! if TRUE, speed dependent Voigt is used
+
+
+      INTEGER, PARAMETER   :: GALATRY_FLAG=1,FCIA_FLAG=2,SCIA_FLAG=3
+      integer, PARAMETER   :: SDV_FLAG=4,LM_FLAG=5,CORR_FLAG=5
+      INTEGER, PARAMETER   :: LM_1ST_FLAG=6, LM_FULL_FLAG=7
 
       TYPE, PUBLIC :: HITRANDATA
          INTEGER  :: MO              ! MOL ID
@@ -68,9 +96,10 @@
          REAL(4) :: UW               ! UPPER STAT WT
          REAL(4) :: LW               ! LOWER STAT WT
          REAL(4) :: BT               ! GALATRY BETA0
-         REAL(4) :: GAMMA0           ! GAMMA 0 for SDV
-         REAL(4) :: GAMMA2           ! GAMMA 2 for SDV
-         REAL(4) :: ETA2             ! ETA 2 for SDV
+         REAL(4) :: GAMMA0           ! GAMMA 0
+         REAL(4) :: GAMMA2           ! GAMMA 2
+         REAL(4) :: SHIFT0           ! PRESSURE SHIFT FOR GEN LINESHAPE
+         REAL(4) :: SHIFT2           ! PRESSURE SHIFT FOR GEN LINESHAPE
          REAL(4) :: LMTK1            ! LMTK1 for Line Mixing
          REAL(4) :: LMTK2            ! LMTK2 for Line Mixing
          REAL(4) :: YLM              ! YLM for Line Mixing
@@ -85,7 +114,7 @@
       INTEGER      :: LINE, IBAND, ISO, MO, L, K, I, NUMLIN, TNBAND
       INTEGER      :: NLINES, NLINES_GALATRY, NLINES_LM, NLINES_SDV, NLINES_FCIA, NLINES_SCIA
       REAL(8)      :: WAVLO, WAVHI, PS, TW, ELOWER, SW, AW, SLINE, WAVNUM=0.0, DENLIN, B0
-      REAL(8)      :: G0, G2, E2, L1, L2, L3, TW5, TW6
+      REAL(8)      :: G0, G2, S0, S2, L1, L2, L3, TW5, TW6
       CHARACTER (LEN=200)        :: CHLINE
       INTEGER, DIMENSION(MAXGAS) :: NMOLINE
       LOGICAL                    :: HBIN = .TRUE., HF(8)
@@ -107,6 +136,22 @@
       WRITE (*, 120) TRIM(TFILE(14))
       WRITE (16, 121) TRIM(TFILE(14))
 
+      write(16,*) 'LINESHAPEMODEL = ', LSHAPEMODEL
+      write(16,*) 'SPEED DEPENDANCY OF PRESSURE BROADENING ', LSM_SDV
+      ! Check for consistency in line parameters and line features
+      IF (((LSHAPEMODEL == 1).OR.(LSHAPEMODEL == 2)).AND.LSM_SDV) THEN
+         write (*,*) 'Line shape model Voigtfunction or Galatry does not support speed dependancy'
+         write (16,*) 'Line shape model Voigtfunction or Galatry does not support speed dependancy'
+         call shutdown
+         stop 2
+      end IF
+      IF (((LSHAPEMODEL == 1).OR.(LSHAPEMODEL == 2)).AND.USE_LM) THEN
+         write (*,*) 'Line shape model Voigtfunction or Galatry does not support line mixing'
+         write (16,*) 'Line shape model Voigtfunction or Galatry does not support line mixing'
+         call shutdown
+         stop 2
+      end IF
+
 !  --- OPEN HITRAN LINE DATA FILE
       IF( HBIN )THEN
          OPEN( UNIT=14, FILE=TRIM(TFILE(14)), STATUS='OLD', ERR=669, FORM='UNFORMATTED' )
@@ -119,6 +164,7 @@
          DO I=1, TNBAND
             READ(14) K, TW5, TW6
             IF(( (TW5-WAVE5(K)) .GT. 0.0) .OR. ((TW6-WAVE6(K)) .LT. 0.0 )) THEN
+               !print*, TW5, WAVE5(K), TW6, WAVE6(K)
                WRITE(16,151) K, TW5-WAVE5(K), TW6-WAVE6(K),'  HITRAN LIST WINDOW AND RETRIEVAL WINDOW MISMATCH'
                WRITE( 6,151) K, TW5-WAVE5(K), TW6-WAVE6(K),'  HITRAN LIST WINDOW AND RETRIEVAL WINDOW MISMATCH'
                !STOP ': LINEPARAM HITRAN LIST & RETRIEVAL WINDOW MISMATCH'
@@ -130,8 +176,8 @@
 
       ALLOCATE( ST296(LNMAX), AAA(LNMAX), SSS(LNMAX), AZERO(LNMAX), ETWO(LNMAX), &
            GMASS(LNMAX), PSLIN(LNMAX), TDLIN(LNMAX), BETA(LNMAX), LGAS(LNMAX), &
-           GAMMA0(LNMAX), GAMMA2(LNMAX), ETA2(LNMAX),  LMTK1(LNMAX), LMTK2(LNMAX), &
-           YLM(LNMAX), HFLAG(LNMAX,8) )
+           GAMMA0(LNMAX), GAMMA2(LNMAX), SHIFT0(LNMAX), SHIFT2(LNMAX),  LMTK1(LNMAX), LMTK2(LNMAX), &
+           YLM(LNMAX), HFLAG(LNMAX,8),DIST(LNMAX,LAYMAX) )
 
       LINE = 0
  10   CONTINUE
@@ -152,7 +198,8 @@
          B0     = REAL( HLP%BT, 8 )
          G0     = REAL( HLP%GAMMA0, 8 )
          G2     = REAL( HLP%GAMMA2, 8 )
-         E2     = REAL( HLP%ETA2, 8 )
+         S0     = REAL( HLP%SHIFT0, 8 )
+         S2     = REAL( HLP%SHIFT2, 8 )
          L1     = REAL( HLP%LMTK1, 8 )
          L2     = REAL( HLP%LMTK2, 8 )
          L3     = REAL( HLP%YLM, 8 )
@@ -188,21 +235,23 @@
          ENDIF
       END DO
 
-!  --- NEW GAS-ADD TO LIST
-      NGAS          = NGAS + 1
+!  --- NEW GAS - ADD TO LIST SORTED BY GAS
+      NGAS          = NGAS + 1         ! TOTAL # OF GASES
       IF( NGAS > MAXGAS )GOTO 670
-      ICODE(NGAS)   = MO
-      ISCODE(NGAS)  = ISO
-      NMOLINE(NGAS) = 1
+      ICODE(NGAS)   = MO               ! HITRAN ID OF THIS LINE
+      ISCODE(NGAS)  = ISO              ! HITRAN ISOTOPE ID OF THIS GAS
+      NMOLINE(NGAS) = 1                ! # OF LINES FOR THIS GAS
 
 2268  CONTINUE
 
 !  --- LOOP THROUGH MIXING RATIO LIST FOR PROFILE FOR THIS LINE
       DO I=1, NMOL
+!print*, 'linep ',TRIM(HMOLS(I)) , '  ',  TRIM(NAME(ICODE(NGAS)))
          IF( TRIM(HMOLS(I)) .EQ. TRIM(NAME(ICODE(NGAS))))THEN
-            XGAS(NGAS,:KMAX) = FXGAS(I,:KMAX)
+            XGAS(NGAS,:NPATH) = FXGAS(icode(ngas),:NPATH)
             IFMIX(NGAS) = 1
-            IF( SUM(FXGAS(I,:KMAX)) .LE. 0.0D0 ) IFMIX(NGAS) = 0
+            IF( SUM(FXGAS(icode(ngas),:NPATH)) .LE. 0.0D0 ) IFMIX(NGAS) = 0
+!print*, 'linep ',I, TRIM(NAME(ICODE(NGAS))), ngas, npath, ICODE(NGAS), ifmix(ngas), FXGAS(icode(ngas),:NPATH), XGAS(NGAS,:NPATH)
 !  --- ADD LINE TO LIST
             NLINES = NLINES + 1
             LGAS(NLINES) = NGAS
@@ -213,7 +262,7 @@
 !  --- MIXING RATIO PROFILE NOT FOUND FOR NEW GAS--SET VMRS AND IFMIX TO ZERO
 !  --- DON'T ADD LINE TO LINELIST
       WRITE (16, 88) NAME(ICODE(NGAS))
-      XGAS(NGAS,:KMAX) = 0.D0
+      XGAS(NGAS,:LAYMAX) = 0.D0
       IFMIX(NGAS) = 0
       GOTO 10
 
@@ -247,14 +296,16 @@
       TDLIN(NLINES)  = TW
       PSLIN(NLINES)  = PS
       BETA(NLINES)   = B0
+      GAMMA0(NLINES) = G0
       GAMMA2(NLINES) = G2
-      ETA2(NLINES)   = E2
+      SHIFT0(NLINES) = S0
+      SHIFT2(NLINES) = S2
       LMTK1(NLINES)  = L1
       LMTK2(NLINES)  = L2
       YLM(NLINES)    = L3
 
       HFLAG(NLINES,1:8) = .FALSE.
-      IF( HF(GALATRY_FLAG) .AND. ((LSHAPEMODEL == 0).OR.(LSHAPEMODEL==2)) ) THEN
+      IF( HF(GALATRY_FLAG) .AND. ((LSHAPEMODEL == 0).OR.(LSHAPEMODEL==2))) THEN
          HFLAG(NLINES,GALATRY_FLAG) = .TRUE.
          NLINES_GALATRY = NLINES_GALATRY + 1
          !print *, HFLAG(NLINES,GALATRY_FLAG), nlines
@@ -267,11 +318,11 @@
          HFLAG(NLINES,SCIA_FLAG) = .TRUE.
          NLINES_SCIA = NLINES_SCIA + 1
       END IF
-      IF( HF(SDV_FLAG).AND.((LSHAPEMODEL == 0).OR.(LSHAPEMODEL==3))) THEN
+      IF( HF(SDV_FLAG).AND.LSM_SDV.and.((LSHAPEMODEL == 0).OR.LSHAPEMODEL==4)) THEN
          HFLAG(NLINES,SDV_FLAG) = .TRUE.
          NLINES_SDV = NLINES_SDV + 1
       END IF
-      IF( HF(LM_FLAG).AND.USE_LM.AND.((LSHAPEMODEL == 0).OR.(LSHAPEMODEL==1).OR.(LSHAPEMODEL==3))) THEN
+      IF( HF(LM_FLAG).AND.USE_LM.AND.((LSHAPEMODEL == 0).OR.(LSHAPEMODEL==3).OR.(LSHAPEMODEL==4))) THEN
          HFLAG(NLINES,LM_FLAG) = .TRUE.
          NLINES_LM = NLINES_LM + 1
       END IF
@@ -288,7 +339,6 @@
 !         AAA(NLINES) = 0.1D0
 !         SSS(NLINES) = 0.1D0
           if (AW .le. 0.0) AAA(NLINES) = 0.1D0
-
           if (SW .le. 0.0) SSS(NLINES) = AAA(NLINES)
          ST296(NLINES) = ST296(NLINES)*SCHMIT*ZEROC/STDTEMP
       ENDIF
@@ -330,15 +380,15 @@
       DENLIN = NLINES/(WAVHI - WAVLO)
       WRITE (16, 887) DENLIN
       IF (DENLIN>500 .AND. DENLIN<1000.) THEN
-         TAUMIN = 1.E-07
+         TAUMIN = 1.D-7
          WRITE (16, 888) TAUMIN
       ELSE IF (DENLIN >= 1000) THEN
-         TAUMIN = 1.E-08
+         TAUMIN = 1.D-8
          WRITE (16, 889) TAUMIN
       ELSE
          WRITE (16, 890) TAUMIN
       ENDIF
-
+      
 !  --- DETERMINE RANGE OF LINES TO CONSIDER FOR EACH BANDPASS
       WRITE (16, 301)
       DO IBAND = 1, NBAND
@@ -351,6 +401,7 @@
             IF (NLINES == 1) LINE1(IBAND) = I
             LINE2(IBAND) = I
          END DO
+         I = IBAND
          IF (NLINES == 0) GO TO 667
          WRITE (16, 302) IBAND, WAVE5(IBAND), LINE1(IBAND), WAVE6(IBAND), LINE2(IBAND)
       END DO
@@ -387,29 +438,36 @@
 
     7 CONTINUE
       WRITE (16, 112) LNMAX
-      CLOSE(16)
-      STOP 'ABORT !!! OPTLIN'
+      WRITE ( 0, 112) LNMAX
+      CALL SHUTDOWN
+      STOP '2'
   665 CONTINUE
       WRITE (16, 110) MO
-      CLOSE(16)
-      STOP 'ABORT !!! OPTLIN'
+      WRITE ( 0, 110) MO
+      CALL SHUTDOWN
+      STOP '2'
   667 CONTINUE
-      WRITE (16, 101) IBAND
-      CLOSE(16)
-      STOP 'ABORT !!! OPTLIN'
+      WRITE (16, 101) I
+      WRITE ( 0, 101) I
+      CALL SHUTDOWN
+      STOP '2'
   668 CONTINUE
       WRITE (16, 102) LINE, ICODE(LGAS(NLINES)), ISO, NHIISO(ICODE(LGAS(NLINES)))
       WRITE (16, 103) AZERO(LINE)
-      CLOSE(16)
-      STOP 'ABORT !!! OPTLIN'
+      WRITE ( 0, 102) LINE, ICODE(LGAS(NLINES)), ISO, NHIISO(ICODE(LGAS(NLINES)))
+      WRITE ( 0, 103) AZERO(LINE)
+      CALL SHUTDOWN
+      STOP 2
   669 CONTINUE
       WRITE (16, 113) TRIM(TFILE(14))
-      CLOSE(16)
-      STOP 'ABORT !!! OPTLIN'
+      WRITE ( 0, 113) TRIM(TFILE(14))
+      CALL SHUTDOWN
+      STOP '2'
   670 CONTINUE
       WRITE (16, 114) MAXGAS
-      CLOSE(16)
-      STOP 'ABORT !!! OPTLIN'
+      WRITE ( 0, 114) MAXGAS
+      CALL SHUTDOWN
+      STOP '2'
 
 
    88 FORMAT(A7,': OPTLIN: MIXING RATIO NOT FOUND TAPE12, SET TO ZERO FOR ALL LAYERS')
@@ -464,7 +522,7 @@
 
       IF( ALLOCATED( ST296 ))THEN
          DEALLOCATE( ST296, AAA, SSS, AZERO, ETWO, GMASS, PSLIN, TDLIN, BETA, LGAS, &
-              GAMMA0, GAMMA2, ETA2, LMTK1, LMTK2, YLM, HFLAG)
+              GAMMA0, GAMMA2, SHIFT0, SHIFT2, LMTK1, LMTK2, YLM, HFLAG, DIST)
 
       ENDIF
 

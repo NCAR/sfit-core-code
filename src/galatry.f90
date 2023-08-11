@@ -1,3 +1,22 @@
+!-----------------------------------------------------------------------------
+!    Copyright (c) 2013-2014 NDACC/IRWG
+!    This file is part of sfit.
+!
+!    sfit is free software: you can redistribute it and/or modify
+!    it under the terms of the GNU General Public License as published by
+!    the Free Software Foundation, either version 3 of the License, or
+!    any later version.
+!
+!    sfit is distributed in the hope that it will be useful,
+!    but WITHOUT ANY WARRANTY; without even the implied warranty of
+!    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!    GNU General Public License for more details.
+!
+!    You should have received a copy of the GNU General Public License
+!    along with sfit.  If not, see <http://www.gnu.org/licenses/>
+!-----------------------------------------------------------------------------
+
+
       real(double) function lineari (x1, y1, x2, y2, target_x)
 
 ! SFIT4 - v003.90 - TO 99 MOLECULES
@@ -103,6 +122,9 @@
 !
 !****************************************************************************/
       real(double) function betat (mol, t)
+
+      use datafiles
+
 !-----------------------------------------------
 !   M o d u l e s
 !-----------------------------------------------
@@ -204,7 +226,7 @@
          -1.0, & !  none                                  , PAN
          -1.0, & !  none                                  , CH3CHO
          -1.0, & !  none                                  , CH3CN
-         -1.0, & !  none                                  , OTHER       70
+         -1.0, & !  none                                  , CHF3        70
          -1.0, & !  none                                  , CH3COOH
          -1.0, & !  none                                  , C5H8
          -1.0, & !  none                                  , MVK
@@ -273,7 +295,9 @@
 
       if (epsilon(mol) < 0) then
          write (6, *) mol, ' Molecule not supported in GALATRY/BETAT routines'
-         stop 'Molecule not supported'
+         CALL SHUTDOWN
+         STOP 3
+         !stop 'Molecule not supported'
       endif
       treduced = 296./sqrt(epsilon(mol)*epsilonair)
 !      write (6, *) 'TReduced = ', treduced
@@ -286,14 +310,16 @@
          select case (result)
          case (-1)
             write (6, *) 'Temperature ', treduced, ' is lower than table'
-            stop 'Temp too low'
+            !stop 'Temp too low'
          case (1)
             write (6, *) 'Temperature ', treduced, ' is above table'
-            stop 'Temp too high'
+            !stop 'Temp too high'
          case (-2)
             write (6, *) 'Didn''t find greater temperature in table'
-            stop 'Temp table error'
+            !stop 'Temp table error'
          end select
+         CALL SHUTDOWN
+         STOP 3
       endif
 
 
@@ -310,14 +336,16 @@
          select case (result)
          case (-1)
             write (6, *) 'Temperature ', treduced, ' is lower than table'
-            stop 'Temp too low'
+            !stop 'Temp too low'
          case (1)
             write (6, *) 'Temperature ', treduced, ' is above table'
-            stop 'Temp too high'
+            !stop 'Temp too high'
          case (-2)
             write (6, *) 'Didn''t find greater temperature in table'
-            stop 'Temp table error'
+            !stop 'Temp table error'
          end select
+         CALL SHUTDOWN
+         STOP 3
       endif
 
 

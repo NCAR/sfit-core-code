@@ -1,3 +1,23 @@
+!-----------------------------------------------------------------------------
+!    Copyright (c) 2013-2014 NDACC/IRWG
+!    This file is part of sfit.
+!
+!    sfit is free software: you can redistribute it and/or modify
+!    it under the terms of the GNU General Public License as published by
+!    the Free Software Foundation, either version 3 of the License, or
+!    any later version.
+!
+!    sfit is distributed in the hope that it will be useful,
+!    but WITHOUT ANY WARRANTY; without even the implied warranty of
+!    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!    GNU General Public License for more details.
+!
+!    You should have received a copy of the GNU General Public License
+!    along with sfit.  If not, see <http://www.gnu.org/licenses/>
+!-----------------------------------------------------------------------------
+
+
+
       MODULE RAYTRACE
 
       USE PARAMS
@@ -15,6 +35,7 @@
                                 GASCON = 8.314472D+07,          &
                                 PZERO  = BAR,                   &
                                 TZERO  = ZEROC,                 &
+                                CONVCONST = 7.341D+21,          &
                                 CLIGHT = 2.99792458D+10
 
       INTEGER (4), PARAMETER :: MXFSC  = 200,                   & ! NOT USED
@@ -39,8 +60,8 @@
       CHARACTER (LEN=8), DIMENSION(3)      :: HMOD
       CHARACTER (LEN=3), DIMENSION(MXLAY)  :: CTYPE
 
-      INTEGER (4)  :: IRD=-1, IPR=73, IPU=78, IRP=72, IZ
-      INTEGER (4)  :: NOPRNT=-1, IMMAX, IMDIM, IBMAX, IBDIM, IOUTMX, IOUTDM, IPMAX
+      INTEGER (4)  :: IRD=-1, IPR=73, IPU=78, IRP=72,ILOS=79, IZ
+      INTEGER (4)  :: NOPRNT=-1,LOSPRNT=-1, IMMAX, IMDIM, IBMAX, IBDIM, IOUTMX, IOUTDM, IPMAX
       INTEGER (4)  :: IPHMID, IPDIM, KDIM, KMXNOM, IFINMX
       INTEGER (4)  :: NMRGCALL
       INTEGER (4)  :: IMMAX_B, IMLOW
@@ -230,6 +251,23 @@
       INTEGER               :: I, NAERR, IDUM, NBND, NLAY
       REAL                  :: RDUM
 
+! --- IN THE CASE OF A FITTING A CELL ONLY - NLAYERS COMES FROM GAS.LAYERS IN .CTL FILE
+! --- NCELL = INTEGER NUMBER OF CELLS
+      IF( NLAYERS .EQ. 0 )THEN
+         ALLOCATE (ZSL(NBND), ZBAR(NCELL), Z(NCELL), P(NCELL), T(NCELL), PMB(NCELL), TORG(NCELL), &
+                   PORG(NCELL), PMBORG(NCELL), FXORG(MOLTOTAL,NCELL), STAT=NAERR)
+         IF (NAERR /= 0) THEN
+            WRITE(16, *) 'RAYTRACE: READLAYERS: COULD NOT ALLOCATE Z AND ZBAR ARRAYS ERROR NUMBER = ', NAERR
+            WRITE( 0, *) 'RAYTRACE: READLAYERS: COULD NOT ALLOCATE Z AND ZBAR ARRAYS ERROR NUMBER = ', NAERR
+            STOP '3'
+         ENDIF
+         NLAY  = 0
+         NPATH = NCELL
+         !         NMOL  = NCELL
+         NMOL  = 51
+         RETURN
+      ENDIF
+
       CALL FILEOPEN( 71, 3 )
 
       READ(71,'(A80)') BUF
@@ -237,18 +275,19 @@
   201 FORMAT(/,' STATION.LAYERS FILE : ', A)
       READ(71,*) NBND
 
-
 ! --- THERE IS 1 LESS LAYER THAN LEVELS - THIS IS NLAY !!!
 ! --- THIS NEEDS TO MATCH EG SIGMA IN BINPUT
 ! --- THESE ATM ARRAYS ALL GO HIGH ALT TO LOW
 ! --- ZBAR IS MIDPOINTS
 ! --- Z IS THE LOWER BOUNDARIES OF EACH LAYER
       NLAY = NBND -1
-      ALLOCATE (ZSL(NBND), ZBAR(NLAY), Z(NLAY), P(NLAY), T(NLAY), PMB(NLAY), STAT=NAERR)
+      NPATH = NLAY + NCELL
+      ALLOCATE (ZSL(NBND), ZBAR(NPATH), Z(NPATH), P(NPATH), T(NPATH), PMB(NPATH), TORG(NPATH), &
+                PORG(NPATH), PMBORG(NPATH), FXORG(MOLTOTAL,NPATH), STAT=NAERR)
       IF (NAERR /= 0) THEN
-         WRITE(16, *) 'READIN: READLAYERS: COULD NOT ALLOCATE Z AND ZBAR ARRAYS'
-         WRITE(16, *) 'ERROR NUMBER = ', NAERR
-         STOP 'FATAL ERROR READIN: READLAYERS: MEMORY ALLOCATION, Z, ZBAR'
+         WRITE(16, *) 'RAYTRACE: READLAYERS: COULD NOT ALLOCATE Z AND ZBAR ARRAYS ERROR NUMBER = ', NAERR
+         WRITE( 0, *) 'RAYTRACE: READLAYERS: COULD NOT ALLOCATE Z AND ZBAR ARRAYS ERROR NUMBER = ', NAERR
+         STOP '3'
       ENDIF
 
       READ(71,*) BUF
@@ -276,7 +315,12 @@
       READ(71,*,END=100) ITYPE_RT
       IF( ITYPE_RT .EQ. 3 )H2F_RT = 0.0
       READ(71,*,END=101) H1F_RT
-      IF(( H1F_RT .LT. ZSL(NBND)) .OR. (H1F_RT .GT. ZSL(1)))STOP 'ITYPE 3: H1 OOR'
+      IF(( H1F_RT .LT. ZSL(NBND)) .OR. (H1F_RT .GT. ZSL(1)))THEN
+         WRITE(16, *) 'RAYTRACE: ITYPE 3: H1 OOR'
+         WRITE( 0, *) 'RAYTRACE: ITYPE 3: H1 OOR'
+         CALL SHUTDOWN
+         STOP '3'
+      ENDIF
       GOTO 102
 
  100 CONTINUE
@@ -290,7 +334,11 @@
 
       RETURN
 
- 101  STOP 'ITYPE 3 H1 READ ERROR.'
+ 101  CONTINUE
+      WRITE(16, *) 'RAYTRACE: ITYPE 3 H1 READ ERROR.'
+      WRITE( 0, *) 'RAYTRACE: ITYPE 3 H1 READ ERROR.'
+      CALL SHUTDOWN
+      STOP '3'
 
  202  FORMAT(A)
  203  FORMAT(I5, 2F12.4)
@@ -381,15 +429,18 @@ END SUBROUTINE READLAYRS
 
 ! --- SETUP OUTPUT VERBOSITY LEVELS USE OLD AND NEW FLAGS
 ! --- SKIP PUNCH FILE ALTOGETHER
-      IF( .NOT. F_WRTRAYTC )THEN
+      IF( .NOT. F_WRTRAYTC .OR. (ITER.GT.0) ) THEN  ! don't write for each iteration when temperature is retrieved
          NOPRNT = -1
-         RAYOUTTYPE = 0
+         !RAYOUTTYPE = 0
       ELSEIF( RAYOUTTYPE .GE. 2 )THEN
          NOPRNT = 2
       ENDIF
 
-      IF( NOPRNT .GE. 2 )WRITE (IPR,900) HDATE, HVRATM
+      LOSPRNT = -1
+      IF (ITER.LE.0.AND.F_WRTLOS) LOSPRNT = 1
 
+      IF( NOPRNT .GE. 2 )WRITE (IPR,900) HDATE, HVRATM
+      IF (ITER.EQ.0)WRITE (ILOS,900) HDATE, HVRATM
       CALL CPU_TIME(TSRT)
 
       HMOLS(1:MOLTOTAL) = NAME(1:MOLTOTAL)
@@ -426,22 +477,23 @@ END SUBROUTINE READLAYRS
 
          IREAD = 2
          IF( JSPEC .EQ. 1 .AND. ITER .EQ. 0 ) IREAD = 0
-         IF( JSPEC .EQ. 1 .AND. ITER .GT. 0 ) IREAD = 1
+         IF( JSPEC .EQ. 1 .AND. (ITER .GT. 0 .OR. ITER.EQ.-1) ) IREAD = 1
 
          IF( NOPRNT .GE. 2 )WRITE(IPR,901) "LBLATM - ITER, JSPEC, NSPEC, IREAD, SZA ", ITER, JSPEC, NSPEC, IREAD, ASTANG(JSPEC)
-
+         IF (ITER.EQ.0)WRITE(ILOS,901) "LBLATM - ITER, JSPEC, NSPEC, IREAD, SZA ", ITER, JSPEC, NSPEC, IREAD, ASTANG(JSPEC)
          CALL ATMPTH( JSPEC, IREAD, ASTANG(JSPEC), REARTH(JSPEC), XVB(JSPEC), ITER, NLEV )
 
       ENDDO
 
 ! --- DO ONE MORE THAN NSPEC -> SZA=0.0
       IF( NOPRNT .GE. 2 )WRITE(IPR,901) "LBLATM - ITER, JSPEC, NSPEC, IREAD, SZA ", ITER, NSPEC+1, NSPEC, 999, 0.0D0
-
+      LOSPRNT=-1 !DISABLE LOS PRINTING
       CALL ATMPTH( NSPEC+1, 999,  00.0D0, 6390.D0, 2500.D0, ITER, NLEV )
+
 
       CALL CPU_TIME(TSTP)
 
-      WRITE(0,905)  "  RAYTRACE PROCESS TIME : ", TSTP-TSRT
+      !WRITE(0,905)  "  RAYTRACE PROCESS TIME : ", TSTP-TSRT
       IF( NOPRNT .GE. 2 )WRITE(IPR,905) "  RAYTRACE PROCESS TIME : ", TSTP-TSRT
 
       CALL FILECLOSE( IPU, 1 )
@@ -673,7 +725,8 @@ END SUBROUTINE READLAYRS
 
       DATA AVRATS / 1.5D0 /,TDIF1S / 5.0D0 /,TDIF2S / 8.0D0 /
 
-      DATA COTHER / 'OTHER   '/
+      !DATA COTHER / 'OTHER   '/
+      DATA COTHER / 'WN2L    '/
       DATA HT1HRZ / ' AT '/,HT2HRZ / ' KM '/,HT1SLT / ' TO '/,HT2SLT / ' KM '/
       DATA PZFORM / 'F8.6','F8.5','F8.4','F8.3','F8.2'/
       DATA PAFORM / '1PE15.7','  G15.7'/
@@ -709,7 +762,7 @@ END SUBROUTINE READLAYRS
          NMRGCALL = 0
       ENDIF
 
-      WRITE(16,891)  "  ITER, JSPEC, ASTRO SOLAR ANGLE   : ", ITER, JSPEC, ASTANG1
+      IF (NOPRNT .GE. 0) WRITE(16,891)  "  ITER, JSPEC, ASTRO SOLAR ANGLE   : ", ITER, JSPEC, ASTANG1
 
       SECNT0 = 1.0
       IEMIT  = 0
@@ -782,6 +835,12 @@ END SUBROUTINE READLAYRS
                          IFXTYP,MUNITS,RE,HSPACE,XVBAR,REF_LAT,IASTRO
       ENDIF
 
+      IF (LOSPRNT .GE. 0) THEN
+        WRITE (ILOS,902)
+        WRITE (ILOS,904) MODEL,ITYPE,IBMAX,NOZERO,NOPRNT,NMOL,IPUNCH,   &
+                    IFXTYP,MUNITS,RE,HSPACE,XVBAR,REF_LAT,IASTRO
+      ENDIF
+
       M = MODEL
       !IF (NMOL.EQ.0)STOP "ATMPTH - NMOL"
       IF (ITYPE.LE.1.OR.ITYPE.GT.3) GO TO 290
@@ -814,6 +873,11 @@ END SUBROUTINE READLAYRS
          WRITE (IPR,906)
          WRITE (IPR,904) MODEL,ITYPE,IBMAX,NOZERO,NOPRNT,NMOL,IPUNCH,   &
                          IFXTYP,MUNITS,RE,HSPACE,XVBAR,REF_LAT,IASTRO
+      ENDIF
+      IF (LOSPRNT .GE. 0) THEN
+        WRITE (ILOS,906)
+        WRITE (ILOS,904) MODEL,ITYPE,IBMAX,NOZERO,NOPRNT,NMOL,IPUNCH,   &
+                    IFXTYP,MUNITS,RE,HSPACE,XVBAR,REF_LAT,IASTRO
       ENDIF
 
       IF (ITYPE.EQ.1) THEN
@@ -958,11 +1022,11 @@ END SUBROUTINE READLAYRS
 
         ENDIF
 
-      ELSE
+      ELSE ! END HORIZONTAL PATH
 
 
 ! --- SLANT PATH SELECTED-------------------------------------------------------
-! --- ITYPE = 2 OR 3: SLANT PATH THROUGH THE ATMOSPHERE
+! --- ITYPE = 2 OR 3: SLANT PATH THROUGH THE ATMOSPHERE (SFIT4)
 
          IF( NOPRNT.GE.0 )WRITE (IPR,930) ITYPE
 
@@ -1003,6 +1067,14 @@ END SUBROUTINE READLAYRS
                WRITE (IPR,934) H1,H2,ANGLE,RANGE,BETA,LEN
             ENDIF
          ENDIF
+        IF (LOSPRNT .GE. 0) THEN
+            IF (IBMAX_B .LT. 0) THEN
+               WRITE (ILOS,933) H1,H2,ANGLE,RANGE,BETA,LEN
+            ELSE
+               WRITE (ILOS,934) H1,H2,ANGLE,RANGE,BETA,LEN
+            ENDIF
+        ENDIF
+
          !print*,' atmpth top ', h1, h2, angle
 ! --- GENERATE OR READ IN LBLRTM BOUNDARY LAYERS
 
@@ -1052,6 +1124,7 @@ END SUBROUTINE READLAYRS
 !print *, zbnd(1:IBMAX)
 
                IF (NOPRNT.GE.2 )WRITE (IPR,942) (IB,ZBND(IB),IB=1,IBMAX)
+               IF (LOSPRNT .GE. 0)WRITE (ILOS,942) (IB,ZBND(IB),IB=1,IBMAX)
             ENDIF
          ENDIF
 
@@ -1074,6 +1147,9 @@ END SUBROUTINE READLAYRS
 ! --- THAT WAS END OF TAPE5 READ
 
 ! --- SET UP ATMOSPHERIC PROFILE
+
+         ! MDLATM CALLS IN TURN
+         !   NSMDL : LNGMDL : CONVRT : WATVAP : CMPALT
 
          IF( IREAD .EQ. 0 .OR. IREAD .EQ. 1)CALL MDLATM (ITYPE,M,IREAD,HSPACE)
 
@@ -1202,7 +1278,10 @@ END SUBROUTINE READLAYRS
             IF (H1 .LT. 0.0) THEN
                PRINT 946, H1,ZTMP(1)
                IF (NOPRNT.GE.0) WRITE (IPR,946) H1,ZTMP(1)
-               STOP ' COMPUTED ALTITUDE VALUE OF H1 IS NEGATIVE'
+               WRITE(16,*)' RAYTRACE : ATMPTH: COMPUTED ALTITUDE VALUE OF H1 IS NEGATIVE'
+               WRITE( 0,*)' RAYTRACE : ATMPTH: COMPUTED ALTITUDE VALUE OF H1 IS NEGATIVE'
+               CALL SHUTDOWN
+               STOP '3'
             ENDIF
 
             PTMP(1)  = 0.0
@@ -1257,13 +1336,16 @@ END SUBROUTINE READLAYRS
             IF (H2 .LT. 0.0) THEN
                PRINT 946, H2,ZTMP(1)
                IF (NOPRNT.GE.0) WRITE (IPR,946) H2,ZTMP(1)
-               STOP ' COMPUTED ALTITUDE VALUE OF H2 IS NEGATIVE'
+               WRITE(16,*) ' RAYTRACE : ATMPTH: COMPUTED ALTITUDE VALUE OF H2 IS NEGATIVE'
+               WRITE( 0,*) ' RAYTRACE : ATMPTH: COMPUTED ALTITUDE VALUE OF H2 IS NEGATIVE'
+               CALL SHUTDOWN
+               STOP '3'
             ENDIF
 
 ! --- END IF IBMAX_B < 0 - PRESSURE BOUDRARIES - INTERPOLATING ONTO Z BOUNDS
 
          ENDIF
-
+         !print*, ZBND(1), ZMDL(1)
          IF (IBMAX.GE.1) THEN
             IF (ZBND(1).LT.ZMDL(1)) THEN
                IF (NOPRNT.GE.0) WRITE (IPR,944)
@@ -1272,7 +1354,10 @@ END SUBROUTINE READLAYRS
                ELSE
                   PRINT 946,ZBND(1),ZMDL(1)
                   IF (NOPRNT.GE.0) WRITE (IPR,946) ZBND(1),ZMDL(1)
-                  STOP ' BOUNDARIES OUTSIDE OF ATMOS'
+                  WRITE(16,*) ' RAYTRACE : ATMPTH: BOUNDARIES OUTSIDE OF ATMOS'
+                  WRITE( 0,*) ' RAYTRACE : ATMPTH: BOUNDARIES OUTSIDE OF ATMOS'
+                  CALL SHUTDOWN
+                  STOP '3'
                ENDIF
             ENDIF
          ENDIF
@@ -1349,7 +1434,7 @@ END SUBROUTINE READLAYRS
          AST    = ANGLE    ! SAVE ASTRONOMICAL SZA
   400    CONTINUE
 
-         CALL FSCGEO (H1,H2,ANGLE,RANGE,BETA,ITYPE,LEN,HMIN,PHI,IERROR,HOBS)
+         CALL FSCGEO (H1,H2,ANGLE,RANGE,BETA,ITYPE,LEN,HMIN,PHI,IERROR,HOBS,KASTRO+LOSPRNT)
          IF (IERROR.NE.0) GO TO 310
 
 ! --- SET UP LBLRTM LAYER BOUNDARIES
@@ -1396,12 +1481,15 @@ END SUBROUTINE READLAYRS
 !!                                ADOPP(IB),ZETA,AVOIGT(IB),RATIO,DTEMP
 !!  230    CONTINUE
 
-         IF (IERROR.NE.0) STOP ' IERROR'
+         IF (IERROR.NE.0) THEN
+            WRITE(16,*) ' RAYTRACE : ATMPTH: IERROR'
+            WRITE( 0,*) ' RAYTRACE : ATMPTH: IERROR'
+            CALL SHUTDOWN
+            STOP '3'
+         ENDIF
 
 ! --- CALCULATE THE REFRACTED PATH THROUGH THE ATMOSPHERE
-
-         CALL RFPATH (H1,H2,ANGLE,PHI,LEN,HMIN,IAMT,RANGE,BETA,BENDNG)
-
+         CALL RFPATH (H1,H2,ANGLE,PHI,LEN,HMIN,IAMT,RANGE,BETA,BENDNG,KASTRO+LOSPRNT)
 ! --- ITERATION FOR ASTRO TO APPARENT SZA
 
          IF(KASTRO.EQ.1 .OR. IASTRO.EQ.0 .OR. ABS(ANGLE).LT. 0.00001) GOTO 401
@@ -1445,12 +1533,13 @@ END SUBROUTINE READLAYRS
          ANGLEF  = ANGLE
          LENF    = LEN
 
-! --- CONDENSE THE AMOUNTS INTO THE LBLRTM OUTPUT LAYERS ZOUT,
+! ---  CONDENSE THE AMOUNTS INTO THE LBLRTM OUTPUT LAYERS ZOUT,
 ! ---  WHICH ARE DEFINED BY THE BOUNDARIES ZBND FROM HMIN TO
 ! ---  HMAX ALSO, ZERO OUT THE AMOUNT FOR A MOLECULE IF THE
 ! ---  CUMULATIVE AMOUNT FOR THAT LAYER AND ABOVE IN LESS THAN
 ! ---  0.1 PERCENT OF THE TOTAL
 
+         ! WRITE(IPR,*)'CALL FPACK'
          CALL FPACK (H1,H2,HMID,LEN,IEMIT,NOZERO)
 
 ! --- OUTPUT THE FINAL PROFILE IN COLUMN DENSITY AND MIXING RATIO FROM DRY AIR IN ZFIN GRID
@@ -1593,7 +1682,7 @@ END SUBROUTINE READLAYRS
                      ENDIF
   277             CONTINUE
 
-                  IF( noprnt .ge.0 )WRITE (IPU,978) (AMOUNT(K,L),K=1,7),WN2L(L), (AMOUNT(K,L),K=8,NMOL)
+                  IF( noprnt .ge.0 )WRITE (IPU,978) (AMOUNT(K,L),K=1,7), WN2L(L), (AMOUNT(K,L),K=8,NMOL)
 
                ENDIF
 
@@ -1643,7 +1732,7 @@ END SUBROUTINE READLAYRS
          TWTD = TWTD/WTOT
          L = LMAX
          IF (NOPRNT .GE. 0) THEN
-               WRITE (IPR,980) !(HMOLS(K),K=1,7), COTHER, (HMOLS(K),K=8,NMOL)
+               WRITE (IPR,980)
                WRITE (IPR,984) L,ZFIN(1),ZFIN(L+1),PWTD,TWTD,SUMRS,     &
                                (WMT(K),K=1,7),SUMN2,(WMT(K),K=8,NMOL)
          ENDIF
@@ -1667,30 +1756,39 @@ END SUBROUTINE READLAYRS
 !     ERROR MESSAGES
 
   290 WRITE (0,986) MODEL,ITYPE,NMOL,IBMAX
-
-      STOP ' CARD 3.1'
+      WRITE(16,*) ' RAYTRACE : ATMPTH: CARD 3.1'
+      WRITE( 0,*) ' RAYTRACE : ATMPTH: CARD 3.1'
+      CALL SHUTDOWN
+      STOP '3'
 
   300 WRITE (0,988) (ZBND(I),I=1,IBMAX)
       PRINT 988,(ZBND(I),I=1,IBMAX)
-
-      STOP ' ZBND'
+      WRITE(16,*) ' RAYTRACE : ATMPTH: ZBND'
+      WRITE( 0,*) ' RAYTRACE : ATMPTH: ZBND'
+      CALL SHUTDOWN
+      STOP '3'
 
 !  301 PRINT 988,(ZTMP(I),I=2,IBMAX)
 !      STOP ' USER INPUT LEVELS TOO CLOSE - IBMAX'
 
   305 WRITE (0,989) (PBND(I),I=1,IBMAX)
       PRINT 989,(PBND(I),I=1,IBMAX)
-
-      STOP ' PBND'
+      WRITE(16,*) ' RAYTRACE : ATMPTH: PBND'
+      WRITE( 0,*) ' RAYTRACE : ATMPTH: PBND'
+      CALL SHUTDOWN
+      STOP '3'
 
   310 WRITE (0,990)
-
-      STOP ' ERROR - FSCGEO'
+      WRITE(16,*) ' RAYTRACE : ATMPTH: FSCGEO'
+      WRITE( 0,*) ' RAYTRACE : ATMPTH: FSCGEO'
+      CALL SHUTDOWN
+      STOP '3'
 
   320 WRITE (0,992) AVTRAT,TDIFF1,TDIFF2
-
-      STOP ' AVTRAT,TDIFF'
-
+      WRITE(16,*) ' RAYTRACE : AVTRAT,TDIFF'
+      WRITE( 0,*) ' RAYTRACE : AVTRAT,TDIFF'
+      CALL SHUTDOWN
+      STOP '3'
 
   890 FORMAT (A,I12)
   891 FORMAT( /, A, 2I6, F12.5)
@@ -1854,13 +1952,48 @@ END SUBROUTINE READLAYRS
 
       END SUBROUTINE ATMPTH
 
+
+
+!     ----------------------------------------------------------------
+
+      SUBROUTINE FILLCELL( NLEV )
+
+      INTEGER (4) :: I, NLEV
+
+      !print*, 'fillcell ',nlev, nmol, ncell, npath
+
+      DO I=1, NCELL
+         HMOLS(NLEV+I)           = CGAS(I)
+         T(NLEV+I)               = CTEMP(I)
+         PMB(NLEV+I)             = CPRES(I)
+         P(NLEV+I)               = PMB(NLEV+I) / BAR
+         FXGAS(:NMOL,NLEV+I)     = 0.0D0
+         FXGAS(CGASID(I),NLEV+I) = CVMR(I)
+         CCC(:NSPEC,NLEV+I)      = ALOSMT * (PMB(NLEV+I) / PZERO) * (TZERO / T(NLEV+I)) * CPATH(I) * T(NLEV+I) / CONVCONST! MASS IN ATM-CM
+         CCC(NSPEC+1,NLEV+I)     = ALOSMT * (PMB(NLEV+I) / PZERO) * (TZERO / T(NLEV+I)) * CPATH(I) ! MASS IN MOLEC/CM2
+         write(06,100) I, CCC(:NSPEC,NLEV+I), CCC(NSPEC+1,NLEV+I)
+         !print*, pzero, bar, tzero, cpath(i)
+         print*, I,  HMOLS(NLEV+I), CGASID(I), FXGAS(CGASID(I),NLEV+I)
+      ENDDO
+
+      TORG(NLEV+1:NLEV+NCELL )       = T(NLEV+1:NLEV+NCELL)
+      PORG(NLEV+1:NLEV+NCELL)        = P(NLEV+1:NLEV+NCELL)
+      PMBORG(NLEV+1:NLEV+NCELL)      = PMB(NLEV+1:NLEV+NCELL)
+      FXORG(:NMOL,NLEV+1:NLEV+NCELL) = FXGAS(:NMOL,NLEV+1:NLEV+NCELL)
+      CORG(:NSPEC+1,NLEV+1:NLEV+NCELL) = CCC(:NSPEC+1,NLEV+1:NLEV+NCELL)
+
+      RETURN
+
+  100 FORMAT('  FILLCELL : CELL PATH ', I3, ' COLUMN : ', 1PD15.4, ' [ATM*CM], ', 1PD15.4, ' [MOLEC*CM-2]')
+
+      END
+
 !     ----------------------------------------------------------------
 
       SUBROUTINE REFOUT( ITER, JSPEC, IREAD, LMAX, AST, APP, BENDNG )
 
-      INTEGER (4)         :: IM, IL, LMAX, ISPEC, IREAD, ITER, JSPEC, NAERR, I, J
+      INTEGER (4)         :: IM, IL, LMAX, ISPEC, IREAD, ITER, JSPEC, I, J
       REAL (8)            :: AST, APP, BENDNG, XKONST
-      REAL (8), PARAMETER :: CONST = 7.341D+21
       REAL (8)            :: WETAIR(LMAX)
       REAL (8)            :: SCALES(30), XK(100)
 
@@ -1879,15 +2012,18 @@ END SUBROUTINE READLAYRS
 ! --- UPSIDE DOWN!
 ! --- MASS PATHS ARE TOTAL MASS PATHS IN CM*ATM
       DO IL = 1, LMAX
-         CCC(JSPEC,IL)  = TBAR(LMAX-IL+1)*WETAIR(LMAX-IL+1)/CONST
+         !CCC(JSPEC,IL)  = TBAR(LMAX-IL+1)*WETAIR(LMAX-IL+1)/CONVCONST
+         CCC(JSPEC,IL)  = TBAR(LMAX-IL+1)*DRAIRL(LMAX-IL+1)/CONVCONST
          CORG(JSPEC,IL) = CCC(JSPEC,IL)
-      END DO
+!       print *, TBAR(1), DRAIRL(1), CONVCONST, CCC(JSPEC,LMAX),LMAX
+     END DO
 
 ! --- VERTICAL PATH IS IN MOLEC/CM^2, KODE 999, JSPEC = NSPEC +1
       IF( IREAD .EQ. 999 )THEN
          APPANG(JSPEC) = 0.0
          DO IL = 1, LMAX
-            CCC(JSPEC,IL) = WETAIR(LMAX-IL+1)*1.0D0
+            !CCC(JSPEC,IL) = WETAIR(LMAX-IL+1)*1.0D0
+            CCC(JSPEC,IL) = DRAIRL(LMAX-IL+1)*1.0D0
             CORG(JSPEC,IL) = CCC(JSPEC,IL)
          END DO
       ENDIF
@@ -1896,7 +2032,8 @@ END SUBROUTINE READLAYRS
       IF( ITER .NE. 0 .AND. JSPEC .NE. 1 )RETURN
 
 ! --- FOR NOW JSPEC = 1 IS SPECIAL SHOULD HAVE MOST LAYERS - LARGEST SZA (WHEN > 90)
-      IF( JSPEC .EQ. 1 )THEN
+      !IF( JSPEC .EQ. 1 )THEN
+      IF( IREAD .EQ. 999 )THEN
 
 !print *, 'update pt '
 
@@ -1915,23 +2052,14 @@ END SUBROUTINE READLAYRS
 ! --- MIXING RATIOS
          DO IM=1, NMOL
             DO IL=1, LMAX
-               FXGAS(IM,IL) =  AMOUNT(IM,LMAX-IL+1)/WETAIR(LMAX-IL+1)
-               !FXGAS(IM,IL) =  AMOUNT(IM,LMAX-IL+1)/DRAIRL(LMAX-IL+1)
+               !FXGAS(IM,IL) =  AMOUNT(IM,LMAX-IL+1)/WETAIR(LMAX-IL+1)
+               FXGAS(IM,IL) =  AMOUNT(IM,LMAX-IL+1)/DRAIRL(LMAX-IL+1)
                !WRITE(90,206) (AMOUNT(IM,IL)/WETAIR(IL),IL=LMAX,1,-1)
+               !WRITE(90,206) (AMOUNT(IM,IL)/DRAIRL(IL),IL=LMAX,1,-1)
             ENDDO
          ENDDO
 
          IF( ITER .NE. 0 )RETURN
-
-! --- SAVE INITIAL WEIGHTED VMR, TEMPERATURE & PRESSURE ARRAYS
-         IF( .NOT. ALLOCATED( TORG ))THEN
-            ALLOCATE( TORG(LMAX), PORG(LMAX), PMBORG(LMAX), FXORG(NMOL,LMAX), STAT=NAERR )
-            IF( NAERR .NE. 0 )THEN
-               WRITE(16, *) 'COULD NOT ALLOCATE TORG ARRAY'
-               WRITE(16, *) 'ERROR NUMBER = ', NAERR
-               STOP 'RAYTRACE: REFOUT ARRAYS ALLOCATION'
-            ENDIF
-         ENDIF
 
 !print *, 'setting Torg etc in rayt'
          TORG(:LMAX)   = T(:LMAX)
@@ -1972,8 +2100,9 @@ END SUBROUTINE READLAYRS
 
       IF( .NOT. F_WRTRAYTC )RETURN
 
+     IF(  ITER .GT. 0  )RETURN !don't write for temperature retrieval/kb iterations
 ! --- MS & SA
-      IF( IREAD .EQ. 0 )THEN
+IF( IREAD .EQ. 0 .OR. (IREAD.EQ.1 .AND. ITER.EQ.-1) )THEN !do the writing only if IREAD=0 (initial setup, read from input) or at final iteration (IREAD is always 1 for ITER!=0, see LBLATM setup)
          CALL FILEOPEN( 75, 1 )
          CALL FILEOPEN( 77, 1 )
          WRITE(77,*) TRIM(TAG), ' SELECTION OF SA FOR THIS ALTITUDE GRID'
@@ -1982,8 +2111,8 @@ END SUBROUTINE READLAYRS
       IF( IREAD .NE. 999 )THEN
          WRITE(75,103) ISPEC, LMAX, 1, AST, BENDNG, APP
 ! --- CONVERT FOR AIR FROM MOLCM-2 TO CM*ATM UNITS
-         !WRITE(90,206) (TBAR(IL)*DRAIRL(IL)/CONST,IL=LMAX,1,-1)
-         WRITE(75,206) (TBAR(IL)*WETAIR(IL)/CONST,IL=LMAX,1,-1)
+         WRITE(75,206) (TBAR(IL)*DRAIRL(IL)/CONVCONST,IL=LMAX,1,-1)
+         !WRITE(75,206) (TBAR(IL)*WETAIR(IL)/CONVCONST,IL=LMAX,1,-1)
       ENDIF
 
       WRITE(77,103) ISPEC, LMAX, 1, AST, BENDNG, APP
@@ -1991,11 +2120,11 @@ END SUBROUTINE READLAYRS
       IF( IREAD .EQ. 999 )THEN
 
          WRITE(75,103) 0, LMAX, 1, AST, BENDNG, APP
-         !WRITE(90,206) (TBAR(IL)*DRAIRL(IL)/CONST,IL=LMAX,1,-1)
-         WRITE(75,206) (TBAR(IL)*WETAIR(IL)/CONST,IL=LMAX,1,-1)
+         WRITE(75,206) (TBAR(IL)*DRAIRL(IL)/CONVCONST,IL=LMAX,1,-1)
+         !WRITE(75,206) (TBAR(IL)*WETAIR(IL)/CONVCONST,IL=LMAX,1,-1)
 
          WRITE(75,103) 999, LMAX, 1, AST, BENDNG, APP
-         WRITE(75,206) (WETAIR(IL)*1.0D0,IL=LMAX,1,-1)
+         WRITE(75,206) (DRAIRL(IL)*1.0D0,IL=LMAX,1,-1)
 
          CALL FILECLOSE( 75, 1 )
 
@@ -2071,9 +2200,19 @@ END SUBROUTINE READLAYRS
 
       IF( MDL .EQ. 0 .OR. MDL .EQ. 7 )GOTO 40
 
-      IF( MDL .GE. 1 .AND. MDL .LE. 6 )STOP "NO MODEL 1-6"
+      IF( MDL .GE. 1 .AND. MDL .LE. 6 )THEN
+         WRITE(16, *) "RAYTRACE: MDLATM: NO MODEL 1-6"
+         WRITE( 0, *) "RAYTRACE: MDLATM: NO MODEL 1-6"
+         CALL SHUTDOWN
+         STOP '3'
+      ENDIF
 
-      IF( MDL .LT. 0 .OR. MDL .GT. 7 )STOP "MODEL OUT OF RANGE"
+      IF( MDL .LT. 0 .OR. MDL .GT. 7 )THEN
+         WRITE(16, *) "RAYTRACE: MDLATM: MODEL OUT OF RANGE"
+         WRITE( 0, *) "RAYTRACE: MDLATM: MODEL OUT OF RANGE"
+         CALL SHUTDOWN
+         STOP '3'
+      ENDIF
 
    !40 CALL NSMDL( IREAD, ITYPE, MDL, NOPRNT, LMAX )
    !40 CALL NSMDL( IREAD, MDL, NOPRNT, LMAX )
@@ -2125,10 +2264,15 @@ END SUBROUTINE READLAYRS
 
       CALL FILEOPEN( IRP, 3 )
       READ(IRP,*,ERR=200,END=201) IUPDN, NLAYK, NMOLK
-      IF( IUPDN .LT. 0 .OR. IUPDN .GT. 1 ) STOP 'LNGMDL IUPDN OOR'
+      IF( IUPDN .LT. 0 .OR. IUPDN .GT. 1 )THEN
+         WRITE(16,*) 'LNGMDL IUPDN OOR'
+         WRITE(00,*) 'LNGMDL IUPDN OOR'
+         STOP '3'
+      ENDIF
       IF( NMOLK .LT. MOLTOTAL ) THEN
-          WRITE(*,*) 'REFERENCE NMOLK (',NMOLK,') LESS THAN MOLTOTAL (',MOLTOTAL,')'
-          STOP
+          WRITE(16,*) 'REFERENCE NMOLK (',NMOLK,') LESS THAN MOLTOTAL (',MOLTOTAL,')'
+          WRITE(00,*) 'REFERENCE NMOLK (',NMOLK,') LESS THAN MOLTOTAL (',MOLTOTAL,')'
+          STOP '3'
       ENDIF
 
       ALLOCATE( RIN(NLAYK), ZLNG(NLAYK), TPLNG(NLAYK,2), GLNG(NLAYK,NMOLK), YGAS(NMOLK) )
@@ -2147,7 +2291,7 @@ END SUBROUTINE READLAYRS
          DO IM=1, NMOLK
             FLAG = .FALSE.
             READ(IRP,108,ERR=204,END=205) IGN, THISNAME, BUFFER
-            !PRINT *, THISNAME, BUFFER
+!            PRINT *, THISNAME, BUFFER
             READ(IRP,109,ERR=204,END=205)(RIN(IL), IL=1, NLAYK)    !MIX RATIO
             IF( ADJUSTL(TRIM(THISNAME)) .EQ. NAME(IM) .AND. ADJUSTL(TRIM(THISNAME)) .NE. 'OTHER' )THEN
                GLNG(1:NLAYK,IM) = RIN
@@ -2155,11 +2299,20 @@ END SUBROUTINE READLAYRS
             ELSE
             ! --- CHECK FOR ISO SUBSTITUTION
                ! --- VMR'S ARE IN REFMOD FORM
-               IF( USEISO .AND. NISOVMR .NE. NLAYK )STOP ' NISOVMR IS NOT EQUAL TO REFERENCE # LAYERS'
+               IF( USEISO .AND. NISOVMR .NE. NLAYK )THEN
+                  WRITE(16,*) ' NISOVMR IS NOT EQUAL TO REFERENCE # LAYERS'
+                  WRITE(00,*) ' NISOVMR IS NOT EQUAL TO REFERENCE # LAYERS'
+                  CALL SHUTDOWN
+                  STOP '3'
+               ENDIF
                DO J=1, NISOSEP
                   IF( NEWID(J) .EQ. IM )THEN
-                     RIN = NEWVMR(:NLAYK,J)
-                     GLNG(1:NLAYK,IM) = RIN
+                     IF( F_ISOVMR(J) .EQ. 0 )THEN
+                        RIN = NEWVMR(:NLAYK,J)
+                        GLNG(1:NLAYK,IM) = RIN
+                     ELSE
+                        GLNG(1:NLAYK,IM) = GLNG(1:NLAYK,OLDID(J))
+                     ENDIF
                      FLAG = .TRUE.
                      CYCLE
                   ENDIF ! NEWID
@@ -2197,13 +2350,19 @@ END SUBROUTINE READLAYRS
             ! --- CHECK FOR ISO SUBSTITUTION
                ! --- VMR'S ARE IN REFMOD FORM
                IF( USEISO .AND. NISOVMR .NE. NLAYK ) THEN
-                   WRITE(*,*) ' NISOVMR = ',NISOVMR,' IS NOT EQUAL TO REFERENCE # LAYERS (=',NLAYK,')'
-                   STOP
+                  WRITE(16,*) ' NISOVMR = ',NISOVMR,' IS NOT EQUAL TO REFERENCE # LAYERS (=',NLAYK,')'
+                  WRITE(00,*) ' NISOVMR = ',NISOVMR,' IS NOT EQUAL TO REFERENCE # LAYERS (=',NLAYK,')'
+                  CALL SHUTDOWN
+                  STOP '3'
                ENDIF
                DO J=1, NISOSEP
                   IF( NEWID(J) .EQ. IM )THEN
-                     RIN = NEWVMR(:NLAYK,J)
-                     GLNG(1:NLAYK,IM) = DREV( RIN, NLAYK )
+                     IF( F_ISOVMR(J) .EQ. 0 )THEN
+                        RIN = NEWVMR(:NLAYK,J)
+                        GLNG(1:NLAYK,IM) = DREV( RIN, NLAYK )
+                     ELSE
+                        GLNG(1:NLAYK,IM) = GLNG(1:NLAYK,OLDID(J))
+                     ENDIF
                      FLAG = .TRUE.
                      CYCLE
                   ENDIF ! NEWID
@@ -2241,12 +2400,30 @@ END SUBROUTINE READLAYRS
 
       RETURN
 
- 200  STOP "200 READ ERROR TAPE72 - REFERENCE PROFILES"
- 201  STOP "201 EOF ON TAPE72 - REFERENCE PROFILES"
- 202  STOP "202 READ ERROR TAPE72 - REFERENCE PROFILES"
- 203  STOP "203 EOF ON TAPE72 - REFERENCE PROFILES"
- 204  STOP "204 READ ERROR TAPE72 - REFERENCE PROFILES"
- 205  STOP "205 EOF ON TAPE72 - REFERENCE PROFILES"
+ 200  WRITE(16,*) "200 READ ERROR FIRST LINE : ", TFILE(72)
+      WRITE(00,*) "200 READ ERROR FIRST LINE : ", TFILE(72)
+      CALL SHUTDOWN
+      STOP '3'
+ 201  WRITE(16,*) "201 EOF ERROR FIRST LINE : ", TFILE(72)
+      WRITE(00,*) "201 EOF ERROR FIRST LINE : ", TFILE(72)
+      CALL SHUTDOWN
+      STOP '3'
+ 202  WRITE(16,*) "202 READ ERROR Z, P OR T : ", TFILE(72)
+      WRITE(00,*) "202 READ ERROR Z, P OR T : ", TFILE(72)
+      CALL SHUTDOWN
+      STOP '3'
+ 203  WRITE(16,*) "203 EOF ERROR Z, P OR T : ", TFILE(72)
+      WRITE(00,*) "203 EOF ERROR Z, P OR T : ", TFILE(72)
+      CALL SHUTDOWN
+      STOP '3'
+ 204  WRITE(16,*) "204 READ ERROR A GAS BLOCK HEADER : ", TFILE(72)
+      WRITE(00,*) "204 READ ERROR A GAS BLOCK HEADER  : ", TFILE(72)
+      CALL SHUTDOWN
+      STOP '3'
+ 205  WRITE(16,*) "205 EOF ERROR A GAS BLOCK HEADER  : ", TFILE(72)
+      WRITE(00,*) "205 EOF ERROR A GAS BLOCK HEADER  : ", TFILE(72)
+      CALL SHUTDOWN
+      STOP '3'
 
 !101   FORMAT( F10.3,1X,1PE10.3,1X,0PF7.2,8(1PE10.3),8(/,29X,8(1PE10.3)))
 !106   FORMAT( 5(E12.5,1X))
@@ -2307,10 +2484,10 @@ END SUBROUTINE READLAYRS
       INTEGER (4)                :: IREAD, MDL, IMTYPE, IM, NOPRNT !, LMAX
       REAL(8), DIMENSION(KMAX+1) :: x, y, y0, b, c, d
       REAL(8), DIMENSION(MXZMD)  :: tm0
-!print*, 'lmax rayt :',lmax
+         !print*, 'lmax rayt :',lmax
       !LMAX = 0
       IF( NOPRNT.GT.0 )WRITE(IPR,900) MDL
-!print*, 'nsmdl',IREAD, MDL, NOPRNT, LMAX
+         !print*, 'nsmdl',IREAD, MDL, NOPRNT, LMAX
       IF( MDL .EQ. 0 )THEN
 
          IF( NOPRNT .GE. 0 )WRITE (IPR,901)"READING IN LBLRTM FORMAT USER ATMOSPHERE MODEL"
@@ -2323,10 +2500,10 @@ END SUBROUTINE READLAYRS
 
          DO IM = 1, IMMAX
 
-!     READ IN GENERIC UNITS FOR USER MODEL
+! --- READ IN GENERIC UNITS FOR USER MODEL
             CALL RDUNIT (IM,ZMDL(IM),PM(IM),TM(IM),NMOL)
 
-!     CONVERSION OF GENERIC UNITS TO DENSITIES FOR LBLRTM RUNS
+! --- CONVERSION OF GENERIC UNITS TO DENSITIES FOR LBLRTM RUNS
             CALL CONVRT( ZMDL(IM), PM(IM), TM(IM), IM, NMOL, NOPRNT )
             DENW(IM) = DENM(1,IM)
 
@@ -2334,57 +2511,60 @@ END SUBROUTINE READLAYRS
 
       ELSE
 
-! MODEL = 7 REFMOD
+! --- MODEL = 7 REFMOD - THIS IS WHAT SFIT USES
         IF( IREAD .EQ. 0 )THEN
            IF( NOPRNT .GE. 0 )WRITE (IPR,901)"READING IN LANGLEY FORMAT USER ATMOSPHERE MODEL"
+           HMOD(1) = "LANGLEY "
+           HMOD(2) = "FORMAT A"
+           HMOD(3) = "TMOSPHER"
            CALL LNGMDL ( NMOL, IMMAX )
-           tm0(:immax) = tm(:immax)
+           TM0(:IMMAX) = TM(:IMMAX)
+            !PRINT *, IREAD, LMAX, KMAX, IMMAX
+            !PRINT *, ZMDL(:IMMAX)
+            !PRINT *,''
+            !PRINT *, TM(:IMMAX)
+            !PRINT *,''
+            !PRINT *, PM(:IMMAX)
 
-!PRINT *, IREAD, LMAX, KMAX, IMMAX
-!PRINT *, ZMDL(:IMMAX)
-!PRINT *,''
-!PRINT *, TM(:IMMAX)
-!PRINT *,''
-!PRINT *, PM(:IMMAX)
-
-
+        ! TESTING FOR LONG VERSION OF TEMPERATURE RETRIEVAL NOT USED -JWH
         ELSE IF( IREAD .EQ. 1 )THEN
 
-!PRINT *, IREAD, LMAX, KMAX, IMMAX
-!PRINT *, ZMDL(:IMMAX)
-!PRINT *, ''
-!PRINT *, TM(:IMMAX)
-!PRINT *,''
-!PRINT *, PM(:IMMAX)
+            !PRINT *, IREAD, LMAX, KMAX, IMMAX
+            !PRINT *, ZMDL(:IMMAX)
+            !PRINT *, ''
+            !PRINT *, TM(:IMMAX)
+            !PRINT *,''
+            !PRINT *, PM(:IMMAX)
 
- x(1:kmax) = DREV(Zbar,KMAX)
- x(kmax+1) = zmdl(immax)
+          X(1:KMAX) = DREV(ZBAR,KMAX)
+          X(KMAX+1) = ZMDL(IMMAX)
 
- y(1:kmax) = DREV(T,KMAX)
- y(kmax+1) = tm0(immax)
+          Y(1:KMAX) = DREV(T,KMAX)
+          Y(KMAX+1) = TM0(IMMAX)
 
- y0(1:kmax) = DREV(TORG,KMAX)
- y0(kmax+1) = tm0(immax)
+          Y0(1:KMAX) = DREV(TORG,KMAX)
+          Y0(KMAX+1) = TM0(IMMAX)
 
-!PRINT *,''
-!write(*, '(3f10.3)') (x(im), y(im), y0(im), im=1, kmax+1)
+            !PRINT *,''
+            !write(*, '(3f10.3)') (x(im), y(im), y0(im), im=1, kmax+1)
 
-            ! change model T to perturbed T
-            CALL spline (KMAX, x, y, b, c, d)
-
+          ! CHANGE MODEL T TO PERTURBED T
+          CALL SPLINE (KMAX, X, Y, B, C, D)
             DO IM = 1, IMMAX
-
-               TM(IM) = seval (KMAX, ZMDL(IM), x, y, b, c, d)
-
+               TM(IM) = SEVAL (KMAX, ZMDL(IM), X, Y, B, C, D)
             ENDDO
 
-!PRINT *,''
-!write(*, '(3f10.3)') (Zmdl(im), Tm(im), tm0(im), im=1, immax)
-
+            !PRINT *,''
+            !write(*, '(3f10.3)') (Zmdl(im), Tm(im), tm0(im), im=1, immax)
 
         ELSE
-           STOP 'NSMDL IREAD OOR'
+           WRITE(16,*) 'NSMDL IREAD OOR'
+           WRITE(00,*) 'NSMDL IREAD OOR'
+           CALL SHUTDOWN
+           STOP '3'
         ENDIF
+
+!        print *, TM(:IMMAX)
 
         IF( NOPRNT .GE. 0 )THEN
            WRITE(IPR,901)"CONVERT UNITS AND CALCULATE AMOUNTS & RH"
@@ -2394,15 +2574,21 @@ END SUBROUTINE READLAYRS
 ! --- LOOP OVER LEVELS IN INPUT MODEL
         DO IM = 1, IMMAX
 
+           ! JUNIT = 18 -> INPUT IS MIXING RATIO
            JUNIT(1:NMOL) = 18
            WMOL(1:NMOL)  = USRMIX(IM,1:NMOL)
+
+           ! CONVERT TO DENSITIES FROM OUR INPUT
+           ! THIS CALLS WATVAP THAT CHECKS FOR RH > 100%
            CALL CONVRT( ZMDL(IM), PM(IM), TM(IM), IM, NMOL, NOPRNT )
+
+           ! PULL OUT WATER DENSITY
            DENW(IM)      = DENM(1,IM)
 
         ENDDO
 
       ENDIF
-!print*,'immaxb ',immax_B
+         !print*,'immaxb ',immax_B
       IF (IMMAX_B .LT. 0) THEN
          CALL CMPALT (IMMAX,PM,TM,DENW,ZMDL(1),ZMDL)
       ENDIF
@@ -2417,24 +2603,30 @@ END SUBROUTINE READLAYRS
       WRITE (0,915) IMMAX,IMDIM
       IF (NOPRNT .GE.0) WRITE (IPR,915) IMMAX,IMDIM
 
-      STOP ' LEVEL ERROR IN NSMDL '
+      WRITE(16,*) ' LEVEL ERROR IN NSMDL '
+      WRITE(00,*) ' LEVEL ERROR IN NSMDL '
+      CALL SHUTDOWN
+      STOP '3'
 
    35 CONTINUE
 
       IF (NOPRNT.GE.0) WRITE (IPR,920) IM,IM+1,ZMDL(IM),ZMDL(IM+1)
 
-      STOP 'INPUT ALTITUDES NOT IN ASCENDING ORDER'
+      WRITE(16,*) 'INPUT ALTITUDES NOT IN ASCENDING ORDER'
+      WRITE(00,*) 'INPUT ALTITUDES NOT IN ASCENDING ORDER'
+      CALL SHUTDOWN
+      STOP '3'
 
 !  900 FORMAT (///,' READING IN USER SUPPLIED MODEL ATMOSPHERE',/)
  900  FORMAT(/,' NSMDL : ATMOSPHERE MODEL TYPE : ', I5 )
- 901 FORMAT (/,A,/)
+ 901  FORMAT (/,A,/)
  904  FORMAT( /, " ALTITUDE    PRESSURE  TEMPERATURE      RH   WATER_DENS  W_SAT_DENS")
-  905 FORMAT (2I5,3A8)
-  910 FORMAT (//,10X,'IMTYPE   = ',I5,/,                                &
+ 905  FORMAT (2I5,3A8)
+ 910  FORMAT (//,10X,'IMTYPE   = ',I5,/,                                &
      &           10X,'IMMAX    = ',I5,/,10X,'PROFILE = ',3A8)
-  915 FORMAT (/,' NUMBER OF PROFILE LEVELS IMMAX = ',I5,                &
+ 915  FORMAT (/,' NUMBER OF PROFILE LEVELS IMMAX = ',I5,                &
      &        ' EXCEEDS THE MAXIMUM ALLOWED = ',I5)
-  920 FORMAT (///,' ERROR: INPUT ALTITUDES FOR LBLRTM LAYERS ',         &
+ 920  FORMAT (///,' ERROR: INPUT ALTITUDES FOR LBLRTM LAYERS ',         &
      &        'ARE NOT IN ASCENDING ORDER',//,5X,                       &
      &        ' ZMDL AT GRID PT I,I+1 = ',I5,I5,/,(2F10.4))
 !
@@ -2586,8 +2778,10 @@ END SUBROUTINE READLAYRS
       ELSEIF (JLONG.EQ.' ') THEN
          READ (IRP,905) (WMOL(K),K=1,NMOL)
       ELSE
-         WRITE(*,*) 'INVALID VALUE FOR JLONG ON RECORD 3.5: ',JLONG
-         STOP 'RDUNIT'
+         WRITE(16,*) 'INVALID VALUE FOR JLONG ON RECORD 3.5: ',JLONG
+         WRITE(00,*) 'INVALID VALUE FOR JLONG ON RECORD 3.5: ',JLONG
+         CALL SHUTDOWN
+         STOP '3'
       ENDIF
       IF (IM.EQ.0 .AND. NOPRNT.GE.0) WRITE (IPR,910)
 
@@ -2646,8 +2840,10 @@ END SUBROUTINE READLAYRS
          GO TO 20
    10 END DO
    20 IF (INDX.EQ.0) THEN
-         WRITE (0,900) CHAR
-         STOP ' JOU: BAD PARAM '
+         WRITE(16,900) CHAR
+         WRITE(00,900) CHAR
+         CALL SHUTDOWN
+         STOP '3'
       ENDIF
 
       JOU = INDX
@@ -2687,7 +2883,10 @@ END SUBROUTINE READLAYRS
          A = A*PZERO / PTORR
          RETURN
       ELSE
-         STOP ' CHECK(P)'
+         WRITE(16,*) ' CHECK(P)'
+         WRITE(00,*) ' CHECK(P)'
+         CALL SHUTDOWN
+         STOP '3'
       ENDIF
 !
 !     TEMPERATURE COMVERSIONS
@@ -2696,7 +2895,10 @@ END SUBROUTINE READLAYRS
          A = A + TZERO
          RETURN
       ELSE
-         STOP ' CHECK(T)'
+         WRITE(16,*) ' CHECK(T)'
+         WRITE(00,*) ' CHECK(T)'
+         CALL SHUTDOWN
+         STOP '3'
       ENDIF
 !
 !      RANGE CONVERSIONS
@@ -2708,7 +2910,10 @@ END SUBROUTINE READLAYRS
          A = A/1.D5
          RETURN
       ELSE
-         STOP ' CHECK(R)'
+         WRITE(16,*) ' CHECK(R)'
+         WRITE(00,*) ' CHECK(R)'
+         CALL SHUTDOWN
+         STOP '3'
       ENDIF
 !
       END SUBROUTINE CHECK
@@ -2806,8 +3011,10 @@ END SUBROUTINE READLAYRS
 
    61    CONTINUE
          IF (JUNIT(K).GT.14 .AND. JUNIT(K) .NE. 18) THEN
-            WRITE (0,900) K,JUNIT(K)
-            STOP ' CONVRT '
+            WRITE(16,900) K,JUNIT(K)
+            WRITE(00,900) K,JUNIT(K)
+            CALL SHUTDOWN
+            STOP '3'
          ENDIF
 
    70 END DO
@@ -2862,6 +3069,7 @@ END SUBROUTINE READLAYRS
       DENSAT(ATEMP) = ATEMP*B*EXP(C1+C2*ATEMP+C3*ATEMP**2)*1.0D-6
 
       RHOAIR = ALOSMT*(P/PZERO)*(TZERO/T)
+
       A = TZERO/T
       B = AVOGAD/AMWT(1)
       R = AIRMWT/AMWT(1)
@@ -2937,7 +3145,10 @@ END SUBROUTINE READLAYRS
       GOTO 90
 
    80 WRITE (0,900) JUNIT
-      STOP 'WATVAP JUNIT OOR'
+      WRITE(16,*) 'WATVAP JUNIT OOR'
+      WRITE(00,*) 'WATVAP JUNIT OOR'
+      CALL SHUTDOWN
+      STOP '3'
 
    90 CONTINUE
       DENST = DENSAT(A)
@@ -2945,7 +3156,9 @@ END SUBROUTINE READLAYRS
       RELHUM(IM) = RHP
       IF (NOPRNT .GE. 0) WRITE (IPR,905) Z, P, T, RHP, DENNUM, DENST
       IF (RHP.LE.100.0) GO TO 100
-      IF (NOPRNT .GE. 0) WRITE (IPR,910) RHP
+      IF (NOPRNT .GE. 0) WRITE (IPR,910) IM, WMOL1, RHP
+      ! ADD RH > 100% NOTICE TO STDERR
+      IF (NOPRNT.GE.0) WRITE (0,910) IM, WMOL1, RHP
   100 CONTINUE
 
       RETURN
@@ -2953,14 +3166,13 @@ END SUBROUTINE READLAYRS
   900 FORMAT (/,'  **** ERROR IN WATVAP ****, JUNIT = ',I5)
 ! 904  FORMAT( /, "ALTITUDE   PRESSURE  TEMPERATE       RH ")
   905 FORMAT (3G12.4,1X,F6.2,3G12.4)
-  910 FORMAT (/,' ****** WARNING (FROM WATVAP) # RELATIVE HUMIDTY = ',  &
-     &        G10.3,' IS GREATER THAN 100 PERCENT')
+  910 FORMAT (' *** WARNING IN LAYER : ', I3,' H2O VMR IS : ', G10.3,' & YIELDS RH : ',  F10.3,' GREATER THAN 100%.')
 !
       END SUBROUTINE WATVAP
 !
 !     ----------------------------------------------------------------
 !
-      SUBROUTINE FSCGEO (H1,H2,ANGLE,RANGE,BETA,ITYPE,LEN,HMIN,PHI,IERROR,HOBS)
+      SUBROUTINE FSCGEO (H1,H2,ANGLE,RANGE,BETA,ITYPE,LEN,HMIN,PHI,IERROR,HOBS,PRTLOS)
 !
 !     -------------------------------------------------------------
 !     THIS ROUTINE WAS MODIFIED FOR LBLRTM TO REFLECT CHANGES
@@ -2991,7 +3203,7 @@ END SUBROUTINE READLAYRS
 !     ATMOSPHERIC PROFILE STORED IN /MDATA/
 !     *****************************************************************
 !
-      INTEGER (4)  :: ITYPE, LEN, IERROR, ITER, ISELCT
+      INTEGER (4)  :: ITYPE, LEN, IERROR, ITER, ISELCT, PRTLOS
 
       REAL (8)     :: H1, H2, ANGLE, RANGE, BETA, HMIN, PHI, HOBS, H2ST
       REAL (8)     :: ZARG2, ZARG3, ERARG2, ERARG3, RADCONV, SINPHI, SINANGLE
@@ -3175,7 +3387,7 @@ END SUBROUTINE READLAYRS
       SINANGLE = SIN(RADCONV*ANGLE)
 
       IF (NOPRNT .GE. 0)WRITE (IPR,935) H1,H2,ANGLE,SINANGLE,PHI,SINPHI,HMIN,LEN
-
+      IF (PRTLOS .GE. 1)WRITE (ILOS,935) H1,H2,ANGLE,SINANGLE,PHI,SINPHI,HMIN,LEN
 !     CALCULATE AND OUTPUT GEOMETRY FROM SATELLITE ABOVE 120KM.
 !     SUBTRACT FROM 180 DEGREES TO CORRECTLY PLACE ANGLE IN THE
 !     3RD QUADRANT.
@@ -3288,6 +3500,7 @@ END SUBROUTINE READLAYRS
 !
       REAL (8)     :: H1, H2, ANGLE, PHI, SH, GAMMA, CPATH, CZMAX, ZMAX, ANGMAX
       INTEGER (4)  :: ITER
+      REAL (8), EXTERNAL :: ANDEX
 
       IF (H1.LE.ZMAX.AND.H2.LE.ZMAX) RETURN
 
@@ -3381,7 +3594,7 @@ END SUBROUTINE READLAYRS
       CALL FNDHMN (HA,ANGLS1,HB,LEN,ITER,HMIN,PHI,IERROR)
       LEN = 0
       IF (HMIN.LT.HA) LEN = 1
-      CALL RFPATH (HA,HB,ANGLS1,PHI,LEN,HMIN,IAMTB,RANGE,BETA1,BENDNG)
+      CALL RFPATH (HA,HB,ANGLS1,PHI,LEN,HMIN,IAMTB,RANGE,BETA1,BENDNG,0)
       IF (NOPRNT .GE. 0)WRITE (IPR,905) ITER,ANGLS1,BETA,ZER,SG,HMING,ZER,ZER
 !
 !     OBTAIN DERIVATIVE
@@ -3401,7 +3614,7 @@ END SUBROUTINE READLAYRS
       CALL FNDHMN (HA,ANGLS1,HB,LEN,ITER,HMIN,PHI,IERROR)
       LEN = 0
       IF (HMIN.LT.HA) LEN = 1
-      CALL RFPATH (HA,HB,ANGLS1,PHI,LEN,HMIN,IAMTB,RANGE,BETA1,BENDNG)
+      CALL RFPATH (HA,HB,ANGLS1,PHI,LEN,HMIN,IAMTB,RANGE,BETA1,BENDNG,0)
       DBETA = BETA-BETA1
       IF (NOPRNT .GE. 0)WRITE (IPR,905) ITER,ANGLS1,BETA1,DBETA,RANGE,HMIN,PHI,BENDNG
       IF (IFLAG.EQ.1.AND.BETA1.LT.BETA) GO TO 90
@@ -3412,7 +3625,7 @@ END SUBROUTINE READLAYRS
       CALL FNDHMN (HA,ANGLEP,HB,LEN,ITER,HMIN,PHI,IERROR)
       LEN = 0
       IF (HMIN.LT.HA) LEN = 1
-      CALL RFPATH (HA,HB,ANGLEP,PHI,LEN,HMIN,IAMTB,RANGE,BETAP,BENDNG)
+      CALL RFPATH (HA,HB,ANGLEP,PHI,LEN,HMIN,IAMTB,RANGE,BETAP,BENDNG,0)
       IF (ABS(BETA1-BETAP).LT.TOLRNC) GO TO 60
       ITER = ITER+1
       !DC = BETAP-BETA1
@@ -3424,7 +3637,7 @@ END SUBROUTINE READLAYRS
       CALL FNDHMN (HA,ANGLS2,HB,LEN,ITER,HMIN,PHI,IERROR)
       LEN = 0
       IF (HMIN.LT.HA) LEN = 1
-      CALL RFPATH (HA,HB,ANGLS2,PHI,LEN,HMIN,IAMTB,RANGE,BETA2,BENDNG)
+      CALL RFPATH (HA,HB,ANGLS2,PHI,LEN,HMIN,IAMTB,RANGE,BETA2,BENDNG,0)
       DBETA = BETA-BETA2
       IF (NOPRNT .GE. 0)WRITE (IPR,905) ITER,ANGLS2,BETA2,DBETA,RANGE,HMIN,PHI,BENDNG
       IF (BETA2.LT.BETA.AND.HMIN.LT.0.0) GO TO 90
@@ -3509,7 +3722,7 @@ END SUBROUTINE READLAYRS
       REAL (8)     :: CPATH, CRFRCT, SH, GAMMA, CT1, CTP, CH2, CMIN
       REAL (8)     :: DH, ETA, H, HTP, HT1
       INTEGER (4)  :: N, LEN, ITER, IERROR
-!      REAL (8), EXTERNAL :: ANDEX
+      REAL (8), EXTERNAL :: ANDEX
 !      REAL (8) :: ANDEX
 
       DATA DH / 0.2D0 /,ETA / 5.0D-7 /
@@ -3595,8 +3808,11 @@ END SUBROUTINE READLAYRS
       DC = CPATH-CT1
       WRITE (0,910) N,CPATH,CT1,DC,HT1
 !
-      STOP ' FNDHMN '
-!
+      WRITE(16,*) ' FNDHMN '
+      WRITE(00,*) ' FNDHMN '
+      CALL SHUTDOWN
+      STOP '3'
+
   900 FORMAT (///,' TANGENT PATH WITH H1 = ',F10.3,' AND ANGLE = ',     &
      &        F10.3,' INTERSECTS THE EARTH',//,10X,                     &
      &        'H2 HAS BEEN RESET TO 0.0 AND LEN TO 0')
@@ -3675,7 +3891,7 @@ END SUBROUTINE READLAYRS
 
 ! ----------------------------------------------------------------
 !
-      REAL (8) FUNCTION ANDEX (H,SH,GAMMA)
+ !     REAL (8) FUNCTION ANDEX (H,SH,GAMMA)
 !
 !     DOUBLE PRECISION VERSION OF ANDEX - NEEDED FOR IMPROVED GEOMETRY
 !
@@ -3685,17 +3901,17 @@ END SUBROUTINE READLAYRS
 !     INDEX-1
 !     *****************************************************************
 !
-      REAL (8) :: H, SH, GAMMA
-
-      IF (SH.EQ.0.0) THEN
-         ANDEX = 1.0D0 + GAMMA
-      ELSE
-         ANDEX = 1.0D0 + GAMMA*EXP(-H/SH)
-      ENDIF
+ !     REAL (8) :: H, SH, GAMMA
+ !
+ !     IF (SH.EQ.0.0) THEN
+ !        ANDEX = 1.0D0 + GAMMA
+ !     ELSE
+ !        ANDEX = 1.0D0 + GAMMA*EXP(-H/SH)
+ !     ENDIF
 !
-      RETURN
+ !     RETURN
 !
-      END FUNCTION ANDEX
+ !     END FUNCTION ANDEX
 !
 ! ----------------------------------------------------------------
 !
@@ -3724,7 +3940,7 @@ END SUBROUTINE READLAYRS
 
 !     ----------------------------------------------------------------
 !
-      SUBROUTINE RFPATH (H1,H2,ANGLE,PHI,LEN,HMIN,IAMT,RANGE,BETA, BENDNG)
+      SUBROUTINE RFPATH (H1,H2,ANGLE,PHI,LEN,HMIN,IAMT,RANGE,BETA, BENDNG,PRTLOS)
 !
 !     -------------------------------------------------------------
 !     THIS ROUTINE WAS MODIFIED FOR LBLRTM TO REFLECT CHANGES
@@ -3751,8 +3967,8 @@ END SUBROUTINE READLAYRS
       REAL (8)     :: DS, DBEND, S, SINAI, COSAI, CPATH, SH, GAMMA, HA
       REAL (8)     :: ANGLEA, RHOBAR, THETA, DBETA, PBAR1, TBAR1
       REAL (8)     :: H1, H2, ANGLE, PHI, HMIN, RANGE, BETA, BENDNG
-      INTEGER (4)  :: LEN, IAMT, I_2, IORDER, J2, J, IHLOW, IHIGH
-
+      INTEGER (4)  :: LEN, IAMT, I_2, IORDER, J2, J, IHLOW, IHIGH,PRTLOS
+      REAL (8), EXTERNAL :: ANDEX
       CHARACTER (LEN=2) :: HLOW(2)
 
       DATA HLOW / 'H1','H2'/
@@ -3781,6 +3997,7 @@ END SUBROUTINE READLAYRS
 
       CALL AMERGE (H1,H2,HMIN,LEN)
       IF (IAMT.EQ.1.AND.NOPRNT.GE.0) WRITE (IPR,900)
+      IF (IAMT.EQ.1 .AND. PRTLOS.GT.1) WRITE (ILOS,900) !PRINT IF PRTLOS is 2
 !
 !     CALCULATE CPATH SEPERATELY FOR LEN = 0,1
 !
@@ -3855,7 +4072,14 @@ END SUBROUTINE READLAYRS
 
              IF (NOPRNT.GE.0) WRITE (IPR,915) J,ZPTH(J),ZPTH(J+1),      &
      &            THETA,DS,S,DBETA,BETA,PHI,DBEND,BENDNG,PBAR1,          &
-     &            TBAR1,RHOBAR
+     &            TBAR1,RHOBAR,RFNDXP(J)
+             IF (PRTLOS.GT.1) THEN
+                IF (J.EQ.1) WRITE (ILOS,910) HLOW(IHLOW),HLOW(IHIGH)
+                WRITE (ILOS,915) J,ZPTH(J),ZPTH(J+1),      &
+    &            THETA,DS,S,DBETA,BETA,PHI,DBEND,BENDNG,PBAR1,          &
+    &            TBAR1,RHOBAR,RFNDXP(J)
+                IF (J.EQ.J2) WRITE (ILOS,*) "" !EMPTY LINE
+             ENDIF
 
          ENDIF
          THETA = 180.0-PHI
@@ -3893,13 +4117,13 @@ END SUBROUTINE READLAYRS
      &        'ATMOSPHERE',/,T5,'I',T14,'ALTITUDE',T30,'THETA',T38,   &
      &        'DRANGE',T47,'RANGE',T57,'DBETA',T65,'BETA',T76,'PHI',    &
      &        T84,'DBEND',T91,'BENDING',T102,'PBAR',T111,'TBAR',T119,   &
-     &        'RHOBAR',/,T11,'FROM',T22,'TO',/,T11,'(KM)',T21,'(KM)',   &
+     &        'RHOBAR',T126,'INDEX_OF_REFR',/,T11,'FROM',T22,'TO',/,T11,'(KM)',T21,'(KM)',   &
      &        T30,'(DEG)',T39,'(KM)',T48,'(KM)',T57,'(DEG)',T65,        &
      &        '(DEG)',T75,'(DEG)',T84,'(DEG)',T92,'(DEG)',T102,'(MB)',  &
      &        T112,'(K)',T117,'(MOL CM-3)',/)
   905 FORMAT (' ',T10,'TANGENT',T20,A2,/,T10,'HEIGHT',/)
   910 FORMAT (' ',T14,A2,' TO ',A2,/)
-  915 FORMAT (' ',I4,2F10.3,10F9.3,1PE9.2)
+  915 FORMAT (' ',I4,1P8E9.2,1P2E10.2,1P2E9.2,1P2E11.4)
   920 FORMAT ('0',T10,'DOUBLE RANGE, BETA, BENDING',/,T10,              &
      &        'FOR SYMMETRIC PART OF PATH',T44,F9.3,T62,F9.3,T89,       &
      &        F9.3,/)
@@ -4054,8 +4278,10 @@ END SUBROUTINE READLAYRS
       DO 90 IM = 1, IMMAX
          IF (ZMDL(IM).GE.HMIN) GO TO 100
    90 END DO
-      WRITE (0,900) HMIN
-      STOP ' AMERGE - HMIN '
+      WRITE(16,900) HMIN
+      WRITE(00,900) HMIN
+      CALL SHUTDOWN
+      STOP '3'
   100 CONTINUE
       IPHMID = 0
       IP = 0
@@ -4063,8 +4289,10 @@ END SUBROUTINE READLAYRS
   110 CONTINUE
       IP = IP+1
       IF (IP.GT.IPDIM) THEN
-          WRITE (0,905) IPDIM
-          STOP ' AMERGE - IPDIM '
+         WRITE(16,905) IPDIM
+         WRITE( 0,905) IPDIM
+         CALL SHUTDOWN
+         STOP '3'
       ENDIF
       !print *, 'zpth ', zpth
       !print*, 'im ', im, zmdl(im), iout, zout(iout), ip, zpth(ip), ioutmx
@@ -4172,8 +4400,10 @@ END SUBROUTINE READLAYRS
       REAL (8)    :: CPATH, DX, DH, SINAI, COSAI, D31, D32, D21, DHMIN, GAMMA
       REAL (8)    :: SH, EPSILN, Z1, Z2, H1, H2, H3, Y1=0.0, Y3, PA=0.0, PB=0.0, TA, TB
       REAL (8)    :: RHOA=0.0, RHOB, DZ=0.0, HP=0.0, HRHO=0.0, DSDZ
-
+      REAL (8), EXTERNAL :: ANDEX
       REAL (8), DIMENSION(MXMOL) :: HDEN, DENA, DENB
+
+      LOGICAL :: TMPFLG
 
       DATA EPSILN / 1.0D-5 /
 
@@ -4202,8 +4432,10 @@ END SUBROUTINE READLAYRS
           PA = PP(J)
           PB = PP(J+1)
           IF (PB.EQ.PA) THEN
-             WRITE(*,*) PB
-             STOP 'LBLATM: PRESSURES IN ADJOINING LAYERS MUST DIFFER'
+             WRITE(16,*) 'ALAYER: PRESSURES IN ADJOINING LAYERS MUST DIFFER', PB
+             WRITE(00,*) 'ALAYER: PRESSURES IN ADJOINING LAYERS MUST DIFFER', PB
+             CALL SHUTDOWN
+             STOP '3'
           ENDIF
           TA = TP(J)
           TB = TP(J+1)
@@ -4219,8 +4451,12 @@ END SUBROUTINE READLAYRS
           DO 40 K = 1, NMOL
               DENA(K) = DENP(K,J)
               DENB(K) = DENP(K,J+1)
-              IF ((DENA(K).EQ.0.0D0.OR.DENB(K).EQ.0.0D0).OR.                &
-     &            (ABS(1.0-DENA(K)/DENB(K)).LE.EPSILN)) THEN
+              TMPFLG = .FALSE.
+              IF (DENB(K).GT.TINY(0.0D0)) THEN
+                   IF (ABS(1.0-DENA(K)/DENB(K)).LE.EPSILN) TMPFLG = .TRUE.
+              ENDIF
+              IF ((DENA(K).LE.TINY(0.0D0).OR.DENB(K).LE.TINY(0.0D0)).OR.                &
+     &            TMPFLG) THEN
 !
 !                 USE LINEAR INTERPOLATION
 !
@@ -4314,7 +4550,13 @@ END SUBROUTINE READLAYRS
             RHOPSM(J) = RHOPSM(J)+0.5D0*DS*(RHOA+RHOB)
          ENDIF
          DO 130 K = 1, NMOL
-            IF ((HDEN(K).EQ.0.0).OR.(ABS(DH/HDEN(K)).LT.EPSILN)) THEN
+            TMPFLG = .TRUE.
+            IF (HDEN(K).GT.TINY(HDEN(K))) THEN
+               IF (ABS(DH/HDEN(K)).GE.EPSILN) TMPFLG = .FALSE.
+            ELSE
+               TMPFLG = .TRUE.
+            ENDIF
+            IF (TMPFLG) THEN
 !
 !                 LINEAR INTERPOLATION
 !                 1.0E05 FACTOR CONVERTS UNITS KM TO CM
@@ -4629,11 +4871,11 @@ END SUBROUTINE READLAYRS
       PZ(0) = PP(1)
       TZ(0) = TP(1)
 
-!     IF ENTRY IN TAPE5 FOR TBOUND < 0, USE TZ(O) AS BOUNDARY
-!     TEMPERATURE
+!     IF ENTRY IN TAPE5 FOR TBOUND < 0, USE TZ(O) AS BOUNDARY TEMPERATURE
 
 !      IF (TBOUND.LT.0.) TBOUND = TZ(0)
-!
+
+! --- ACCUMULATE COURSE OUTPUT GRID FROM FINE WORKING INTERNAL GRID
       DO 20 IP = 1, I2
 
          PBAR(IOUT) = PBAR(IOUT)+PPSUM(IP)
@@ -4664,8 +4906,11 @@ END SUBROUTINE READLAYRS
          ISKIP(K) = 0
          IF (AMTTOT(K).EQ.0.0) ISKIP(K) = 1
    30 END DO
+
       L2 = IFINMX-1
       LMAX = L2
+        !print *, L2, AMOUNT(1,1), RHOSUM(1)
+! --- LOOP OVER LAYERS OF OUTPUT GRID
       DO 90 L = 1, L2
          PBAR(L) = PBAR(L)/RHOSUM(L)
          TBAR(L) = TBAR(L)/RHOSUM(L)
@@ -4676,6 +4921,7 @@ END SUBROUTINE READLAYRS
 !
          SUMAMT = 0.0D0
          DO 40 K = 1, NMOL
+            !write(0,'(2i3,e12.3)'), k, l, amount(k,l)
             SUMAMT = SUMAMT + AMOUNT(K,L)
    40    CONTINUE
          WN2L(L) = RHOSUM(L)-SUMAMT
@@ -4735,9 +4981,11 @@ END SUBROUTINE READLAYRS
       RETURN
 !
   110 WRITE (0,900) IOUT,IFINMX
-!
-      STOP ' ERROR FPACK '
-!
+      WRITE(16,*) ' ERROR FPACK '
+      WRITE( 0,*) ' ERROR FPACK '
+      CALL SHUTDOWN
+      STOP '3'
+
   900 FORMAT ('0FROM FPACK-  ERROR, IOUT = ',I5,'  DOES NOT MATCH ',    &
      &        'IFINMX = ',I5)
 !
@@ -4798,7 +5046,10 @@ END SUBROUTINE READLAYRS
          IF (TTYPE.GT.TYPMAX) THEN
 !print *, l, iscal, scal, dv, avbar
 !print *, 'ttype ',ttype, typmax
-         STOP "FIXTYPE - TTPYE"
+            WRITE(16,*) "FIXTYPE - TTPYE"
+            WRITE(00,*) "FIXTYPE - TTPYE"
+            CALL SHUTDOWN
+            STOP '3'
 
          ELSEIF (TTYPE.GE.1.2) THEN
 !
@@ -4866,7 +5117,7 @@ END SUBROUTINE READLAYRS
       REAL (8)     :: H1, H2, ANGLE, RANGE, BETA, HTAN, PHI
       REAL (8)     :: CPATH, CPJ, CPJ1, SH, GAMMA, RE2
       REAL (8)     :: ZJ1, ZJ !, CRFRCT, H
-
+      REAL (8), EXTERNAL :: ANDEX
       !CRFRCT(H) = ( RE2 + H )*ANDEX( H, SH, GAMMA )
 
       RE2=RE
@@ -4933,14 +5184,19 @@ END SUBROUTINE READLAYRS
 
       REAL (8)      :: CX1, CX2, CPATH, F, FMID, SH, GAMMA
       REAL (8)      :: X1, X2, XACC, DX, XMID
-
+      REAL (8), EXTERNAL :: ANDEX
       DATA XACC / 1.0D-5 /
 
       PARAMETER (JMAX=40)
 
       FMID=CX2-CPATH
       F=CX1-CPATH
-      IF(F*FMID.GE.0.) STOP 'ROOT MUST BE BRACKETED FOR BISECTION.'
+      IF(F*FMID.GE.0.)THEN
+         WRITE(16,*) 'ROOT MUST BE BRACKETED FOR BISECTION.'
+         WRITE(00,*) 'ROOT MUST BE BRACKETED FOR BISECTION.'
+         CALL SHUTDOWN
+         STOP '3'
+      ENDIF
       IF(F.LT.0.)THEN
          RTBIS = X1
          DX    = X2 - X1
@@ -4982,13 +5238,17 @@ END SUBROUTINE READLAYRS
       REAL (8)      :: HTAN, RANGEI, BETA, ANGLE, PHI, DR, RANGEO, R1, R2, DZ, Z
       REAL (8)      :: DRNG, DBETA, R, DIFF, CPATH, SH, GAMMA, RX, RATIO, RPLDR
       REAL (8)      :: PERP, BASE, Z2
-
+      REAL (8), EXTERNAL :: ANDEX
       INTEGER (4)   :: I, LEN
 
       DATA DR / 0.005D0 /
 
-      IF (RANGEI .LT. DR) STOP'STOPPED IN FNDPTH'
-
+      IF (RANGEI .LT. DR)THEN
+         WRITE(16,*) 'STOPPED IN FNDPTH'
+         WRITE(00,*) 'STOPPED IN FNDPTH'
+         CALL SHUTDOWN
+         STOP '3'
+      ENDIF
 !     (RANGEI .LT. DR) SHOULD NOT HAPPEN; SO THIS CHECK IS REDUNDANT.
 
       RANGEO = 0
@@ -5210,8 +5470,10 @@ END SUBROUTINE READLAYRS
             ALPHA = A/B
 
             IF ( ABS(ALPHA*Y) .GE. 0.01) THEN
-               PRINT*,'LAYER TOO THICK'
-               STOP
+               WRITE(16,*)'LAYER TOO THICK'
+               WRITE(00,*)'LAYER TOO THICK'
+               CALL SHUTDOWN
+               STOP '3'
             ENDIF
 
             XINT_TOT = C1*Y + 0.5*(C2-C1*ALPHA)*Y**2 +                  &
@@ -5287,8 +5549,8 @@ END SUBROUTINE READLAYRS
             IF(J.GT.1 .AND. K.EQ.2) GO TO 15
             BETA  = 0.D0
             RANGE = 0.D0
-            CALL FSCGEO (H1,H2,APP,RANGE,BETA,ITYPE,LEN,HMIN,PHI,IERROR, HOBS)
-            CALL RFPATH(H1,H2,APP,PHI,LEN,HMIN,0,RANGE,BETA,BENDNG)
+            CALL FSCGEO (H1,H2,APP,RANGE,BETA,ITYPE,LEN,HMIN,PHI,IERROR, HOBS,0)
+            CALL RFPATH(H1,H2,APP,PHI,LEN,HMIN,0,RANGE,BETA,BENDNG,KASTRO)
             EQ(K)=RO(K)+BENDNG
 !   RELATIVE ERROR
             EQ2(K)=(AST-EQ(K))/AST
@@ -5316,9 +5578,15 @@ END SUBROUTINE READLAYRS
    35 CONTINUE
       RANGE = 0.0D0
       BETA  = 0.0D0
-      IF (NOPRNT .GE. 0)WRITE(IPR,102)AST,APP,BENDNG,J
-      WRITE( 16,102)AST,APP,BENDNG,J
-      IF (NOPRNT .GE. 0)WRITE(IPR,104)
+      IF (NOPRNT .GE. 0) THEN
+        WRITE(IPR,102)AST,APP,BENDNG,J
+        WRITE( 16,102)AST,APP,BENDNG,J
+        WRITE(IPR,104)
+      ENDIF
+      IF (LOSPRNT .GE. 0)  THEN
+        WRITE(ILOS,102)AST,APP,BENDNG,J
+        WRITE(ILOS,104)
+      ENDIF
       NOPRNT = NOSP
       ANGLE  = APP
       DO 50 I=1,IM2

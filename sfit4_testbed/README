@@ -1,0 +1,35 @@
+Mathias Palm 11.2019,02.2023
+
+
+Running the testbed for sfit4.
+
+packages needed:
+numpy
+pathlib
+
+Go in the directories <sfit-core-code/sfit4_testbed> 
+Edit test.cfg, make sure the absolute paths are right:
+
+<LINELISTDIR> the linelist you want to use and which corresponds to your hbin.ctl in the sfit4_testbed directory
+<SFIT-DIR> the sfit-core-code directory (e.g. /home/user/sfit-core-code)
+<TESTCASE-DIR> The sfit4_tesbed directory (e.g. /home/user/sfit-core-code/sfit4_testbed
+
+afterwards go into <TESTCASE-DIR> and run
+script/run_testcases.py [--nohbin]] [--nosfit4] [--noerror] [--tips]
+
+NOTES:
+- run_testcases.py runs only with python3
+- until now, the directory to the linelist in hbin.ctl has to be updated by
+  hand.
+- hbin.ctl in the sfit4_testbed directory is copied i every directory and run there.
+
+If --tips=False (defult) tips is not run. This speeds the code up considerably.
+
+In every single directory hbin, sfit4 and the error script needs to run.
+
+The single program can be tested by specifying the arguments above,
+which cause the script to not run hbin, sfit4 or the error calculation.
+In this case the comparisons of the numbers may be wrong.
+
+
+Finally, please report errors or submit wishes to mathias.palm@uni-bremen.de 

@@ -1,6 +1,25 @@
+!-----------------------------------------------------------------------------
+!    Copyright (c) 2013-2014 NDACC/IRWG
+!    This file is part of sfit.
+!
+!    sfit is free software: you can redistribute it and/or modify
+!    it under the terms of the GNU General Public License as published by
+!    the Free Software Foundation, either version 3 of the License, or
+!    any later version.
+!
+!    sfit is distributed in the hope that it will be useful,
+!    but WITHOUT ANY WARRANTY; without even the implied warranty of
+!    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!    GNU General Public License for more details.
+!
+!    You should have received a copy of the GNU General Public License
+!    along with sfit.  If not, see <http://www.gnu.org/licenses/>
+!-----------------------------------------------------------------------------
+
       MODULE MATRIX
 
       USE params
+      USE DATAFILES
 
       IMPLICIT NONE
 
@@ -127,7 +146,9 @@
 
       IF (DET == 0.D0) THEN
          WRITE (16, *) ' INVRT: ERROR... MATRIX IS SINGULAR...EXITING'
-         STOP "INVRT: ERROR... MATRIX IS SINGULAR...EXITING"
+         WRITE ( 0, *) ' INVRT: ERROR... MATRIX IS SINGULAR...EXITING'
+         CALL SHUTDOWN
+         STOP 3
       ENDIF
 
       RETURN

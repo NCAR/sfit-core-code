@@ -1,3 +1,21 @@
+!-----------------------------------------------------------------------------
+!    Copyright (c) 2013-2014 NDACC/IRWG
+!    This file is part of sfit.
+!
+!    sfit is free software: you can redistribute it and/or modify
+!    it under the terms of the GNU General Public License as published by
+!    the Free Software Foundation, either version 3 of the License, or
+!    any later version.
+!
+!    sfit is distributed in the hope that it will be useful,
+!    but WITHOUT ANY WARRANTY; without even the implied warranty of
+!    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!    GNU General Public License for more details.
+!
+!    You should have received a copy of the GNU General Public License
+!    along with sfit.  If not, see <http://www.gnu.org/licenses/>
+!-----------------------------------------------------------------------------
+
       MODULE OPT
 
       USE PARAMS
@@ -7,6 +25,7 @@
       USE MATRIX
       USE WRITEOUT
       USE BANDPARAM
+      USE RETVPARAM
 
       IMPLICIT NONE
 
@@ -25,7 +44,7 @@
 
       CONTAINS
 
-      SUBROUTINE OPT_3(Y, XA, XHAT, YHAT, M, N, CONVERGE, MAXITER, TOL, RETFLG, DIVWARN, ITER, ISMIX, NLEV  )
+      SUBROUTINE OPT_3(Y, XA, XHAT, YHAT, M, N, CONVERGE, MAXITER, TOL, RETFLG, DIVWARN, ITER, ISMIX, NLEV, NCELL  )
 
 ! 17SEP02
 !    - OUTPUT FORMAT OF KFILE 2000E16.8 - COMPATIBLE W/ IDL
@@ -46,7 +65,7 @@
 ! SUBROUTINE (MULTDIAG) HAS BEEN ADDED
 
       LOGICAL, INTENT(INOUT)      :: CONVERGE, RETFLG, DIVWARN
-      INTEGER, INTENT(IN)         :: N, M, ISMIX, MAXITER, NLEV
+      INTEGER, INTENT(IN)         :: N, M, ISMIX, MAXITER, NLEV, NCELL
       INTEGER, INTENT(INOUT)      :: ITER
       REAL(DOUBLE), INTENT(IN)    :: TOL
       REAL(DOUBLE), INTENT(INOUT) :: XA(N) ! PARM ON INPUT
@@ -61,7 +80,7 @@
       REAL(DOUBLE)   :: CHI_2, CHI_2_X, CHI_2_Y_OLD_SE
       REAL(DOUBLE)   :: CHI_2_OLD, D_CHI_2, CHI_2_OLD_SE, D_CHI_2_OLD_SE
 
-      INTEGER      :: I, J, ONE, SGN, KK, NS, IYDX1, IYDX2, JSCAN, IBAND, NAERR
+      INTEGER      :: I, J, ONE, SGN, NS, IYDX1, IYDX2, JSCAN, IBAND, NAERR
       REAL(DOUBLE) :: RMSDELY, RMSDY, RMSIM1, CHGY, UNCY, SQRMS, VQRMS, RMSKDX
 
       REAL(DOUBLE), DIMENSION(:), ALLOCATABLE   :: SEINV, SEINV_OLD, DY, DELY, DYMKDX
@@ -69,7 +88,7 @@
 
       ! NEED TWO EXTRA VECTORS OF SIZE N FOR LEVENBERG MARQUARDT -- MP
       REAL(DOUBLE), DIMENSION(:), ALLOCATABLE   :: KSDYMKDX_LM, GSAINVDX, G
-      REAL(DOUBLE), DIMENSION(:,:), ALLOCATABLE :: GSAINV, SPKSKINV
+      REAL(DOUBLE), DIMENSION(:,:), ALLOCATABLE :: GSAINV, SPKSKINV, C2Y
 
       ! FOR CALCULATING AVK WHEN LM
       REAL(DOUBLE), DIMENSION(:,:), ALLOCATABLE :: IDNN, T2, T3, T4
@@ -77,12 +96,19 @@
 
       REAL(DOUBLE), DIMENSION(:),  ALLOCATABLE :: KN_OLD, KN
 
-      ! EQUIVALANCED
-      REAL(DOUBLE), DIMENSION(MMAX)            :: YN, KDX
-      REAL(DOUBLE), DIMENSION(NMAX*NMAX)       :: SPKSK, SHATINV
-      REAL(DOUBLE), DIMENSION(NMAX*MMAX)       :: KNT, KHATT
+      ! FORMERLY EQUIVALANCED
+      REAL(DOUBLE), DIMENSION(:)  ,  ALLOCATABLE          :: YN, KDX
+      REAL(DOUBLE), DIMENSION(:,:) ,  ALLOCATABLE      :: SPKSK, SHATINV
+      REAL(DOUBLE), DIMENSION(:,:) ,  ALLOCATABLE      :: KNT, KHATT
 
-      EQUIVALENCE (KNT, KHATT), (SPKSK, SHATINV), (YN, KDX)
+      CHARACTER (LEN=31)                 :: CFORMAT
+
+      !REAL(DOUBLE), DIMENSION(M)               :: YN, KDX
+      !REAL(DOUBLE), DIMENSION(N*N)             :: SPKSK, SHATINV
+      !REAL(DOUBLE), DIMENSION(N*M)             :: KNT, KHATT
+
+
+!      EQUIVALENCE (KNT, KHATT), (SPKSK, SHATINV), (YN, KDX)
       ! REMOVED (DX, KSDYMKDX), BECAUSE NEED BOTH AT THE SAME TIME FOR
       ! LEVENBERG MARQUARDT, (DX, KSDYMKDX)
 
@@ -90,13 +116,18 @@
 
       ALLOCATE( KSDYMKDX_LM(N), GSAINVDX(N), G(N) )
       ALLOCATE( GSAINV(N,N), IDNN(N,N), T2(N,N), T3(N,N), T4(N,N) )
-      ALLOCATE( T1(N,M), T5(N,M), KN_OLD(M*N), KN(M*N) )
+      ALLOCATE( T1(N,M), T5(N,M), KN_OLD(M*N), KN(M*N), KNT(N,M), KHATT(N,M ) )
+      ALLOCATE( YN(M), KDX(M) )
+      ALLOCATE( SPKSK(N,N), SHATINV(N,N) )
       ALLOCATE( SEINV(M), SEINV_OLD(M), DY(M), DELY(M), DYMKDX(M) )
       ALLOCATE( XNP1(N), XN(N), DX(N), DX_OLD(N), KSDYMKDX(N), DELX(N) )
       ALLOCATE( KS(N,M), KSK(N,N), SPKSKINV(N,N), STAT=NAERR )
       ALLOCATE( KHAT(M,N), G_LM(N,M), STAT=NAERR )
       ALLOCATE( SNR_CLC(NBAND, MAXVAL(NSCAN(:NBAND))) )
+      ALLOCATE( SNR_THE(NBAND, MAXVAL(NSCAN(:NBAND))) )
+      ALLOCATE( C2Y(NBAND, MAXVAL(NSCAN(:NBAND))) )
 
+      SNR_CLC = 0.0
       YN = 0.0D0
       DY = 0.0D0
       XN = 0.0D0
@@ -144,16 +175,16 @@
 ! --- XN WORKING VERSION OF XA (PARM)
       XN(:N) = XA(:N)
       CALL INVRT( SA, SAINV, N )
-
+      CALL GETSAINV( ISMIX )
 ! --- SUBSTITUTE SAINV VALUES FOR ANY PROFILE RETRIEVE GAS FROM FILE "SA.INPUT"
 ! --- LOOP OVER RETRIEVAL GASES BUT CALL ONCE IF NEEDED
-      DO KK = 1, NRET
+!      DO KK = 1, NRET
 ! --- PICK OUT GASES WITH SET FLAG (IFOFF=5)
-         IF ( CORRELATE(KK) .AND. IFPRF(KK) .AND. ( IFOFF(KK) .EQ. 5 )) THEN
-            CALL GETSAINV( ISMIX )
-            EXIT
-         ENDIF
-      ENDDO
+!         IF ( IFPRF(KK) .AND. CORRELATE(KK) .AND. ( (IFOFF(KK) .EQ. 5) .OR. (IFOFF(KK) .EQ. 6 ))) THEN
+
+!            EXIT
+!         END IF
+!      ENDDO
 
       SEINV(:M) = 1.D0/SE(:M)
       ITER = 0
@@ -180,8 +211,8 @@
          IF( F_WRTK )THEN
             CALL FILEOPEN( 66, 2 )
             WRITE(66,*) TRIM(TAG), ' K MATRIX M SPECTRA ROWS X N PARAM COLUMNS'
-            WRITE(66,*) M, N, ISMIX, NLEV
-            WRITE(66,260) ADJUSTR(PNAME(:N))
+            WRITE(66,*) M, N, ISMIX, NLEV, NCELL
+            WRITE(66,260) (trim(ADJUSTL(PNAME(i))),i=1,N)
             DO I = 1, M
                WRITE(66,261) (KHAT(I,J),J=1,N)
             END DO
@@ -189,10 +220,11 @@
          ENDIF
 
          IF( F_WRTSEINV )THEN
+            WRITE(CFORMAT, '(A,I5,A)') '(', M, 'ES26.18)'
             CALL FILEOPEN( 67, 2 )
             WRITE(67,*) TRIM(TAG), ' SEINV (DIAGONAL) M X 1'
             WRITE(67,*) M, 1
-            WRITE(67,261) (SEINV(I),I=1,M)
+            WRITE(67,TRIM(CFORMAT)) (SEINV(I),I=1,M)
             CALL FILECLOSE(67,1)
          ENDIF
 
@@ -200,7 +232,7 @@
             CALL FILEOPEN( 69, 2 )
             WRITE(69, *) TRIM(TAG), ' SAINV N X N (BLOCK DIAGONAL) '
             WRITE(69,*) N, N
-            WRITE(69,260) ADJUSTR(PNAME(:N))
+            WRITE(69,260) (trim(ADJUSTL(PNAME(i))),i=1,N)
             DO I = 1, N
                WRITE (69,261) (SAINV(I,J), J=1, N)
             END DO
@@ -217,8 +249,8 @@
          WRITE( 70,* ) "GAMMA                 = ", GAMMA
          WRITE( 70,* ) "RED GAMMA             = ", RED_GAMMA
          WRITE( 70,* ) "INC GAMMA             = ", INC_GAMMA
-         WRITE(70, '(7(A10,1X))') 'CHI_2_X', 'CHI_2_Y', 'CHI_2', 'D_CHI_2', &
-                    'CHI_2_LIN', 'DIFF_LIN_EXACT', 'RATIO_D_CHI'
+         WRITE(70, '(7(A10,1X))') 'CHI^2_X', 'CHI^2_Y', 'CHI^2', 'D_CHI^2', &
+                    'CHI^2_LIN', 'DIFF_LIN_EXACT', 'RATIO_D_CHI'
       END IF
 
       CHI_2_OLD = HUGE(CHI_2_OLD)
@@ -227,9 +259,9 @@
 ! ITERATION LOOP
 !
       WRITE(16,26) SNR, N, M
-      WRITE(0,26) SNR, N, M
+      WRITE(6,26) SNR, N, M
 
-      WRITE(0,313) 'ITER', 'RMS', 'GAMMA','CHI_2_X','CHI_2_Y','CHI_2','CHI_2_OLD','D_CHI_2'
+      WRITE(6,313) 'ITER', 'FIT_RMS', 'GAMMA','CHI^2_X','CHI^2_Y','CHI^2','CHI^2_OLD','  DCHI^2'
 
    10 CONTINUE
       ITER = ITER + 1
@@ -276,37 +308,41 @@
       CHI_2_Y_OLD_SE = DOT_PRODUCT( DY(:M), SEINVDY_OLD_SE(:M) )
       CHI_2_Y_OLD_SE = CHI_2_Y_OLD_SE / M
 
-      CHI_2 = CHI_2_X + CHI_2_Y
+      CHI_2        = CHI_2_X + CHI_2_Y
       CHI_2_OLD_SE = CHI_2_X + CHI_2_Y_OLD_SE
 
       IF (ITER.GT.1)THEN
-         D_CHI_2 = CHI_2_OLD - CHI_2
+         D_CHI_2        = CHI_2_OLD - CHI_2
          D_CHI_2_OLD_SE = CHI_2_OLD - CHI_2_OLD_SE
          DO IBAND=1,NBAND
             IF( IFCALCSE ) THEN
-               WRITE(*,314) ITER, RMS, GAMMA, CHI_2_X, CHI_2_Y,        CHI_2,        CHI_2_OLD, D_CHI_2
-               WRITE(*,315)                 CHI_2_Y_OLD_SE, CHI_2_OLD_SE,            D_CHI_2_OLD_SE
+               WRITE(*,314) ITER, RMS, GAMMA, CHI_2_X,        CHI_2_Y,      CHI_2,        CHI_2_OLD, D_CHI_2
+               !WRITE(*,315)                   CHI_2_Y_OLD_SE, CHI_2_OLD_SE, D_CHI_2_OLD_SE
                PRTFLG = .TRUE.
                EXIT
             ENDIF
          ENDDO
          IF (.NOT.PRTFLG) THEN
-            WRITE(*,314) ITER, RMS, GAMMA, CHI_2_X, CHI_2_Y, CHI_2, CHI_2_OLD, D_CHI_2
+            WRITE(*,314) ITER, RMS, GAMMA, CHI_2_X, CHI_2_Y, CHI_2, CHI_2_OLD, D_CHI_2 !, D_CHI_2_OLD_SE
          ENDIF
       ELSE
          WRITE(*,314) ITER, RMS, GAMMA, CHI_2_X, CHI_2_Y
       ENDIF
 
+ 314  FORMAT(I4,1X,F9.4,1X,ES9.2,1X,4(F9.3,1X),2(F12.6,1X))
+ 313  FORMAT(A4,1X,6(A9,1X),7(A12,1X))
+
       WRITE(16, '(A)') 'COST FUNCTION'
-      WRITE(16, '(4(A,1X))') 'CHI_2_X', 'CHI_2_Y', 'CHI_2', 'CHI_2_OLD-CHI_2'
+      WRITE(16, '(4(A,1X))') 'CHI^2_X', 'CHI^2_Y', 'CHI^2', 'CHI^2_OLD-CHI^2'
       WRITE(16, '(4ES11.3)') CHI_2_X, CHI_2_Y, CHI_2, D_CHI_2
 
       IF( ITER.GT.1 &
          .AND. (CONVERGENCE .GT. 0.0) &
          .AND. (D_CHI_2_OLD_SE .LT. CONVERGENCE) &
-         .AND. ((CHI_2_OLD.GT.CHI_2_OLD_SE) .OR. (ABS(D_CHI_2_OLD_SE).LT.1.0E-5) .OR. (ABS(D_CHI_2).LT. 1.0E-5))) THEN
+         !.AND. ((CHI_2_OLD.GT.CHI_2_OLD_SE) .OR. (ABS(D_CHI_2_OLD_SE).LT.1.0E-5) .OR. (ABS(D_CHI_2).LT. 1.0E-5))) THEN
+         .AND. ((D_CHI_2_OLD_SE .GT. 0.0D0) .OR. (ABS(D_CHI_2_OLD_SE) .LT. 1.0D-5) .OR. (ABS(D_CHI_2) .LT. 1.0D-5))) THEN
          ! CONVERGED
-         !PRINT*, "CONVERGE = .TRUE."
+         !PRINT*, "CONVERGE = .TRUE.", CONVERGENCE, D_CHI_2_OLD_SE, D_CHI_2
          CONVERGE = .TRUE.
          GOTO 20
       END IF
@@ -324,6 +360,7 @@
             YN(:M)    = YN_OLD(:M)
             KN(:M*N)  = KN_OLD(:M*N)
             CHI_2     = CHI_2_OLD
+            !print*,'Changing SEINV:', SEINV(1), seinv_old(1)
             SEINV(:M) = SEINV_OLD(:M)
             ! CHI_2_LIN = CHI_2_LIN_OLD;
 ! --- THOSE HAVE TO BE RECALULATED, CAN SURELY BE SHORTCUT A LITTLE BIT.
@@ -341,6 +378,7 @@
 ! --- END CALCULATION COST FUNCTION
 ! --- KEEP OLD STATE INFORMATION -- MP
       XN_OLD(:N)   = XN(:N)
+! --- WE UNDO THIS NEXT LINE IN THE CASE OF NO CONVERGENCE
       YN_OLD(:M)   = YN(:M)
       KN_OLD(:M*N) = KN(:M*N)
       CHI_2_OLD    = CHI_2;
@@ -350,8 +388,8 @@
       RMSDY = DOT_PRODUCT(DY(:M),DY(:M))
       RMSDY = SQRT(RMSDY/M)
       IF(( ITER .GT. 1 ) .AND.(( RMSDY-RMSIM1 ) > 2*RMSDELY ))THEN
-         WRITE (*, *) RMSDY, RMSIM1, RMSDELY
-         WRITE (*, *) 'THREAT OF DIVERGENCE AFTER', ITER, ' ITERATIONS'
+         WRITE(6, *) RMSDY, RMSIM1, RMSDELY
+         WRITE(6, *) 'THREAT OF DIVERGENCE AFTER', ITER, ' ITERATIONS'
          DIVWARN = .TRUE.
       ENDIF
 
@@ -383,7 +421,7 @@
                VQRMS = SQRT(1.D0/SQRMS)
                SEINV(IYDX1:IYDX2) = SQRMS
                DELY(IYDX1:IYDX2)  = VQRMS
-               WRITE(*,305) IBAND, JSCAN, SQRT(SQRMS)
+               !WRITE(*,305) IBAND, JSCAN, 1.0D0/SQRT(SQRMS)
             ENDDO SPC
          ENDDO BND
       ENDIF
@@ -476,6 +514,9 @@
                   EXIT
                ENDIF
                CONVERGE = .TRUE.
+               ! GET LAST ITERATION
+               YN(:M) = YN_OLD(:M)
+               GOTO 20
             END DO
          ELSE
             DO I = 1, M
@@ -486,6 +527,9 @@
                   EXIT
                ENDIF
                CONVERGE = .TRUE.
+               ! GET LAST ITERATION
+               YN(:M) = YN_OLD(:M)
+               GOTO 20
             END DO
          ENDIF
       END IF
@@ -495,9 +539,11 @@
          IF( F_LM )THEN
             XNP1(:N) = XN_OLD(:N)
          END IF
-         WRITE(0, 307) ITER
+         WRITE(6,307) ITER
          SNR = SQRT(SUM(SEINV(:M))/M)
          CONVERGE = .FALSE.
+         ! GET LAST ITERATION
+         YN(:M) = YN_OLD(:M)
          GO TO 20
       ELSE
          XN(:N) = XNP1(:N)
@@ -510,15 +556,18 @@
 
       !PRINT*, D_CHI_2_OLD_SE, CHI_2_OLD, CHI_2_OLD_SE, ABS(D_CHI_2_OLD_SE), ABS(D_CHI_2)
 
-
       XHAT(:N) = XNP1(:N)
       CALL FM (XHAT, YHAT, KHAT, M, N, KFLG, -1, TFLG )
 
       IF( F_WRTK )THEN
          CALL FILEOPEN( 66, 2 )
          WRITE(66,*) TRIM(TAG), ' K MATRIX M SPECTRA ROWS X N PARAM COLUMNS'
-         WRITE(66,*) M, N, ISMIX, NLEV
-         WRITE(66,260) ADJUSTR(PNAME(:N))
+         IF( IFPRF(1) )THEN
+            WRITE(66,*) M, N, ISMIX, NLEV, NCELL
+         ELSE
+            WRITE(66,*) M, N, ISMIX, 0, NCELL
+         ENDIF
+         WRITE(66,260) (trim(ADJUSTL(PNAME(i))),i=1,N)
          DO I = 1, M
             WRITE(66,261) (KHAT(I,J),J=1,N)
          END DO
@@ -526,10 +575,11 @@
       ENDIF
 
       IF( F_WRTSEINV )THEN
+         WRITE(CFORMAT, '(A,I6,A)') '(', M, 'ES26.18)'
          CALL FILEOPEN( 67, 2 )
-         WRITE(67,*)  TRIM(TAG), ' SEINV (DIAGONAL) M X 1'
+         WRITE(67,*) TRIM(TAG), ' SEINV (DIAGONAL) M X 1'
          WRITE(67,*) M, 1
-         WRITE(67,261) (SEINV(I),I=1,M)
+         WRITE(67,TRIM(CFORMAT)) (SEINV(I),I=1,M)
          CALL FILECLOSE(67,1)
       ENDIF
 
@@ -537,7 +587,7 @@
          CALL FILEOPEN( 69, 2 )
          WRITE(69,*)  TRIM(TAG), ' SAINV N X N (BLOCK DIAGONAL)'
          WRITE(69,*) N, N
-         WRITE(69,260) ADJUSTR(PNAME(:N))
+         WRITE(69,260) (trim(ADJUSTL(PNAME(i))),i=1,N)
          DO I = 1, N
             WRITE(69,261) (SAINV(I,J), J=1, N)
          END DO
@@ -560,6 +610,7 @@
 
 !  --- CALCULATE THE SNR FOR THE RESULT PER BAND AND SCAN
       WRITE(6,303)
+      !WRITE(6,323)
       DO IBAND = 1, NBAND
          NS = NSCAN(IBAND)
          IF (NS == 0) CYCLE
@@ -568,7 +619,9 @@
             IYDX2 = ISCNDX(2,IBAND,JSCAN)
             SQRMS = (IYDX2-IYDX1)/DOT_PRODUCT(DY(IYDX1:IYDX2),DY(IYDX1:IYDX2))
             SNR_CLC(IBAND,JSCAN) = SQRT(SQRMS)
-            WRITE(*,305) IBAND, JSCAN, SNR_CLC(IBAND,JSCAN)
+            C2Y(IBAND,JSCAN) = DOT_PRODUCT( DY(IYDX1:IYDX2), SEINVDY(IYDX1:IYDX2) ) / (IYDX2 - IYDX1)
+            !WRITE(*,305) IBAND, JSCAN, SCNSNR(1,IBAND,JSCAN), sqrt(SQRMS), C2Y(IBAND,JSCAN)
+            WRITE(*,315) IBAND, JSCAN, SCNSNR(1:2,IBAND,JSCAN), SNR_CLC(IBAND,JSCAN), C2Y(IBAND,JSCAN)
          ENDDO
       ENDDO
 
@@ -594,7 +647,7 @@
          CALL FILEOPEN( 64, 1 )
          WRITE(64,*)  TRIM(TAG), ' SHAT N X N (BLOCK DIAGONAL)'
          WRITE(64,*) N, N
-         WRITE(64,260) ADJUSTR(PNAME(:N))
+         WRITE(64,260) (trim(ADJUSTL(PNAME(i))),i=1,N)
          DO I=1,N
             WRITE(64,261) (SHAT(I,J), J=1, N)
          END DO
@@ -605,35 +658,42 @@
 
 !  --- DEALLOCATE LOCAL ARRAYS
       DEALLOCATE( KSDYMKDX_LM, GSAINVDX, G )
+      DEALLOCATE( SPKSK, SHATINV, KNT, KHATT, YN, KDX )
       DEALLOCATE( GSAINV, IDNN, T2, T3, T4 )
       DEALLOCATE( T1, T5, KN_OLD, KN )
       DEALLOCATE( SEINV, SEINV_OLD, DY, DELY, DYMKDX )
       DEALLOCATE( XNP1, XN, DX, DX_OLD, KSDYMKDX, DELX )
       DEALLOCATE( SPKSKINV )
 
+      IF( ALLOCATED( C2Y )) DEALLOCATE( C2Y )
+
       RETURN
 
- 26   FORMAT(/,' AVGSNR=',F12.4,' NVAR=',I3,' NFIT=',I6,/)
+ 26   FORMAT(/,' MEAN_SNR= ', F0.4,'  NVAR= ', I0,'  NFIT= ', I0, /)
 
  260 FORMAT( 2000( 12X, A14 ))
  261 FORMAT( 2000ES26.18 )
  300  FORMAT( 3(A16, ES11.4 ))
- 303 FORMAT(/,'   BAND   SCAN   CALCULATED RMSSNR')
+ !303 FORMAT(/,'   BAND   SCAN   RMSSNR (CALCULATED) (RETRIEVED) CHI_2')
+ !323 FORMAT(/,'   BAND   SCAN      INIT_SNR       EFF_SNR       FIT_SNR')
+ 303 FORMAT(/,'   BAND   SCAN   RMSSNR (CALCULATED)   (EFFECTIVE)   (RETRIEVED)         CHI^2')
 ! 304  FORMAT( "    BAND    SCAN      SEINV         DELY         SNR" )
- 305  FORMAT( 2I7,F20.2 )
+ !305  FORMAT( 2I7,F20.2,F14.2, F7.2 )
+ 315  FORMAT( 2I7,8X,5F14.2 )
 ! 306  FORMAT( A20, 2ES12.4 )
  307  FORMAT(/, ' NO CONVERGENCE AFTER', I4, ' ITERATIONS')
 ! 308  FORMAT( A20, ES12.4 )
- 313  FORMAT(A4,1X,14(A9,1X))
- 314  FORMAT(I4,1X,F9.4,1X,ES9.2,1X,12(F9.3,1X))
- 315  FORMAT(2(F12.6,1X)13x,9F12.6)
+! 315  FORMAT(2(F12.6,1X)13x,9F12.6)
 
       END SUBROUTINE OPT_3
 
 
 SUBROUTINE GETSAINV( ISMIX )
 
-      REAL(DOUBLE), DIMENSION(:,:), ALLOCATABLE :: SAINP
+! --- READS A NON INVERTABLE FILE FOR SA INVERSE (IFOFF=5)  AND SCALES BY SA DIAGONALS FROM SFIT4.CTL
+!     OR BUILDS THE T-P L1 MATRIX SCALED BY LAYER THICKNESS (IFOFF=6) AND MULTIPLES BY LAMBDA
+
+      REAL(DOUBLE), DIMENSION(:,:), ALLOCATABLE :: SAINP, TPMAT
       REAL(DOUBLE), DIMENSION(:),   ALLOCATABLE :: SAROOT
       LOGICAL ::FILOPEN
       INTEGER :: ISMIX, KK, I, J, INDXX, NAERR
@@ -646,9 +706,10 @@ SUBROUTINE GETSAINV( ISMIX )
          IF (( IFPRF(KK) ) .AND. ( IFOFF(KK) == 5 )) THEN
             ALLOCATE( SAINP(LAYMAX,LAYMAX), SAROOT(LAYMAX), STAT=NAERR )
             IF (NAERR /= 0) THEN
-               WRITE (6, *) 'COULD NOT ALLOCATE SAINP ARRAY'
-               WRITE (6, *) 'ERROR NUMBER = ', NAERR
-               STOP 'OPT ALLOCATION'
+               WRITE (16, *) 'OPT : COULD NOT ALLOCATE SAINP ARRAY, ERROR NUMBER = ', NAERR
+               WRITE ( 0, *) 'OPT : COULD NOT ALLOCATE SAINP ARRAY, ERROR NUMBER = ', NAERR
+               CALL SHUTDOWN
+               STOP 4
             ENDIF
             IF ( .NOT. FILOPEN ) THEN
                CALL FILEOPEN( 62, 3 )
@@ -660,36 +721,105 @@ SUBROUTINE GETSAINV( ISMIX )
             DO I = 1, NLAYERS
                SAROOT(I) = SQRT( SA(I+INDXX,I+INDXX) )
             END DO
-! --- READ IN PUT NEW SAINV VALUES
+            ! --- READ IN PUT NEW SAINV VALUES
             READ(62,*) SAINP(:NLAYERS, :NLAYERS )
-! --- SCALE AND STORE THEM IN SAINV
+            ! --- SCALE AND STORE THEM IN SAINV
             DO I = 1, NLAYERS
                DO J = 1, NLAYERS
                   SAINV(I+INDXX,J+INDXX) = SAINP(I,J)*( 1.0D0/(SAROOT(I)*SAROOT(J)))
                END DO
             END DO
             DEALLOCATE( SAINP, SAROOT )
+         ELSE IF (( IFPRF(KK) ) .AND. ( IFOFF(KK) == 6 )) THEN
+
+            WRITE(16,305) KK, IFOFF(KK), L1LAMBDA(KK)
+            WRITE(0,305) KK, IFOFF(KK), L1LAMBDA(KK)
+
+            ! PICK OUT GASES WITH SMOOTHNESS CONSTRAINT
+            ALLOCATE(TPMAT(NLAYERS,NLAYERS))
+            CALL MAKE_TPMATRIX(NLAYERS,Z(1:NLAYERS),ZBAR(1:NLAYERS),TPMAT)
+            DO I = 1, NLAYERS
+               DO J = 1, NLAYERS
+                  SAINV(I+INDXX,J+INDXX) = TPMAT(I,J) * L1LAMBDA(KK)
+               END DO
+            END DO
+            DEALLOCATE(TPMAT)
+            WRITE(16,304) KK
          ELSE
-            WRITE(16,303) KK, IFOFF(KK)
+            !WRITE(16,303) KK, IFOFF(KK)
          ENDIF
 ! --- BUMP UP INDEX OF MIXING RATIO BLOCK IN SA(INV) MATRIX
          INDXX = INDXX + NLAYERS
       ENDDO
+
+     IF ( IFTEMP .and. tlambda.gt.0 ) THEN
+         ALLOCATE(TPMAT(NLAYERS,NLAYERS))
+         WRITE(16,306) TLAMBDA
+         WRITE(0,306) TLAMBDA
+         CALL MAKE_TPMATRIX(NLAYERS,Z(1:NLAYERS),ZBAR(1:NLAYERS),TPMAT)
+         DO I = 1, NLAYERS
+            DO J = 1, NLAYERS
+               SAINV(I+NTEMP1,J+NTEMP1) = TPMAT(I,J) * TLAMBDA
+            END DO
+         END DO
+         DEALLOCATE(TPMAT)
+      END IF
       IF( FILOPEN ) CALL FILECLOSE( 62, 2 )
 
       RETURN
 
  301  FORMAT(/," FILE: ", A, " OPENED IN OPT" )
- 302  FORMAT("  RETRIEVAL GAS # :",I3," HAS IFOFF FLAG:", I3, &
-             " ...READING IN NEW SAINV VALUES." )
- 303  FORMAT("  RETRIEVAL GAS # :",I3," HAS IFOFF FLAG:", I3, " ...SKIPPING." )
+ 302  FORMAT("  RETRIEVAL GAS # :",I3, " HAS IFOFF FLAG:", I3, " ...READING IN NEW SAINV VALUES." )
+!303   FORMAT("  RETRIEVAL GAS # :",I3, " HAS IFOFF FLAG:", I3, " ...SKIPPING." )
+ 304  FORMAT("  RETRIEVAL GAS # :",I3 )
+ 305  FORMAT("  RETRIEVAL GAS # :",I3, " HAS IFOFF FLAG:", I3, " CREATING L1 REGULARIZATION MATRIX WITH LAMBDA : ", ES10.2 )
+ 306  FORMAT("  TEMPERATURE RETRIEVAL CREATING L1 REGULARIZATION MATRIX WITH LAMDA : ", ES10.2 )
 
       END SUBROUTINE GETSAINV
+
+      SUBROUTINE MAKE_TPMATRIX(NL,ALTVEC_LOW,ALTVEC_MID,TPMAT)
+        ! ALTVEC_LOW ARE THE LOWER BOUNDARIES OF THE ALTITUDE BINS
+        ! ALTVEC_MID ARE THE MIDPOINTS OF THE ALTIUDE BINS
+        ! TPMAT IS THE RESULTING SA INVERSE MATRIX
+
+        IMPLICIT NONE
+
+        INTEGER,INTENT(IN) :: NL
+
+        REAL(DOUBLE),DIMENSION(NL+1),INTENT(IN) :: ALTVEC_LOW, ALTVEC_MID
+        REAL(DOUBLE),DIMENSION(NL,NL),INTENT(OUT) :: TPMAT
+        REAL(DOUBLE) :: ALT_WIDTH
+
+        INTEGER :: I
+        REAL(8),DIMENSION(:,:),ALLOCATABLE :: BMAT,DMAT
+
+        ALLOCATE (BMAT(NL,NL),DMAT(NL,NL))
+        ! SETUP B MATRIX FOR TP = BT * D * B
+        BMAT = 0.0D0
+        DO I = 1,NL - 1
+           BMAT(I,I) = 1.0D0
+           BMAT(I,I+1) = -1.0D0
+        END DO
+        ! SETUP MATRIX D
+        DMAT = 0.0D0
+        DO I = 1,NL
+           ALT_WIDTH = 2.0D0 *(ALTVEC_MID(i) - ALTVEC_LOW(i))
+           DMAT(I,I) = 1.0D0 / (ALT_WIDTH*ALT_WIDTH)
+        END DO
+        ! CALCULATE BT * D * B
+        TPMAT = MATMUL(TRANSPOSE(BMAT),MATMUL(DMAT,BMAT))
+
+        DEALLOCATE (BMAT,DMAT)
+
+      END SUBROUTINE MAKE_TPMATRIX
+
+
+
+
 
       SUBROUTINE RELEASE_MEM_OPT
 
 ! --- DEALLOCATE PUBLIC ARRAYS
-
       IF( ALLOCATED( SA )) DEALLOCATE( SA )
       IF( ALLOCATED( SHAT )) DEALLOCATE( SHAT )
       IF( ALLOCATED( KS )) DEALLOCATE( KS )

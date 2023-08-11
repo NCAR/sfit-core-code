@@ -1,3 +1,21 @@
+!-----------------------------------------------------------------------------
+!    Copyright (c) 2013-2014 NDACC/IRWG
+!    This file is part of sfit.
+!
+!    sfit is free software: you can redistribute it and/or modify
+!    it under the terms of the GNU General Public License as published by
+!    the Free Software Foundation, either version 3 of the License, or
+!    any later version.
+!
+!    sfit is distributed in the hope that it will be useful,
+!    but WITHOUT ANY WARRANTY; without even the implied warranty of
+!    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!    GNU General Public License for more details.
+!
+!    You should have received a copy of the GNU General Public License
+!    along with sfit.  If not, see <http://www.gnu.org/licenses/>
+!-----------------------------------------------------------------------------
+
       MODULE READIN
 
       USE PARAMS
@@ -29,13 +47,14 @@
       INTEGER, INTENT(OUT)  :: NLEV
       INTEGER, INTENT(OUT)  :: NEGFLAG
 
-      INTEGER   :: I, NRMAX, NPGAS, J, N
+      INTEGER   :: I, NRMAX, NPGAS, J, N, II
 
       NRMAX = MOLMAX
       NPGAS = 0
 
-! -- CHECK THAT EVERY GAS IS ONLY ONCE IN THE RETRIEVAL LIST
 
+! -- CHECK THAT EVERY GAS IS ONLY ONCE IN THE RETRIEVAL LIST
+      !print *, gas(:nret)
       DO I=1, NRET
          DO J=1, NRET
             if ((I.ne.J).and.(GAS(I).EQ.GAS(J))) THEN
@@ -45,14 +64,19 @@
             end if
          end DO
       end DO
-! --- DOUBLE CHECK CHECK THAT PROFILE REIEVALS ARE AHEAD OF COLUMNS IN LIST
+! --- DOUBLE CHECK THAT PROFILE REIEVALS ARE AHEAD OF COLUMNS IN LIST
       I=0
       DO J=1, NRET
         IF( IFPRF(J) ) I=I+1
       ENDDO
       DO J=1, I
 ! --- SHOULD NOT GET HERE DUE TO CHECKS IN BINPUT_PARSE...
-        IF( .NOT. IFPRF(J) )STOP 'PUT COLUMN RETREAVAL GAS AFTER LAST PROFILE GAS'
+         IF( .NOT. IFPRF(J) )THEN
+            WRITE(16,*) 'PUT COLUMN RETREAVAL GAS AFTER LAST PROFILE GAS'
+            WRITE(00,*) 'PUT COLUMN RETREAVAL GAS AFTER LAST PROFILE GAS'
+            CALL SHUTDOWN
+            STOP '2'
+         ENDIF
       ENDDO
 
       WRITE (16, 402) NLAYERS
@@ -60,30 +84,60 @@
       WRITE (16, 410) USEISO
 
       IF (NLAYERS .NE. NLEV) THEN
-         WRITE (*, *) "NUMBER OF LAYERS FROM INPUT  ",NLAYERS," FOR GAS ",GAS(J)
-         WRITE (*, *) "DOES NOT MATCH LAYERS FROM STATION.LAYERS FILE (USED IN RAYTRACING) ",NLEV
          WRITE (16, *) "NUMBER OF LAYERS FROM INPUT  ",NLAYERS," FOR GAS ",GAS(J)
          WRITE (16, *) "DOES NOT MATCH LAYERS FROM STATION.LAYERS FILE (USED IN RAYTRACING) ",NLEV
-         CLOSE(16)
-         STOP
-      END IF
+         WRITE (00, *) "NUMBER OF LAYERS FROM INPUT  ",NLAYERS," FOR GAS ",GAS(J)
+         WRITE (00, *) "DOES NOT MATCH LAYERS FROM STATION.LAYERS FILE (USED IN RAYTRACING) ",NLEV
+         CALL SHUTDOWN
+         STOP '2'
+      ENDIF
 
 ! --- SEE IF WE NEED TO SEPARATE OUT ISOTOPES
       IF ( USEISO ) CALL RDISOFILE( 16 )
 
-      IF (NRET <= NRMAX) THEN
+      ! --- CHECK IF WE HAVE A CELL OPTICAL PATH
+      IF( NCELL .NE. 0 )THEN
+         WRITE(06, 420) NCELL
+         WRITE(06, 421)
+         DO I=1, NCELL
+            CGASID(I) = -999
+            DO J=1, MOLTOTAL
+               IF( TRIM(NAME(J)) .EQ. TRIM(CGAS(I)) )THEN
+                  CGASID(I) = J
+                  EXIT
+               ENDIF
+            ENDDO
+            WRITE(06, 422) I, ADJUSTR(CGAS(I)), CGASID(I), CTEMP(I), CPRES(I), CVMR(I)
+            IF( CGASID(I) .EQ. -999 )THEN
+               WRITE(00, 423) CGAS(I), I
+               CALL SHUTDOWN
+               STOP '3'
+            ENDIF
+         ENDDO
+      ENDIF
+
+
+! --- LOOP OVER RETRIEVAL GASES & CHECK PARAMETERS
+      IF( NRET .LE. NRMAX .AND. NRET .GE. 1 )THEN
          DO J = 1, NRET
-            WRITE (16, 600) J, GAS(J)
+            WRITE (16, 600) J, TRIM(GAS(J))
             !print *,J, GAS(J)
             DO I = 1, MOLTOTAL
-!               write(*,*) gas(j), name(i)
+               II = I
+               !write(*,*) i, j, '  ', gas(j), name(i)
                IF (GAS(J) == NAME(I)) GO TO 176
             END DO
             WRITE (16, 610) GAS(J)
-            WRITE (*, 610) GAS(J)
-            STOP
+            WRITE (00, 610) GAS(J)
+            CALL SHUTDOWN
+            STOP '2'
+
   176       CONTINUE
-            IGAS(J) = I
+            IGAS(J) = II
+            DO I=1, NCELL
+               IF( TRIM(NAME(IGAS(J))) .EQ. TRIM(CGAS(I)) )IFCELL(J) = .TRUE.
+            ENDDO
+            WRITE (16, 602) IFCELL(J)
             WRITE (16, 601) IFPRF(J)
             IF( .NOT. IFPRF(J) )THEN
 ! --- FOR COLUMN RETRIEVAL THE LOG FUNCTION IS SHUT OFF AUTOMATICALLY
@@ -93,16 +147,15 @@
                IF( ABS(COLSF(J)) .LT. TINY(0.0D0) )THEN
                   WRITE (16, *) "APRIORI VMR SCALE FOR COLUMN GAS: ",GAS(J), " IS NOT SET IN SFIT4.CTL FILE"
                   WRITE ( 0, *) "APRIORI VMR SCALE FOR COLUMN GAS: ",GAS(J), " IS NOT SET IN SFIT4.CTL FILE"
-                  CLOSE(16)
-                  STOP
+                  CALL SHUTDOWN
+                  STOP '2'
                ENDIF
                IF( ABS(SCOLSF(J)) .LT. TINY(0.0D0) )THEN
                   WRITE (16, *) "COLUMN SIGMA FOR GAS: ",GAS(J), " IS NOT SET IN SFIT4.CTL FILE"
                   WRITE ( 0, *) "COLUMN SIGMA FOR GAS: ",GAS(J), " IS NOT SET IN SFIT4.CTL FILE"
-                  CLOSE(16)
-                  STOP
+                  CALL SHUTDOWN
+                  STOP '2'
                ENDIF
-
                CYCLE
             ENDIF
 
@@ -115,56 +168,49 @@
             IF( ABS(COLSF(J)) .LT. TINY(0.0D0) )THEN
                WRITE (16, *) "APRIORI VMR SCALE PROFILE FOR  ",GAS(J), " IS NOT SET IN SFIT4.CTL FILE"
                WRITE ( 0, *) "APRIORI VMR SCALE PROFILE FOR  ",GAS(J), " IS NOT SET IN SFIT4.CTL FILE"
-               CLOSE(16)
-               STOP
+               CALL SHUTDOWN
+               STOP '2'
             ENDIF
             WRITE (16, 611) COLSF(J)
+            WRITE (16, 619) ILOGRETRIEVAL(J)
+            WRITE (16, 624) CORRELATE(J)
+
             SELECT CASE ( IFOFF(J) )
             CASE (0)    ! NO INTERLAYER CORRELATION
+               WRITE (16, 621) IFOFF(J)
                WRITE (16, 613)
                WRITE (16, 612) (SIG(I,J),I=1,NLAYERS)
                WRITE (16, 403)
             CASE (1)    ! GAUSSIAN ILC (ORIGINAL)
+               WRITE (16, 622) IFOFF(J)
                WRITE (16, 613)
                WRITE (16, 612) (SIG(I,J),I=1,NLAYERS)
                WRITE (16, 614) ZWID(J), ZGMIN(J), ZGMAX(J)
             CASE (2)    ! EXPONENTIAL ILC
+               WRITE (16, 623) IFOFF(J)
                WRITE (16, 613)
                WRITE (16, 612) (SIG(I,J),I=1,NLAYERS)
-               WRITE (16, 615) ZWID(J), ZGMIN(J), ZGMAX(J)
+               WRITE (16, 614) ZWID(J), ZGMIN(J), ZGMAX(J)
             !CASE (3)    ! NOT USED
 
             CASE (4)    ! READ IN FILE AS FULL SA ( SA.INPUT )
-               WRITE (16, 617 ) N, N, TRIM( TFILE(62) )
-               WRITE (16, 612) (SIG(I,J),I=1,NLAYERS)
-               !SIG( 1:N, J ) = 0.0D0
+               WRITE (16, 617 ) IFOFF(J), NLAYERS, NLAYERS, TRIM( TFILE(62) )
+               !WRITE (16, 612) (SIG(I,J),I=1,NLAYERS)
+               SIG( 1:N, J ) = -999.0D0
             CASE (5)    ! READ IN FILE AS FULL SA INVERSE (SA.INPUT )
-               WRITE (16, 618 ) N, N, TRIM( TFILE(62) )
-               WRITE (16, 612) (SIG(I,J),I=1,NLAYERS)
-               !SIG( 1:N, J ) = 0.0D0
+               WRITE (16, 618 ) IFOFF(J), NLAYERS, NLAYERS, TRIM( TFILE(62) )
+               !WRITE (16, 612) (SIG(I,J),I=1,NLAYERS)
+               SIG( 1:N, J ) = -999.0D0
+            CASE (6)    ! AN L1 REGULARIZATION MATRIX IS CREATED IN OPT AS AN SAINVERS IF L1 LAMBDA IS IN SFIT4.CTL
+               WRITE(16,625) IFOFF(J), L1LAMBDA(J)
             CASE DEFAULT
-               STOP ' READCK1: FLAG IFOFF MUST BE ONE OF 0, 1, 2, 4, 5'
+               WRITE(16,*) ' READCK1: FLAG IFOFF MUST BE ONE OF 0, 1, 2, 4, 5, 6'
+               WRITE(00,*) ' READCK1: FLAG IFOFF MUST BE ONE OF 0, 1, 2, 4, 5, 6'
+               CALL SHUTDOWN
+               STOP '2'
             END SELECT
 
-            WRITE(16,619) ILOGRETRIEVAL(J)
-         END DO
-
-         WRITE (16, 620) DELNU
-
-         WRITE(16,*)''
-         WRITE(16,*) ' LINE SHAPE MODEL:'
-         SELECT CASE ( LSHAPEMODEL )  ! USER CHOICE OF LINE SHAPE MODEL
-            CASE (0)
-               WRITE (16,*) '  0 = CHOOSE MODEL DEPENDING ON EXISTANCE OF PARAMETERS'
-            CASE (1)
-               WRITE (16,*) '  1 = FORCE VOIGT FOR ALL LINES'
-            CASE (2)
-               WRITE (16,*) '  2 = USE GALATRY FOR LINES WITH PARAMETERS, VOIGT ELSE'
-            CASE (3)
-               WRITE (16,*) '  3 = USE SDV & LINE MIXING FOR LINES WITH PARAMETERS'
-            CASE DEFAULT
-               STOP ' LINE SHAPE MODEL FLAG OUT OF RANGE MIST BE 0, 1, 2, 3)'
-         END SELECT
+         ENDDO ! OVER NRET
 
          NEGFLAG = -1
          IF( ITRMAX .LT. 0 ) THEN
@@ -173,24 +219,31 @@
          ENDIF
          WRITE (16, 650) ITRMAX
 
-         RETURN
+      ELSE IF( NRET .EQ. 0 )THEN
+         WRITE(16,630)
+      ELSE
+         WRITE(16,605) NRMAX
+         CALL SHUTDOWN
+         STOP '2'
+      ENDIF ! .LE. NRMAX
 
-     ENDIF
+      WRITE (16, 620) DELNU
+
+      RETURN
 
       IF( CONVERGENCE .LT. 0.0 )THEN
-        WRITE(16,651)
-        CLOSE(10)
-        STOP
+         WRITE(16,651)
+         WRITE(00,651)
+         CALL SHUTDOWN
+         STOP '2'
       ENDIF
-
-      WRITE (16, 605) NRMAX
-      CLOSE(16)
-      STOP
 
   301 CONTINUE
       WRITE (16, 606) NPGAS, MAXPRF
-      CLOSE(16)
-      STOP
+      WRITE (00, 606) NPGAS, MAXPRF
+      CALL SHUTDOWN
+      STOP '2'
+
 
   402 FORMAT(/,' NUMBER OF RETRIEVAL LAYERS IN INPUT VARIANCE VECTORS : ', I5 )
   400 FORMAT(  ' NUMBER OF RETRIEVAL GASES (MAX=',I2,')                   : ', I5 )
@@ -198,39 +251,50 @@
   401 FORMAT(  ' COLUMN RETRIEVAL SCALE AND VARIANCE        : ',2F10.5)
   403 FORMAT(/,' OFF DIAGNOAL COEFFICIENTS SET TO ZERO')
 
-  600 FORMAT(/,' RETRIEVAL GAS #      ',I2, '                    : ', A7)
-  601 FORMAT(  ' PROFILE RETRIEVAL CODE                     : ',L5 )
+  420 FORMAT(/,'NUMBER OF CELL OPTICAL PATHS TO INCLUDE : ',I5)
+  421 FORMAT(' PATHID      GAS  GASID  TEMPERATURE    PRESSURE           VMR')
+  422 FORMAT( I7, 2X, A7, I6, 5X, F8.3, 4X, F8.5, 2X, E12.4 )
+  423 FORMAT(' GAS NAME ', A7, ' OR ID FOR CELL ', I3, ' IS OUT OF RANGE.')
 
-  605 FORMAT(' ABORT -- NUMBER OF RETRIEVAL GASES EXCEEDS',I2)
+  600 FORMAT(/,' RETRIEVAL GAS #                ',I2, '          : ', A10)
+  601 FORMAT(  ' PROFILE RETRIEVAL FLAG                     : ',L10 )
+  602 FORMAT(  ' CELL RETRIEVAL FLAG                        : ',L10 )
+
+  605 FORMAT(/' ABORT -- NUMBER OF RETRIEVAL GASES EXCEEDS ',I2)
   606 FORMAT(' ABORT -- NUMBER OF PROFILE RETRIEVALS (NPGAS=',I2,&
          ') EXCEEDS MAXIMUM (MAXPRF=',I2,')')
   610 FORMAT(' READCK1: RETRIEVAL GAS : ', A7, ' NOT IN INPUT LIST *** ABORT')
-  611 FORMAT(' COLUMN SCALE FACTOR: ', F10.5)
+  611 FORMAT(' INITIAL PROFILE SCALE FACTOR               : ', F10.5)
   612 FORMAT(6F12.4)
   613 FORMAT(' RELATIVE UNCERTAINTIES OF THE A PRIORI PROFILE')
 
-  614 FORMAT(' HALF WIDTH HALF HEIGHT (KM) OF GAUSSIAN INTERLAYER CORRELATION :',ES11.4,/,&
-             ' MINIMUM, MAXIMUM ALTITUDE (KM) FOR OFF-DIAGONAL ELEMENTS       : ',2F10.3 )
+  614 FORMAT(' HALF WIDTH (KM) OF INTERLAYER CORRELATION  : ',ES10.4,/,&
+             ' MIN, MAX ALTITUDES [KM] FOR ILC            : ',2F10.3 )
 
-  615 FORMAT(' HALF WIDTH HALF HEIGHT (KM) OF EXPONENTIAL INTERLAYER CORRELATION : ',ES11.4,/,&
-             ' MINIMUM, MAXIMUM ALTITUDE (KM) FOR OFF-DIAGONAL ELEMENTS          : ',2F10.3 )
-
-  617 FORMAT( " READING IN",I3," x",I3," COVARIANCE MATRIX FROM FILE : ", A )
-  618 FORMAT( " READING IN",I3," x",I3," INVERSE COVARIANCE MATRIX FROM FILE : ", A )
-  619 FORMAT( " ILOGRETRIEVAL FLAG : ", I2)
+  617 FORMAT( " CORRELATION TYPE :             ", I2, "          : READ IN",I3," x",I3," COVARIANCE MATRIX FROM FILE : ", A )
+  618 FORMAT( " CORRELATION TYPE :             ", I2, "          : READ IN",I3," x",I3," INVERSE COVARIANCE MATRIX FROM FILE : ", A )
+  619 FORMAT( " ILOGRETRIEVAL FLAG                         : ", I10)
   620 FORMAT(/,' HALF WIDTH OF INTEGRATION INTERVAL(CM-1)   : ', F10.7 )
+  621 FORMAT( " CORRELATION TYPE :             ", I2, "          : NO INTERLAYER CORRELATION" )
+  622 FORMAT( " CORRELATION TYPE :             ", I2, "          : GAUSSIAN INTERLAYER CORRELATION" )
+  623 FORMAT( " CORRELATION TYPE :             ", I2, "          : EXPONENTIAL INTERLAYER CORRELATION" )
+  624 FORMAT( " CORRELATION FLAG                           : ", L10 )
+  625 FORMAT( " CORRELATION TYPE :             ", I2, "          : CREATING L1 REGULARIZATION MATRIX WITH LAMBDA : ", ES10.2  )
  ! 622 FORMAT(  ' LINESHAPE MODEL                          : ', I5, /, &
  !              ' 1-VOIGT, 2-GALATRY, 0-GALATRY IF B0 EXISTS' )
-  650 FORMAT(/ ' MAXIMUM NUMBER OF ITERATIONS               : ', I5)
+  630 FORMAT(/,'NO GASES BEING RETRIEVED.')
+ ! 631 FORMAT(/,'NUMBER OF GASES BEING RETRIEVED EXCEEDS NRMAX PARAMETER...ABORT')
+  650 FORMAT(/,' MAXIMUM NUMBER OF ITERATIONS               : ', I10)
   651 FORMAT(' CONVERGENCE VARIABLE MUST BE GREATER THEN 0')
       RETURN
 
       END SUBROUTINE READCK1
 
 
-      SUBROUTINE READCK2( CPNAM )
+      SUBROUTINE READCK2( )
+      !SUBROUTINE READCK2( CPNAM )
 
-      CHARACTER(LEN=14), DIMENSION(5) :: CPNAM
+      !CHARACTER(LEN=14), DIMENSION(5) :: CPNAM
 
 ! --- TEMPERATURE RETRIEVAL
       WRITE(16,120) IFTEMP
@@ -243,7 +307,31 @@
       IF( .NOT. F_EAPOD ) IEAP = 0
       IF( .NOT. F_EPHASE ) IEPHS = 0
       WRITE(16, 101)
-      WRITE(16, 102) IFCO, FPS, F_EAPOD, IEAP, NEAP, F_EPHASE, IEPHS, NEPHS, IEMISSION
+      WRITE(16, 102) IFCO, FPS, USE_TIPS, F_EAPOD, IEAP, NEAP, F_EPHASE, IEPHS, NEPHS, IEMISSION, LSHAPEMODEL
+
+      WRITE(16,*)''
+      WRITE(16,*) ' LINE SHAPE MODEL:'
+      SELECT CASE ( LSHAPEMODEL )  ! USER CHOICE OF LINE SHAPE MODEL
+         CASE (0)
+            WRITE (16,*) '  0 = DEPRECIATED AND REMOVED'
+            WRITE (00,*) '  LSHAPE MODEL 0 = DEPRECIATED AND REMOVED'
+            WRITE (00,*) '  CHOOSE MODEL 0,1,2 or 3'
+            CALL SHUTDOWN
+            STOP '2'
+         CASE (1)
+            WRITE (16,*) '  1 = FORCE VOIGT FOR ALL LINES'
+         CASE (2)
+            WRITE (16,*) '  2 = USE GALATRY FOR LINES WITH PARAMETERS, VOIGT ELSE'
+         CASE (3)
+            WRITE (16,*) '  3 = VOIGT + LINE MIXING FOR LINES WITH PARAMETERS'
+         CASE (4)
+            WRITE (16,*) '  4 = USE PCQSDHC (Tran2013)'
+         CASE DEFAULT
+            WRITE(16,*)' LINE SHAPE MODEL FLAG OUT OF RANGE MUST BE 1, 2, 3)'
+            WRITE(00,*)' LINE SHAPE MODEL FLAG OUT OF RANGE MUST BE 1, 2, 3)'
+            CALL SHUTDOWN
+            STOP '2'
+      END SELECT
 
       IF( IEMISSION /= 0 )THEN
          WRITE(16,103)
@@ -251,6 +339,27 @@
       END IF
 
 ! --- RETRIEVAL SWITCHES
+! --- COMPATABILITY FOR PHASE RETRIEVAL and KB SETTINGS
+        IF (IFPHASE .AND. ( F_RTPHASE .OR. (F_KB .AND. F_KB_EPHS ))) THEN
+           WRITE(*,*) 'RT.PHASE = T. THE EMPIRICAL PHASE FUNCTION IS RETRIEVED OR ENABLED IN THE KB SECTION. SWITCH OFF THE PHASE OR THE EMPIRICAL PHASE'
+           WRITE(16,*) 'RT.PHASE = T. THE EMPIRICAL PHASE FUNCTION IS RETRIEVED OR ENABLED IN THE KB SECTION. SWITCH OFF THE PHASE OR THE EMPIRICAL PHASE'
+           CALL SHUTDOWN()
+           STOP 1
+        END IF
+        IF ((.NOT. IFPHASE) .AND. (F_KB .AND. F_KB_PHASE .AND. F_KB_EPHS )) THEN
+           WRITE(*,*) 'KB.PHASE = T AND KB.PHASE_FCN = T. SWITCH OFF ONE OF BOTH.'
+           WRITE(16,*) 'KB.PHASE = T AND KB.PHASE_FCN = T. SWITCH OFF ONE OF BOTH.'
+           CALL SHUTDOWN()
+           STOP 1
+        END IF
+        IF (F_RTPHASE .AND. F_KB .AND. F_KB_PHASE ) THEN
+        !   F_KB_PHASE = .FALSE.
+        !   F_KB_EPHS = .TRUE.
+           WRITE(*,*) 'RT.PHASE_FCN = T. THE EMPIRICAL PHASE FUNCTION IS RETRIEVED AND KB.PHASE IS ENABLED IN THE KB SECTION. SWITCH OFF THE KB.PHASE SETTING'
+           WRITE(16,*) 'RT.PHASE_FCN = T. THE EMPIRICAL PHASE FUNCTION IS RETRIEVED AND KB.PHASE IS ENABLED IN THE KB SECTION. SWITCH OFF THE KB.PHASE SETTING'
+           CALL SHUTDOWN()
+           STOP 1
+        END IF
 ! --- DEFEAT ISPARM IF F_WSHIFT IS NOT SET
       IF( .NOT. F_WSHIFT ) ISPARM = 0
       WRITE (16, 105)
@@ -260,26 +369,13 @@
 ! --- INITIAL SCALES AND VARIANCES FOR FITTED PARAMETERS
       WRITE (16, 109)
       WRITE (16, 110) WSHFT, SWSHFT, BCKSL, SBCKSL, BCKCRV, SBCKCRV, CIPARM(4), &
-                        SCPARM(4), PHS, SPHS, SZERO(1), EAPPAR, SEAPPAR, EPHSPAR, SEPHSPAR
+                      SCPARM(4), PHS, SPHS, SZERO(1), EAPPAR, SEAPPAR, EPHSPAR, SEPHSPAR
 
       IF( F_LM )THEN
          WRITE(16,107)
          WRITE(16,108) GAMMA_START, GAMMA_DEC, GAMMA_INC, CONVERGENCE
       END IF
 
-! --- SOLAR SPECTRUM PARAMETERS
-      IF( IFCO )THEN
-! --- DEFINE NAMES OF SOLAR PARAMETERS
-         CPNAM(1) = 'Sol - n/a'
-         CPNAM(2) = 'Sol - n/a'
-         CPNAM(3) = 'Sol - n/a'
-         CPNAM(4) = 'SolLnShft'
-         CPNAM(5) = 'SolLnStrn'
-! --- ADD ONE TO WAVENUMBER SHIFT PARAMETER TO AVOID THE CASE OF ZERO
-! --- INITIAL SHIFT
-!         CIPARM(:) = CIPARM(:) + 1.D0
-!         CPARM(:)  = CIPARM(:)
-      ENDIF
 
 ! --- PRINT OUT GAS FILES
       IF( F_WRTGASSPC )THEN
@@ -290,7 +386,9 @@
             WRITE(16,130) ' WRITE OUT GAS FILES FOR ALL ITERATIONS'
          CASE DEFAULT
             WRITE(16,130) ' PARAMETER OUTPUT.WRT_GASFILES.TYPE OUT OF RANGE (1 || 2 ONLY)'
-            STOP ' PARAMETER OUTPUT.WRITE_GASFILES.TYPE OUT OF RANGE (1 || 2 ONLY)'
+            WRITE(16,130) ' PARAMETER OUTPUT.WRT_GASFILES.TYPE OUT OF RANGE (1 || 2 ONLY)'
+            CALL SHUTDOWN
+            STOP '2'
          END SELECT
       ENDIF
 
@@ -299,20 +397,22 @@
  101  FORMAT(/,' FORWARD MODEL SWITCHES:')
  102  FORMAT( '  INCLUDE SOLAR LINES                       : ', L5, /, &
               '  INCLUDE PRESSURE SHIFT                    : ', L5, /, &
+              '  USE TIPS IF APPLICABLE                    : ', L5, /, &
               '  EFFECTIVE MODULATION FUNCTION TYPE        : ', L5, I5, '   # TERMS : ', I5, /, &
               '  EFFECTIVE PHASE FUNCTION TYPE             : ', L5, I5, '   # TERMS : ', I5, /, &
-              '  COMPUTE EMISSION COMPONENT                : ', I5 )
+              '  COMPUTE EMISSION COMPONENT                : ', I5, /, &
+              '  LINE SHAPE MODEL INDEX                    : ', I5 )
 
  103  FORMAT(/,' EMISSION PARAMETERS:')
- 104  FORMAT( '  BACKGROUND TEMPERATURE                    : ', F12.4, / &
-              '  SUN REFLECTED BY                          : ', A5, /, &
-              '  NORMALIZATION                             : ', L5)
+ 104  FORMAT( '  BACKGROUND TEMPERATURE                    : ', F10.4, / &
+              '  SUN REFLECTED BY                          : ', A10, /, &
+              '  NORMALIZATION                             : ', L10)
 
 
  105  FORMAT(/,' RETRIEVAL SWITCHES: ')
  106  FORMAT( '  FIT SOLAR SHIFT                           : ', L5, /, &
-              '  FIT WAVENUMBER SHIFT                      : ', L5, '   TYPE       : ', I5, /, &
-              '  FIT BACKGROUND                            : ', L5, '   TYPE       : ', I5, /, &
+              '  FIT WAVENUMBER SHIFT                      : ', L5, '          TYPE : ', I5, /, &
+              '  FIT BACKGROUND                            : ', L5, '          TYPE : ', I5, /, &
               '  FIT DIFFERENT SHIFT BY GAS                : ', L5, /, &
               '  FIT SIMPLE PHASE CORRECTION               : ', L5, /, &
               '  FIT MODULATION FUNCTION                   : ', L5, /, &
@@ -340,7 +440,7 @@
 ! 111  FORMAT(/' INITIAL SOLAR WAVENUMBER SHIFT            : ', F12.7)
 ! 112  FORMAT( ' FIT SOLAR SHIFT FLAG                      : ', L5)
 
- 120  FORMAT(/,' TEMPERATURE RETRIEVAL SWITCH               : ', L5)
+ 120  FORMAT(/,' TEMPERATURE RETRIEVAL SWITCH               : ', L10)
  121  FORMAT( ' TEMPERATURE RELATIVE UNCERTAINTIES         :')
  130  FORMAT(/,A)
  612  FORMAT(6F12.4)
@@ -363,17 +463,25 @@
       DO I = 1, NBAND
 
 ! --- CONVERT FOV DIAMETER FROM MILLIRADIANS TO SOLID ANGLE SAVE FOVDIA FOR SOLAR
+! --- OMEGA = APT DIAMETER / COLLIMATOR FOCAL LENGTH (416MM IN A BRUKER 120/5HR)
          FOVDIA(I) = OMEGA(I)
          OMEGA(I) = 2.0D0*PI*(1.D0 - COS(1.D-03*OMEGA(I)/2.D0))
 
-         IF( WAVE3(I) .GE. WAVE4(I) )STOP 'SFIT4.CTRL: BANDPASS LIMITS OUT OF ORDER'
+         IF( WAVE3(I) .GE. WAVE4(I) )THEN
+            WRITE(16,*) 'SFIT4.CTRL: BANDPASS LIMITS OUT OF ORDER'
+            WRITE(00,*) 'SFIT4.CTRL: BANDPASS LIMITS OUT OF ORDER'
+            CALL SHUTDOWN
+            STOP '2'
+         ENDIF
+
          WRITE (16, 101) I
-         WRITE (16, 102) WAVE3(I), WAVE4(I), ZSHIFT(I,1), IZERO(I), NRETB(I)
+         WRITE (16, 102) WAVE3(I), WAVE4(I), F_ZSHIFT(I), IZERO(I), ZSHIFT(I,1), NRETB(I)
          WRITE (16, 113) OMEGA(I), FOVDIA(I)
 
 ! --- CHECK F_ZSHIFT SWITCH AND DEFEAT IZERO IF NECESSARY
-         IF( .NOT. F_ZSHIFT(I) ) IZERO(I) = 0
-         IF( F_ZSHIFT(I) .AND. IZERO(I) .EQ. 1 ) NKZERO = I
+         !IF( .NOT. F_ZSHIFT(I) ) IZERO(I) = 0
+         ! F_ZERO IS TRUE IF ANY BAND IS FITTING ZERO SHIFT
+         !IF( F_ZSHIFT(I) .AND. IZERO(I) .EQ. 1 ) F_ZERO = .TRUE.
 
 ! --- CHECK GASES TO RETRIEVE IN BAND
          K = NRETB(I)
@@ -388,11 +496,13 @@
                WRITE (16, 104) GASB(I,J)
             ENDIF
             DO N = 1, NRET
-               !print *, i, j, n, k, gasb(i,j)
+               !print *, i, j, n, k, '  -', gasb(i,j), IGAS(N), '   +', NAME(IGAS(N))
                IF (GASB(I,J) == NAME(IGAS(N))) GO TO 43
             END DO
             WRITE (16, 105) TRIM(GASB(I,J)), WAVE3(I), WAVE4(I)
-            STOP
+            WRITE (*, 105) TRIM(GASB(I,J)), WAVE3(I), WAVE4(I)
+            STOP 2 ! IF list is not in the retrieval list, stop
+            goto 50
    43       CONTINUE
             IGASB(I,J) = IGAS(N)
             NGASB(I,J) = N
@@ -401,6 +511,9 @@
          END DO
          WRITE(16, *)''
 
+! work in progress no vmr or temp retrieval jwh
+
+ 50      continue
 ! --- SWITCH OFF TRETB IN THIS BAND IF IFTEMP IS OFF
          IF( .NOT. IFTEMP ) TRETB(I) = .FALSE.
 
@@ -408,12 +521,15 @@
  44      IF( TRETB(I) )THEN
             WRITE(16,110)
             TBCK = 1
+            NGIDX(NRET+1,0,I)=1
          ENDIF
 
 ! --- CHECK RETRIEVING ANYTHING IN THIS BAND
          IF(( .NOT. TRETB(I) ) .AND. ( K .EQ. 0 ))THEN
             WRITE(16,*) ' NOT RETRIEVING ANY QUANTITY IN THIS BAND'
-            STOP
+            WRITE(00,*) ' NOT RETRIEVING ANY QUANTITY IN THIS BAND'
+            CALL SHUTDOWN
+            STOP '2'
          ENDIF
 
 ! --- CHANNEL PARAMETERS IF EXISTS
@@ -431,20 +547,26 @@
       END DO
 
       IF( TBCK .EQ. 0 .AND. IFTEMP )THEN
-         STOP ' IFTEMP SET BUT NOT IN A BAND'
+         WRITE(16,*) ' IFTEMP SET BUT NOT IN A BAND'
+         WRITE(00,*) ' IFTEMP SET BUT NOT IN A BAND'
+         CALL SHUTDOWN
+         STOP '2'
       ENDIF
 
       DO I = 2, NBAND
          IF (WAVE3(I) >= WAVE3(1)) CYCLE
          WRITE(16, *) 'MICRO-WINDOWS MUST BE IN ASCENDING WAVENUMBER ORDER'
-         STOP 'MICRO-WINDOWS NOT IN ASCENDING ORDER'
+         WRITE(00, *) 'MICRO-WINDOWS MUST BE IN ASCENDING WAVENUMBER ORDER'
+         CALL SHUTDOWN
+         STOP '2'
       END DO
 
       DO J = 1, NRET
          IF( .NOT. INBAND(J) )THEN
             WRITE(16,114) J, NAME(IGAS(J))
             WRITE(0 ,114) J, NAME(IGAS(J))
-            STOP
+            CALL SHUTDOWN
+            STOP '2'
          ENDIF
       ENDDO
 
@@ -457,7 +579,7 @@
 
  101  FORMAT(/,' BANDPASS           : ',I5)
  102  FORMAT(  ' WAVENUMBER RANGE                     : ', F12.6, ' - ', F12.6, /, &
-               ' ZERO LEVEL SHIFT AND SWITCH          : ', F12.6, ', ', I5, /, &
+               ' ZERO LEVEL FIT, TYPE, APRIORI        : ', L4, I5, F12.6, /, &
                ' NUMBER OF RETRIEVAL GASES            : ', I5)
 
 

@@ -1,6 +1,25 @@
+!-----------------------------------------------------------------------------
+!    Copyright (c) 2013-2014 NDACC/IRWG
+!    This file is part of sfit.
+!
+!    sfit is free software: you can redistribute it and/or modify
+!    it under the terms of the GNU General Public License as published by
+!    the Free Software Foundation, either version 3 of the License, or
+!    any later version.
+!
+!    sfit is distributed in the hope that it will be useful,
+!    but WITHOUT ANY WARRANTY; without even the implied warranty of
+!    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!    GNU General Public License for more details.
+!
+!    You should have received a copy of the GNU General Public License
+!    along with sfit.  If not, see <http://www.gnu.org/licenses/>
+!-----------------------------------------------------------------------------
+
       PROGRAM RDRV
 
       USE PARAMS
+      USE SFIT4
       USE DATAFILES
       USE BINPUT_4_0
 
@@ -9,6 +28,14 @@
       CHARACTER (LEN=10)   :: ZTIME='          ', ZONE='          '
       CHARACTER (LEN=8)    :: CDATE='        '
       REAL(8)              :: START_TIME=0.0, END_TIME=0.0
+
+      integer :: count
+      COUNT = COMMAND_ARGUMENT_COUNT()
+      IF( COUNT .NE. 0 ) THEN
+         PRINT *, TRIM(VERSION)
+         STOP 0
+      END IF
+
 
       CALL FILESETUP
 
@@ -31,14 +58,14 @@
 
       CALL READ_BINPUT('sfit4.ctl')
 
-      CALL SFIT4 ( )
+      CALL SFIT ( )
 
       CALL CPU_TIME (END_TIME)
-      WRITE(16,*)''
-      WRITE(16,*) 'RDRV: DONE. ELAPSED TIME = ', END_TIME - START_TIME
-      CLOSE(16)
+      WRITE (16, *)''
+      WRITE (16, 202) 'RDRV: DONE. ELAPSED TIME = ', END_TIME - START_TIME
+      CLOSE (16)
 
-      PRINT *, 'RDRV: DONE. ELAPSED TIME = ', END_TIME - START_TIME
+      WRITE (0, 202) 'RDRV: DONE. ELAPSED TIME = ', END_TIME - START_TIME
 
       STOP 0
 
@@ -47,7 +74,8 @@
       CLOSE(16)
       STOP 1
 
- 201  FORMAT(/,' DETAIL OUTPUT FILE OPEN ERROR-UNIT 16'/,' FILENAME: "',A,'"')
+ 201  FORMAT( /,' DETAIL OUTPUT FILE OPEN ERROR-UNIT 16'/,' FILENAME: "',A,'"')
+ 202  FORMAT( A, F10.2 )
 !   10 FORMAT(A)
 !   20 FORMAT(A7)
 

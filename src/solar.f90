@@ -1,3 +1,21 @@
+!-----------------------------------------------------------------------------
+!    Copyright (c) 2013-2014 NDACC/IRWG
+!    This file is part of sfit.
+!
+!    sfit is free software: you can redistribute it and/or modify
+!    it under the terms of the GNU General Public License as published by
+!    the Free Software Foundation, either version 3 of the License, or
+!    any later version.
+!
+!    sfit is distributed in the hope that it will be useful,
+!    but WITHOUT ANY WARRANTY; without even the implied warranty of
+!    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!    GNU General Public License for more details.
+!
+!    You should have received a copy of the GNU General Public License
+!    along with sfit.  If not, see <http://www.gnu.org/licenses/>
+!-----------------------------------------------------------------------------
+
 module solar
 
 ! Oct 2005
@@ -36,7 +54,7 @@ module solar
 !     6: Jet Propulsion Laboratory, Pasadena, CA, USA
 
 USE PARAMS
-USE DATAFILES
+!USE DATAFILES
 USE XSECTIONS
 USE WRITEOUT
 
@@ -91,10 +109,10 @@ subroutine solarfh( flag )
 !    the transmission spectra consecutivly in TCO.
 !  - added fit of shift parameter
 
-USE params
+!USE params
 USE transmis
 USE bandparam
-USE datafiles
+!USE datafiles
 
 implicit none
 
@@ -149,7 +167,8 @@ IF ( FLAG == 0 ) THEN
 ! --- SO WE ARE DISREGARDING THAT DIFFERENT SCANS( TIME ) ARE USING THE SAME SOLAR SPECTRUM
 ! --- AND TAKE AVERAGE UTC AND LOCATION OF SPECTRA FOR A BAND
 
-      DO J = 1, NSPEC ! SOLAR ZENITH ANGLES
+      KBAND = NSCAN(I)
+      DO J = 1, KBAND ! SOLAR ZENITH ANGLES
          WRITE(16,115) I, J, LOCS(I,J)%YYYY, LOCS(I,J)%MO, LOCS(I,J)%DD, LOCS(I,J)%HH, LOCS(I,J)%MI, &
                        LOCS(I,J)%SECS, LOCS(I,J)%NLAT, LOCS(I,J)%ELON
          JULD    = JULD + JULDAT( LOCS(I,J)%YYYY, LOCS(I,J)%MO, LOCS(I,J)%DD, LOCS(I,J)%HH, LOCS(I,J)%MI, LOCS(I,J)%SECS )
@@ -157,9 +176,9 @@ IF ( FLAG == 0 ) THEN
          LONGRAD = LONGRAD + LOCS(I,J)%ELON * PI /180.0D0
       ENDDO
 
-      JULD    = JULD / REAL(NSPEC,8)
-      LATRAD  = LATRAD / REAL(NSPEC,8)
-      LONGRAD = LONGRAD / REAL(NSPEC,8)
+      JULD    = JULD / REAL(KBAND,8)
+      LATRAD  = LATRAD / REAL(KBAND,8)
+      LONGRAD = LONGRAD / REAL(KBAND,8)
 
       DNUE(I)       = DN(I)                  ! MONOCHROMATIC POINT SPACING
       SEMIEXTFOV(I) = FOVDIA(I)/2000.        ! FOV HALF RADIUS IN RADIANS
@@ -188,7 +207,7 @@ IF ( FLAG == 0 ) THEN
          CALL LOOKATLINES( DNUE(IBAND), NLNFST(IBAND), NLNLST(IBAND) )
 
          NLNREAD(IBAND) = NLNLST(IBAND) - NLNFST(IBAND) + 1    ! LINE IN THIS BAND
-         WRITE(*, 107) IBAND,NLNREAD(IBAND)
+         WRITE(*, 108) IBAND,NLNREAD(IBAND)
          WRITE(16,107) IBAND,NLNREAD(IBAND)
          NCOLNS     = NCOLNS + NLNREAD(IBAND)                  ! SUM OF ALL SOLAR LINES
          MXLNPERBND = MAX( MXLNPERBND, NLNREAD(IBAND) )
@@ -288,7 +307,7 @@ RETURN
 105 FORMAT('   FOV IN RELATIVE TO SOLAR DIA.      : ', ES21.6 )
 106 FORMAT('   SOLAR AXIS INCLINATION [DEG.]      : ', ES21.6 )
 107 FORMAT('   BAND, # SOLAR LINES FOUND          : ', I4, I8 )
-
+108 FORMAT('   BAND, # SOLAR LINES FOUND                                  :', I3, I7 )
 115 FORMAT('   IBAND, ISPEC, OBSERVATION UTC/LOC  : ',2I4,2x,I4,'/',I2.2,'/',I2.2,2X,I2.2,':',I2.2,':',F04.1,F7.3,'N',F8.3,'W' )
 
 END SUBROUTINE SOLARFH

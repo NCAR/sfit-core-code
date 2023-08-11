@@ -1,3 +1,21 @@
+!-----------------------------------------------------------------------------
+!    Copyright (c) 2013-2014 NDACC/IRWG
+!    This file is part of sfit.
+!
+!    sfit is free software: you can redistribute it and/or modify
+!    it under the terms of the GNU General Public License as published by
+!    the Free Software Foundation, either version 3 of the License, or
+!    any later version.
+!
+!    sfit is distributed in the hope that it will be useful,
+!    but WITHOUT ANY WARRANTY; without even the implied warranty of
+!    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!    GNU General Public License for more details.
+!
+!    You should have received a copy of the GNU General Public License
+!    along with sfit.  If not, see <http://www.gnu.org/licenses/>
+!-----------------------------------------------------------------------------
+
       MODULE SYNSPEC
 
       USE PARAMS
@@ -31,6 +49,7 @@
 
       INTEGER, DIMENSION(MAXBND)      :: IENORM, IAP
       REAL(DOUBLE), DIMENSION(MMAX)   :: TOBS, TOBS_ORIG
+!      REAL(DOUBLE), DIMENSION(:), ALLOCATABLE   :: TOBS, TOBS_ORIG
       REAL(DOUBLE) :: RMS
 
       REAL(DOUBLE) :: C0, C1, C2, C4
@@ -53,7 +72,7 @@
       REAL(DOUBLE) :: WMEAN, DX, PHI0, X, AP, FACTOR, T2, T4, T6, T8
       !REAL(DOUBLE) , EXTERNAL :: EPHS, EAPDZ, APDZ
 
-!      REAL*4 TOBS
+!      REAL*4 TOSB
 
 !  --- RETRIEVE NORTON AND BEER APODIZING COEFFICIENTS
       IF (IAP(IBAND)>=0 .AND. IAP(IBAND)<4) THEN
@@ -79,8 +98,8 @@
       DO I = 1, NZ1
          !X = I/(MPT(IBAND)*DN(IBAND))
          X = REAL(I,KIND=8)*DX
-         !print*, i, nz1, x
          IF (IEPHS > 0) PHI = PHI0 + EPHS(X,DX,PMAX(IBAND))
+!print*, i, x, phi
          IMGG(I+1) = IMGG(I+1)*EXP(CMPLX(0.D0,(-PHI),KIND = 8))
          IMGG(MPT(IBAND)+1-I) = CONJG(IMGG(I+1))
       END DO
@@ -118,9 +137,12 @@
       ALLOCATE (IW(MFFT(IBAND)+1), STAT=NAERR)
 
       IF (NAERR /= 0) THEN
-          WRITE (6, *) 'COULD NOT ALLOCATE IW ARRAY'
-          WRITE (6, *) 'ERROR NUMBER = ', NAERR
-          STOP 'FSPECT2 ALLOCATION'
+          WRITE(16, *) 'FSPECT2: COULD NOT ALLOCATE IW ARRAY'
+          WRITE(16, *) 'ERROR NUMBER = ', NAERR
+          WRITE(00, *) 'FSPECT2: COULD NOT ALLOCATE IW ARRAY'
+          WRITE(00, *) 'ERROR NUMBER = ', NAERR
+          CALL SHUTDOWN
+          STOP 4
       ENDIF
 
 ! ---COMPLEX INVERSE TRANSFORM
@@ -155,9 +177,12 @@
 
       ALLOCATE (IW(MFFT(IBAND)+1), STAT=NAERR)
       IF (NAERR /= 0) THEN
-          WRITE (6, *) 'COULD NOT ALLOCATE IW ARRAY'
-          WRITE (6, *) 'ERROR NUMBER = ', NAERR
-          STOP 'FSPECT1 ALLOCATION'
+          WRITE(16, *) 'FSPECT1: COULD NOT ALLOCATE IW ARRAY'
+          WRITE(16, *) 'ERROR NUMBER = ', NAERR
+          WRITE(00, *) 'FSPECT1: COULD NOT ALLOCATE IW ARRAY'
+          WRITE(00, *) 'ERROR NUMBER = ', NAERR
+          CALL SHUTDOWN
+          STOP 4
       ENDIF
 
       LF        = LOWFIL(IBAND)
@@ -202,9 +227,11 @@
          CASE (1, 4)
    ! --- INTERPOLATE THE PHASE FUNCTION TO PATH DIFFERENCE X
             IF( X .LT. (EPHSX(1) - DX) .OR. X .GT. (EPHSX(JEPHS) + DX) )THEN
-                WRITE (16, *) 'PATH DIFFERENCE', X, ' IS OUT OF RANGE OF EPHSX'
                !PRINT *, X, EPHSX(1), DX, EPHSX(JEPHS)
-               STOP
+               WRITE (16, *) 'PATH DIFFERENCE', X, ' IS OUT OF RANGE OF EPHSX'
+               WRITE (00, *) 'PATH DIFFERENCE', X, ' IS OUT OF RANGE OF EPHSX'
+               CALL SHUTDOWN
+               STOP 4
             ENDIF
             IMAX = JEPHS
             DO I = 2, JEPHS
@@ -218,10 +245,10 @@
 
          CASE (2)
    ! --- EPHS IS A POLYNOMIAL WITH NEPHS TERMS
-            EPHS = 0.D0
-            DO I = 1, NEPHS
-               EPHS = EPHS + (EPHSF(I)-1.D0)*XP**I
-            END DO
+         EPHS = (EPHSF(1)-1.0D0)
+         DO I = 2, NEPHS + 1
+            EPHS = EPHS + (EPHSF(I)-1.D0)*XP**(I-1)
+         ENDDO
 
          CASE DEFAULT
             EPHS = 0.D0
@@ -245,14 +272,17 @@
       EAPDZ = 0.0D0
       XP = X/PMA
 
+
       IF( F_EAPOD )THEN
 
          SELECT CASE (IEAP)
          CASE (1, 4)
    ! --- INTERPOLATE THE APODIZATION FUNCTION TO PATH DIFFERENCE X
             IF (X<EAPX(1) - DX .OR. X>EAPX(JEAP)+DX) THEN
-               WRITE (16, *) 'PATH DIFFERENCE', X, ' IS OUT OF RANGE OF EAPX'
-               STOP
+               WRITE(16, *) 'PATH DIFFERENCE', X, ' IS OUT OF RANGE OF EAPX'
+               WRITE(00, *) 'PATH DIFFERENCE', X, ' IS OUT OF RANGE OF EAPX'
+               CALL SHUTDOWN
+               STOP 4
             ENDIF
             DO I = 2, JEAP
                IF (EAPX(I) <= X) CYCLE
@@ -278,8 +308,10 @@
             END DO
 
          CASE DEFAULT
-            WRITE (0, *) ' EAPDZ.F : ERROR IEAP OUT OF RANGE (1-4) : ', IEAP
-            STOP
+            WRITE(16, *) ' EAPDZ.F : ERROR IEAP OUT OF RANGE (1-4) : ', IEAP
+            WRITE(00, *) ' EAPDZ.F : ERROR IEAP OUT OF RANGE (1-4) : ', IEAP
+            CALL SHUTDOWN
+            STOP 4
          END SELECT
 
       ENDIF
@@ -408,9 +440,12 @@
       ENDIF
 
 !      YOU HAVE ASKED FOR NON-EXISTANT APODIZATION
-      WRITE (16, 11) IAP
+      WRITE(16, 11) IAP
+      WRITE(00, 11) IAP
+      CALL SHUTDOWN
+      STOP 4
+
    11 FORMAT(' NO SUCH APODIZING FUNCTION - IAP =',I4)
-      STOP 'APDZ'
 
       END FUNCTION APDZ
 

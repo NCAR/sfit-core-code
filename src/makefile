@@ -1,5 +1,8 @@
 # To remove all the objects but leave the executables use the
-# command line 	make -f makefile clean
+# %make -f makefile clean
+
+# To remove everything
+# %make cleaner
 
 # Note: object channel.o is added by WUJIAN PENG in July, 2002
 #       object planck.o added by M. Palm in 2008
@@ -8,50 +11,54 @@
 
 .SUFFIXES: .f .f90 .o .mod .F
 
-# Fixed source, if any:
-#.f.o:
-#	$(FC) -c $(FFLAGS) $<
-#
-#.F.o:
-#	$(FC) -c $(FFLAGS) $<
-
-#.f90.mod:
-#	$(FC) -c $(FFLAGS) $<
-
 # Free form source:
 .f90.o:
 	$(FC) -c $(FFLAGS) $<
 
-#%.mod %.o: %,f90
-#	$(FC) -c $(FFLAGS) $<
-
 FC = gfortran
-# error check
-FFLAGS = -O2 -Wall -g -Wsurprising -Warray-bounds -Wcharacter-truncation -Wunused-parameter \
-         -Waliasing -Wimplicit-interface -Wunderflow  -Wline-truncation -Wunused-parameter \
-         -fimplicit-none -fbounds-check -fbacktrace  -fcheck=all  -fwhole-file -std=gnu -pedantic \
-         -fall-intrinsics -ffpe-trap=invalid,zero,overflow,underflow
-# -fdump-core -Warray-temporaries
-#FFLAGS = -Wall -fno-automatic -mcmodel=medium -fbacktrace -fdump-core -fcheck=all -ffpe-trap=invalid,zero,overflow,underflow,precision -g
+# error check everything
+FFLAGS = -Warray-bounds -Wcharacter-truncation -Wunused-parameter \
+         -Wimplicit-interface -Wunderflow -Wconversion-extra \
+         -Wunused-dummy-argument -Wcompare-reals \
+         -fcheck=all -fimplicit-none -fwhole-file -fall-intrinsics -fno-automatic \
+         -fstack-arrays -frepack-arrays \
+         -std=gnu -pedantic \
+         -freal-4-real-8
+         -ffpe-trap=invalid,zero,overflow,underflow -g -fbacktrace -fsanitize=address
 
-# optomize
-FFLAGS = -Wall -O2 -fno-automatic -fbacktrace
+# -Warray-temporaries too many...
+
+#error check a lot
+FFLAGS = -Wall -fno-automatic -fcheck=all -ffpe-trap=invalid,zero,overflow,underflow -Warray-bounds \
+         -fbounds-check -fbacktrace -g -ffree-line-length-none
+
+# optimize -Ofast v4.8
+#FFLAGS = -Ofast -Wall -fno-automatic -frepack-arrays  -ffree-line-length-none
+#FFLAGS = -g -Wall -fno-automatic -frepack-arrays  -ffree-line-length-none # -Wno-unused-function -Wno-unused-variable -Wno-conversion
+
+#FFLAGS = -Ofast -Wall -fno-automatic -frepack-arrays  -ffree-line-length-none -mcmodel=small
+FFLAGS = -g -Wall -fno-automatic -frepack-arrays  -ffree-line-length-none 
 
 
 
 # supply compile date:
-#FFLAGS = -cpp -DBDATE="\"`date +%Y%m%d`"\" -O2 -fno-automatic
+# -cpp -DBDATE="\"`date +%Y%m%d`"\" -O2 -fno-automatic
+
+# intel
+#FC = ifort
+#FFLAGS = -fpe-all=0  -O0 -debug full
+#FFLAGS = -debug full
+
 
 # Portland compiler
 #FC = pgf90
 #FFLAGS = ${PGBUG} ${PGTRAP}
 #FFLAGS = -traceback -g -Kieee  ${PGTRAP} ${PGBUG}
+#PGTRAP = -Ktrap=divz -Ktrap=align -Ktrap=denorm  -Ktrap=inv -Ktrap=ovf -Ktrap=unf
+#PGBUG = -Mbounds -Mchkfpstk -Mchkptr -Mchkstk -Mpgicoff
+#PGOPT = -fast
 
-PGTRAP = -Ktrap=divz -Ktrap=align -Ktrap=denorm  -Ktrap=inv -Ktrap=ovf -Ktrap=unf
-PGBUG = -Mbounds -Mchkfpstk -Mchkptr -Mchkstk -Mpgicoff
-PGOPT = -fast
-
-# use intermnal matrix inversion (not lapack)
+# use internal matrix inversion (not lapack)
 # no eigenvector output
 # mac:
 #VLIB = -Wl,-framework -Wl,vecLib
@@ -72,9 +79,11 @@ datafiles.o \
 diagnostic.o \
 frwdmdl.o \
 galatry.o \
+hitran.o \
 initialize.o \
 isotope.o \
 lineparam.o \
+lineshape_pcqsdhc.o\
 matrix.o \
 molcparam.o \
 opt.o \
@@ -82,34 +91,48 @@ params.o \
 retvparam.o \
 raytrace.o\
 readin.o \
-sfit400.o \
+sfit4.o \
 solar.o \
 synspec.o \
-tips.o \
+tips_2017.o \
 transmis.o \
 vibfcn.o \
 voigt.o \
 voigt_sdv_lm.o \
 writeout.o \
-xsections.o
+andex.o \
+xsections.o \
+continuum.o \
+h2o_continuum.o
+
+
 
 #convert_old_data_files.o
 
 all : sfit4 hbin pspec # convert_rdrv_394
 
-sfit4: $(OBJS) rdrv40.o
+
+
+sfit4: $(OBJS) rdrv40.o mt-ckd-cont.o h2o_continuum.o
 	$(FC) -o $@ $^ $(FFLAGS) $(LIBS) $(VLIB)
 
 #convert_rdrv_394 : convert_rdrv_394.o $(OBJS) convert_old_data_files.o read_binput_394.o
 #	$(FC) -o $@ $^ $(FFLAGS) $(LIBS) $(VLIB)
 
-hbin: hbin.o $(OBJS)
+hbin: hbin.o hitran.o $(OBJS) mt-ckd-cont.o h2o_continuum.o
 	$(FC) -o $@ $^ $(FFLAGS) $(LIBS) $(VLIB)
 
-pspec: pspec.o spec.o $(OBJS)
+pspec: pspec.o spec.o fitting.o  $(OBJS) mt-ckd-cont.o h2o_continuum.o
 	$(FC) -o $@ $^ $(FFLAGS) $(LIBS) $(VLIB)
 
-#params.o binput_4_0.o binput_parse_4_0.o datafiles.o bandparam.o
+
+# They need extra lines because of the other arguments provided to gfortran
+mt-ckd-cont.o : mt-ckd-cont.f90 
+	$(FC) -c $^ $(FFLAGS) $(LIBS) $(VLIB) -fdefault-real-8 -fdefault-integer-8 -frecord-marker=4
+h2o_continuum.o : h2o_continuum.f90 
+	$(FC) -c $^ $(FFLAGS) $(LIBS) $(VLIB) -fdefault-real-8 -fdefault-integer-8 -frecord-marker=4
+
+
 
 clean:
 	\rm -f *.o *.mod *.lst
@@ -134,19 +157,24 @@ bandparam.o \
 : params.o
 
 binput_4_0 \
-: params.o  binput_parse_4_0.o retvparam.o bandparam.o lineparam.o solar.o channel.o initialize.o opt.o writeout.o
+: params.o binput_parse_4_0.o retvparam.o bandparam.o lineparam.o solar.o channel.o initialize.o opt.o writeout.o binput_parse_4_0.o hitran.o
 
 binput_parse_4_0.o \
-: params.o retvparam.o frwdmdl.o bandparam.o lineparam.o solar.o channel.o initialize.o opt.o datafiles.o isotope.o writeout.o
+: params.o retvparam.o frwdmdl.o bandparam.o lineparam.o solar.o channel.o initialize.o opt.o datafiles.o isotope.o writeout.o continuum.o hitran.o
 
 channel.o \
-: params.o writeout.o synspec.o
+: params.o writeout.o synspec.o datafiles.o
 
 convert_old_data_files.o \
 : params.o bandparam.o retvparam.o
 
 convert_rdrv_394.o \
 : datafiles.o params.o binput_4_0.o convert_old_data_files.o
+
+
+continuum.o\
+: params.o xsections.o retvparam.o
+
 
 datafiles.o \
 : params.o
@@ -155,7 +183,8 @@ diagnostic.o \
 : opt.o retvparam.o
 
 frwdmdl.o \
-: params.o transmis.o datafiles.o molcparam.o solar.o synspec.o channel.o bandparam.o retvparam.o writeout.o initialize.o
+: params.o transmis.o datafiles.o molcparam.o solar.o synspec.o channel.o bandparam.o retvparam.o \
+	writeout.o initialize.o continuum.o
 
 galatry.o \
 : params.o
@@ -164,7 +193,7 @@ hbin.o \
 : params.o datafiles.o bandparam.o lineparam.o isotope.o binput_4_0.o binput_parse_4_0.o
 
 initialize.o \
-: params.o retvparam.o transmis.o molcparam.o xsections.o datafiles.o synspec.o lineparam.o bandparam.o raytrace.o solar.o writeout.o channel.o
+: params.o retvparam.o transmis.o molcparam.o xsections.o datafiles.o synspec.o lineparam.o bandparam.o raytrace.o solar.o writeout.o channel.o continuum.o
 
 isotope.o \
 : params.o molcparam.o retvparam.o vibfcn.o datafiles.o
@@ -182,16 +211,19 @@ opt.o \
 : params.o datafiles.o frwdmdl.o synspec.o matrix.o writeout.o bandparam.o
 
 pspec.o \
-: spec.o params.o datafiles.o bandparam.o lineparam.o isotope.o binput_4_0.o binput_parse_4_0.o
+: spec.o params.o datafiles.o bandparam.o lineparam.o isotope.o binput_4_0.o binput_parse_4_0.o fitting.o
+
+spec.o \
+: fitting.o
 
 raytrace.o \
-: params.o molcparam.o datafiles.o retvparam.o isotope.o writeout.o
+: params.o molcparam.o datafiles.o retvparam.o isotope.o writeout.o andex.o
 
 rdrv.o \
 : params.o datafiles.o binput_4_0.o
 
 read_binput_394.o \
-: params.o binput_parse_4_0.o retvparam.o bandparam.o lineparam.o solar.o channel.o initialize.o opt.o writeout.o
+: params.o binput_parse_4_0.o retvparam.o bandparam.o lineparam.o solar.o channel.o initialize.o opt.o writeout.o hbin.o
 
 readin.o \
 : params.o retvparam.o transmis.o molcparam.o xsections.o datafiles.o synspec.o lineparam.o solar.o bandparam.o initialize.o opt.o channel.o
@@ -209,11 +241,16 @@ solar.o \
 synspec.o \
 : params.o transmis.o solar.o bandparam.o
 
-tips.o \
+tips_2017.o \
 : params.o
 
+h2o_continuum.o \
+:mt-ckd-cont.o
+
+
 transmis.o \
-: params.o bandparam.o retvparam.o vibfcn.o xsections.o molcparam.o lineparam.o
+: params.o bandparam.o retvparam.o vibfcn.o xsections.o molcparam.o lineparam.o\
+continuum.o h2o_continuum.o
 
 vibfcn.o \
 : params.o retvparam.o molcparam.o #writeout.o
@@ -228,4 +265,4 @@ writeout.o \
 : params.o datafiles.o retvparam.o molcparam.o isotope.o bandparam.o
 
 xsections.o \
-: params.o retvparam.o vibfcn.o tips.o isotope.o lineparam.o bandparam.o molcparam.o voigt_sdv_lm.o
+: params.o retvparam.o vibfcn.o tips_2017.o isotope.o lineparam.o bandparam.o molcparam.o voigt_sdv_lm.o lineshape_pcqsdhc.o h2o_continuum.o
